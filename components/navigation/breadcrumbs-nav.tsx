@@ -1,0 +1,94 @@
+"use client"
+
+import { usePathname } from "next/navigation"
+import Link from "next/link"
+import { ChevronRight, Home } from "lucide-react"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+
+const routeNames: Record<string, string> = {
+  dashboard: "Dashboard",
+  cadastros: "Cadastros",
+  pessoas: "Pessoas",
+  operadora: "Operadoras",
+  administradora: "Administradoras",
+  estipulante: "Estipulantes",
+  corretor: "Corretores",
+  agenciador: "Agenciadores",
+  planos: "Planos",
+  produtos: "Produtos",
+  propostas: "Propostas",
+  nova: "Nova Proposta",
+  lista: "Lista de Propostas",
+  pendentes: "Propostas Pendentes",
+  analise: "Análise de Propostas",
+  aprovadas: "Propostas Aprovadas",
+  aprovacao: "Aprovação de Propostas",
+  relatorios: "Relatórios",
+  beneficiarios: "Beneficiários",
+  consulta: "Consulta",
+  inclusao: "Inclusão",
+  alteracao: "Alteração",
+  exclusao: "Exclusão",
+  carteirinhas: "Carteirinhas",
+  contratos: "Contratos",
+  cobranca: "Cobrança",
+  financeiro: "Financeiro",
+  contabil: "Contábil",
+  sistemas: "Sistemas",
+  configuracoes: "Configurações",
+}
+
+export function BreadcrumbsNav() {
+  const pathname = usePathname()
+
+  const segments = pathname.split("/").filter(Boolean)
+
+  if (segments.length === 0 || segments[0] !== "dashboard") {
+    return null
+  }
+
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link href="/dashboard" className="flex items-center gap-1">
+              <Home className="h-4 w-4" />
+              <span className="sr-only">Dashboard</span>
+            </Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        {segments.slice(1).map((segment, index) => {
+          const href = `/dashboard/${segments.slice(1, index + 2).join("/")}`
+          const isLast = index === segments.length - 2
+          const name = routeNames[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
+
+          return (
+            <div key={segment} className="flex items-center gap-1.5">
+              <BreadcrumbSeparator>
+                <ChevronRight className="h-4 w-4" />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                {isLast ? (
+                  <BreadcrumbPage>{name}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild>
+                    <Link href={href}>{name}</Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </div>
+          )
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
+}

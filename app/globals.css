@@ -1,82 +1,107 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Nova paleta de cores suaves baseada na imagem fornecida */
+  /* Cores principais inspiradas na imagem: turquesa suave, cinzas neutros, coral suave */
+  --background: #f8fafb; /* Cinza muito claro como na imagem */
+  --foreground: #475569; /* Cinza escuro suave para texto */
+  --card: #ffffff;
+  --card-foreground: #334155;
+  --popover: #ffffff;
+  --popover-foreground: #334155;
+  --primary: #22d3ee; /* Turquesa/ciano suave da imagem */
+  --primary-foreground: #0f172a;
+  --secondary: #67e8f9; /* Turquesa mais claro */
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9; /* Cinza neutro suave */
+  --muted-foreground: #64748b;
+  --accent: #06b6d4; /* Ciano médio para acentos */
+  --accent-foreground: #ffffff;
+  --destructive: #f87171; /* Coral suave em vez de vermelho forte */
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0; /* Borda cinza suave */
+  --input: #ffffff;
+  --ring: rgba(34, 211, 238, 0.2); /* Ring turquesa suave */
+  --chart-1: #22d3ee; /* Turquesa principal */
+  --chart-2: #67e8f9; /* Turquesa claro */
+  --chart-3: #06b6d4; /* Ciano */
+  --chart-4: #a7f3d0; /* Verde suave */
+  --chart-5: #f87171; /* Coral suave */
+  --radius: 0.75rem;
+  --sidebar: #f8fafb; /* Mesmo tom do background */
+  --sidebar-foreground: #475569;
+  --sidebar-primary: #f1f5f9;
+  --sidebar-primary-foreground: #334155;
+  --sidebar-accent: #22d3ee; /* Turquesa para acentos do sidebar */
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: rgba(34, 211, 238, 0.2);
+
+  /* Cores semânticas atualizadas com a nova paleta suave */
+  --success: #22d3ee; /* Turquesa para sucesso */
+  --success-foreground: #0f172a;
+  --warning: #fbbf24; /* Amarelo suave */
+  --warning-foreground: #0f172a;
+  --info: #67e8f9; /* Turquesa claro para info */
+  --info-foreground: #0f172a;
+  --health-primary: #22d3ee; /* Turquesa principal */
+  --health-secondary: #67e8f9; /* Turquesa secundário */
+  --health-neutral: #64748b; /* Cinza neutro */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Modo escuro adaptado para a nova paleta suave */
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+  --primary: #67e8f9; /* Turquesa mais claro no modo escuro */
+  --primary-foreground: #0f172a;
+  --secondary: #22d3ee;
+  --secondary-foreground: #0f172a;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
+  --accent: #06b6d4;
+  --accent-foreground: #f1f5f9;
+  --destructive: #f87171; /* Coral suave mantido */
+  --destructive-foreground: #f1f5f9;
+  --border: #334155;
+  --input: #1e293b;
+  --ring: rgba(103, 232, 249, 0.3);
+  --chart-1: #67e8f9;
+  --chart-2: #22d3ee;
+  --chart-3: #06b6d4;
+  --chart-4: #a7f3d0;
+  --chart-5: #f87171;
+  --sidebar: #1e293b;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #334155;
+  --sidebar-primary-foreground: #f1f5f9;
+  --sidebar-accent: #67e8f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #334155;
+  --sidebar-ring: rgba(103, 232, 249, 0.3);
+
+  --success: #67e8f9;
+  --success-foreground: #0f172a;
+  --warning: #fbbf24;
+  --warning-foreground: #0f172a;
+  --info: #22d3ee;
+  --info-foreground: #0f172a;
+  --health-primary: #67e8f9;
+  --health-secondary: #22d3ee;
+  --health-neutral: #94a3b8;
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  /* Updated font variables for better typography hierarchy */
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -113,6 +138,17 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Added new semantic color tokens */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-health-primary: var(--health-primary);
+  --color-health-secondary: var(--health-secondary);
+  --color-health-neutral: var(--health-neutral);
 }
 
 @layer base {
@@ -120,6 +156,166 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans leading-relaxed antialiased;
+  }
+
+  /* Enhanced accessibility utilities */
+  /* Focus visible for keyboard navigation */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Reduced motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    * {
+      @apply border-2;
+    }
+  }
+
+  /* Improved touch targets for mobile */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Enhanced typography with better healthcare-focused hierarchy */
+  h1 {
+    @apply text-3xl font-bold tracking-tight text-balance text-foreground;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold tracking-tight text-balance text-foreground;
+  }
+
+  h3 {
+    @apply text-xl font-semibold text-balance text-foreground;
+  }
+
+  h4 {
+    @apply text-lg font-medium text-balance text-foreground;
+  }
+
+  /* Enhanced card styling with healthcare-focused shadows */
+  .card-enhanced {
+    @apply bg-card border border-border rounded-xl shadow-lg shadow-primary/8 transition-all duration-300 hover:shadow-xl hover:shadow-primary/12 hover:border-primary/30;
+  }
+
+  /* Enhanced table styling with better visual hierarchy */
+  .table-enhanced {
+    @apply border-separate border-spacing-0 rounded-xl overflow-hidden shadow-lg bg-card;
+  }
+
+  .table-enhanced th {
+    @apply bg-muted/50 font-semibold text-muted-foreground border-b border-border px-6 py-4 text-sm uppercase tracking-wide;
+  }
+
+  .table-enhanced td {
+    @apply border-b border-border px-6 py-4 transition-colors hover:bg-muted/30;
+  }
+
+  .table-enhanced tr:nth-child(even) td {
+    @apply bg-muted/10;
+  }
+
+  /* Responsive table for mobile */
+  @media (max-width: 768px) {
+    .table-responsive {
+      @apply block overflow-x-auto;
+    }
+
+    .table-responsive table {
+      @apply min-w-full;
+    }
+  }
+
+  /* Added utility classes for status indicators */
+  .status-success {
+    @apply bg-success/10 text-success border border-success/20 rounded-full px-3 py-1.5 text-sm font-medium shadow-sm;
+  }
+
+  .status-warning {
+    @apply bg-warning/10 text-warning border border-warning/20 rounded-full px-3 py-1.5 text-sm font-medium shadow-sm;
+  }
+
+  .status-error {
+    @apply bg-destructive/10 text-destructive border border-destructive/20 rounded-full px-3 py-1.5 text-sm font-medium shadow-sm;
+  }
+
+  .status-info {
+    @apply bg-info/10 text-info border border-info/20 rounded-full px-3 py-1.5 text-sm font-medium shadow-sm;
+  }
+
+  /* Enhanced focus states for better accessibility */
+  .focus-enhanced:focus {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Improved gradient backgrounds */
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary via-primary/95 to-accent;
+  }
+
+  .gradient-healthcare {
+    @apply bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5;
+  }
+
+  .gradient-card {
+    @apply bg-gradient-to-br from-card via-background to-muted/20;
+  }
+
+  /* Enhanced healthcare-specific utility classes */
+  .healthcare-card {
+    @apply bg-gradient-to-br from-card to-primary/5 border border-primary/10 rounded-xl shadow-lg shadow-primary/5 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10;
+  }
+
+  .healthcare-button {
+    @apply bg-gradient-to-r from-primary to-accent text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30;
+  }
+
+  .healthcare-input {
+    @apply bg-input border-2 border-border hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 rounded-lg px-4 py-3;
+  }
+
+  /* Responsive utilities */
+  .container-responsive {
+    @apply w-full mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row gap-4;
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      @apply hidden;
+    }
+
+    body {
+      @apply bg-white text-black;
+    }
+
+    .card-enhanced,
+    .healthcare-card {
+      @apply shadow-none border border-black;
+    }
   }
 }

@@ -1,0 +1,103 @@
+import type { NextRequest } from "next/server"
+import { query } from "@/lib/database"
+import { apiResponse, apiError } from "@/lib/api-response"
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const pessoa_id = searchParams.get("pessoa_id")
+    const id_administradora = searchParams.get("id_administradora")
+
+    let sql = "SELECT * FROM enderecos WHERE deleted_at IS NULL"
+    const params: any[] = []
+
+    if (pessoa_id) {
+      sql += " AND pessoa_id = ?"
+      params.push(pessoa_id)
+    }
+
+    if (id_administradora) {
+      sql += " AND id_administradora = ?"
+      params.push(id_administradora)
+    }
+
+    sql += " ORDER BY principal DESC, created_at DESC"
+
+    const enderecos = await query(sql, params)
+    return apiResponse(enderecos, "Endereços listados com sucesso")
+  } catch (error: any) {
+    console.error("[v0] Erro ao listar endereços:", error)
+    return apiError(error.message, 500)
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const {
+      id_administradora,
+      pessoa_id,
+      tipo_endereco,
+      principal = false,
+      cep,
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      estado,
+      pais = "Brasil",
+      observacoes,
+    } = body
+
+    if (
+      !id_administradora ||
+      !pessoa_id ||
+      !tipo_endereco ||
+      !cep ||
+      !logradouro ||
+      !numero ||
+      !bairro ||
+      !cidade ||
+      !estado
+    ) {
+      return apiError("Campos obrigatórios faltando", 400)
+    }
+
+    // Se for principal, remove principal dos outros endereços
+    if (principal) {
+      await query("UPDATE enderecos SET principal = FALSE WHERE pessoa_id = ? AND id_administradora = ?", [
+        pessoa_id,
+        id_administradora,
+      ])
+    }
+
+    const result = await query(
+      `INSERT INTO enderecos (
+        id_administradora, pessoa_id, tipo_endereco, principal, cep, logradouro, numero,
+        complemento, bairro, cidade, estado, pais, observacoes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id_administradora,
+        pessoa_id,
+        tipo_endereco,
+        principal,
+        cep,
+        logradouro,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
+        pais,
+        observacoes,
+      ],
+    )
+
+    const endereco = await query("SELECT * FROM enderecos WHERE id = ?", [result.insertId])
+    return apiResponse(endereco[0], "Endereço criado com sucesso", 201)
+  } catch (error: any) {
+    console.error("[v0] Erro ao criar endereço:", error)
+    return apiError(error.message, 500)
+  }
+}

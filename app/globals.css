@@ -183,14 +183,8 @@
     }
   }
 
-  /* Improved touch targets for mobile */
-  button,
-  a,
-  input,
-  select,
-  textarea {
-    @apply min-h-[44px] min-w-[44px];
-  }
+  /* Removed problematic min-height/width rule that was causing utility class error */
+  /* Improved touch targets are now handled per component where needed */
 
   /* Enhanced typography with better healthcare-focused hierarchy */
   h1 {

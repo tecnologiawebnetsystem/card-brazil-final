@@ -1,14 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
+import { sql } from "@/lib/database"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
 
-    const [rows] = await pool.execute<RowDataPacket[]>(`SELECT * FROM advogados WHERE id = ? AND deleted_at IS NULL`, [
-      id,
-    ])
+    const rows = await sql(`SELECT * FROM advogados WHERE id = $1 AND deleted_at IS NULL`, [id])
 
     if (rows.length === 0) {
       return NextResponse.json({ error: "Advogado não encontrado" }, { status: 404 })
@@ -16,7 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(rows[0])
   } catch (error: any) {
-    console.error("[v0] Erro ao buscar advogado:", error)
+    console.error("Erro ao buscar advogado:", error)
     return NextResponse.json({ error: "Erro ao buscar advogado", details: error.message }, { status: 500 })
   }
 }
@@ -28,20 +25,20 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     const keys = Object.keys(body)
     const values = Object.values(body)
-    const setClause = keys.map((key) => `${key} = ?`).join(", ")
+    const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ")
 
-    const [result] = await pool.execute<ResultSetHeader>(`UPDATE advogados SET ${setClause} WHERE id = ?`, [
-      ...values,
-      id,
-    ])
+    const rows = await sql(
+      `UPDATE advogados SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = $${keys.length + 1}`,
+      [...values, id],
+    )
 
-    if (result.affectedRows === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: "Advogado não encontrado" }, { status: 404 })
     }
 
     return NextResponse.json({ message: "Advogado atualizado com sucesso" })
   } catch (error: any) {
-    console.error("[v0] Erro ao atualizar advogado:", error)
+    console.error("Erro ao atualizar advogado:", error)
     return NextResponse.json({ error: "Erro ao atualizar advogado", details: error.message }, { status: 500 })
   }
 }
@@ -50,15 +47,15 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const id = params.id
 
-    const [result] = await pool.execute<ResultSetHeader>(`UPDATE advogados SET deleted_at = NOW() WHERE id = ?`, [id])
+    const rows = await sql(`UPDATE advogados SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1`, [id])
 
-    if (result.affectedRows === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: "Advogado não encontrado" }, { status: 404 })
     }
 
     return NextResponse.json({ message: "Advogado excluído com sucesso" })
   } catch (error: any) {
-    console.error("[v0] Erro ao excluir advogado:", error)
+    console.error("Erro ao excluir advogado:", error)
     return NextResponse.json({ error: "Erro ao excluir advogado", details: error.message }, { status: 500 })
   }
 }

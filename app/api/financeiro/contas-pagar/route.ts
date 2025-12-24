@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
+import { sql } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,43 +27,44 @@ export async function GET(request: NextRequest) {
       WHERE cp.deleted_at IS NULL
     `
     const params: any[] = []
+    let paramIndex = 1
 
     if (status) {
-      query += ` AND cp.status = ?`
+      query += ` AND cp.status = $${paramIndex++}`
       params.push(status)
     }
 
     if (categoria) {
-      query += ` AND cp.categoria = ?`
+      query += ` AND cp.categoria = $${paramIndex++}`
       params.push(categoria)
     }
 
     if (tipo_conta) {
-      query += ` AND cp.tipo_conta = ?`
+      query += ` AND cp.tipo_conta = $${paramIndex++}`
       params.push(tipo_conta)
     }
 
     if (fornecedor_id) {
-      query += ` AND cp.fornecedor_id = ?`
+      query += ` AND cp.fornecedor_id = $${paramIndex++}`
       params.push(fornecedor_id)
     }
 
     if (beneficiario_id) {
-      query += ` AND cp.beneficiario_id = ?`
+      query += ` AND cp.beneficiario_id = $${paramIndex++}`
       params.push(beneficiario_id)
     }
 
     if (data_inicio && data_fim) {
-      query += ` AND cp.data_vencimento BETWEEN ? AND ?`
+      query += ` AND cp.data_vencimento BETWEEN $${paramIndex++} AND $${paramIndex++}`
       params.push(data_inicio, data_fim)
     }
 
     query += ` ORDER BY cp.data_vencimento DESC, cp.created_at DESC`
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
+    const rows = await sql(query, params)
     return NextResponse.json(rows)
   } catch (error: any) {
-    console.error("[v0] Erro ao buscar contas a pagar:", error)
+    console.error("Erro ao buscar contas a pagar:", error)
     return NextResponse.json({ error: "Erro ao buscar contas a pagar", details: error.message }, { status: 500 })
   }
 }
@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Validações
     if (!body.numero_documento || !body.descricao || !body.categoria || !body.tipo_conta) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
@@ -86,13 +85,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Datas obrigatórias faltando" }, { status: 400 })
     }
 
-    // Calcular valor total
     const valor_multa = body.valor_multa || 0
     const valor_juros = body.valor_juros || 0
     const valor_desconto = body.valor_desconto || 0
     const valor_total = body.valor_original + valor_multa + valor_juros - valor_desconto
 
-    const [result] = await pool.execute<ResultSetHeader>(
+    const rows = await sql(
       `INSERT INTO contas_pagar (
         id_administradora, fornecedor_id, beneficiario_id, proposta_id,
         numero_documento, descricao, categoria, tipo_conta,
@@ -103,7 +101,8 @@ export async function POST(request: NextRequest) {
         favorecido_nome, favorecido_cpf_cnpj, favorecido_banco, favorecido_agencia, 
         favorecido_conta, favorecido_tipo_conta, favorecido_pix_chave,
         observacoes, motivo_restituicao, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31)
+      RETURNING id`,
       [
         body.id_administradora || 1,
         body.fornecedor_id || null,
@@ -139,9 +138,9 @@ export async function POST(request: NextRequest) {
       ],
     )
 
-    return NextResponse.json({ id: result.insertId, message: "Conta a pagar criada com sucesso" }, { status: 201 })
+    return NextResponse.json({ id: rows[0].id, message: "Conta a pagar criada com sucesso" }, { status: 201 })
   } catch (error: any) {
-    console.error("[v0] Erro ao criar conta a pagar:", error)
+    console.error("Erro ao criar conta a pagar:", error)
     return NextResponse.json({ error: "Erro ao criar conta a pagar", details: error.message }, { status: 500 })
   }
 }

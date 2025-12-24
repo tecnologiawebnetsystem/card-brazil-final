@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
 
 export async function GET(request: NextRequest) {
   try {
@@ -53,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     query += ` ORDER BY pj.data_distribuicao DESC`
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
+    const [rows] = await pool.execute(query, params)
     return NextResponse.json(rows)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar processos:", error)
@@ -75,7 +74,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
 
-    const [result] = await pool.execute<ResultSetHeader>(
+    const [result] = await pool.execute(
       `INSERT INTO processos_judiciais (
         id_administradora, beneficiario_id, advogado_id, tribunal_id, conta_receber_id,
         numero_processo, tipo_acao, valor_causa,

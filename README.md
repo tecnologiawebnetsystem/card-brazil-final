@@ -1,6 +1,6 @@
 # CardBrazil CRM - Sistema de Gestão de Saúde
 
-Sistema completo de gestão para operadoras de saúde, administradoras de benefícios e corretoras, desenvolvido com Next.js 15, React 19, TypeScript e MySQL.
+Sistema completo de gestão para operadoras de saúde, administradoras de benefícios e corretoras, desenvolvido com Next.js 15, React 19, TypeScript e Neon PostgreSQL.
 
 ## 🚀 Características Principais
 
@@ -90,8 +90,8 @@ Sistema completo de gestão para operadoras de saúde, administradoras de benef�
 
 ### Back-end
 - **Next.js API Routes** - Endpoints REST
-- **MySQL 8** - Banco de dados relacional
-- **mysql2** - Driver MySQL para Node.js
+- **Neon PostgreSQL** - Banco de dados serverless
+- **@neondatabase/serverless** - Driver PostgreSQL para Neon
 - **bcryptjs** - Hash de senhas
 - **jsonwebtoken** - Autenticação JWT
 
@@ -104,76 +104,45 @@ Sistema completo de gestão para operadoras de saúde, administradoras de benef�
 
 ### Pré-requisitos
 - Node.js 18+ 
-- MySQL 8+
+- Conta Neon (PostgreSQL serverless) - https://neon.tech
 - npm ou yarn
 
 ### Passo 1: Clonar o Repositório
-\`\`\`bash
+```bash
 git clone https://github.com/seu-usuario/cardbrazil-crm.git
 cd cardbrazil-crm
-\`\`\`
+```
 
 ### Passo 2: Instalar Dependências
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ### Passo 3: Configurar Banco de Dados
 
-1. Criar o banco de dados:
-\`\`\`sql
-CREATE DATABASE cardbrazil CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-\`\`\`
+1. Crie uma conta no Neon (https://neon.tech)
+2. Crie um novo projeto
+3. Copie a connection string fornecida
+4. As tabelas já foram criadas automaticamente via migrations do Neon
 
-2. Executar DDLs (em ordem):
-\`\`\`bash
-mysql -u root -p cardbrazil < banco-dados/DDL/00_administradoras.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/01_usuarios_autenticacao.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/02_pessoas_enderecos_bancarios.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/03_operadoras_estipulantes.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/04_corretores_agenciadores.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/05_planos_produtos.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/06_financeiro_auditoria.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/07_propostas.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/08_tabelas_gerais.sql
-mysql -u root -p cardbrazil < banco-dados/DDL/09_modulo_financeiro.sql
-\`\`\`
-
-3. Executar DMLs (dados de teste):
-\`\`\`bash
-mysql -u root -p cardbrazil < banco-dados/DML/01_administradora_inicial.sql
-mysql -u root -p cardbrazil < banco-dados/DML/02_roles_iniciais.sql
-mysql -u root -p cardbrazil < banco-dados/DML/03_usuarios_iniciais.sql
-mysql -u root -p cardbrazil < banco-dados/DML/04_pessoas_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/05_operadoras_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/06_estipulantes_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/07_corretores_agenciadores_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/08_produtos_planos_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/09_bancos_brasileiros.sql
-mysql -u root -p cardbrazil < banco-dados/DML/10_moedas_principais.sql
-mysql -u root -p cardbrazil < banco-dados/DML/11_feriados_nacionais.sql
-mysql -u root -p cardbrazil < banco-dados/DML/12_beneficiarios_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/13_contas_receber_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/14_contas_pagar_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/15_fluxo_caixa_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/16_cobranca_judicial_teste.sql
-mysql -u root -p cardbrazil < banco-dados/DML/17_multas_juros_teste.sql
-\`\`\`
+**Dados já inseridos no banco:**
+- Administradora CardBrazil (ID: 1)
+- Usuário admin (email: admin@cardbrazil.com.br, senha: admin123)
+- Pessoas de teste (João Silva, Maria Santos, Empresa Teste)
+- Operadora Unimed Saúde
+- 2 Planos (Ambulatorial e Hospitalar)
+- 3 Produtos com faixas etárias
 
 ### Passo 4: Configurar Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
 
-\`\`\`env
+```env
 # Ambiente (development, homologation, production)
 NODE_ENV=development
 
-# Database Development
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=sua_senha
-DB_NAME=cardbrazil
+# Database Neon PostgreSQL
+DATABASE_URL=postgresql://user:password@host.neon.tech/database?sslmode=require
 
 # JWT
 JWT_SECRET=sua_chave_secreta_super_segura
@@ -181,11 +150,11 @@ JWT_EXPIRES_IN=24h
 
 # API
 NEXT_PUBLIC_API_URL=http://localhost:3000
-\`\`\`
+```
 
 ### Passo 5: Executar o Projeto
 
-\`\`\`bash
+```bash
 # Desenvolvimento
 npm run dev
 
@@ -194,57 +163,33 @@ npm run build
 
 # Iniciar produção
 npm start
-\`\`\`
+```
 
 ### Passo 6: Acessar o Sistema
 
-\`\`\`
+```
 URL: http://localhost:3000
-Login: admin
+Email: admin@cardbrazil.com.br
 Senha: admin123
-\`\`\`
+```
 
 ## 👥 Usuários de Teste
 
-| Login | Senha | Perfil | Descrição |
-|-------|-------|--------|-----------|
-| admin | admin123 | Administrador | Acesso total ao sistema |
-| donizete | admin123 | Administrador | Acesso total ao sistema |
-| kleber | admin123 | Administrador | Acesso total ao sistema |
-| cad | cad123 | Cadastro | Acesso a cadastros |
-| prop | prop123 | Propostas | Acesso a propostas |
-
-## 📚 Documentação
-
-### Swagger API
-Acesse a documentação completa da API em:
-\`\`\`
-http://localhost:3000/api/swagger
-\`\`\`
-
-### Documentos Disponíveis
-- `ANALISE_COMPLETA_FINAL.md` - Análise completa do sistema
-- `BACKEND_SETUP.md` - Guia de configuração do back-end
-- `CONFIGURACAO_AMBIENTE.md` - Configuração de ambientes
-- `RELATORIO_INTEGRACAO.md` - Relatório de integração front-end/back-end
-- `REVISAO_BUILD.md` - Checklist de build
-- `ANALISE_DDL_DML_COMPLETA.md` - Análise de DDLs e DMLs
+| Email | Senha | Tipo | Descrição |
+|-------|-------|------|-----------|
+| admin@cardbrazil.com.br | admin123 | admin | Acesso total ao sistema |
 
 ## 🗄️ Estrutura do Banco de Dados
 
-### Tabelas Principais (39 tabelas)
-- **Administração**: administradoras, usuarios, perfis, roles, permissoes
+### Tabelas Criadas no Neon (13 tabelas principais)
+- **Administração**: administradoras, usuarios
 - **Pessoas**: pessoas, enderecos, dados_bancarios
-- **Operadoras**: operadoras, estipulantes, subestipulantes
+- **Operadoras**: operadoras, estipulantes
 - **Intermediários**: corretores, agenciadores
 - **Produtos**: planos, produtos, contratos, beneficiarios
-- **Propostas**: propostas
-- **Financeiro**: contas_receber, contas_pagar, fluxo_caixa, processos_judiciais, multas_juros
-- **Tabelas Gerais**: bancos, agencias, moedas, cotacoes, feriados
-- **Auditoria**: logs_autenticacao, logs_auditoria
 
 ### Multi-Tenant
-Todas as tabelas incluem `id_administradora` para isolamento de dados entre administradoras.
+Todas as tabelas incluem `administradora_id` para isolamento de dados entre administradoras.
 
 ## 🔒 Segurança
 
@@ -337,13 +282,13 @@ Todas as tabelas incluem `id_administradora` para isolamento de dados entre admi
 
 ## 🧪 Testes
 
-\`\`\`bash
+```bash
 # Executar testes (quando implementados)
 npm test
 
 # Cobertura de testes
 npm run test:coverage
-\`\`\`
+```
 
 ## 📈 Performance
 
@@ -357,15 +302,15 @@ npm run test:coverage
 ## 🌐 Deploy
 
 ### Vercel (Recomendado)
-\`\`\`bash
+```bash
 vercel deploy
-\`\`\`
+```
 
 ### Docker
-\`\`\`bash
+```bash
 docker build -t cardbrazil-crm .
 docker run -p 3000:3000 cardbrazil-crm
-\`\`\`
+```
 
 ## 🤝 Contribuindo
 
@@ -400,5 +345,5 @@ Para suporte, entre em contato:
 
 **Desenvolvido com ❤️ pela equipe CardBrazil**
 
-**Versão:** 2.0.0  
+**Versão:** 3.0.0 (Neon PostgreSQL)  
 **Última atualização:** Janeiro 2025

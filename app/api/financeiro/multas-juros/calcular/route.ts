@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,9 +10,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar conta a receber
-    const [contaRows] = await pool.execute<RowDataPacket[]>(`SELECT * FROM contas_receber WHERE id = ?`, [
-      body.conta_receber_id,
-    ])
+    const [contaRows] = await pool.execute(`SELECT * FROM contas_receber WHERE id = ?`, [body.conta_receber_id])
 
     if (contaRows.length === 0) {
       return NextResponse.json({ error: "Conta a receber não encontrada" }, { status: 404 })
@@ -33,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     configQuery += ` LIMIT 1`
 
-    const [configRows] = await pool.execute<RowDataPacket[]>(configQuery, configuracao_id ? [configuracao_id] : [])
+    const [configRows] = await pool.execute(configQuery, configuracao_id ? [configuracao_id] : [])
 
     if (configRows.length === 0) {
       return NextResponse.json({ error: "Configuração de multas e juros não encontrada" }, { status: 404 })
@@ -80,7 +77,7 @@ export async function POST(request: NextRequest) {
     const valor_total = conta.valor_original + valor_multa + valor_juros - (conta.valor_desconto || 0)
 
     // Salvar histórico
-    await pool.execute<ResultSetHeader>(
+    await pool.execute(
       `INSERT INTO historico_multas_juros (
         id_administradora, conta_receber_id, configuracao_id,
         dias_atraso, valor_original, valor_multa, valor_juros, valor_total,
@@ -105,7 +102,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Atualizar conta a receber
-    await pool.execute<ResultSetHeader>(
+    await pool.execute(
       `UPDATE contas_receber SET 
         valor_multa = ?, 
         valor_juros = ?, 

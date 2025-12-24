@@ -1,5 +1,4 @@
-import { pool } from "./database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
+import { sql } from "./database"
 
 export class CrudService<T> {
   constructor(private tableName: string) {}
@@ -9,52 +8,48 @@ export class CrudService<T> {
     const params: any[] = []
 
     if (filters && Object.keys(filters).length > 0) {
-      const conditions = Object.keys(filters).map((key) => `${key} = ?`)
+      const conditions = Object.keys(filters).map((key, index) => `${key} = $${index + 1}`)
       query += ` WHERE ${conditions.join(" AND ")}`
       params.push(...Object.values(filters))
     }
 
     query += " ORDER BY created_at DESC"
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
+    const rows = await sql(query, params)
     return rows as T[]
   }
 
   async findById(id: number): Promise<T | null> {
-    const [rows] = await pool.execute<RowDataPacket[]>(`SELECT * FROM ${this.tableName} WHERE id = ?`, [id])
+    const rows = await sql(`SELECT * FROM ${this.tableName} WHERE id = $1`, [id])
     return rows.length > 0 ? (rows[0] as T) : null
   }
 
   async create(data: Partial<T>): Promise<number> {
     const keys = Object.keys(data)
     const values = Object.values(data)
-    const placeholders = keys.map(() => "?").join(", ")
+    const placeholders = keys.map((_, index) => `$${index + 1}`).join(", ")
 
-    const [result] = await pool.execute<ResultSetHeader>(
-      `INSERT INTO ${this.tableName} (${keys.join(", ")}) VALUES (${placeholders})`,
+    const rows = await sql(
+      `INSERT INTO ${this.tableName} (${keys.join(", ")}) VALUES (${placeholders}) RETURNING id`,
       values,
     )
 
-    return result.insertId
+    return rows[0].id
   }
 
   async update(id: number, data: Partial<T>): Promise<boolean> {
     const keys = Object.keys(data)
     const values = Object.values(data)
-    const setClause = keys.map((key) => `${key} = ?`).join(", ")
+    const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ")
 
-    const [result] = await pool.execute<ResultSetHeader>(`UPDATE ${this.tableName} SET ${setClause} WHERE id = ?`, [
-      ...values,
-      id,
-    ])
+    const rows = await sql(`UPDATE ${this.tableName} SET ${setClause} WHERE id = $${keys.length + 1}`, [...values, id])
 
-    return result.affectedRows > 0
+    return rows.length > 0
   }
 
   async delete(id: number): Promise<boolean> {
-    const [result] = await pool.execute<ResultSetHeader>(`DELETE FROM ${this.tableName} WHERE id = ?`, [id])
-
-    return result.affectedRows > 0
+    const rows = await sql(`DELETE FROM ${this.tableName} WHERE id = $1`, [id])
+    return rows.length > 0
   }
 
   async softDelete(id: number): Promise<boolean> {
@@ -66,12 +61,12 @@ export class CrudService<T> {
     const params: any[] = []
 
     if (filters && Object.keys(filters).length > 0) {
-      const conditions = Object.keys(filters).map((key) => `${key} = ?`)
+      const conditions = Object.keys(filters).map((key, index) => `${key} = $${index + 1}`)
       query += ` WHERE ${conditions.join(" AND ")}`
       params.push(...Object.values(filters))
     }
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
-    return rows[0].total
+    const rows = await sql(query, params)
+    return Number(rows[0].total)
   }
 }

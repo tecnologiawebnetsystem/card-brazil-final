@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     query += ` ORDER BY nome ASC`
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
+    const [rows] = await pool.execute(query, params)
     return NextResponse.json(rows)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar tribunais:", error)
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
 
-    const [result] = await pool.execute<ResultSetHeader>(
+    const [result] = await pool.execute(
       `INSERT INTO tribunais (
         id_administradora, nome, sigla, tipo, instancia, uf, cidade,
         telefone, email, site, cep, logradouro, numero, complemento, bairro, ativo

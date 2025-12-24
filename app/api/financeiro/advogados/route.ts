@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
+import { sql } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,23 +9,24 @@ export async function GET(request: NextRequest) {
 
     let query = `SELECT * FROM advogados WHERE deleted_at IS NULL`
     const params: any[] = []
+    let paramIndex = 1
 
     if (ativo !== null) {
-      query += ` AND ativo = ?`
-      params.push(ativo === "true" ? 1 : 0)
+      query += ` AND ativo = $${paramIndex++}`
+      params.push(ativo === "true")
     }
 
     if (oab_uf) {
-      query += ` AND oab_uf = ?`
+      query += ` AND oab_uf = $${paramIndex++}`
       params.push(oab_uf)
     }
 
     query += ` ORDER BY nome ASC`
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
+    const rows = await sql(query, params)
     return NextResponse.json(rows)
   } catch (error: any) {
-    console.error("[v0] Erro ao buscar advogados:", error)
+    console.error("Erro ao buscar advogados:", error)
     return NextResponse.json({ error: "Erro ao buscar advogados", details: error.message }, { status: 500 })
   }
 }
@@ -40,13 +40,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
 
-    const [result] = await pool.execute<ResultSetHeader>(
+    const rows = await sql(
       `INSERT INTO advogados (
         id_administradora, nome, oab, oab_uf, cpf,
         email, telefone, celular,
         cep, logradouro, numero, complemento, bairro, cidade, uf,
         ativo, observacoes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      RETURNING id`,
       [
         body.id_administradora || 1,
         body.nome,
@@ -68,9 +69,9 @@ export async function POST(request: NextRequest) {
       ],
     )
 
-    return NextResponse.json({ id: result.insertId, message: "Advogado cadastrado com sucesso" }, { status: 201 })
+    return NextResponse.json({ id: rows[0].id, message: "Advogado cadastrado com sucesso" }, { status: 201 })
   } catch (error: any) {
-    console.error("[v0] Erro ao cadastrar advogado:", error)
+    console.error("Erro ao cadastrar advogado:", error)
     return NextResponse.json({ error: "Erro ao cadastrar advogado", details: error.message }, { status: 500 })
   }
 }

@@ -1,12 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
 
-    const [rows] = await pool.execute<RowDataPacket[]>(
+    const [rows] = await pool.execute(
       `SELECT 
         cp.*,
         f.nome as fornecedor_nome,
@@ -42,7 +41,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     // Recalcular valor total se necessário
     if (body.valor_original || body.valor_multa || body.valor_juros || body.valor_desconto) {
-      const [current] = await pool.execute<RowDataPacket[]>(`SELECT * FROM contas_pagar WHERE id = ?`, [id])
+      const [current] = await pool.execute(`SELECT * FROM contas_pagar WHERE id = ?`, [id])
 
       if (current.length === 0) {
         return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
@@ -69,10 +68,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const values = Object.values(body)
     const setClause = keys.map((key) => `${key} = ?`).join(", ")
 
-    const [result] = await pool.execute<ResultSetHeader>(`UPDATE contas_pagar SET ${setClause} WHERE id = ?`, [
-      ...values,
-      id,
-    ])
+    const [result] = await pool.execute(`UPDATE contas_pagar SET ${setClause} WHERE id = ?`, [...values, id])
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
@@ -90,9 +86,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const id = params.id
 
     // Soft delete
-    const [result] = await pool.execute<ResultSetHeader>(`UPDATE contas_pagar SET deleted_at = NOW() WHERE id = ?`, [
-      id,
-    ])
+    const [result] = await pool.execute(`UPDATE contas_pagar SET deleted_at = NOW() WHERE id = ?`, [id])
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })

@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
+import { sql } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,33 +25,34 @@ export async function GET(request: NextRequest) {
       WHERE cr.deleted_at IS NULL
     `
     const params: any[] = []
+    let paramIndex = 1
 
     if (status) {
-      query += ` AND cr.status = ?`
+      query += ` AND cr.status = $${paramIndex++}`
       params.push(status)
     }
 
     if (categoria) {
-      query += ` AND cr.categoria = ?`
+      query += ` AND cr.categoria = $${paramIndex++}`
       params.push(categoria)
     }
 
     if (beneficiario_id) {
-      query += ` AND cr.beneficiario_id = ?`
+      query += ` AND cr.beneficiario_id = $${paramIndex++}`
       params.push(beneficiario_id)
     }
 
     if (data_inicio && data_fim) {
-      query += ` AND cr.data_vencimento BETWEEN ? AND ?`
+      query += ` AND cr.data_vencimento BETWEEN $${paramIndex++} AND $${paramIndex++}`
       params.push(data_inicio, data_fim)
     }
 
     query += ` ORDER BY cr.data_vencimento DESC, cr.created_at DESC`
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
+    const rows = await sql(query, params)
     return NextResponse.json(rows)
   } catch (error: any) {
-    console.error("[v0] Erro ao buscar contas a receber:", error)
+    console.error("Erro ao buscar contas a receber:", error)
     return NextResponse.json({ error: "Erro ao buscar contas a receber", details: error.message }, { status: 500 })
   }
 }
@@ -61,7 +61,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Validações
     if (!body.numero_documento || !body.descricao || !body.categoria) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
@@ -74,13 +73,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Datas obrigatórias faltando" }, { status: 400 })
     }
 
-    // Calcular valor total
     const valor_multa = body.valor_multa || 0
     const valor_juros = body.valor_juros || 0
     const valor_desconto = body.valor_desconto || 0
     const valor_total = body.valor_original + valor_multa + valor_juros - valor_desconto
 
-    const [result] = await pool.execute<ResultSetHeader>(
+    const rows = await sql(
       `INSERT INTO contas_receber (
         id_administradora, beneficiario_id, proposta_id, contrato_id,
         numero_documento, descricao, categoria,
@@ -89,7 +87,8 @@ export async function POST(request: NextRequest) {
         status, dias_atraso,
         forma_pagamento, codigo_barras, linha_digitavel, pix_qrcode, pix_chave,
         observacoes, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+      RETURNING id`,
       [
         body.id_administradora || 1,
         body.beneficiario_id || null,
@@ -119,9 +118,9 @@ export async function POST(request: NextRequest) {
       ],
     )
 
-    return NextResponse.json({ id: result.insertId, message: "Conta a receber criada com sucesso" }, { status: 201 })
+    return NextResponse.json({ id: rows[0].id, message: "Conta a receber criada com sucesso" }, { status: 201 })
   } catch (error: any) {
-    console.error("[v0] Erro ao criar conta a receber:", error)
+    console.error("Erro ao criar conta a receber:", error)
     return NextResponse.json({ error: "Erro ao criar conta a receber", details: error.message }, { status: 500 })
   }
 }

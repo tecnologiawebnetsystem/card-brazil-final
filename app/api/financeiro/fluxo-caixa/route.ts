@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
 
 export async function GET(request: NextRequest) {
   try {
@@ -47,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     query += ` ORDER BY fc.data_movimentacao DESC, fc.created_at DESC`
 
-    const [rows] = await pool.execute<RowDataPacket[]>(query, params)
+    const [rows] = await pool.execute(query, params)
     return NextResponse.json(rows)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar fluxo de caixa:", error)
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Datas obrigatórias faltando" }, { status: 400 })
     }
 
-    const [result] = await pool.execute<ResultSetHeader>(
+    const [result] = await pool.execute(
       `INSERT INTO fluxo_caixa (
         id_administradora, conta_receber_id, conta_pagar_id, conta_bancaria_id,
         tipo, categoria, descricao, valor,

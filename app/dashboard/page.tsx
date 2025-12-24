@@ -1,15 +1,25 @@
 "use client"
 
-import { useAuth } from "@/contexts/auth-context"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
 import { InteractiveChart } from "@/components/dashboard/interactive-chart"
 import { DateRangePicker } from "@/components/dashboard/date-range-picker"
 import { useState } from "react"
+import { Users, DollarSign, Clock, AlertTriangle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Settings, Edit } from "lucide-react"
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const user = {
+    name: "Admin Demo",
+    email: "admin@cardbrazil.com.br",
+    role: "Administrador",
+  }
+
   const [dateRange, setDateRange] = useState({ from: new Date(2024, 0, 1), to: new Date() })
 
   const chartData = [
@@ -45,37 +55,6 @@ export default function DashboardPage() {
     },
   ]
 
-  const quickActions = [
-    {
-      title: "Novo Segurado",
-      description: "Cadastrar novo cliente",
-      icon: "Users",
-      href: "/dashboard/cadastros/pessoas/novo",
-      color: "blue" as const,
-    },
-    {
-      title: "Nova Proposta",
-      description: "Criar proposta de seguro",
-      icon: "DollarSign",
-      href: "/dashboard/propostas/nova",
-      color: "green" as const,
-    },
-    {
-      title: "Lançamento Contábil",
-      description: "Registrar operação",
-      icon: "Clock",
-      href: "/dashboard/contabil/lancamentos/novo",
-      color: "purple" as const,
-    },
-    {
-      title: "Relatórios ANS",
-      description: "Gerar quadros regulatórios",
-      icon: "AlertTriangle",
-      href: "/dashboard/contabil/quadros-ans",
-      color: "orange" as const,
-    },
-  ]
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -86,38 +65,83 @@ export default function DashboardPage() {
         <DateRangePicker value={dateRange} onChange={setDateRange} />
       </div>
 
+      <Card className="bg-gradient-to-br from-primary/5 to-accent/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-primary">
+            <Users className="w-5 h-5" />
+            Perfil do Usuário
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <Avatar className="w-20 h-20">
+                <AvatarImage src="/placeholder.svg?height=80&width=80" alt={user.name} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xl">
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-2">
+                <div>
+                  <h2 className="text-2xl font-bold">{user.name}</h2>
+                  <p className="text-muted-foreground">{user.email}</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    Último acesso: Hoje às 14:30
+                  </span>
+                  <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+                    Online
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Edit className="w-4 h-4 mr-2" />
+                Editar Perfil
+              </Button>
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4 mr-2" />
+                Configurações
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Segurados Ativos"
           value={12847}
           format="number"
-          trend={{ value: 5.2, isPositive: true }}
-          icon="Users"
-          color="blue"
+          change={5.2}
+          icon={<Users className="h-6 w-6" />}
         />
         <StatCard
           title="Pagamentos em Dia"
           value={2400000}
           format="currency"
-          trend={{ value: 12.1, isPositive: true }}
-          icon="DollarSign"
-          color="green"
+          change={12.1}
+          icon={<DollarSign className="h-6 w-6" />}
         />
         <StatCard
           title="Pendências"
           value={180000}
           format="currency"
-          trend={{ value: 8.3, isPositive: false }}
-          icon="Clock"
-          color="yellow"
+          change={-8.3}
+          icon={<Clock className="h-6 w-6" />}
         />
         <StatCard
           title="Inadimplência"
           value={95000}
           format="currency"
-          trend={{ value: 15.2, isPositive: true }}
-          icon="AlertTriangle"
-          color="red"
+          change={-15.2}
+          icon={<AlertTriangle className="h-6 w-6" />}
         />
       </div>
 
@@ -159,7 +183,7 @@ export default function DashboardPage() {
         <RecentActivity activities={activities} />
       </div>
 
-      <QuickActions actions={quickActions} />
+      <QuickActions />
     </div>
   )
 }

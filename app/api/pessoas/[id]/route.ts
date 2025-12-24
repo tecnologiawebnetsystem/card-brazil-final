@@ -1,17 +1,17 @@
 import type { NextRequest } from "next/server"
-import { query } from "@/lib/database"
+import { sql } from "@/lib/database"
 import { apiResponse, apiError } from "@/lib/api-response"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
 
-    const pessoa = await query(
+    const pessoa = await sql(
       `SELECT p.*, 
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT(
+        (SELECT json_agg(json_build_object(
           'id', e.id,
           'tipo_endereco', e.tipo_endereco,
-          'principal', e.principal,
+          'is_principal', e.is_principal,
           'cep', e.cep,
           'logradouro', e.logradouro,
           'numero', e.numero,
@@ -21,9 +21,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           'estado', e.estado,
           'pais', e.pais
         )) FROM enderecos e WHERE e.pessoa_id = p.id AND e.deleted_at IS NULL) as enderecos,
-        (SELECT JSON_ARRAYAGG(JSON_OBJECT(
+        (SELECT json_agg(json_build_object(
           'id', db.id,
-          'principal', db.principal,
+          'is_principal', db.is_principal,
           'banco_codigo', db.banco_codigo,
           'banco_nome', db.banco_nome,
           'agencia', db.agencia,
@@ -32,11 +32,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           'conta_digito', db.conta_digito,
           'tipo_conta', db.tipo_conta,
           'pix_tipo', db.pix_tipo,
-          'pix_chave', db.pix_chave,
-          'status', db.status
+          'pix_chave', db.pix_chave
         )) FROM dados_bancarios db WHERE db.pessoa_id = p.id AND db.deleted_at IS NULL) as dados_bancarios
       FROM pessoas p 
-      WHERE p.id = ? AND p.deleted_at IS NULL`,
+      WHERE p.id = $1 AND p.deleted_at IS NULL`,
       [id],
     )
 
@@ -56,27 +55,61 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { id } = params
     const body = await request.json()
 
-    const pessoa = await query("SELECT * FROM pessoas WHERE id = ? AND deleted_at IS NULL", [id])
+    const pessoa = await sql("SELECT * FROM pessoas WHERE id = $1 AND deleted_at IS NULL", [id])
     if (!pessoa || pessoa.length === 0) {
       return apiError("Pessoa não encontrada", 404)
     }
 
-    const fields = Object.keys(body)
-      .filter((key) => key !== "id" && key !== "created_at" && key !== "updated_at")
-      .map((key) => `${key} = ?`)
-      .join(", ")
+    const allowedFields = [
+      "tipo_pessoa",
+      "nome_completo",
+      "cpf",
+      "rg",
+      "data_nascimento",
+      "sexo",
+      "estado_civil",
+      "nome_mae",
+      "nome_pai",
+      "razao_social",
+      "nome_fantasia",
+      "cnpj",
+      "inscricao_estadual",
+      "inscricao_municipal",
+      "email",
+      "telefone_principal",
+      "telefone_secundario",
+      "profissao",
+      "renda_mensal",
+      "observacoes",
+      "status",
+    ]
 
-    const values = Object.keys(body)
-      .filter((key) => key !== "id" && key !== "created_at" && key !== "updated_at")
-      .map((key) => body[key])
+    const updates: string[] = []
+    const values: any[] = []
+    let paramCount = 1
 
-    await query(`UPDATE pessoas SET ${fields} WHERE id = ?`, [...values, id])
+    Object.keys(body).forEach((key) => {
+      if (allowedFields.includes(key)) {
+        updates.push(`${key} = $${paramCount}`)
+        values.push(body[key])
+        paramCount++
+      }
+    })
 
-    const updated = await query("SELECT * FROM pessoas WHERE id = ?", [id])
+    if (updates.length === 0) {
+      return apiError("Nenhum campo válido para atualizar", 400)
+    }
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`)
+    values.push(id)
+
+    await sql(`UPDATE pessoas SET ${updates.join(", ")} WHERE id = $${paramCount}`, values)
+
+    const updated = await sql("SELECT * FROM pessoas WHERE id = $1", [id])
     return apiResponse(updated[0], "Pessoa atualizada com sucesso")
   } catch (error: any) {
     console.error("[v0] Erro ao atualizar pessoa:", error)
-    if (error.code === "ER_DUP_ENTRY") {
+    if (error.code === "23505") {
       return apiError("CPF ou CNPJ já cadastrado", 409)
     }
     return apiError(error.message, 500)
@@ -87,12 +120,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const { id } = params
 
-    const pessoa = await query("SELECT * FROM pessoas WHERE id = ? AND deleted_at IS NULL", [id])
+    const pessoa = await sql("SELECT * FROM pessoas WHERE id = $1 AND deleted_at IS NULL", [id])
     if (!pessoa || pessoa.length === 0) {
       return apiError("Pessoa não encontrada", 404)
     }
 
-    await query("UPDATE pessoas SET deleted_at = NOW() WHERE id = ?", [id])
+    await sql("UPDATE pessoas SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1", [id])
 
     return apiResponse(null, "Pessoa excluída com sucesso")
   } catch (error: any) {

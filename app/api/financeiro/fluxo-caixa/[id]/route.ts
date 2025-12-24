@@ -1,12 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
 
-    const [rows] = await pool.execute<RowDataPacket[]>(
+    const [rows] = await pool.execute(
       `SELECT 
         fc.*,
         cr.numero_documento as conta_receber_documento,
@@ -40,10 +39,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const values = Object.values(body)
     const setClause = keys.map((key) => `${key} = ?`).join(", ")
 
-    const [result] = await pool.execute<ResultSetHeader>(`UPDATE fluxo_caixa SET ${setClause} WHERE id = ?`, [
-      ...values,
-      id,
-    ])
+    const [result] = await pool.execute(`UPDATE fluxo_caixa SET ${setClause} WHERE id = ?`, [...values, id])
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
@@ -60,7 +56,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const id = params.id
 
-    const [result] = await pool.execute<ResultSetHeader>(`UPDATE fluxo_caixa SET deleted_at = NOW() WHERE id = ?`, [id])
+    const [result] = await pool.execute(`UPDATE fluxo_caixa SET deleted_at = NOW() WHERE id = ?`, [id])
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })

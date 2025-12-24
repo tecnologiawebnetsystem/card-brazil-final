@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,14 +23,14 @@ import {
   Activity,
   AlertCircle,
 } from "lucide-react"
-import { useAuth } from "@/contexts/auth-context"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export function LoginSection() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [userType, setUserType] = useState("usuario")
   const [error, setError] = useState<string | null>(null)
-  const { login, loading } = useAuth()
+  const [loading, setLoading] = useState(false)
 
   const userTypes = [
     {
@@ -74,21 +75,73 @@ export function LoginSection() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setLoading(true)
 
     const form = e.target as HTMLFormElement
     const email = (form.elements.namedItem("email") as HTMLInputElement).value
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value
-    const codigo = (form.elements.namedItem("codigo") as HTMLInputElement)?.value
+    const senha = (form.elements.namedItem("password") as HTMLInputElement).value
 
     try {
-      await login({
-        email,
-        password,
-        userType,
-        codigo,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha }),
       })
-    } catch (err: any) {
-      setError(err.message || "Erro ao fazer login. Verifique suas credenciais.")
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        setError(data.message || "Erro ao fazer login")
+        setLoading(false)
+        return
+      }
+
+      // Login bem-sucedido, redirecionar para dashboard
+      router.push("/dashboard")
+    } catch (err) {
+      console.error("[v0] Login error:", err)
+      setError("Erro ao conectar com o servidor")
+      setLoading(false)
+    }
+  }
+
+  const handleDemoLogin = async (demoType: "admin" | "user") => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const credentials = {
+        admin: {
+          email: "admin@cardbrazil.com.br",
+          senha: "admin123",
+        },
+        user: {
+          email: "admin@cardbrazil.com.br",
+          senha: "admin123",
+        },
+      }
+
+      const { email, senha } = credentials[demoType]
+
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        setError(data.message || "Erro ao fazer login")
+        setLoading(false)
+        return
+      }
+
+      router.push("/dashboard")
+    } catch (err) {
+      console.error("[v0] Demo login error:", err)
+      setError("Erro ao conectar com o servidor")
+      setLoading(false)
     }
   }
 
@@ -134,7 +187,7 @@ export function LoginSection() {
               <div className="space-y-4 text-center">
                 <CardTitle className="text-3xl font-bold text-foreground">Bem-vindo de volta</CardTitle>
                 <CardDescription className="text-base text-muted-foreground max-w-sm leading-relaxed">
-                  {currentUserType?.description}
+                  Sistema de gestão de saúde
                 </CardDescription>
               </div>
             </div>
@@ -260,7 +313,31 @@ export function LoginSection() {
 
             <Separator className="my-8" />
 
-            <div className="text-center space-y-5">
+            <div className="space-y-4">
+              <p className="text-center text-sm text-muted-foreground">Acesso rápido para demonstração</p>
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  variant="outline"
+                  className="h-12 border-2 border-destructive/20 hover:bg-destructive/10 bg-transparent"
+                  onClick={() => handleDemoLogin("admin")}
+                  disabled={loading}
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  Demo Admin
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-12 border-2 border-primary/20 hover:bg-primary/10 bg-transparent"
+                  onClick={() => handleDemoLogin("user")}
+                  disabled={loading}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Demo Usuário
+                </Button>
+              </div>
+            </div>
+
+            <div className="text-center space-y-5 pt-4">
               <Button
                 variant="link"
                 className="text-sm text-primary hover:text-primary/80 p-0 font-semibold underline-offset-4"
@@ -268,24 +345,6 @@ export function LoginSection() {
               >
                 Esqueci minha senha
               </Button>
-              <div className="text-sm text-muted-foreground">
-                Não tem conta?{" "}
-                <Button
-                  variant="link"
-                  className="p-0 h-auto text-primary hover:text-primary/80 font-semibold underline-offset-4"
-                >
-                  Solicitar acesso
-                </Button>
-              </div>
-              <div className="pt-2">
-                <Button
-                  variant="link"
-                  className="text-sm text-accent hover:text-accent/80 p-0 font-semibold underline-offset-4"
-                  onClick={() => (window.location.href = "/wiki")}
-                >
-                  📚 Wiki - Guia do Sistema
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>

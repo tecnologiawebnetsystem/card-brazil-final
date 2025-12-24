@@ -1,15 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { pool } from "@/lib/database"
-import type { RowDataPacket, ResultSetHeader } from "mysql2/promise"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = params.id
 
-    const [rows] = await pool.execute<RowDataPacket[]>(
-      `SELECT * FROM configuracoes_multas_juros WHERE id = ? AND deleted_at IS NULL`,
-      [id],
-    )
+    const [rows] = await pool.execute(`SELECT * FROM configuracoes_multas_juros WHERE id = ? AND deleted_at IS NULL`, [
+      id,
+    ])
 
     if (rows.length === 0) {
       return NextResponse.json({ error: "Configuração não encontrada" }, { status: 404 })
@@ -29,10 +27,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     // Se for configuração padrão, desmarcar outras
     if (body.padrao) {
-      const [current] = await pool.execute<RowDataPacket[]>(
-        `SELECT id_administradora FROM configuracoes_multas_juros WHERE id = ?`,
-        [id],
-      )
+      const [current] = await pool.execute(`SELECT id_administradora FROM configuracoes_multas_juros WHERE id = ?`, [
+        id,
+      ])
 
       if (current.length > 0) {
         await pool.execute(
@@ -46,10 +43,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const values = Object.values(body)
     const setClause = keys.map((key) => `${key} = ?`).join(", ")
 
-    const [result] = await pool.execute<ResultSetHeader>(
-      `UPDATE configuracoes_multas_juros SET ${setClause} WHERE id = ?`,
-      [...values, id],
-    )
+    const [result] = await pool.execute(`UPDATE configuracoes_multas_juros SET ${setClause} WHERE id = ?`, [
+      ...values,
+      id,
+    ])
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: "Configuração não encontrada" }, { status: 404 })
@@ -66,10 +63,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const id = params.id
 
-    const [result] = await pool.execute<ResultSetHeader>(
-      `UPDATE configuracoes_multas_juros SET deleted_at = NOW() WHERE id = ?`,
-      [id],
-    )
+    const [result] = await pool.execute(`UPDATE configuracoes_multas_juros SET deleted_at = NOW() WHERE id = ?`, [id])
 
     if (result.affectedRows === 0) {
       return NextResponse.json({ error: "Configuração não encontrada" }, { status: 404 })

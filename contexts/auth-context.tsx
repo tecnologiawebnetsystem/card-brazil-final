@@ -2,110 +2,99 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
-import { AuthService } from "@/services/auth.service.ts"
 
 interface User {
   id: number
-  nome: string
+  nome_completo: string
   email: string
-  cpf: string
-  role_id: number
-  role_nome: string
-  role_descricao: string
-  perfil_id: number | null
-  perfil_nome: string | null
+  administradora_id: number
+  tipo_usuario: string
   status: string
-  ultimo_acesso: string | null
 }
 
 interface AuthContextType {
   user: User | null
-  loading: boolean
-  login: (credentials: { email: string; password: string; userType?: string; codigo?: string }) => Promise<void>
-  logout: () => Promise<void>
+  isLoading: boolean
   isAuthenticated: boolean
+  login: (email: string, password: string) => Promise<void>
+  logout: () => Promise<void>
+  checkAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = AuthService.getToken()
-      const userProfile = localStorage.getItem("userProfile")
-
-      if (token && userProfile) {
-        try {
-          setUser(JSON.parse(userProfile))
-        } catch (error) {
-          console.error("[v0] Erro ao carregar perfil do usuário:", error)
-          AuthService.logout()
-        }
-      }
-      setLoading(false)
-    }
-
-    checkAuth()
-  }, [])
-
-  const login = async (credentials: {
-    email: string
-    password: string
-    userType?: string
-    codigo?: string
-  }) => {
+  const checkAuth = async () => {
     try {
-      setLoading(true)
-      const response = await AuthService.login(credentials)
-
-      const { token, refreshToken, user: userData } = response.data
-
-      AuthService.setToken(token)
-      localStorage.setItem("refreshToken", refreshToken)
-      localStorage.setItem("userProfile", JSON.stringify(userData))
-      localStorage.setItem("userName", userData.nome)
-      localStorage.setItem("isLoggedIn", "true")
-      localStorage.setItem("loginTime", new Date().toISOString())
-
-      setUser(userData)
-      router.push("/dashboard")
-    } catch (error: any) {
-      console.error("[v0] Erro no login:", error)
-      throw new Error(error.message || "Erro ao fazer login")
+      const response = await fetch("/api/auth/me")
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.user) {
+          setUser(data.user)
+        } else {
+          setUser(null)
+        }
+      } else {
+        setUser(null)
+      }
+    } catch (error) {
+      setUser(null)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
+    }
+  }
+
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha: password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Login failed")
+      }
+
+      if (data.data?.usuario) {
+        setUser(data.data.usuario)
+      }
+
+      router.push("/dashboard")
+    } catch (error) {
+      throw error
     }
   }
 
   const logout = async () => {
     try {
-      await AuthService.logout()
-    } catch (error) {
-      console.error("[v0] Erro ao fazer logout:", error)
-    } finally {
+      await fetch("/api/auth/logout", { method: "POST" })
       setUser(null)
-      AuthService.clearToken()
-      localStorage.removeItem("refreshToken")
-      localStorage.removeItem("userProfile")
-      localStorage.removeItem("userName")
-      localStorage.removeItem("isLoggedIn")
-      localStorage.removeItem("loginTime")
       router.push("/")
+    } catch (error) {
+      // No debug console.log here
     }
   }
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        loading,
+        isLoading,
+        isAuthenticated: !!user,
         login,
         logout,
-        isAuthenticated: !!user,
+        checkAuth,
       }}
     >
       {children}

@@ -271,11 +271,11 @@ export default function SobrePage() {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                MySQL 8 - Banco de dados
+                Neon PostgreSQL - Banco de dados serverless
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                mysql2 - Driver MySQL
+                @neondatabase/serverless - Driver PostgreSQL
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
@@ -297,13 +297,13 @@ export default function SobrePage() {
             <Database className="h-5 w-5 text-primary" />
             Banco de Dados
           </CardTitle>
-          <CardDescription>39 tabelas organizadas em módulos</CardDescription>
+          <CardDescription>13 tabelas principais criadas no Neon PostgreSQL</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <h5 className="font-semibold mb-2">Administração</h5>
-              <p className="text-muted-foreground">7 tabelas</p>
+              <p className="text-muted-foreground">2 tabelas</p>
             </div>
             <div>
               <h5 className="font-semibold mb-2">Pessoas</h5>

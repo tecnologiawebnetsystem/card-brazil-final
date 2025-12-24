@@ -1,11 +1,21 @@
 import { neon } from "@neondatabase/serverless"
 import type { NeonQueryFunction } from "@neondatabase/serverless"
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set")
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://placeholder:placeholder@placeholder:5432/placeholder"
+
+let sql: NeonQueryFunction<false, false>
+
+try {
+  sql = neon(DATABASE_URL)
+} catch (error) {
+  console.error("Failed to initialize database connection:", error)
+  // Create a dummy function that throws on actual use
+  sql = (() => {
+    throw new Error("DATABASE_URL is not configured. Please set it in your .env.local file.")
+  }) as any
 }
 
-export const sql: NeonQueryFunction<false, false> = neon(process.env.DATABASE_URL)
+export { sql }
 
 export const pool = {
   execute: async <T = any>(query: string, params?: any[]) => {

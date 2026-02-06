@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { CardBrazilLogo } from "@/components/card-brazil-logo"
+import { TalentHealthLogo } from "@/components/talent-health-logo"
 import {
   ArrowLeft,
   Building2,
@@ -52,30 +52,30 @@ const testimonials = [
   {
     name: "Carlos Eduardo Silva",
     role: "Diretor de TI - Zurich Seguros",
-    text: "A WebNetSystem transformou completamente nossa gestao de seguros. O CardBrazil e uma ferramenta indispensavel para nosso dia a dia. A equipe sempre se mostrou disponivel e comprometida com resultados.",
+    text: "A WebNetSystem transformou completamente nossa gestao de seguros. O Talent Health e uma ferramenta indispensavel para nosso dia a dia. A equipe sempre se mostrou disponivel e comprometida com resultados.",
     rating: 5,
   },
   {
     name: "Ana Paula Ferreira",
     role: "Gerente de Operacoes - HDI Seguros",
-    text: "Trabalhamos com a WebNetSystem ha mais de 8 anos. A qualidade do sistema, aliada ao suporte tecnico excepcional, faz toda a diferenca. O CardBrazil nos deu agilidade que nao tinhamos antes.",
+    text: "Trabalhamos com a WebNetSystem ha mais de 8 anos. A qualidade do sistema, aliada ao suporte tecnico excepcional, faz toda a diferenca. O Talent Health nos deu agilidade que nao tinhamos antes.",
     rating: 5,
   },
   {
     name: "Roberto Mendes",
     role: "CEO - Excelsior Corretora",
-    text: "O investimento no CardBrazil foi o melhor que fizemos. Em poucos meses, conseguimos reduzir custos operacionais em 40% e aumentar significativamente a produtividade da equipe.",
+    text: "O investimento no Talent Health foi o melhor que fizemos. Em poucos meses, conseguimos reduzir custos operacionais em 40% e aumentar significativamente a produtividade da equipe.",
     rating: 5,
   },
   {
     name: "Mariana Santos",
     role: "Coordenadora - Alelo Beneficios",
-    text: "A experiencia com a WebNetSystem e sempre positiva. Eles entendem nossas necessidades e entregam solucoes que realmente funcionam. O CardBrazil superou todas as nossas expectativas.",
+    text: "A experiencia com a WebNetSystem e sempre positiva. Eles entendem nossas necessidades e entregam solucoes que realmente funcionam. O Talent Health superou todas as nossas expectativas.",
     rating: 5,
   },
 ]
 
-const whyCardBrazil = [
+const whyTalent Health = [
   {
     icon: Shield,
     title: "Seguranca e Confiabilidade",
@@ -123,7 +123,7 @@ export function SobreContent() {
               <span className="text-sm font-medium">Voltar</span>
             </Link>
             <div className="w-px h-6 bg-[#262626]" />
-            <CardBrazilLogo variant="minimal" size="sm" />
+            <TalentHealthLogo variant="minimal" size="sm" />
           </div>
           <Link
             href="/"
@@ -149,7 +149,7 @@ export function SobreContent() {
 
             <div className="space-y-6 text-[#a3a3a3] leading-relaxed text-base lg:text-lg">
               <p>
-                O <span className="text-[#dc2626] font-bold">CardBrazil</span> nasceu da experiencia da{" "}
+                O <span className="text-[#dc2626] font-bold">Talent Health</span> nasceu da experiencia da{" "}
                 <span className="text-[#f5f5f5] font-bold">WebNetSystem</span>, empresa fundada em{" "}
                 <span className="text-[#f5f5f5] font-bold">2005</span> com o objetivo de levar transformacao
                 digital para empresas de todos os portes. Com mais de{" "}
@@ -165,7 +165,7 @@ export function SobreContent() {
                 </span>
                 , nossa equipe conhece de perto as necessidades das operadoras de saude, estipulantes e
                 corretores da regiao e de todo o Brasil. Desenvolvemos o{" "}
-                <span className="text-[#dc2626] font-bold">CardBrazil</span> para ser a solucao completa
+                <span className="text-[#dc2626] font-bold">Talent Health</span> para ser a solucao completa
                 que faltava no mercado:{" "}
                 <span className="text-[#dc2626] font-semibold underline decoration-[#dc2626]/30 underline-offset-4">
                   gestao de beneficiarios
@@ -189,7 +189,7 @@ export function SobreContent() {
                 Ao longo de duas decadas, construimos uma reputacao solida no mercado de tecnologia,
                 atendendo desde pequenas corretoras ate grandes operadoras nacionais. Nossa missao sempre
                 foi entregar <span className="text-[#f5f5f5] font-semibold">inovacao com qualidade</span>,
-                e o CardBrazil e a prova de que tecnologia de ponta pode ser acessivel e eficiente.
+                e o Talent Health e a prova de que tecnologia de ponta pode ser acessivel e eficiente.
               </p>
             </div>
           </div>
@@ -296,21 +296,21 @@ export function SobreContent() {
         </div>
       </section>
 
-      {/* Por que criamos o CardBrazil */}
+      {/* Por que criamos o Talent Health */}
       <section className="py-12 lg:py-16">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-2xl lg:text-3xl font-bold text-[#f5f5f5] mb-3">
-              Por que criamos o CardBrazil?
+              Por que criamos o Talent Health?
             </h2>
             <p className="text-[#a3a3a3] max-w-2xl mx-auto">
               Apos anos atendendo operadoras de saude e corretoras, identificamos lacunas criticas nos
-              sistemas existentes. O CardBrazil nasceu para resolver esses problemas de forma definitiva.
+              sistemas existentes. O Talent Health nasceu para resolver esses problemas de forma definitiva.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {whyCardBrazil.map((item) => (
+            {whyTalent Health.map((item) => (
               <div
                 key={item.title}
                 className="bg-[#141414] border border-[#262626] rounded-2xl p-6 hover:border-[#dc2626]/30 transition-all duration-300"
@@ -377,7 +377,7 @@ export function SobreContent() {
         </div>
       </section>
 
-      {/* CTA - Conheca o CardBrazil */}
+      {/* CTA - Conheca o Talent Health */}
       <section className="py-12 lg:py-16">
         <div className="container mx-auto px-6">
           <div className="bg-gradient-to-r from-[#dc2626] to-[#c2410c] rounded-2xl p-8 lg:p-12 text-center relative overflow-hidden">
@@ -385,7 +385,7 @@ export function SobreContent() {
             <div className="relative z-10">
               <Award className="w-12 h-12 text-[#ffffff] mx-auto mb-4 opacity-90" />
               <h2 className="text-2xl lg:text-3xl font-bold text-[#ffffff] mb-3 text-balance">
-                Conheca o CardBrazil
+                Conheca o Talent Health
               </h2>
               <p className="text-[#ffffff]/80 max-w-xl mx-auto mb-8 text-balance">
                 Nossa mais recente inovacao: uma plataforma completa de gestao para operadoras de saude,

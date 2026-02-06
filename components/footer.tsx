@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CardBrazilLogo } from "@/components/card-brazil-logo"
+import { TalentHealthLogo } from "@/components/talent-health-logo"
 
 export function Footer() {
   return (
@@ -8,7 +8,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="space-y-6">
-            <CardBrazilLogo variant="full" size="md" />
+            <TalentHealthLogo variant="full" size="md" />
             <p className="text-[#a3a3a3] leading-relaxed">
               Administradora de Seguro de Saude comprometida com o seu bem-estar e tranquilidade.
             </p>
@@ -75,7 +75,7 @@ export function Footer() {
             <div className="space-y-4">
               {[
                 { icon: "phone", label: "0800 123 4567" },
-                { icon: "email", label: "contato@cardbrazil.com.br" },
+                { icon: "email", label: "contato@talenthealth.com.br" },
                 { icon: "location", label: "Av. Paulista, 1000\nSao Paulo - SP" },
               ].map((contact) => (
                 <div key={contact.icon} className="flex items-start gap-4 text-[#a3a3a3] group">
@@ -124,7 +124,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="border-t border-[#262626] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[#a3a3a3] font-medium">{"© 2024 CardBrazil. Todos os direitos reservados."}</p>
+          <p className="text-[#a3a3a3] font-medium">{"© 2024 Talent Health. Todos os direitos reservados."}</p>
           <div className="flex gap-8 font-medium text-[#a3a3a3]">
             <span className="hover:text-[#dc2626] transition-colors cursor-pointer">ANS: 12345</span>
           </div>

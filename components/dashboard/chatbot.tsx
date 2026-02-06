@@ -105,7 +105,7 @@ export function ChatBot() {
       const welcomeMessage: Message = {
         id: "welcome",
         type: "bot",
-        content: `Olá! Sou seu assistente virtual do CardBrazil. 
+        content: `Olá! Sou seu assistente virtual do Talent Health. 
 
 📊 Você tem ${notifications.length} notificações pendentes:
 ${notifications.map((n) => `• ${n.title}: ${n.message}`).join("\n")}
@@ -261,10 +261,10 @@ Digite sua dúvida ou escolha uma das opções acima!`
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-emerald-600 text-white rounded-t-lg">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/images/chatbot-avatar.png" alt="Assistente CardBrazil" />
+                  <AvatarImage src="/images/chatbot-avatar.png" alt="Assistente Talent Health" />
                   <AvatarFallback className="bg-emerald-700 text-white">CB</AvatarFallback>
                 </Avatar>
-                Assistente CardBrazil
+                Assistente Talent Health
               </CardTitle>
               <Button
                 variant="ghost"

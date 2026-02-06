@@ -16,7 +16,7 @@ import { Settings, Edit } from "lucide-react"
 export default function DashboardPage() {
   const user = {
     name: "Admin Demo",
-    email: "admin@cardbrazil.com.br",
+    email: "admin@talenthealth.com.br",
     role: "Administrador",
   }
 
@@ -59,7 +59,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard CardBrazil</h1>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard Talent Health</h1>
           <p className="text-muted-foreground">Sistema de Gestão para Administradora de Seguros de Saúde</p>
         </div>
         <DateRangePicker value={dateRange} onChange={setDateRange} />

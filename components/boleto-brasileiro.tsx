@@ -33,7 +33,7 @@ export function BoletoBrasileiro({
                 <span className="text-white font-bold text-lg">CB</span>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-800">CardBrazil</h2>
+                <h2 className="text-xl font-bold text-gray-800">Talent Health</h2>
                 <p className="text-sm text-gray-600">Administradora de Saúde</p>
               </div>
             </div>
@@ -137,7 +137,7 @@ export function BoletoBrasileiro({
         {/* Rodapé */}
         <div className="border-t-2 border-gray-300 p-2 bg-gray-50">
           <p className="text-xs text-center text-gray-600">
-            CardBrazil Administradora de Saúde - CNPJ: 12.345.678/0001-90 - www.cardbrazil.com.br
+            Talent Health Administradora de Saude - CNPJ: 12.345.678/0001-90 - www.talenthealth.com.br
           </p>
         </div>
       </CardContent>

@@ -70,7 +70,7 @@ export default function EsqueciSenhaPage() {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
-                CardBrazil
+                Talent Health
               </h1>
               <p className="text-sm text-[#a3a3a3]">Recuperacao de Acesso</p>
             </div>

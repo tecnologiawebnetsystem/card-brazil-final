@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 
-interface CardBrazilLogoProps {
+interface TalentHealthLogoProps {
   variant?: "full" | "icon" | "text" | "minimal"
   size?: "sm" | "md" | "lg" | "xl"
   glow?: boolean
@@ -54,7 +54,7 @@ function LogoIcon({ size = 40, glow = false }: { size?: number; glow?: boolean }
         d="M20 24H44V29H35V46H29V29H20V24Z"
         fill="#ffffff"
       />
-      {/* Connection dots - blue accent (Card Brazil concept) */}
+      {/* Connection dots - blue accent (Talent Health concept) */}
       <circle cx="12" cy="18" r="2.5" fill="url(#logo-accent)" />
       <circle cx="52" cy="18" r="2.5" fill="url(#logo-accent)" />
       <circle cx="12" cy="46" r="2.5" fill="url(#logo-accent)" />
@@ -66,12 +66,12 @@ function LogoIcon({ size = 40, glow = false }: { size?: number; glow?: boolean }
   )
 }
 
-export function CardBrazilLogo({
+export function TalentHealthLogo({
   variant = "full",
   size = "md",
   glow = false,
   className,
-}: CardBrazilLogoProps) {
+}: TalentHealthLogoProps) {
   const s = sizeMap[size]
 
   if (variant === "icon") {
@@ -86,7 +86,7 @@ export function CardBrazilLogo({
     return (
       <div className={cn("inline-flex flex-col", className)}>
         <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#dc2626] via-[#c2410c] to-[#dc2626] bg-clip-text text-transparent")}>
-          CardBrazil
+          Talent Health
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium")}>
           Sistema de Saude
@@ -100,7 +100,7 @@ export function CardBrazilLogo({
       <div className={cn("inline-flex items-center gap-2", className)}>
         <LogoIcon size={Math.round(s.icon * 0.7)} glow={glow} />
         <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent")}>
-          CB
+          TH
         </span>
       </div>
     )
@@ -112,7 +112,7 @@ export function CardBrazilLogo({
       <LogoIcon size={s.icon} glow={glow} />
       <div className="flex flex-col">
         <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#dc2626] via-[#c2410c] to-[#dc2626] bg-clip-text text-transparent leading-none")}>
-          CardBrazil
+          Talent Health
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium mt-0.5")}>
           Sistema de Saude

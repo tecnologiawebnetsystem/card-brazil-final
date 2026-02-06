@@ -25,7 +25,7 @@ export function ChatbotHealth() {
       id: "1",
       type: "bot",
       content:
-        "Olá! Sou o assistente inteligente da CardBrazil. Como posso ajudá-lo hoje com questões sobre seguros de saúde?",
+        "Olá! Sou o assistente inteligente da Talent Health. Como posso ajudá-lo hoje com questões sobre seguros de saúde?",
       timestamp: new Date(),
       suggestions: [
         "Consultar sinistralidade",
@@ -162,13 +162,13 @@ export function ChatbotHealth() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="w-8 h-8">
-              <AvatarImage src="/images/chatbot-avatar.png" alt="Assistente CardBrazil" />
+              <AvatarImage src="/images/chatbot-avatar.png" alt="Assistente Talent Health" />
               <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
                 <Bot className="h-4 w-4" />
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle className="text-sm">Assistente CardBrazil</CardTitle>
+              <CardTitle className="text-sm">Assistente Talent Health</CardTitle>
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                 <span className="text-xs text-muted-foreground">Online</span>

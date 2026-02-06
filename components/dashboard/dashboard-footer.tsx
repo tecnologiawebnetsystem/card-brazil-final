@@ -13,7 +13,7 @@ export function DashboardFooter() {
           {/* Left side - Company info */}
           <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <span className="font-medium">CardBrazil CRM</span>
+              <span className="font-medium">Talent Health CRM</span>
               <Badge variant="secondary" className="text-xs bg-[#dc2626]/10 text-[#dc2626] border border-[#dc2626]/20">
                 v2.1.0
               </Badge>
@@ -44,7 +44,7 @@ export function DashboardFooter() {
             <Separator orientation="vertical" className="hidden md:block h-4" />
 
             <div className="text-center">
-              <p>© {currentYear} CardBrazil. Todos os direitos reservados.</p>
+              <p>© {currentYear} Talent Health. Todos os direitos reservados.</p>
             </div>
           </div>
         </div>

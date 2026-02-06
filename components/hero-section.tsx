@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CardBrazilLogo } from "@/components/card-brazil-logo"
+import { TalentHealthLogo } from "@/components/talent-health-logo"
 import { Shield, Heart, Stethoscope, Clock, Users, Activity, Info } from "lucide-react"
 
 export function HeroSection() {
@@ -7,7 +7,7 @@ export function HeroSection() {
     <div className="flex flex-col justify-center py-8 px-8 lg:px-16">
       {/* Logo and Brand */}
       <div className="mb-6 flex items-center justify-between">
-        <CardBrazilLogo variant="full" size="lg" glow />
+        <TalentHealthLogo variant="full" size="lg" glow />
         <Link
           href="/sobre"
           className="flex items-center gap-2 px-4 py-2 bg-[#141414] border border-[#262626] rounded-xl text-sm font-medium text-[#a3a3a3] hover:text-[#dc2626] hover:border-[#dc2626]/30 transition-all duration-200"
@@ -33,7 +33,7 @@ export function HeroSection() {
 
       {/* Stats bar */}
       <div className="bg-[#141414] border border-[#262626] rounded-2xl p-6 mb-10 glow-red">
-        <h3 className="text-lg font-bold text-[#f5f5f5] mb-4">Por que escolher a CardBrazil?</h3>
+        <h3 className="text-lg font-bold text-[#f5f5f5] mb-4">Por que escolher a Talent Health?</h3>
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold text-[#dc2626] mb-1">500K+</div>

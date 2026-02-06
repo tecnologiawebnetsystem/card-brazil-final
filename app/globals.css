@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* CardBrazil - Paleta vermelho/azul escuro/laranja */
+  /* Talent Health - Paleta vermelho/azul escuro/laranja */
   --background: #0a0a0a;
   --foreground: #f5f5f5;
   --card: #141414;
@@ -312,7 +312,7 @@
     @apply bg-gradient-to-br from-card via-background to-muted/20;
   }
 
-  /* CardBrazil utility classes */
+  /* Talent Health utility classes */
   .healthcare-card {
     @apply bg-card/95 border border-border/50 rounded-xl shadow-lg shadow-[#dc2626]/5 transition-all duration-300 hover:shadow-xl hover:shadow-[#dc2626]/10 hover:border-[#dc2626]/20;
   }

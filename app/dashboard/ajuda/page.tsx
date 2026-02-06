@@ -25,7 +25,7 @@ export default function AjudaPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Central de Ajuda</h1>
-            <p className="text-muted-foreground">Encontre respostas e suporte para o sistema CardBrazil</p>
+            <p className="text-muted-foreground">Encontre respostas e suporte para o sistema Talent Health</p>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ export default function AjudaPage() {
             <CardContent className="p-6 text-center">
               <Mail className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="font-medium text-foreground mb-2">Email</h3>
-              <p className="text-sm text-muted-foreground">suporte@cardbrazil.com.br</p>
+              <p className="text-sm text-muted-foreground">suporte@talenthealth.com.br</p>
             </CardContent>
           </Card>
         </div>

@@ -9,7 +9,7 @@ export default function SobrePage() {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          CardBrazil CRM
+          Talent Health CRM
         </h1>
         <p className="text-xl text-muted-foreground">Sistema de Gestão de Saúde</p>
         <div className="flex gap-2">
@@ -395,12 +395,12 @@ export default function SobrePage() {
         <CardContent>
           <div className="space-y-2 text-sm">
             <p>
-              <strong>Email:</strong> suporte@cardbrazil.com.br
+              <strong>Email:</strong> suporte@talenthealth.com.br
             </p>
             <p>
               <strong>Telefone:</strong> (11) 1234-5678
             </p>
-            <p className="text-muted-foreground mt-4">Desenvolvido com ❤️ pela equipe CardBrazil</p>
+            <p className="text-muted-foreground mt-4">Desenvolvido com ❤️ pela equipe Talent Health</p>
           </div>
         </CardContent>
       </Card>

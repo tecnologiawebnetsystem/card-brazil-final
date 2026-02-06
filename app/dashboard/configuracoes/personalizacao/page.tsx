@@ -32,7 +32,7 @@ const UploadIcon = () => (
 
 export default function ConfiguracoesPersonalizacaoPage() {
   const [customSettings, setCustomSettings] = useState({
-    companyName: "CardBrazil CRM",
+    companyName: "Talent Health CRM",
     primaryColor: "#059669",
     secondaryColor: "#0f766e",
     accentColor: "#06b6d4",
@@ -243,7 +243,7 @@ export default function ConfiguracoesPersonalizacaoPage() {
                     <div className="w-4 h-4 rounded bg-emerald-700"></div>
                     <div className="w-4 h-4 rounded bg-cyan-600"></div>
                   </div>
-                  <h4 className="font-medium">CardBrazil (Padrão)</h4>
+                  <h4 className="font-medium">Talent Health (Padrão)</h4>
                   <p className="text-sm text-muted-foreground">Verde esmeralda e ciano</p>
                 </div>
                 <div className="p-4 border rounded-lg cursor-pointer hover:bg-muted/50">

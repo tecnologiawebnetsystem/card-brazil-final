@@ -3,9 +3,9 @@ import { Footer } from "@/components/footer"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Sobre Nos - WebNetSystem | CardBrazil CRM",
+  title: "Sobre Nos - WebNetSystem | Talent Health CRM",
   description:
-    "Conheca a WebNetSystem, empresa de tecnologia com mais de 20 anos no mercado. Desenvolvedora do CardBrazil CRM.",
+    "Conheca a WebNetSystem, empresa de tecnologia com mais de 20 anos no mercado. Desenvolvedora do Talent Health CRM.",
 }
 
 export default function SobrePage() {

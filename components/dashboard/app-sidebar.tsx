@@ -476,7 +476,7 @@ const menuItems = [
     title: "Sistemas",
     items: [
       {
-        title: "Integra��ão ANS",
+        title: "Integra����ão ANS",
         icon: <CogIcon />,
         subItems: [
           {
@@ -634,7 +634,7 @@ export function AppSidebar() {
             </div>
             <div>
               <h1 className="text-lg font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
-                CardBrazil
+                Talent Health
               </h1>
               <p className="text-xs text-[#a3a3a3]">Sistema de Gestao</p>
             </div>

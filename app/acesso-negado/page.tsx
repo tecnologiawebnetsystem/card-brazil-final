@@ -28,7 +28,7 @@ export default function AcessoNegadoPage() {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
-                CardBrazil
+                Talent Health
               </h1>
               <p className="text-sm text-[#a3a3a3]">Controle de Acesso</p>
             </div>
@@ -106,7 +106,7 @@ export default function AcessoNegadoPage() {
               <div className="flex justify-center gap-4">
                 <Button variant="link" size="sm" className="text-primary">
                   <Mail className="w-4 h-4 mr-1" />
-                  suporte@cardbrazil.com.br
+                  suporte@talenthealth.com.br
                 </Button>
                 <Button variant="link" size="sm" className="text-primary">
                   <Phone className="w-4 h-4 mr-1" />

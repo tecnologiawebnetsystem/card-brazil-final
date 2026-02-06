@@ -21,7 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CardBrazilLogo } from "@/components/card-brazil-logo"
+import { TalentHealthLogo } from "@/components/talent-health-logo"
 
 export function LoginSection() {
   const router = useRouter()
@@ -101,8 +101,8 @@ export function LoginSection() {
 
     try {
       const credentials = {
-        admin: { email: "admin@cardbrazil.com.br", senha: "admin123" },
-        user: { email: "admin@cardbrazil.com.br", senha: "admin123" },
+        admin: { email: "admin@talenthealth.com.br", senha: "admin123" },
+        user: { email: "admin@talenthealth.com.br", senha: "admin123" },
       }
 
       const { email, senha } = credentials[demoType]
@@ -139,7 +139,7 @@ export function LoginSection() {
       <div className="relative z-10">
         {/* Mobile logo - only show on small screens */}
         <div className="text-center mb-8 lg:hidden">
-          <CardBrazilLogo variant="full" size="md" glow />
+          <TalentHealthLogo variant="full" size="md" glow />
         </div>
 
         <Card className="w-full max-w-lg mx-auto bg-[#141414]/95 border-[#262626] backdrop-blur-sm">

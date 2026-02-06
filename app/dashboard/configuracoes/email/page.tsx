@@ -36,12 +36,12 @@ export default function ConfiguracoesEmailPage() {
   const [emailSettings, setEmailSettings] = useState({
     smtpServer: "smtp.gmail.com",
     smtpPort: "587",
-    smtpUser: "sistema@cardbrazil.com.br",
+    smtpUser: "sistema@talenthealth.com.br",
     smtpPassword: "",
     smtpSecurity: "tls",
-    fromName: "CardBrazil CRM",
-    fromEmail: "noreply@cardbrazil.com.br",
-    replyTo: "suporte@cardbrazil.com.br",
+    fromName: "Talent Health CRM",
+    fromEmail: "noreply@talenthealth.com.br",
+    replyTo: "suporte@talenthealth.com.br",
     enableEmail: true,
     enableLogs: true,
   })

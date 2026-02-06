@@ -15,10 +15,10 @@ export default function ConfiguracoesTextosPage() {
     textoWhatsApp:
       "Olá! Segue o link para visualizar/imprimir seu boleto: {link_boleto}. Em caso de dúvidas, entre em contato conosco.",
     textoEmail:
-      "Prezado(a) cliente,\n\nSegue em anexo o boleto para pagamento.\n\nLink para visualização: {link_boleto}\n\nAtenciosamente,\nEquipe CardBrazil",
+      "Prezado(a) cliente,\n\nSegue em anexo o boleto para pagamento.\n\nLink para visualização: {link_boleto}\n\nAtenciosamente,\nEquipe Talent Health",
     textoImpressao:
-      "BOLETO DE COBRANÇA - CARDBRAZIL ADMINISTRADORA DE SAÚDE\n\nBeneficiário: {beneficiario}\nPlano: {plano}\nVencimento: {vencimento}\nValor: R$ {valor}",
-    assuntoEmail: "CardBrazil - Boleto de Cobrança - Vencimento {vencimento}",
+      "BOLETO DE COBRANÇA - TALENT HEALTH ADMINISTRADORA DE SAUDE\n\nBeneficiário: {beneficiario}\nPlano: {plano}\nVencimento: {vencimento}\nValor: R$ {valor}",
+    assuntoEmail: "Talent Health - Boleto de Cobranca - Vencimento {vencimento}",
   })
 
   const handleSave = () => {

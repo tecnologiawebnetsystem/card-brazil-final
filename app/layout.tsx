@@ -16,8 +16,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: "CardBrazil CRM",
-  description: "Sistema de CRM para Administradora de Seguro de Saude CardBrazil - Desenvolvido por WebNetSystem",
+  title: "Talent Health CRM",
+  description: "Sistema de CRM para Administradora de Seguro de Saude Talent Health - Desenvolvido por WebNetSystem",
   generator: "v0.app",
   icons: {
     icon: "/icon.png",

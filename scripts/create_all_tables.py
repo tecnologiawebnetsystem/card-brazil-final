@@ -1,5 +1,5 @@
 """
-Script para criar todas as tabelas do CardBrazil no Neon PostgreSQL
+Script para criar todas as tabelas do Talent Health no Neon PostgreSQL
 Executa os comandos DDL um por um para evitar erros de múltiplos comandos
 """
 

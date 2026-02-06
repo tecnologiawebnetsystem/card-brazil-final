@@ -101,7 +101,7 @@ export function ChatbotWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Olá! Sou o assistente virtual do CardBrazil CRM. Como posso ajudá-lo hoje?",
+      content: "Olá! Sou o assistente virtual do Talent Health CRM. Como posso ajudá-lo hoje?",
       sender: "bot",
       timestamp: new Date(),
       suggestions: [
@@ -219,7 +219,7 @@ export function ChatbotWidget() {
     if (file.type === "application/pdf") {
       analysis = `📄 Analisei o PDF "${file.name}". Este documento parece ser:\n\n• Documento administrativo do sistema\n• Possível relatório ou formulário\n• Tamanho: ${(file.size / 1024).toFixed(1)} KB\n\nPosso ajudar com:\n• Explicar como gerar documentos similares no sistema\n• Orientar sobre onde encontrar esta funcionalidade\n• Mostrar relatórios relacionados`
     } else if (file.type.startsWith("image/")) {
-      analysis = `🖼️ Analisei a imagem "${file.name}". Esta captura de tela mostra:\n\n• Interface do sistema CardBrazil\n• Possível tela de cadastro ou relatório\n• Resolução: Adequada para análise\n• Tamanho: ${(file.size / 1024).toFixed(1)} KB\n\nPosso ajudar com:\n• Explicar os elementos visíveis na tela\n• Orientar sobre navegação nesta seção\n• Mostrar funcionalidades relacionadas`
+      analysis = `🖼️ Analisei a imagem "${file.name}". Esta captura de tela mostra:\n\n• Interface do sistema Talent Health\n• Possível tela de cadastro ou relatório\n• Resolução: Adequada para análise\n• Tamanho: ${(file.size / 1024).toFixed(1)} KB\n\nPosso ajudar com:\n• Explicar os elementos visíveis na tela\n• Orientar sobre navegação nesta seção\n• Mostrar funcionalidades relacionadas`
     }
 
     return {
@@ -347,7 +347,7 @@ export function ChatbotWidget() {
       suggestions = ["Como navegar no sistema?", "Preciso de ajuda com cadastros", "Ver funcionalidades disponíveis"]
     } else if (lowerMessage.includes("oi") || lowerMessage.includes("olá") || lowerMessage.includes("hello")) {
       response =
-        "Olá! Bem-vindo ao CardBrazil CRM. Sou seu assistente virtual e conheço todo o sistema. Como posso ajudá-lo?"
+        "Olá! Bem-vindo ao Talent Health CRM. Sou seu assistente virtual e conheço todo o sistema. Como posso ajudá-lo?"
       suggestions = [
         "Mostrar funcionalidades principais",
         "Como navegar no sistema?",
@@ -482,7 +482,7 @@ export function ChatbotWidget() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `chat-cardbrazil-${new Date().toISOString().split("T")[0]}.txt`
+    a.download = `chat-talenthealth-${new Date().toISOString().split("T")[0]}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -552,7 +552,7 @@ export function ChatbotWidget() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="font-semibold text-sm">Assistente CardBrazil</h3>
+                <h3 className="font-semibold text-sm">Assistente Talent Health</h3>
                 <p className={cn("text-xs", darkMode ? "text-gray-400" : "text-muted-foreground")}>
                   {isTyping ? "Digitando..." : "Online agora"}
                 </p>

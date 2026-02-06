@@ -3,16 +3,16 @@ import { NextResponse } from "next/server"
 const swaggerSpec = {
   openapi: "3.0.0",
   info: {
-    title: "CardBrazil CRM API",
+    title: "Talent Health CRM API",
     version: "1.0.0",
-    description: "API REST completa do sistema CardBrazil CRM para gestão de seguros de saúde corporativo",
+    description: "API REST completa do sistema Talent Health CRM para gestão de seguros de saúde corporativo",
     contact: {
-      name: "Suporte CardBrazil",
-      email: "suporte@cardbrazil.com.br",
+      name: "Suporte Talent Health",
+      email: "suporte@talenthealth.com.br",
     },
     license: {
       name: "Proprietário",
-      url: "https://cardbrazil.com.br/licenca",
+      url: "https://talenthealth.com.br/licenca",
     },
   },
   servers: [
@@ -21,7 +21,7 @@ const swaggerSpec = {
       description: "Servidor de Desenvolvimento",
     },
     {
-      url: "https://cardbrazil.vercel.app",
+      url: "https://talenthealth.vercel.app",
       description: "Servidor de Produção",
     },
   ],
@@ -116,7 +116,7 @@ const swaggerSpec = {
           email: {
             type: "string",
             format: "email",
-            example: "admin@cardbrazil.com.br",
+            example: "admin@talenthealth.com.br",
             description: "Email do usuário",
           },
           senha: {
@@ -168,7 +168,7 @@ const swaggerSpec = {
           email: {
             type: "string",
             format: "email",
-            example: "admin@cardbrazil.com.br",
+            example: "admin@talenthealth.com.br",
           },
           ativo: {
             type: "boolean",
@@ -334,10 +334,10 @@ const swaggerSpec = {
         type: "object",
         properties: {
           id: { type: "integer", example: 1 },
-          nome: { type: "string", example: "CardBrazil" },
+          nome: { type: "string", example: "Talent Health" },
           cnpj: { type: "string", example: "12.345.678/0001-90" },
-          razao_social: { type: "string", example: "CardBrazil Administradora Ltda" },
-          email: { type: "string", format: "email", example: "contato@cardbrazil.com.br" },
+          razao_social: { type: "string", example: "Talent Health Administradora Ltda" },
+          email: { type: "string", format: "email", example: "contato@talenthealth.com.br" },
           telefone: { type: "string", example: "(11) 3000-0000" },
           status: { type: "string", enum: ["ativo", "inativo"], example: "ativo" },
         },
@@ -517,7 +517,7 @@ const swaggerSpec = {
                 type: "object",
                 required: ["email", "password"],
                 properties: {
-                  email: { type: "string", format: "email", example: "admin@cardbrazil.com.br" },
+                  email: { type: "string", format: "email", example: "admin@talenthealth.com.br" },
                   password: { type: "string", format: "password", example: "admin123" },
                 },
               },

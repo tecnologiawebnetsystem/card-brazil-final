@@ -16,7 +16,7 @@ import { Settings, Edit } from "lucide-react"
 export default function DashboardPage() {
   const user = {
     name: "Admin Demo",
-    email: "admin@cardbrazil.com.br",
+    email: "admin@talenthealth.com.br",
     role: "Administrador",
   }
 
@@ -59,7 +59,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard CardBrazil</h1>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard Talent Health</h1>
           <p className="text-muted-foreground">Sistema de Gestão para Administradora de Seguros de Saúde</p>
         </div>
         <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -145,8 +145,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-6 rounded-lg border">
-        <h2 className="text-xl font-bold text-foreground mb-4">Sistema Contábil Completo</h2>
+      <div className="bg-gradient-to-r from-[#dc2626]/5 to-[#1e3a5f]/10 p-6 rounded-lg border border-[#262626]">
+        <h2 className="text-xl font-bold text-foreground mb-4">Sistema Contabil Completo</h2>
         <p className="text-muted-foreground mb-4">
           Acesse todas as funcionalidades contábeis específicas para administradoras de seguros de saúde
         </p>

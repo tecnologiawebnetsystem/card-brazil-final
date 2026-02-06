@@ -44,8 +44,8 @@ export default function ConfiguracoesUsuariosPage() {
   const [users] = useState([
     {
       id: 1,
-      name: "Administrador CardBrazil",
-      email: "admin@cardbrazil.com.br",
+      name: "Administrador Talent Health",
+      email: "admin@talenthealth.com.br",
       role: "Administrador",
       status: "Ativo",
       lastLogin: "2024-01-15 14:30",
@@ -54,7 +54,7 @@ export default function ConfiguracoesUsuariosPage() {
     {
       id: 2,
       name: "Maria Silva",
-      email: "maria.silva@cardbrazil.com.br",
+      email: "maria.silva@talenthealth.com.br",
       role: "Operador",
       status: "Ativo",
       lastLogin: "2024-01-15 09:15",
@@ -63,7 +63,7 @@ export default function ConfiguracoesUsuariosPage() {
     {
       id: 3,
       name: "João Santos",
-      email: "joao.santos@cardbrazil.com.br",
+      email: "joao.santos@talenthealth.com.br",
       role: "Consulta",
       status: "Inativo",
       lastLogin: "2024-01-10 16:45",

@@ -36,7 +36,7 @@ export default function NotFound() {
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-8">
             <p className="text-muted-foreground text-pretty leading-relaxed">
               Nossa equipe está trabalhando para trazer esta nova funcionalidade para o
-              <span className="font-semibold text-primary"> CardBrazil CRM</span>. Em breve você terá acesso a mais uma
+              <span className="font-semibold text-primary"> Talent Health CRM</span>. Em breve você terá acesso a mais uma
               ferramenta poderosa para gerenciar seu negócio na área da saúde.
             </p>
           </div>

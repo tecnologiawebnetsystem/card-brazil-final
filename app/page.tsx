@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <main className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 min-h-screen">
           {/* Left side - Hero content */}

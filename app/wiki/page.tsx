@@ -22,7 +22,7 @@ export default function WikiPage() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-primary">Wiki CardBrazil</h1>
+                <h1 className="text-3xl font-bold text-primary">Wiki Talent Health</h1>
                 <p className="text-muted-foreground">Guia completo do sistema de gestão de saúde</p>
               </div>
             </div>
@@ -37,12 +37,12 @@ export default function WikiPage() {
         {/* Introdução */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-2xl">O que é o CRM CardBrazil?</CardTitle>
+            <CardTitle className="text-2xl">O que é o CRM Talent Health?</CardTitle>
             <CardDescription>Sistema completo de gestão para administradoras de seguro de saúde</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-lg leading-relaxed">
-              O <strong>CRM CardBrazil</strong> é uma plataforma integrada desenvolvida especificamente para
+              O <strong>CRM Talent Health</strong> é uma plataforma integrada desenvolvida especificamente para
               administradoras de seguro de saúde, oferecendo controle total sobre operações, compliance regulamentário e
               gestão financeira.
             </p>
@@ -344,7 +344,7 @@ export default function WikiPage() {
                   <h4 className="font-semibold text-lg">❓ Ajuda</h4>
                   <p className="text-muted-foreground">
                     Central de ajuda com FAQ, tutoriais interativos, documentação técnica e canais de suporte direto com
-                    a equipe CardBrazil.
+                    a equipe Talent Health.
                   </p>
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function WikiPage() {
           <CardContent className="p-6 text-center">
             <h3 className="text-xl font-semibold mb-2">Precisa de mais informações?</h3>
             <p className="text-muted-foreground mb-4">
-              Nossa equipe está pronta para ajudar você a aproveitar ao máximo o CRM CardBrazil
+              Nossa equipe está pronta para ajudar você a aproveitar ao máximo o CRM Talent Health
             </p>
             <div className="flex justify-center gap-4">
               <Link href="/">

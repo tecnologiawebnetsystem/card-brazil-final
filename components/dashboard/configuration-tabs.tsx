@@ -240,8 +240,8 @@ export function ConfigurationTabs() {
                 <AvatarFallback>AD</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Administrador CardBrazil</h3>
-                <p className="text-sm text-muted-foreground">admin@cardbrazil.com.br</p>
+                <h3 className="text-lg font-semibold">Administrador Talent Health</h3>
+                <p className="text-sm text-muted-foreground">admin@talenthealth.com.br</p>
                 <p className="text-sm text-muted-foreground">Administrador do Sistema</p>
               </div>
             </div>
@@ -267,7 +267,7 @@ export function ConfigurationTabs() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="nome">Nome Completo</Label>
-                    <Input id="nome" defaultValue="Administrador CardBrazil" />
+                    <Input id="nome" defaultValue="Administrador Talent Health" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="cargo">Cargo</Label>
@@ -275,7 +275,7 @@ export function ConfigurationTabs() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email-perfil">Email</Label>
-                    <Input id="email-perfil" defaultValue="admin@cardbrazil.com.br" />
+                    <Input id="email-perfil" defaultValue="admin@talenthealth.com.br" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="telefone-perfil">Telefone</Label>

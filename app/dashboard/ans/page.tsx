@@ -65,7 +65,7 @@ export default function ANSPage() {
   const [ansConfig, setAnsConfig] = useState({
     registroAns: "41234567",
     cnpj: "12.345.678/0001-90",
-    razaoSocial: "CardBrazil Administradora de Saúde Ltda",
+    razaoSocial: "Talent Health Administradora de Saude Ltda",
     usuario: "",
     senha: "",
     ambiente: "producao",

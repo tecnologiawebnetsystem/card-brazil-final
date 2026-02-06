@@ -1,6 +1,6 @@
 import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import type { Metadata, Viewport } from "next"
+import { Inter, Space_Grotesk } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -10,10 +10,24 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+})
+
 export const metadata: Metadata = {
-  title: "CardBrazil CRM",
-  description: "Sistema de CRM para Administradora de Saúde CardBrazil",
+  title: "Talent Health CRM",
+  description: "Sistema de CRM para Administradora de Seguro de Saude Talent Health - Desenvolvido por WebNetSystem",
   generator: "v0.app",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#dc2626",
 }
 
 export default function RootLayout({
@@ -22,9 +36,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR">
-      <body className={`font-sans ${inter.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
+      <body className="font-sans">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>

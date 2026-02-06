@@ -28,8 +28,8 @@ export default function ApiDocs() {
     <div className="min-h-screen bg-background">
       <div className="border-b bg-card">
         <div className="container mx-auto py-6">
-          <h1 className="text-3xl font-bold text-foreground">CardBrazil CRM - API Documentation</h1>
-          <p className="text-muted-foreground mt-2">Documentação completa da API REST do sistema CardBrazil CRM</p>
+          <h1 className="text-3xl font-bold text-foreground">Talent Health CRM - API Documentation</h1>
+          <p className="text-muted-foreground mt-2">Documentação completa da API REST do sistema Talent Health CRM</p>
         </div>
       </div>
       <div className="container mx-auto py-8">

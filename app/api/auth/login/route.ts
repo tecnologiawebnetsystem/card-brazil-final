@@ -20,7 +20,7 @@ import { AuthService } from "@/lib/auth-service"
  *               email:
  *                 type: string
  *                 format: email
- *                 example: admin@cardbrazil.com.br
+ *                 example: admin@talenthealth.com.br
  *               senha:
  *                 type: string
  *                 example: admin123

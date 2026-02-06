@@ -4,103 +4,101 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Nova paleta de cores suaves baseada na imagem fornecida */
-  /* Cores principais inspiradas na imagem: turquesa suave, cinzas neutros, coral suave */
-  --background: #f8fafb; /* Cinza muito claro como na imagem */
-  --foreground: #475569; /* Cinza escuro suave para texto */
-  --card: #ffffff;
-  --card-foreground: #334155;
-  --popover: #ffffff;
-  --popover-foreground: #334155;
-  --primary: #22d3ee; /* Turquesa/ciano suave da imagem */
-  --primary-foreground: #0f172a;
-  --secondary: #67e8f9; /* Turquesa mais claro */
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9; /* Cinza neutro suave */
-  --muted-foreground: #64748b;
-  --accent: #06b6d4; /* Ciano médio para acentos */
+  /* CardBrazil - Paleta vermelho/azul escuro/laranja */
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #141414;
+  --card-foreground: #f5f5f5;
+  --popover: #141414;
+  --popover-foreground: #f5f5f5;
+  --primary: #dc2626; /* Vermelho principal */
+  --primary-foreground: #ffffff;
+  --secondary: #1e3a5f; /* Azul escuro */
+  --secondary-foreground: #f5f5f5;
+  --muted: #1a1a1a;
+  --muted-foreground: #a3a3a3;
+  --accent: #c2410c; /* Laranja escuro */
   --accent-foreground: #ffffff;
-  --destructive: #f87171; /* Coral suave em vez de vermelho forte */
+  --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0; /* Borda cinza suave */
-  --input: #ffffff;
-  --ring: rgba(34, 211, 238, 0.2); /* Ring turquesa suave */
-  --chart-1: #22d3ee; /* Turquesa principal */
-  --chart-2: #67e8f9; /* Turquesa claro */
-  --chart-3: #06b6d4; /* Ciano */
-  --chart-4: #a7f3d0; /* Verde suave */
-  --chart-5: #f87171; /* Coral suave */
+  --border: #262626;
+  --input: #1a1a1a;
+  --ring: rgba(220, 38, 38, 0.3);
+  --chart-1: #dc2626; /* Vermelho */
+  --chart-2: #1e3a5f; /* Azul escuro */
+  --chart-3: #c2410c; /* Laranja */
+  --chart-4: #ef4444; /* Vermelho claro */
+  --chart-5: #2563eb; /* Azul */
   --radius: 0.75rem;
-  --sidebar: #f8fafb; /* Mesmo tom do background */
-  --sidebar-foreground: #475569;
-  --sidebar-primary: #f1f5f9;
-  --sidebar-primary-foreground: #334155;
-  --sidebar-accent: #22d3ee; /* Turquesa para acentos do sidebar */
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: rgba(34, 211, 238, 0.2);
+  --sidebar: #0f0f0f;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #1a1a1a;
+  --sidebar-primary-foreground: #f5f5f5;
+  --sidebar-accent: #dc2626;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #262626;
+  --sidebar-ring: rgba(220, 38, 38, 0.3);
 
-  /* Cores semânticas atualizadas com a nova paleta suave */
-  --success: #22d3ee; /* Turquesa para sucesso */
-  --success-foreground: #0f172a;
-  --warning: #fbbf24; /* Amarelo suave */
-  --warning-foreground: #0f172a;
-  --info: #67e8f9; /* Turquesa claro para info */
-  --info-foreground: #0f172a;
-  --health-primary: #22d3ee; /* Turquesa principal */
-  --health-secondary: #67e8f9; /* Turquesa secundário */
-  --health-neutral: #64748b; /* Cinza neutro */
+  /* Cores semanticas */
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #0a0a0a;
+  --info: #3b82f6;
+  --info-foreground: #ffffff;
+  --health-primary: #dc2626;
+  --health-secondary: #1e3a5f;
+  --health-neutral: #737373;
 }
 
 .dark {
-  /* Modo escuro adaptado para a nova paleta suave */
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1e293b;
-  --card-foreground: #f1f5f9;
-  --popover: #1e293b;
-  --popover-foreground: #f1f5f9;
-  --primary: #67e8f9; /* Turquesa mais claro no modo escuro */
-  --primary-foreground: #0f172a;
-  --secondary: #22d3ee;
-  --secondary-foreground: #0f172a;
-  --muted: #334155;
-  --muted-foreground: #94a3b8;
-  --accent: #06b6d4;
-  --accent-foreground: #f1f5f9;
-  --destructive: #f87171; /* Coral suave mantido */
-  --destructive-foreground: #f1f5f9;
-  --border: #334155;
-  --input: #1e293b;
-  --ring: rgba(103, 232, 249, 0.3);
-  --chart-1: #67e8f9;
-  --chart-2: #22d3ee;
-  --chart-3: #06b6d4;
-  --chart-4: #a7f3d0;
-  --chart-5: #f87171;
-  --sidebar: #1e293b;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #334155;
-  --sidebar-primary-foreground: #f1f5f9;
-  --sidebar-accent: #67e8f9;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #334155;
-  --sidebar-ring: rgba(103, 232, 249, 0.3);
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #141414;
+  --card-foreground: #f5f5f5;
+  --popover: #141414;
+  --popover-foreground: #f5f5f5;
+  --primary: #ef4444;
+  --primary-foreground: #ffffff;
+  --secondary: #1e3a5f;
+  --secondary-foreground: #f5f5f5;
+  --muted: #1a1a1a;
+  --muted-foreground: #a3a3a3;
+  --accent: #c2410c;
+  --accent-foreground: #f5f5f5;
+  --destructive: #b91c1c;
+  --destructive-foreground: #f5f5f5;
+  --border: #262626;
+  --input: #1a1a1a;
+  --ring: rgba(239, 68, 68, 0.3);
+  --chart-1: #ef4444;
+  --chart-2: #1e3a5f;
+  --chart-3: #c2410c;
+  --chart-4: #dc2626;
+  --chart-5: #2563eb;
+  --sidebar: #0f0f0f;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #1a1a1a;
+  --sidebar-primary-foreground: #f5f5f5;
+  --sidebar-accent: #ef4444;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #262626;
+  --sidebar-ring: rgba(239, 68, 68, 0.3);
 
-  --success: #67e8f9;
-  --success-foreground: #0f172a;
-  --warning: #fbbf24;
-  --warning-foreground: #0f172a;
-  --info: #22d3ee;
-  --info-foreground: #0f172a;
-  --health-primary: #67e8f9;
-  --health-secondary: #22d3ee;
-  --health-neutral: #94a3b8;
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #0a0a0a;
+  --info: #3b82f6;
+  --info-foreground: #ffffff;
+  --health-primary: #ef4444;
+  --health-secondary: #1e3a5f;
+  --health-neutral: #a3a3a3;
 }
 
 @theme inline {
-  /* Updated font variables for better typography hierarchy */
   --font-sans: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -186,7 +184,50 @@
   /* Removed problematic min-height/width rule that was causing utility class error */
   /* Improved touch targets are now handled per component where needed */
 
-  /* Enhanced typography with better healthcare-focused hierarchy */
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #dc2626;
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(220, 38, 38, 0.3);
+    color: #f5f5f5;
+  }
+
+  /* Text gradient utility */
+  .text-gradient {
+    @apply bg-gradient-to-r from-[#dc2626] via-[#c2410c] to-[#dc2626] bg-clip-text text-transparent;
+  }
+
+  /* Glow effects */
+  .glow-red {
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.3), 0 0 40px rgba(220, 38, 38, 0.1);
+  }
+
+  .glow-orange {
+    box-shadow: 0 0 20px rgba(194, 65, 12, 0.3), 0 0 40px rgba(194, 65, 12, 0.1);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(30, 58, 95, 0.4), 0 0 40px rgba(30, 58, 95, 0.2);
+  }
+
+  /* Enhanced typography with better hierarchy */
   h1 {
     @apply text-3xl font-bold tracking-tight text-balance text-foreground;
   }
@@ -258,30 +299,30 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Improved gradient backgrounds */
+  /* Gradient backgrounds */
   .gradient-primary {
-    @apply bg-gradient-to-br from-primary via-primary/95 to-accent;
+    @apply bg-gradient-to-br from-[#dc2626] via-[#c2410c] to-[#dc2626];
   }
 
   .gradient-healthcare {
-    @apply bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5;
+    @apply bg-gradient-to-br from-[#dc2626]/5 via-[#0a0a0a] to-[#1e3a5f]/10;
   }
 
   .gradient-card {
     @apply bg-gradient-to-br from-card via-background to-muted/20;
   }
 
-  /* Enhanced healthcare-specific utility classes */
+  /* CardBrazil utility classes */
   .healthcare-card {
-    @apply bg-gradient-to-br from-card to-primary/5 border border-primary/10 rounded-xl shadow-lg shadow-primary/5 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10;
+    @apply bg-card/95 border border-border/50 rounded-xl shadow-lg shadow-[#dc2626]/5 transition-all duration-300 hover:shadow-xl hover:shadow-[#dc2626]/10 hover:border-[#dc2626]/20;
   }
 
   .healthcare-button {
-    @apply bg-gradient-to-r from-primary to-accent text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30;
+    @apply bg-gradient-to-r from-[#dc2626] to-[#c2410c] text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-[#dc2626]/25 transition-all duration-200 hover:shadow-xl hover:shadow-[#dc2626]/40 hover:brightness-110;
   }
 
   .healthcare-input {
-    @apply bg-input border-2 border-border hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 rounded-lg px-4 py-3;
+    @apply bg-[#1a1a1a] border-2 border-[#262626] text-[#f5f5f5] hover:border-[#dc2626]/50 focus:border-[#dc2626] focus:ring-2 focus:ring-[#dc2626]/20 transition-all duration-200 rounded-lg px-4 py-3;
   }
 
   /* Responsive utilities */

@@ -145,8 +145,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-6 rounded-lg border">
-        <h2 className="text-xl font-bold text-foreground mb-4">Sistema Contábil Completo</h2>
+      <div className="bg-gradient-to-r from-[#dc2626]/5 to-[#1e3a5f]/10 p-6 rounded-lg border border-[#262626]">
+        <h2 className="text-xl font-bold text-foreground mb-4">Sistema Contabil Completo</h2>
         <p className="text-muted-foreground mb-4">
           Acesse todas as funcionalidades contábeis específicas para administradoras de seguros de saúde
         </p>

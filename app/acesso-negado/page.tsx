@@ -18,31 +18,31 @@ export default function AcessoNegadoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-background to-orange-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-              <ShieldX className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-br from-[#dc2626] to-[#c2410c] rounded-xl flex items-center justify-center shadow-lg shadow-[#dc2626]/20">
+              <ShieldX className="w-6 h-6 text-[#ffffff]" />
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
                 CardBrazil
               </h1>
-              <p className="text-sm text-muted-foreground">Controle de Acesso</p>
+              <p className="text-sm text-[#a3a3a3]">Controle de Acesso</p>
             </div>
           </div>
         </div>
 
-        <Card className="shadow-2xl shadow-red-500/10 border-red-200 bg-card/80 backdrop-blur-sm">
+        <Card className="shadow-2xl shadow-[#dc2626]/10 border-[#262626] bg-[#141414]/95 backdrop-blur-sm">
           <CardHeader className="text-center space-y-6">
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-              <AlertTriangle className="w-10 h-10 text-red-600" />
+            <div className="w-20 h-20 bg-[#dc2626]/10 rounded-full flex items-center justify-center mx-auto border border-[#dc2626]/20">
+              <AlertTriangle className="w-10 h-10 text-[#dc2626]" />
             </div>
 
             <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold text-red-700">Acesso Negado</CardTitle>
+              <CardTitle className="text-2xl font-bold text-[#dc2626]">Acesso Negado</CardTitle>
               <CardDescription className="text-base">
                 Você não possui permissão para acessar esta área do sistema
               </CardDescription>
@@ -50,9 +50,9 @@ export default function AcessoNegadoPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <Alert className="border-red-200 bg-red-50">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">
+            <Alert className="border-[#dc2626]/20 bg-[#dc2626]/5">
+              <AlertTriangle className="h-4 w-4 text-[#dc2626]" />
+              <AlertDescription className="text-[#f5f5f5]">
                 <strong>Motivos possíveis:</strong>
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>Seu perfil de usuário não tem permissão para esta funcionalidade</li>
@@ -63,9 +63,9 @@ export default function AcessoNegadoPage() {
               </AlertDescription>
             </Alert>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-800 mb-2">O que você pode fazer:</h4>
-              <div className="space-y-2 text-sm text-blue-700">
+            <div className="bg-[#1e3a5f]/10 border border-[#1e3a5f]/20 rounded-lg p-4">
+              <h4 className="font-semibold text-[#f5f5f5] mb-2">O que voce pode fazer:</h4>
+              <div className="space-y-2 text-sm text-[#a3a3a3]">
                 <div className="flex items-center gap-2">
                   <RefreshCw className="w-4 h-4" />
                   <span>Tente fazer login novamente</span>
@@ -82,7 +82,7 @@ export default function AcessoNegadoPage() {
             </div>
 
             <div className="space-y-3">
-              <Button onClick={handleGoBack} className="w-full h-12 bg-gradient-to-r from-primary to-secondary">
+              <Button onClick={handleGoBack} className="w-full h-12 healthcare-button">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Voltar à Página Anterior
               </Button>
@@ -95,7 +95,7 @@ export default function AcessoNegadoPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push("/")}
-                className="w-full h-12 border-red-200 text-red-700 hover:bg-red-50"
+                className="w-full h-12 border-[#dc2626]/30 text-[#dc2626] hover:bg-[#dc2626]/10"
               >
                 Fazer Login Novamente
               </Button>

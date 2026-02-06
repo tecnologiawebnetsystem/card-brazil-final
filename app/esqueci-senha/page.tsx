@@ -51,7 +51,7 @@ export default function EsqueciSenhaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -65,19 +65,19 @@ export default function EsqueciSenhaPage() {
           </Button>
 
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
-              <Shield className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-br from-[#dc2626] to-[#c2410c] rounded-xl flex items-center justify-center shadow-lg shadow-[#dc2626]/20">
+              <Shield className="w-6 h-6 text-[#ffffff]" />
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
                 CardBrazil
               </h1>
-              <p className="text-sm text-muted-foreground">Recuperação de Acesso</p>
+              <p className="text-sm text-[#a3a3a3]">Recuperacao de Acesso</p>
             </div>
           </div>
         </div>
 
-        <Card className="shadow-2xl shadow-primary/10 border-0 bg-card/80 backdrop-blur-sm">
+        <Card className="shadow-2xl shadow-[#dc2626]/10 border border-[#262626] bg-[#141414]/95 backdrop-blur-sm">
           {step === 1 && (
             <>
               <CardHeader className="text-center space-y-4">
@@ -138,12 +138,12 @@ export default function EsqueciSenhaPage() {
 
                   <Button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-primary to-secondary"
+                    className="w-full h-12 healthcare-button"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-[#ffffff]/30 border-t-[#ffffff] rounded-full animate-spin" />
                         Verificando...
                       </div>
                     ) : (
@@ -213,7 +213,7 @@ export default function EsqueciSenhaPage() {
 
                   <Button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-primary to-secondary"
+                    className="w-full h-12 healthcare-button"
                     disabled={isLoading || !recoveryMethod}
                   >
                     {isLoading ? (
@@ -266,7 +266,7 @@ export default function EsqueciSenhaPage() {
                   <div className="pt-4 space-y-3">
                     <Button
                       onClick={() => router.push("/")}
-                      className="w-full h-12 bg-gradient-to-r from-primary to-secondary"
+                      className="w-full h-12 healthcare-button"
                     >
                       Voltar ao Login
                     </Button>

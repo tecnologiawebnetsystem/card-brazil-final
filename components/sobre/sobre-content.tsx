@@ -75,7 +75,7 @@ const testimonials = [
   },
 ]
 
-const whyTalent Health = [
+const whyTalentHealth = [
   {
     icon: Shield,
     title: "Seguranca e Confiabilidade",
@@ -310,7 +310,7 @@ export function SobreContent() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {whyTalent Health.map((item) => (
+            {whyTalentHealth.map((item) => (
               <div
                 key={item.title}
                 className="bg-[#141414] border border-[#262626] rounded-2xl p-6 hover:border-[#dc2626]/30 transition-all duration-300"

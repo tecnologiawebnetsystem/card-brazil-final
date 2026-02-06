@@ -1,12 +1,20 @@
+import Link from "next/link"
 import { CardBrazilLogo } from "@/components/card-brazil-logo"
-import { Shield, Heart, Stethoscope, Clock, Users, Activity } from "lucide-react"
+import { Shield, Heart, Stethoscope, Clock, Users, Activity, Info } from "lucide-react"
 
 export function HeroSection() {
   return (
     <div className="flex flex-col justify-center py-8 px-8 lg:px-16">
       {/* Logo and Brand */}
-      <div className="mb-10">
+      <div className="mb-6 flex items-center justify-between">
         <CardBrazilLogo variant="full" size="lg" glow />
+        <Link
+          href="/sobre"
+          className="flex items-center gap-2 px-4 py-2 bg-[#141414] border border-[#262626] rounded-xl text-sm font-medium text-[#a3a3a3] hover:text-[#dc2626] hover:border-[#dc2626]/30 transition-all duration-200"
+        >
+          <Info className="w-4 h-4" />
+          Sobre Nos
+        </Link>
       </div>
 
       {/* Main heading */}

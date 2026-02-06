@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { CardBrazilLogo } from "@/components/card-brazil-logo"
 
 export function Footer() {
@@ -60,6 +61,11 @@ export function Footer() {
                   {item}
                 </li>
               ))}
+              <li className="hover:text-[#dc2626] transition-colors hover:translate-x-1 transition-transform duration-200">
+                <Link href="/sobre" className="inline-block">
+                  Sobre Nos
+                </Link>
+              </li>
             </ul>
           </div>
 

@@ -132,8 +132,8 @@ export function LoginSection() {
   return (
     <div className="flex flex-col justify-center p-8 lg:p-12 relative min-h-screen">
       {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#dc2626]/5 via-transparent to-[#1e3a5f]/5" />
-      <div className="absolute top-20 right-20 w-64 h-64 bg-[#dc2626]/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#008080]/5 via-transparent to-[#1e3a5f]/5" />
+      <div className="absolute top-20 right-20 w-64 h-64 bg-[#008080]/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-20 w-48 h-48 bg-[#1e3a5f]/8 rounded-full blur-2xl" />
 
       <div className="relative z-10">
@@ -145,7 +145,7 @@ export function LoginSection() {
         <Card className="w-full max-w-lg mx-auto bg-[#141414]/95 border-[#262626] backdrop-blur-sm">
           <CardHeader className="text-center space-y-6 pb-6">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#dc2626] to-[#c2410c] rounded-2xl flex items-center justify-center glow-red">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#008080] to-[#006666] rounded-2xl flex items-center justify-center glow-red">
                 <Stethoscope className="w-8 h-8 text-[#ffffff]" />
               </div>
               <div>
@@ -159,7 +159,7 @@ export function LoginSection() {
 
           <CardContent className="space-y-6 px-6 pb-6">
             {error && (
-              <Alert variant="destructive" className="bg-[#dc2626]/10 border-[#dc2626]/30 text-[#f5f5f5]">
+              <Alert variant="destructive" className="bg-[#008080]/10 border-[#008080]/30 text-[#f5f5f5]">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -168,7 +168,7 @@ export function LoginSection() {
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-3">
                 <Label htmlFor="userType" className="text-sm font-semibold flex items-center gap-2 text-[#f5f5f5]">
-                  <Users className="w-4 h-4 text-[#dc2626]" />
+                  <Users className="w-4 h-4 text-[#008080]" />
                   Tipo de Usuario
                 </Label>
                 <Select value={userType} onValueChange={setUserType}>
@@ -179,10 +179,10 @@ export function LoginSection() {
                     {userTypes.map((type) => {
                       const Icon = type.icon
                       return (
-                        <SelectItem key={type.value} value={type.value} className="py-3 hover:bg-[#dc2626]/10 text-[#f5f5f5]">
+                        <SelectItem key={type.value} value={type.value} className="py-3 hover:bg-[#008080]/10 text-[#f5f5f5]">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-[#dc2626]/10 rounded-lg flex items-center justify-center border border-[#dc2626]/20">
-                              <Icon className="w-5 h-5 text-[#dc2626]" />
+                            <div className="w-10 h-10 bg-[#008080]/10 rounded-lg flex items-center justify-center border border-[#008080]/20">
+                              <Icon className="w-5 h-5 text-[#008080]" />
                             </div>
                             <div className="text-left">
                               <div className="font-semibold text-[#f5f5f5]">{type.label}</div>
@@ -198,7 +198,7 @@ export function LoginSection() {
 
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-semibold flex items-center gap-2 text-[#f5f5f5]">
-                  <Mail className="w-4 h-4 text-[#dc2626]" />
+                  <Mail className="w-4 h-4 text-[#008080]" />
                   Email ou CPF
                 </Label>
                 <Input
@@ -212,7 +212,7 @@ export function LoginSection() {
 
               <div className="space-y-3">
                 <Label htmlFor="password" className="text-sm font-semibold flex items-center gap-2 text-[#f5f5f5]">
-                  <Lock className="w-4 h-4 text-[#dc2626]" />
+                  <Lock className="w-4 h-4 text-[#008080]" />
                   Senha
                 </Label>
                 <div className="relative">
@@ -227,7 +227,7 @@ export function LoginSection() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-[#a3a3a3] hover:text-[#dc2626] transition-colors"
+                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-[#a3a3a3] hover:text-[#008080] transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -280,7 +280,7 @@ export function LoginSection() {
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   variant="outline"
-                  className="h-11 border-[#dc2626]/30 hover:bg-[#dc2626]/10 bg-transparent text-[#f5f5f5] hover:text-[#f5f5f5]"
+                  className="h-11 border-[#008080]/30 hover:bg-[#008080]/10 bg-transparent text-[#f5f5f5] hover:text-[#f5f5f5]"
                   onClick={() => handleDemoLogin("admin")}
                   disabled={loading}
                 >
@@ -302,7 +302,7 @@ export function LoginSection() {
             <div className="text-center pt-2">
               <Button
                 variant="link"
-                className="text-sm text-[#dc2626] hover:text-[#ef4444] p-0 font-semibold underline-offset-4"
+                className="text-sm text-[#008080] hover:text-[#00a3a3] p-0 font-semibold underline-offset-4"
                 onClick={() => (window.location.href = "/esqueci-senha")}
               >
                 Esqueci minha senha

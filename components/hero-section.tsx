@@ -10,7 +10,7 @@ export function HeroSection() {
         <TalentHealthLogo variant="full" size="lg" glow />
         <Link
           href="/sobre"
-          className="flex items-center gap-2 px-4 py-2 bg-[#141414] border border-[#262626] rounded-xl text-sm font-medium text-[#a3a3a3] hover:text-[#dc2626] hover:border-[#dc2626]/30 transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 bg-[#141414] border border-[#262626] rounded-xl text-sm font-medium text-[#a3a3a3] hover:text-[#008080] hover:border-[#008080]/30 transition-all duration-200"
         >
           <Info className="w-4 h-4" />
           Sobre Nos
@@ -36,11 +36,11 @@ export function HeroSection() {
         <h3 className="text-lg font-bold text-[#f5f5f5] mb-4">Por que escolher a Talent Health?</h3>
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-[#dc2626] mb-1">500K+</div>
+            <div className="text-3xl font-bold text-[#008080] mb-1">500K+</div>
             <p className="text-sm text-[#a3a3a3]">Beneficiarios ativos</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-[#c2410c] mb-1">15K+</div>
+            <div className="text-3xl font-bold text-[#006666] mb-1">15K+</div>
             <p className="text-sm text-[#a3a3a3]">Medicos credenciados</p>
           </div>
           <div className="text-center">
@@ -62,7 +62,7 @@ export function HeroSection() {
             "Telemedicina e consultas online",
           ].map((benefit) => (
             <div key={benefit} className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-[#dc2626] rounded-full shrink-0" />
+              <div className="w-2 h-2 bg-[#008080] rounded-full shrink-0" />
               <span className="text-[#a3a3a3] text-sm">{benefit}</span>
             </div>
           ))}
@@ -72,14 +72,14 @@ export function HeroSection() {
       {/* Feature cards */}
       <div className="grid grid-cols-2 gap-4">
         {[
-          { icon: Heart, title: "Cobertura Completa", desc: "Atendimento medico", color: "#dc2626" },
-          { icon: Users, title: "Rede Credenciada", desc: "Milhares de medicos", color: "#c2410c" },
+          { icon: Heart, title: "Cobertura Completa", desc: "Atendimento medico", color: "#008080" },
+          { icon: Users, title: "Rede Credenciada", desc: "Milhares de medicos", color: "#006666" },
           { icon: Shield, title: "Seguranca Total", desc: "Dados protegidos", color: "#1e3a5f" },
-          { icon: Stethoscope, title: "Qualidade", desc: "Certificacao ANS", color: "#dc2626" },
+          { icon: Stethoscope, title: "Qualidade", desc: "Certificacao ANS", color: "#008080" },
         ].map((feature) => (
           <div
             key={feature.title}
-            className="flex items-center gap-3 p-4 bg-[#141414] border border-[#262626] rounded-xl hover:border-[#dc2626]/30 transition-all duration-300"
+            className="flex items-center gap-3 p-4 bg-[#141414] border border-[#262626] rounded-xl hover:border-[#008080]/30 transition-all duration-300"
           >
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"

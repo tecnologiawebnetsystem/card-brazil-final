@@ -19,10 +19,10 @@ export function Footer() {
               ].map((path, i) => (
                 <div
                   key={i}
-                  className="w-10 h-10 bg-[#1a1a1a] border border-[#262626] rounded-xl flex items-center justify-center hover:bg-[#dc2626]/10 hover:border-[#dc2626]/30 transition-all duration-200 cursor-pointer group"
+                  className="w-10 h-10 bg-[#1a1a1a] border border-[#262626] rounded-xl flex items-center justify-center hover:bg-[#008080]/10 hover:border-[#008080]/30 transition-all duration-200 cursor-pointer group"
                 >
                   <svg
-                    className="w-5 h-5 text-[#a3a3a3] group-hover:text-[#dc2626] transition-colors"
+                    className="w-5 h-5 text-[#a3a3a3] group-hover:text-[#008080] transition-colors"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                     aria-hidden="true"
@@ -41,7 +41,7 @@ export function Footer() {
               {["Planos Individuais", "Planos Empresariais", "Rede Credenciada"].map((item) => (
                 <li
                   key={item}
-                  className="hover:text-[#dc2626] transition-colors cursor-pointer hover:translate-x-1 transition-transform duration-200"
+                  className="hover:text-[#008080] transition-colors cursor-pointer hover:translate-x-1 transition-transform duration-200"
                 >
                   {item}
                 </li>
@@ -56,12 +56,12 @@ export function Footer() {
               {["Central de Ajuda", "Como usar", "Duvidas Frequentes", "Fale Conosco", "Ouvidoria"].map((item) => (
                 <li
                   key={item}
-                  className="hover:text-[#dc2626] transition-colors cursor-pointer hover:translate-x-1 transition-transform duration-200"
+                  className="hover:text-[#008080] transition-colors cursor-pointer hover:translate-x-1 transition-transform duration-200"
                 >
                   {item}
                 </li>
               ))}
-              <li className="hover:text-[#dc2626] transition-colors hover:translate-x-1 transition-transform duration-200">
+              <li className="hover:text-[#008080] transition-colors hover:translate-x-1 transition-transform duration-200">
                 <Link href="/sobre" className="inline-block">
                   Sobre Nos
                 </Link>
@@ -79,8 +79,8 @@ export function Footer() {
                 { icon: "location", label: "Av. Paulista, 1000\nSao Paulo - SP" },
               ].map((contact) => (
                 <div key={contact.icon} className="flex items-start gap-4 text-[#a3a3a3] group">
-                  <div className="w-10 h-10 bg-[#1a1a1a] border border-[#262626] rounded-xl flex items-center justify-center group-hover:bg-[#dc2626]/10 group-hover:border-[#dc2626]/30 transition-colors shrink-0">
-                    <svg className="w-5 h-5 text-[#dc2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <div className="w-10 h-10 bg-[#1a1a1a] border border-[#262626] rounded-xl flex items-center justify-center group-hover:bg-[#008080]/10 group-hover:border-[#008080]/30 transition-colors shrink-0">
+                    <svg className="w-5 h-5 text-[#008080]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       {contact.icon === "phone" && (
                         <path
                           strokeLinecap="round"
@@ -126,7 +126,7 @@ export function Footer() {
         <div className="border-t border-[#262626] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[#a3a3a3] font-medium">{"© 2024 Talent Health. Todos os direitos reservados."}</p>
           <div className="flex gap-8 font-medium text-[#a3a3a3]">
-            <span className="hover:text-[#dc2626] transition-colors cursor-pointer">ANS: 12345</span>
+            <span className="hover:text-[#008080] transition-colors cursor-pointer">ANS: 12345</span>
           </div>
         </div>
       </div>

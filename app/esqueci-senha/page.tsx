@@ -65,11 +65,11 @@ export default function EsqueciSenhaPage() {
           </Button>
 
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#dc2626] to-[#c2410c] rounded-xl flex items-center justify-center shadow-lg shadow-[#dc2626]/20">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-[#006666] rounded-xl flex items-center justify-center shadow-lg shadow-[#008080]/20">
               <Shield className="w-6 h-6 text-[#ffffff]" />
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#008080] to-[#006666] bg-clip-text text-transparent">
                 Talent Health
               </h1>
               <p className="text-sm text-[#a3a3a3]">Recuperacao de Acesso</p>
@@ -77,7 +77,7 @@ export default function EsqueciSenhaPage() {
           </div>
         </div>
 
-        <Card className="shadow-2xl shadow-[#dc2626]/10 border border-[#262626] bg-[#141414]/95 backdrop-blur-sm">
+        <Card className="shadow-2xl shadow-[#008080]/10 border border-[#262626] bg-[#141414]/95 backdrop-blur-sm">
           {step === 1 && (
             <>
               <CardHeader className="text-center space-y-4">

@@ -476,7 +476,7 @@ const menuItems = [
     title: "Sistemas",
     items: [
       {
-        title: "Integra����ão ANS",
+        title: "Integra������ão ANS",
         icon: <CogIcon />,
         subItems: [
           {
@@ -622,7 +622,7 @@ export function AppSidebar() {
       <Sidebar variant="inset" className="border-r border-[#262626] bg-[#0f0f0f]">
         <SidebarHeader className="border-b border-[#262626] p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#dc2626] to-[#c2410c] shadow-lg shadow-[#dc2626]/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#008080] to-[#006666] shadow-lg shadow-[#008080]/20">
               <svg className="h-6 w-6 text-[#ffffff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -633,7 +633,7 @@ export function AppSidebar() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-[#008080] to-[#006666] bg-clip-text text-transparent">
                 Talent Health
               </h1>
               <p className="text-xs text-[#a3a3a3]">Sistema de Gestao</p>
@@ -665,7 +665,7 @@ export function AppSidebar() {
                               <SidebarMenuButton
                                 key={subItem.title}
                                 asChild
-                                className="rounded-lg hover:bg-[#dc2626]/10 hover:shadow-sm transition-all duration-200 h-7"
+                                className="rounded-lg hover:bg-[#008080]/10 hover:shadow-sm transition-all duration-200 h-7"
                               >
                                 <a href={subItem.url} className="flex items-center gap-3 px-3 py-1">
                                   <span className="text-[#a3a3a3]">{subItem.icon || item.icon}</span>
@@ -679,7 +679,7 @@ export function AppSidebar() {
                         ) : (
                           <SidebarMenuButton
                             asChild
-                            className="rounded-lg hover:bg-[#dc2626]/10 hover:shadow-sm transition-all duration-200 h-7"
+                            className="rounded-lg hover:bg-[#008080]/10 hover:shadow-sm transition-all duration-200 h-7"
                           >
                             <a href={item.url} className="flex items-center gap-3 px-3 py-1">
                               <span className="text-[#a3a3a3]">{item.icon}</span>
@@ -705,9 +705,9 @@ export function AppSidebar() {
                   variant="ghost"
                   className="w-full justify-start gap-3 rounded-xl hover:bg-[#1a1a1a] transition-colors bg-[#141414] border border-[#262626] shadow-sm"
                 >
-                  <Avatar className="h-8 w-8 ring-2 ring-[#dc2626]/30">
+                  <Avatar className="h-8 w-8 ring-2 ring-[#008080]/30">
                     <AvatarImage src="/images/user-avatar.jpg" alt={user.nome} />
-                    <AvatarFallback className="bg-gradient-to-br from-[#dc2626] to-[#c2410c] text-[#ffffff] text-xs font-semibold">
+                    <AvatarFallback className="bg-gradient-to-br from-[#008080] to-[#006666] text-[#ffffff] text-xs font-semibold">
                       {user.nome
                         ? user.nome
                             .split(" ")
@@ -741,7 +741,7 @@ export function AppSidebar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-[#262626]" />
                 <DropdownMenuItem
-                  className="rounded-lg hover:bg-[#dc2626]/10 text-[#dc2626] transition-colors cursor-pointer"
+                  className="rounded-lg hover:bg-[#008080]/10 text-[#008080] transition-colors cursor-pointer"
                   onClick={logout}
                 >
                   <span>Sair</span>

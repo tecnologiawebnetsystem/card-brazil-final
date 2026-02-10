@@ -23,11 +23,11 @@ export default function AcessoNegadoPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#dc2626] to-[#c2410c] rounded-xl flex items-center justify-center shadow-lg shadow-[#dc2626]/20">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-[#006666] rounded-xl flex items-center justify-center shadow-lg shadow-[#008080]/20">
               <ShieldX className="w-6 h-6 text-[#ffffff]" />
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#008080] to-[#006666] bg-clip-text text-transparent">
                 Talent Health
               </h1>
               <p className="text-sm text-[#a3a3a3]">Controle de Acesso</p>
@@ -35,14 +35,14 @@ export default function AcessoNegadoPage() {
           </div>
         </div>
 
-        <Card className="shadow-2xl shadow-[#dc2626]/10 border-[#262626] bg-[#141414]/95 backdrop-blur-sm">
+        <Card className="shadow-2xl shadow-[#008080]/10 border-[#262626] bg-[#141414]/95 backdrop-blur-sm">
           <CardHeader className="text-center space-y-6">
-            <div className="w-20 h-20 bg-[#dc2626]/10 rounded-full flex items-center justify-center mx-auto border border-[#dc2626]/20">
-              <AlertTriangle className="w-10 h-10 text-[#dc2626]" />
+            <div className="w-20 h-20 bg-[#008080]/10 rounded-full flex items-center justify-center mx-auto border border-[#008080]/20">
+              <AlertTriangle className="w-10 h-10 text-[#008080]" />
             </div>
 
             <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold text-[#dc2626]">Acesso Negado</CardTitle>
+              <CardTitle className="text-2xl font-bold text-[#008080]">Acesso Negado</CardTitle>
               <CardDescription className="text-base">
                 Você não possui permissão para acessar esta área do sistema
               </CardDescription>
@@ -50,8 +50,8 @@ export default function AcessoNegadoPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <Alert className="border-[#dc2626]/20 bg-[#dc2626]/5">
-              <AlertTriangle className="h-4 w-4 text-[#dc2626]" />
+            <Alert className="border-[#008080]/20 bg-[#008080]/5">
+              <AlertTriangle className="h-4 w-4 text-[#008080]" />
               <AlertDescription className="text-[#f5f5f5]">
                 <strong>Motivos possíveis:</strong>
                 <ul className="list-disc list-inside mt-2 space-y-1">
@@ -95,7 +95,7 @@ export default function AcessoNegadoPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push("/")}
-                className="w-full h-12 border-[#dc2626]/30 text-[#dc2626] hover:bg-[#dc2626]/10"
+                className="w-full h-12 border-[#008080]/30 text-[#008080] hover:bg-[#008080]/10"
               >
                 Fazer Login Novamente
               </Button>

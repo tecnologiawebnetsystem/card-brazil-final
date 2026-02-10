@@ -22,13 +22,13 @@ function LogoIcon({ size = 40, glow = false }: { size?: number; glow?: boolean }
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn(glow && "drop-shadow-[0_0_12px_rgba(220,38,38,0.5)]")}
+      className={cn(glow && "drop-shadow-[0_0_12px_rgba(0,128,128,0.5)]")}
       aria-hidden="true"
     >
       <defs>
         <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#dc2626" />
-          <stop offset="100%" stopColor="#c2410c" />
+          <stop offset="0%" stopColor="#008080" />
+          <stop offset="100%" stopColor="#006666" />
         </linearGradient>
         <linearGradient id="logo-accent" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#1e3a5f" />
@@ -39,7 +39,7 @@ function LogoIcon({ size = 40, glow = false }: { size?: number; glow?: boolean }
       <path
         d="M32 4L56 18V46L32 60L8 46V18L32 4Z"
         fill="url(#logo-gradient)"
-        stroke="#c2410c"
+        stroke="#006666"
         strokeWidth="1.5"
       />
       {/* Inner hexagon border */}
@@ -85,7 +85,7 @@ export function TalentHealthLogo({
   if (variant === "text") {
     return (
       <div className={cn("inline-flex flex-col", className)}>
-        <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#dc2626] via-[#c2410c] to-[#dc2626] bg-clip-text text-transparent")}>
+        <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#008080] via-[#006666] to-[#008080] bg-clip-text text-transparent")}>
           Talent Health
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium")}>
@@ -99,7 +99,7 @@ export function TalentHealthLogo({
     return (
       <div className={cn("inline-flex items-center gap-2", className)}>
         <LogoIcon size={Math.round(s.icon * 0.7)} glow={glow} />
-        <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#dc2626] to-[#c2410c] bg-clip-text text-transparent")}>
+        <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#008080] to-[#006666] bg-clip-text text-transparent")}>
           TH
         </span>
       </div>
@@ -111,7 +111,7 @@ export function TalentHealthLogo({
     <div className={cn("inline-flex items-center gap-3", className)}>
       <LogoIcon size={s.icon} glow={glow} />
       <div className="flex flex-col">
-        <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#dc2626] via-[#c2410c] to-[#dc2626] bg-clip-text text-transparent leading-none")}>
+        <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#008080] via-[#006666] to-[#008080] bg-clip-text text-transparent leading-none")}>
           Talent Health
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium mt-0.5")}>

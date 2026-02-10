@@ -4,40 +4,40 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Talent Health - Paleta vermelho/azul escuro/laranja */
+  /* Talent Health - Paleta teal/azul escuro */
   --background: #0a0a0a;
   --foreground: #f5f5f5;
   --card: #141414;
   --card-foreground: #f5f5f5;
   --popover: #141414;
   --popover-foreground: #f5f5f5;
-  --primary: #dc2626; /* Vermelho principal */
+  --primary: #008080; /* Teal principal */
   --primary-foreground: #ffffff;
   --secondary: #1e3a5f; /* Azul escuro */
   --secondary-foreground: #f5f5f5;
   --muted: #1a1a1a;
   --muted-foreground: #a3a3a3;
-  --accent: #c2410c; /* Laranja escuro */
+  --accent: #006666; /* Teal escuro */
   --accent-foreground: #ffffff;
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
   --border: #262626;
   --input: #1a1a1a;
-  --ring: rgba(220, 38, 38, 0.3);
-  --chart-1: #dc2626; /* Vermelho */
+  --ring: rgba(0, 128, 128, 0.3);
+  --chart-1: #008080; /* Teal */
   --chart-2: #1e3a5f; /* Azul escuro */
-  --chart-3: #c2410c; /* Laranja */
-  --chart-4: #ef4444; /* Vermelho claro */
+  --chart-3: #006666; /* Teal escuro */
+  --chart-4: #00a3a3; /* Teal claro */
   --chart-5: #2563eb; /* Azul */
   --radius: 0.75rem;
   --sidebar: #0f0f0f;
   --sidebar-foreground: #f5f5f5;
   --sidebar-primary: #1a1a1a;
   --sidebar-primary-foreground: #f5f5f5;
-  --sidebar-accent: #dc2626;
+  --sidebar-accent: #008080;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #262626;
-  --sidebar-ring: rgba(220, 38, 38, 0.3);
+  --sidebar-ring: rgba(0, 128, 128, 0.3);
 
   /* Cores semanticas */
   --success: #22c55e;
@@ -46,7 +46,7 @@
   --warning-foreground: #0a0a0a;
   --info: #3b82f6;
   --info-foreground: #ffffff;
-  --health-primary: #dc2626;
+  --health-primary: #008080;
   --health-secondary: #1e3a5f;
   --health-neutral: #737373;
 }
@@ -58,32 +58,32 @@
   --card-foreground: #f5f5f5;
   --popover: #141414;
   --popover-foreground: #f5f5f5;
-  --primary: #ef4444;
+  --primary: #00a3a3;
   --primary-foreground: #ffffff;
   --secondary: #1e3a5f;
   --secondary-foreground: #f5f5f5;
   --muted: #1a1a1a;
   --muted-foreground: #a3a3a3;
-  --accent: #c2410c;
+  --accent: #006666;
   --accent-foreground: #f5f5f5;
   --destructive: #b91c1c;
   --destructive-foreground: #f5f5f5;
   --border: #262626;
   --input: #1a1a1a;
-  --ring: rgba(239, 68, 68, 0.3);
-  --chart-1: #ef4444;
+  --ring: rgba(0, 128, 128, 0.3);
+  --chart-1: #00a3a3;
   --chart-2: #1e3a5f;
-  --chart-3: #c2410c;
-  --chart-4: #dc2626;
+  --chart-3: #006666;
+  --chart-4: #008080;
   --chart-5: #2563eb;
   --sidebar: #0f0f0f;
   --sidebar-foreground: #f5f5f5;
   --sidebar-primary: #1a1a1a;
   --sidebar-primary-foreground: #f5f5f5;
-  --sidebar-accent: #ef4444;
+  --sidebar-accent: #00a3a3;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #262626;
-  --sidebar-ring: rgba(239, 68, 68, 0.3);
+  --sidebar-ring: rgba(0, 128, 128, 0.3);
 
   --success: #22c55e;
   --success-foreground: #ffffff;
@@ -91,7 +91,7 @@
   --warning-foreground: #0a0a0a;
   --info: #3b82f6;
   --info-foreground: #ffffff;
-  --health-primary: #ef4444;
+  --health-primary: #00a3a3;
   --health-secondary: #1e3a5f;
   --health-neutral: #a3a3a3;
 }
@@ -200,27 +200,27 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #dc2626;
+    background: #008080;
   }
 
   /* Selection */
   ::selection {
-    background: rgba(220, 38, 38, 0.3);
+    background: rgba(0, 128, 128, 0.3);
     color: #f5f5f5;
   }
 
   /* Text gradient utility */
   .text-gradient {
-    @apply bg-gradient-to-r from-[#dc2626] via-[#c2410c] to-[#dc2626] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#008080] via-[#00a3a3] to-[#008080] bg-clip-text text-transparent;
   }
 
   /* Glow effects */
   .glow-red {
-    box-shadow: 0 0 20px rgba(220, 38, 38, 0.3), 0 0 40px rgba(220, 38, 38, 0.1);
+    box-shadow: 0 0 20px rgba(0, 128, 128, 0.3), 0 0 40px rgba(0, 128, 128, 0.1);
   }
 
   .glow-orange {
-    box-shadow: 0 0 20px rgba(194, 65, 12, 0.3), 0 0 40px rgba(194, 65, 12, 0.1);
+    box-shadow: 0 0 20px rgba(0, 102, 102, 0.3), 0 0 40px rgba(0, 102, 102, 0.1);
   }
 
   .glow-blue {
@@ -301,11 +301,11 @@
 
   /* Gradient backgrounds */
   .gradient-primary {
-    @apply bg-gradient-to-br from-[#dc2626] via-[#c2410c] to-[#dc2626];
+    @apply bg-gradient-to-br from-[#008080] via-[#006666] to-[#008080];
   }
 
   .gradient-healthcare {
-    @apply bg-gradient-to-br from-[#dc2626]/5 via-[#0a0a0a] to-[#1e3a5f]/10;
+    @apply bg-gradient-to-br from-[#008080]/5 via-[#0a0a0a] to-[#1e3a5f]/10;
   }
 
   .gradient-card {
@@ -314,15 +314,15 @@
 
   /* Talent Health utility classes */
   .healthcare-card {
-    @apply bg-card/95 border border-border/50 rounded-xl shadow-lg shadow-[#dc2626]/5 transition-all duration-300 hover:shadow-xl hover:shadow-[#dc2626]/10 hover:border-[#dc2626]/20;
+    @apply bg-card/95 border border-border/50 rounded-xl shadow-lg shadow-[#008080]/5 transition-all duration-300 hover:shadow-xl hover:shadow-[#008080]/10 hover:border-[#008080]/20;
   }
 
   .healthcare-button {
-    @apply bg-gradient-to-r from-[#dc2626] to-[#c2410c] text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-[#dc2626]/25 transition-all duration-200 hover:shadow-xl hover:shadow-[#dc2626]/40 hover:brightness-110;
+    @apply bg-gradient-to-r from-[#008080] to-[#006666] text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-[#008080]/25 transition-all duration-200 hover:shadow-xl hover:shadow-[#008080]/40 hover:brightness-110;
   }
 
   .healthcare-input {
-    @apply bg-[#1a1a1a] border-2 border-[#262626] text-[#f5f5f5] hover:border-[#dc2626]/50 focus:border-[#dc2626] focus:ring-2 focus:ring-[#dc2626]/20 transition-all duration-200 rounded-lg px-4 py-3;
+    @apply bg-[#1a1a1a] border-2 border-[#262626] text-[#f5f5f5] hover:border-[#008080]/50 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 transition-all duration-200 rounded-lg px-4 py-3;
   }
 
   /* Responsive utilities */

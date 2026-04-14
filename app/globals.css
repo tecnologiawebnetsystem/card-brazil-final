@@ -4,96 +4,96 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Talent Health - Tema Claro Profissional */
-  --background: #f8fafc;
-  --foreground: #1e293b;
-  --card: #ffffff;
-  --card-foreground: #1e293b;
-  --popover: #ffffff;
-  --popover-foreground: #1e293b;
-  --primary: #0d9488; /* Teal profissional */
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9; /* Cinza claro */
-  --secondary-foreground: #475569;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #0f766e; /* Teal escuro */
-  --accent-foreground: #ffffff;
-  --destructive: #dc2626;
+  /* Talent Health - Tema Escuro Profissional Vercel-Style */
+  --background: #000000;
+  --foreground: #ededed;
+  --card: #0a0a0a;
+  --card-foreground: #ededed;
+  --popover: #0a0a0a;
+  --popover-foreground: #ededed;
+  --primary: #00d084; /* Verde vibrante */
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #a1a1a1;
+  --muted: #171717;
+  --muted-foreground: #737373;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #ff4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #ffffff;
-  --ring: rgba(13, 148, 136, 0.3);
-  --chart-1: #0d9488; /* Teal */
-  --chart-2: #0284c7; /* Azul */
-  --chart-3: #0f766e; /* Teal escuro */
-  --chart-4: #14b8a6; /* Teal claro */
-  --chart-5: #06b6d4; /* Cyan */
-  --radius: 0.75rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #1e293b;
-  --sidebar-primary: #f1f5f9;
-  --sidebar-primary-foreground: #1e293b;
-  --sidebar-accent: #0d9488;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: rgba(13, 148, 136, 0.3);
+  --border: #262626;
+  --input: #171717;
+  --ring: rgba(0, 208, 132, 0.4);
+  --chart-1: #00d084;
+  --chart-2: #0070f3;
+  --chart-3: #f5a623;
+  --chart-4: #ff0080;
+  --chart-5: #7928ca;
+  --radius: 0.5rem;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #171717;
+  --sidebar-primary-foreground: #ededed;
+  --sidebar-accent: #00d084;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #262626;
+  --sidebar-ring: rgba(0, 208, 132, 0.4);
 
   /* Cores semanticas */
-  --success: #16a34a;
-  --success-foreground: #ffffff;
-  --warning: #d97706;
-  --warning-foreground: #ffffff;
-  --info: #0284c7;
+  --success: #00d084;
+  --success-foreground: #000000;
+  --warning: #f5a623;
+  --warning-foreground: #000000;
+  --info: #0070f3;
   --info-foreground: #ffffff;
-  --health-primary: #0d9488;
-  --health-secondary: #0284c7;
-  --health-neutral: #64748b;
+  --health-primary: #00d084;
+  --health-secondary: #0070f3;
+  --health-neutral: #737373;
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1e293b;
-  --card-foreground: #f1f5f9;
-  --popover: #1e293b;
-  --popover-foreground: #f1f5f9;
-  --primary: #14b8a6;
-  --primary-foreground: #ffffff;
-  --secondary: #334155;
-  --secondary-foreground: #f1f5f9;
-  --muted: #334155;
-  --muted-foreground: #94a3b8;
-  --accent: #0d9488;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
+  --background: #000000;
+  --foreground: #ededed;
+  --card: #0a0a0a;
+  --card-foreground: #ededed;
+  --popover: #0a0a0a;
+  --popover-foreground: #ededed;
+  --primary: #00d084;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #a1a1a1;
+  --muted: #171717;
+  --muted-foreground: #737373;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #ff4444;
   --destructive-foreground: #ffffff;
-  --border: #334155;
-  --input: #1e293b;
-  --ring: rgba(20, 184, 166, 0.3);
-  --chart-1: #14b8a6;
-  --chart-2: #0ea5e9;
-  --chart-3: #0d9488;
-  --chart-4: #2dd4bf;
-  --chart-5: #22d3ee;
-  --sidebar: #1e293b;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #334155;
-  --sidebar-primary-foreground: #f1f5f9;
-  --sidebar-accent: #14b8a6;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #334155;
-  --sidebar-ring: rgba(20, 184, 166, 0.3);
+  --border: #262626;
+  --input: #171717;
+  --ring: rgba(0, 208, 132, 0.4);
+  --chart-1: #00d084;
+  --chart-2: #0070f3;
+  --chart-3: #f5a623;
+  --chart-4: #ff0080;
+  --chart-5: #7928ca;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #171717;
+  --sidebar-primary-foreground: #ededed;
+  --sidebar-accent: #00d084;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #262626;
+  --sidebar-ring: rgba(0, 208, 132, 0.4);
 
-  --success: #22c55e;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #0f172a;
-  --info: #0ea5e9;
+  --success: #00d084;
+  --success-foreground: #000000;
+  --warning: #f5a623;
+  --warning-foreground: #000000;
+  --info: #0070f3;
   --info-foreground: #ffffff;
-  --health-primary: #14b8a6;
-  --health-secondary: #0ea5e9;
-  --health-neutral: #94a3b8;
+  --health-primary: #00d084;
+  --health-secondary: #0070f3;
+  --health-neutral: #737373;
 }
 
 @theme inline {
@@ -186,45 +186,45 @@
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+    background: #333;
+    border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #0d9488;
+    background: #00d084;
   }
 
   /* Selection */
   ::selection {
-    background: rgba(13, 148, 136, 0.2);
-    color: #1e293b;
+    background: rgba(0, 208, 132, 0.3);
+    color: #ffffff;
   }
 
   /* Text gradient utility */
   .text-gradient {
-    @apply bg-gradient-to-r from-[#0d9488] via-[#14b8a6] to-[#0d9488] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#00d084] via-[#00f5a0] to-[#00d084] bg-clip-text text-transparent;
   }
 
   /* Glow effects */
-  .glow-teal {
-    box-shadow: 0 0 20px rgba(13, 148, 136, 0.15), 0 0 40px rgba(13, 148, 136, 0.05);
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(0, 208, 132, 0.2), 0 0 40px rgba(0, 208, 132, 0.1);
   }
 
   .glow-blue {
-    box-shadow: 0 0 20px rgba(2, 132, 199, 0.15), 0 0 40px rgba(2, 132, 199, 0.05);
+    box-shadow: 0 0 20px rgba(0, 112, 243, 0.2), 0 0 40px rgba(0, 112, 243, 0.1);
   }
 
-  .glow-green {
-    box-shadow: 0 0 20px rgba(22, 163, 74, 0.15), 0 0 40px rgba(22, 163, 74, 0.05);
+  .glow-warning {
+    box-shadow: 0 0 20px rgba(245, 166, 35, 0.2), 0 0 40px rgba(245, 166, 35, 0.1);
   }
 
   /* Enhanced typography with better hierarchy */
@@ -301,28 +301,28 @@
 
   /* Gradient backgrounds */
   .gradient-primary {
-    @apply bg-gradient-to-br from-[#0d9488] via-[#0f766e] to-[#0d9488];
+    @apply bg-gradient-to-r from-[#00d084] to-[#00a86b];
   }
 
   .gradient-healthcare {
-    @apply bg-gradient-to-br from-[#0d9488]/5 via-[#f8fafc] to-[#0284c7]/5;
+    @apply bg-gradient-to-br from-[#00d084]/5 via-transparent to-[#0070f3]/5;
   }
 
   .gradient-card {
-    @apply bg-gradient-to-br from-card via-background to-muted/30;
+    @apply bg-gradient-to-br from-card to-muted/20;
   }
 
   /* Talent Health utility classes */
   .healthcare-card {
-    @apply bg-card border border-border rounded-xl shadow-sm shadow-[#0d9488]/5 transition-all duration-300 hover:shadow-md hover:shadow-[#0d9488]/10 hover:border-[#0d9488]/30;
+    @apply bg-card border border-border rounded-lg transition-all duration-200 hover:border-[#333];
   }
 
   .healthcare-button {
-    @apply bg-gradient-to-r from-[#0d9488] to-[#0f766e] text-white font-semibold py-3 px-6 rounded-xl shadow-md shadow-[#0d9488]/20 transition-all duration-200 hover:shadow-lg hover:shadow-[#0d9488]/30 hover:brightness-105;
+    @apply bg-[#00d084] text-black font-medium py-2.5 px-5 rounded-lg transition-all duration-200 hover:bg-[#00f5a0];
   }
 
   .healthcare-input {
-    @apply bg-white border-2 border-[#e2e8f0] text-[#1e293b] hover:border-[#0d9488]/50 focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20 transition-all duration-200 rounded-lg px-4 py-3;
+    @apply bg-[#171717] border border-[#262626] text-[#ededed] placeholder:text-[#737373] hover:border-[#333] focus:border-[#00d084] focus:ring-1 focus:ring-[#00d084]/30 transition-all duration-200 rounded-lg px-4 py-2.5;
   }
 
   /* Responsive utilities */

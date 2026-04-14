@@ -19,11 +19,11 @@ export default function DashboardLayout({
       <SkipToContent />
       <KeyboardShortcuts />
 
-      <div className="flex min-h-screen w-full bg-background">
+      <div className="flex min-h-screen w-full bg-black">
         <AppSidebar />
-        <div className="flex-1 flex flex-col overflow-hidden bg-background">
+        <div className="flex-1 flex flex-col overflow-hidden bg-black">
           <DashboardHeader />
-          <main id="main-content" className="flex-1 overflow-auto p-6 bg-muted/30">
+          <main id="main-content" className="flex-1 overflow-auto p-6 bg-black">
             {children}
           </main>
           <DashboardFooter />

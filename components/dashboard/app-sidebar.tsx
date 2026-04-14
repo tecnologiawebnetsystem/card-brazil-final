@@ -476,7 +476,7 @@ const menuItems = [
     title: "Sistemas",
     items: [
       {
-        title: "Integra��������ão ANS",
+        title: "Integra����������ão ANS",
         icon: <CogIcon />,
         subItems: [
           {
@@ -619,11 +619,11 @@ export function AppSidebar() {
         </Button>
       )}
 
-      <Sidebar variant="inset" className="border-r border-border bg-sidebar">
-        <SidebarHeader className="border-b border-border p-4">
+      <Sidebar variant="inset" className="border-r border-[#1a1a1a] bg-[#0a0a0a]">
+        <SidebarHeader className="border-b border-[#1a1a1a] p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0d9488] to-[#0f766e] shadow-md shadow-[#0d9488]/20">
-              <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00d084]">
+              <svg className="h-5 w-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -633,43 +633,43 @@ export function AppSidebar() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-[#0d9488] to-[#0f766e] bg-clip-text text-transparent">
+              <h1 className="text-base font-semibold text-[#ededed]">
                 Talent Health
               </h1>
-              <p className="text-xs text-muted-foreground">Sistema de Gestao</p>
+              <p className="text-xs text-[#737373]">Sistema de Gestao</p>
             </div>
           </div>
         </SidebarHeader>
-        <SidebarContent className="px-2 py-1">
+        <SidebarContent className="px-2 py-2">
           {filteredMenuItems.map((group) => (
-            <SidebarGroup key={group.title} className="mb-1">
+            <SidebarGroup key={group.title} className="mb-2">
               <SidebarGroupLabel
-                className="mb-0.5 flex cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
+                className="mb-1 flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[#737373] hover:text-[#a1a1a1] transition-colors"
                 onClick={() => toggleGroupExpansion(group.title)}
               >
                 <span>{group.title}</span>
                 {expandedGroups[group.title] ? (
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-3.5 w-3.5" />
                 ) : (
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-3.5 w-3.5" />
                 )}
               </SidebarGroupLabel>
               {expandedGroups[group.title] && (
                 <SidebarGroupContent>
-                  <SidebarMenu className="space-y-0">
+                  <SidebarMenu className="space-y-0.5">
                     {group.items.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         {item.subItems ? (
-                          <div className="flex flex-col space-y-0">
+                          <div className="flex flex-col space-y-0.5">
                             {item.subItems.map((subItem) => (
                               <SidebarMenuButton
                                 key={subItem.title}
                                 asChild
-                                className="rounded-lg hover:bg-primary/10 hover:shadow-sm transition-all duration-200 h-7"
+                                className="rounded-md hover:bg-[#1a1a1a] transition-colors h-8"
                               >
-                                <a href={subItem.url} className="flex items-center gap-3 px-3 py-1">
-                                  <span className="text-muted-foreground">{subItem.icon || item.icon}</span>
-                                  <span className="text-sm font-medium text-foreground leading-tight break-words">
+                                <a href={subItem.url} className="flex items-center gap-3 px-3 py-1.5">
+                                  <span className="text-[#737373]">{subItem.icon || item.icon}</span>
+                                  <span className="text-sm text-[#a1a1a1] hover:text-[#ededed] transition-colors">
                                     {subItem.title}
                                   </span>
                                 </a>
@@ -679,11 +679,11 @@ export function AppSidebar() {
                         ) : (
                           <SidebarMenuButton
                             asChild
-                            className="rounded-lg hover:bg-primary/10 hover:shadow-sm transition-all duration-200 h-7"
+                            className="rounded-md hover:bg-[#1a1a1a] transition-colors h-8"
                           >
-                            <a href={item.url} className="flex items-center gap-3 px-3 py-1">
-                              <span className="text-muted-foreground">{item.icon}</span>
-                              <span className="text-sm font-medium text-foreground leading-tight break-words">
+                            <a href={item.url} className="flex items-center gap-3 px-3 py-1.5">
+                              <span className="text-[#737373]">{item.icon}</span>
+                              <span className="text-sm text-[#a1a1a1] hover:text-[#ededed] transition-colors">
                                 {item.title}
                               </span>
                             </a>
@@ -697,17 +697,17 @@ export function AppSidebar() {
             </SidebarGroup>
           ))}
         </SidebarContent>
-        <SidebarFooter className="border-t border-border bg-sidebar p-4">
+        <SidebarFooter className="border-t border-[#1a1a1a] bg-[#0a0a0a] p-3">
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-3 rounded-xl hover:bg-muted transition-colors bg-card border border-border shadow-sm"
+                  className="w-full justify-start gap-3 rounded-lg hover:bg-[#1a1a1a] transition-colors h-auto py-2"
                 >
-                  <Avatar className="h-8 w-8 ring-2 ring-primary/30">
+                  <Avatar className="h-8 w-8">
                     <AvatarImage src="/images/user-avatar.jpg" alt={user.nome} />
-                    <AvatarFallback className="bg-gradient-to-br from-[#0d9488] to-[#0f766e] text-white text-xs font-semibold">
+                    <AvatarFallback className="bg-[#00d084] text-black text-xs font-semibold">
                       {user.nome
                         ? user.nome
                             .split(" ")
@@ -718,30 +718,30 @@ export function AppSidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium text-foreground">{user.nome}</span>
-                    <span className="text-xs text-muted-foreground">{getProfileDisplayName(user.role_nome)}</span>
+                    <span className="text-sm font-medium text-[#ededed]">{user.nome}</span>
+                    <span className="text-xs text-[#737373]">{getProfileDisplayName(user.role_nome)}</span>
                   </div>
-                  <ChevronUp className="ml-auto h-4 w-4 text-muted-foreground" />
+                  <ChevronUp className="ml-auto h-4 w-4 text-[#737373]" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg bg-card border-border">
-                <DropdownMenuLabel className="text-foreground">Minha Conta</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-border" />
+              <DropdownMenuContent align="end" className="w-56 rounded-lg bg-[#0a0a0a] border-[#262626]">
+                <DropdownMenuLabel className="text-[#ededed]">Minha Conta</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-[#262626]" />
                 <DropdownMenuItem
-                  className="rounded-lg hover:bg-muted transition-colors cursor-pointer text-foreground"
+                  className="rounded-md hover:bg-[#1a1a1a] transition-colors cursor-pointer text-[#a1a1a1]"
                   onClick={() => (window.location.href = "/dashboard/perfil")}
                 >
                   <span>Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-lg hover:bg-muted transition-colors cursor-pointer text-foreground"
+                  className="rounded-md hover:bg-[#1a1a1a] transition-colors cursor-pointer text-[#a1a1a1]"
                   onClick={() => (window.location.href = "/dashboard/configuracoes")}
                 >
                   <span>Configuracoes</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuSeparator className="bg-[#262626]" />
                 <DropdownMenuItem
-                  className="rounded-lg hover:bg-primary/10 text-primary transition-colors cursor-pointer"
+                  className="rounded-md hover:bg-[#1a1a1a] text-[#00d084] transition-colors cursor-pointer"
                   onClick={logout}
                 >
                   <span>Sair</span>

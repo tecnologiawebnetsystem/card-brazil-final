@@ -119,13 +119,13 @@ export function NotificationWidget() {
   const getIcon = (type: string) => {
     switch (type) {
       case "success":
-        return <CheckCircle className="w-4 h-4 text-green-600" />
+        return <CheckCircle className="w-4 h-4 text-[#00d084]" />
       case "warning":
-        return <AlertCircle className="w-4 h-4 text-yellow-600" />
+        return <AlertCircle className="w-4 h-4 text-[#f5a623]" />
       case "info":
-        return <Info className="w-4 h-4 text-blue-600" />
+        return <Info className="w-4 h-4 text-[#0070f3]" />
       default:
-        return <Bell className="w-4 h-4 text-gray-600" />
+        return <Bell className="w-4 h-4 text-[#737373]" />
     }
   }
 
@@ -159,13 +159,13 @@ export function NotificationWidget() {
   return (
     <div className="relative">
       {isOpen && (
-        <Card className="absolute right-0 top-12 w-80 max-h-[380px] shadow-xl border z-[9999] bg-slate-50/95 backdrop-blur-sm overflow-hidden">
-          <div className="flex items-center justify-between p-3 border-b bg-white/80">
+        <Card className="absolute right-0 top-12 w-80 max-h-[380px] shadow-xl border border-[#262626] z-[9999] bg-[#0a0a0a] overflow-hidden">
+          <div className="flex items-center justify-between p-3 border-b border-[#1a1a1a]">
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-slate-700" />
-              <h3 className="font-semibold text-sm text-slate-800">Notificações</h3>
+              <Bell className="w-4 h-4 text-[#737373]" />
+              <h3 className="font-semibold text-sm text-[#ededed]">Notificacoes</h3>
               {unreadCount > 0 && (
-                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                <Badge variant="secondary" className="text-xs bg-[#00d084]/10 text-[#00d084] border border-[#00d084]/20">
                   {unreadCount}
                 </Badge>
               )}
@@ -175,22 +175,22 @@ export function NotificationWidget() {
                 variant="ghost"
                 size="sm"
                 onClick={handleAudioToggle}
-                className="h-6 w-6 p-0 hover:bg-slate-200/50"
+                className="h-6 w-6 p-0 hover:bg-[#1a1a1a]"
                 title={audioEnabled ? "Desativar áudio" : "Ativar áudio"}
               >
                 {audioEnabled ? (
-                  <Volume2 className="h-3 w-3 text-green-600" />
+                  <Volume2 className="h-3 w-3 text-[#00d084]" />
                 ) : (
-                  <VolumeX className="h-3 w-3 text-slate-500" />
+                  <VolumeX className="h-3 w-3 text-[#737373]" />
                 )}
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsOpen(false)}
-                className="h-6 w-6 p-0 hover:bg-slate-200/50"
+                className="h-6 w-6 p-0 hover:bg-[#1a1a1a]"
               >
-                <X className="h-3 w-3 text-slate-600" />
+                <X className="h-3 w-3 text-[#737373]" />
               </Button>
             </div>
           </div>
@@ -202,22 +202,22 @@ export function NotificationWidget() {
                   variant="outline"
                   size="sm"
                   onClick={markAllAsRead}
-                  className="w-full text-xs h-7 bg-white/60 hover:bg-white/80 border-slate-300 text-slate-700"
+                  className="w-full text-xs h-7 bg-[#171717] hover:bg-[#1a1a1a] border-[#262626] text-[#a1a1a1]"
                 >
                   Marcar todas como lidas
                 </Button>
               )}
 
               {notifications.length === 0 ? (
-                <div className="text-center py-6 text-slate-500 text-sm">Nenhuma notificação</div>
+                <div className="text-center py-6 text-[#737373] text-sm">Nenhuma notificacao</div>
               ) : (
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
                     className={cn(
-                      "p-3 rounded-lg border cursor-pointer hover:bg-white/60 transition-all duration-200 hover:shadow-sm",
-                      !notification.read && "bg-blue-50/80 border-blue-200/60 shadow-sm",
-                      notification.read && "bg-white/40 border-slate-200/60",
+                      "p-3 rounded-lg border cursor-pointer hover:bg-[#171717] transition-all duration-200",
+                      !notification.read && "bg-[#0070f3]/5 border-[#0070f3]/20",
+                      notification.read && "bg-transparent border-[#1a1a1a]",
                     )}
                     onClick={() => handleNotificationItemClick(notification)}
                   >
@@ -225,15 +225,15 @@ export function NotificationWidget() {
                       {getIcon(notification.type)}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-sm truncate text-slate-800">{notification.title}</h4>
+                          <h4 className="font-medium text-sm truncate text-[#ededed]">{notification.title}</h4>
                           {!notification.read && (
-                            <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 ml-2" />
+                            <div className="w-2 h-2 bg-[#0070f3] rounded-full flex-shrink-0 ml-2" />
                           )}
                         </div>
-                        <p className="text-xs text-slate-600 mt-1 break-words leading-relaxed">
+                        <p className="text-xs text-[#a1a1a1] mt-1 break-words leading-relaxed">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-slate-500 mt-1">{formatTime(notification.timestamp)}</p>
+                        <p className="text-xs text-[#737373] mt-1">{formatTime(notification.timestamp)}</p>
                       </div>
                     </div>
                   </div>
@@ -247,12 +247,12 @@ export function NotificationWidget() {
       <Button
         variant="ghost"
         size="sm"
-        className="relative h-8 w-8 p-0 hover:bg-slate-100"
+        className="relative h-8 w-8 p-0 hover:bg-[#1a1a1a] text-[#737373] hover:text-[#ededed]"
         onClick={handleNotificationClick}
       >
-        <Bell className="w-4 h-4 text-slate-700" />
+        <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <Badge className="absolute -top-1 -right-1 w-4 h-4 text-xs p-0 flex items-center justify-center bg-red-500 hover:bg-red-600">
+          <Badge className="absolute -top-1 -right-1 w-4 h-4 text-xs p-0 flex items-center justify-center bg-red-500 text-white">
             {unreadCount}
           </Badge>
         )}

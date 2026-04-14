@@ -1,8 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { CrudService } from "@/lib/crud-service"
-import { successResponse, handleApiError } from "@/lib/api-response"
-
-const agenciadoresService = new CrudService("agenciadores")
+import { successResponse } from "@/lib/api-response"
+import { mockAgenciadores, filterMockData } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,26 +10,24 @@ export async function GET(request: NextRequest) {
     const filters: Record<string, any> = {}
     if (ativo !== null) filters.ativo = ativo === "true"
 
-    const agenciadores = await agenciadoresService.findAll(filters)
+    const agenciadores = filterMockData(mockAgenciadores, filters)
     return NextResponse.json(successResponse(agenciadores))
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-
-    const id = await agenciadoresService.create({
+    const novoAgenciador = {
+      id: mockAgenciadores.length + 1,
       ...body,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-
-    const agenciador = await agenciadoresService.findById(id)
-    return NextResponse.json(successResponse(agenciador, "Agenciador criado com sucesso"), { status: 201 })
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    return NextResponse.json(successResponse(novoAgenciador, "Agenciador criado com sucesso"), { status: 201 })
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }

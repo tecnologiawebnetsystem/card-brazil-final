@@ -1,14 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createServerClient } from "@/lib/supabase-server"
+import { mockBancos, findMockById } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = createServerClient()
-    const { data, error } = await supabase.from("bancos").select("*").eq("id", params.id).single()
+    const banco = findMockById(mockBancos, Number.parseInt(params.id))
 
-    if (error) throw error
+    if (!banco) {
+      return NextResponse.json({ error: "Banco não encontrado" }, { status: 404 })
+    }
 
-    return NextResponse.json(data)
+    return NextResponse.json(banco)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -16,19 +17,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = createServerClient()
     const body = await request.json()
+    const banco = findMockById(mockBancos, Number.parseInt(params.id))
 
-    const { data, error } = await supabase
-      .from("bancos")
-      .update({ ...body, data_atualizacao: new Date().toISOString() })
-      .eq("id", params.id)
-      .select()
-      .single()
+    if (!banco) {
+      return NextResponse.json({ error: "Banco não encontrado" }, { status: 404 })
+    }
 
-    if (error) throw error
-
-    return NextResponse.json(data)
+    const updated = { ...banco, ...body, updated_at: new Date().toISOString() }
+    return NextResponse.json(updated)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -36,11 +33,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = createServerClient()
+    const banco = findMockById(mockBancos, Number.parseInt(params.id))
 
-    const { error } = await supabase.from("bancos").update({ ativo: false }).eq("id", params.id)
-
-    if (error) throw error
+    if (!banco) {
+      return NextResponse.json({ error: "Banco não encontrado" }, { status: 404 })
+    }
 
     return NextResponse.json({ message: "Banco excluído com sucesso" })
   } catch (error: any) {

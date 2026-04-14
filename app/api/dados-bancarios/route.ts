@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server"
-import { query } from "@/lib/database"
 import { apiResponse, apiError } from "@/lib/api-response"
+import { mockDadosBancarios } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,22 +8,16 @@ export async function GET(request: NextRequest) {
     const pessoa_id = searchParams.get("pessoa_id")
     const id_administradora = searchParams.get("id_administradora")
 
-    let sql = "SELECT * FROM dados_bancarios WHERE deleted_at IS NULL"
-    const params: any[] = []
+    let contas = [...mockDadosBancarios]
 
     if (pessoa_id) {
-      sql += " AND pessoa_id = ?"
-      params.push(pessoa_id)
+      contas = contas.filter(c => c.pessoa_id === Number.parseInt(pessoa_id))
     }
 
     if (id_administradora) {
-      sql += " AND id_administradora = ?"
-      params.push(id_administradora)
+      contas = contas.filter(c => c.id_administradora === Number.parseInt(id_administradora))
     }
 
-    sql += " ORDER BY principal DESC, created_at DESC"
-
-    const contas = await query(sql, params)
     return apiResponse(contas, "Contas bancárias listadas com sucesso")
   } catch (error: any) {
     console.error("[v0] Erro ao listar contas bancárias:", error)
@@ -34,69 +28,29 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const {
-      id_administradora,
-      pessoa_id,
-      principal = false,
-      banco_codigo,
-      banco_nome,
-      agencia,
-      agencia_digito,
-      conta,
-      conta_digito,
-      tipo_conta,
-      pix_tipo,
-      pix_chave,
-      observacoes,
-      status = "ativo",
-    } = body
 
-    if (
-      !id_administradora ||
-      !pessoa_id ||
-      !banco_codigo ||
-      !banco_nome ||
-      !agencia ||
-      !conta ||
-      !conta_digito ||
-      !tipo_conta
-    ) {
-      return apiError("Campos obrigatórios faltando", 400)
+    const novaConta = {
+      id: mockDadosBancarios.length + 1,
+      id_administradora: body.id_administradora || 1,
+      pessoa_id: body.pessoa_id,
+      principal: body.principal || false,
+      banco_codigo: body.banco_codigo,
+      banco_nome: body.banco_nome,
+      agencia: body.agencia,
+      agencia_digito: body.agencia_digito || null,
+      conta: body.conta,
+      conta_digito: body.conta_digito,
+      tipo_conta: body.tipo_conta,
+      pix_tipo: body.pix_tipo || null,
+      pix_chave: body.pix_chave || null,
+      observacoes: body.observacoes || null,
+      status: body.status || "ativo",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
     }
 
-    // Se for principal, remove principal das outras contas
-    if (principal) {
-      await query("UPDATE dados_bancarios SET principal = FALSE WHERE pessoa_id = ? AND id_administradora = ?", [
-        pessoa_id,
-        id_administradora,
-      ])
-    }
-
-    const result = await query(
-      `INSERT INTO dados_bancarios (
-        id_administradora, pessoa_id, principal, banco_codigo, banco_nome, agencia, agencia_digito,
-        conta, conta_digito, tipo_conta, pix_tipo, pix_chave, observacoes, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id_administradora,
-        pessoa_id,
-        principal,
-        banco_codigo,
-        banco_nome,
-        agencia,
-        agencia_digito,
-        conta,
-        conta_digito,
-        tipo_conta,
-        pix_tipo,
-        pix_chave,
-        observacoes,
-        status,
-      ],
-    )
-
-    const conta_bancaria = await query("SELECT * FROM dados_bancarios WHERE id = ?", [result.insertId])
-    return apiResponse(conta_bancaria[0], "Conta bancária criada com sucesso", 201)
+    return apiResponse(novaConta, "Conta bancária criada com sucesso", 201)
   } catch (error: any) {
     console.error("[v0] Erro ao criar conta bancária:", error)
     return apiError(error.message, 500)

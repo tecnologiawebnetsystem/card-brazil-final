@@ -11,7 +11,7 @@ export function DashboardHeader() {
   const { toggleSidebar } = useSidebar()
 
   return (
-    <header className="bg-card border-b sticky top-0 z-50">
+    <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="flex items-center justify-between h-16 px-6">
         <div className="flex items-center gap-4 flex-1 max-w-md">
           <Button variant="ghost" size="sm" onClick={toggleSidebar}>

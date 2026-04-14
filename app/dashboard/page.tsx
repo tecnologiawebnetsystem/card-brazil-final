@@ -145,26 +145,26 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="bg-gradient-to-r from-[#008080]/5 to-[#1e3a5f]/10 p-6 rounded-lg border border-[#262626]">
+      <div className="bg-gradient-to-r from-primary/5 to-info/5 p-6 rounded-lg border border-border">
         <h2 className="text-xl font-bold text-foreground mb-4">Sistema Contabil Completo</h2>
         <p className="text-muted-foreground mb-4">
           Acesse todas as funcionalidades contábeis específicas para administradoras de seguros de saúde
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card p-4 rounded-lg shadow-sm">
-            <h3 className="font-medium text-sm">Plano de Contas</h3>
+          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
+            <h3 className="font-medium text-sm text-foreground">Plano de Contas</h3>
             <p className="text-xs text-muted-foreground">Gestão completa</p>
           </div>
-          <div className="bg-card p-4 rounded-lg shadow-sm">
-            <h3 className="font-medium text-sm">Lançamentos</h3>
+          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
+            <h3 className="font-medium text-sm text-foreground">Lançamentos</h3>
             <p className="text-xs text-muted-foreground">Partidas dobradas</p>
           </div>
-          <div className="bg-card p-4 rounded-lg shadow-sm">
-            <h3 className="font-medium text-sm">Quadros ANS</h3>
+          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
+            <h3 className="font-medium text-sm text-foreground">Quadros ANS</h3>
             <p className="text-xs text-muted-foreground">Conformidade total</p>
           </div>
-          <div className="bg-card p-4 rounded-lg shadow-sm">
-            <h3 className="font-medium text-sm">Divergências ERP</h3>
+          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
+            <h3 className="font-medium text-sm text-foreground">Divergências ERP</h3>
             <p className="text-xs text-muted-foreground">Análise automática</p>
           </div>
         </div>

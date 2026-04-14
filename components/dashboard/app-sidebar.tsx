@@ -476,7 +476,7 @@ const menuItems = [
     title: "Sistemas",
     items: [
       {
-        title: "Integra������ão ANS",
+        title: "Integra��������ão ANS",
         icon: <CogIcon />,
         subItems: [
           {
@@ -619,11 +619,11 @@ export function AppSidebar() {
         </Button>
       )}
 
-      <Sidebar variant="inset" className="border-r border-[#262626] bg-[#0f0f0f]">
-        <SidebarHeader className="border-b border-[#262626] p-4">
+      <Sidebar variant="inset" className="border-r border-border bg-sidebar">
+        <SidebarHeader className="border-b border-border p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#008080] to-[#006666] shadow-lg shadow-[#008080]/20">
-              <svg className="h-6 w-6 text-[#ffffff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0d9488] to-[#0f766e] shadow-md shadow-[#0d9488]/20">
+              <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -633,10 +633,10 @@ export function AppSidebar() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-[#008080] to-[#006666] bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-[#0d9488] to-[#0f766e] bg-clip-text text-transparent">
                 Talent Health
               </h1>
-              <p className="text-xs text-[#a3a3a3]">Sistema de Gestao</p>
+              <p className="text-xs text-muted-foreground">Sistema de Gestao</p>
             </div>
           </div>
         </SidebarHeader>
@@ -644,7 +644,7 @@ export function AppSidebar() {
           {filteredMenuItems.map((group) => (
             <SidebarGroup key={group.title} className="mb-1">
               <SidebarGroupLabel
-                className="mb-0.5 flex cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-sm font-semibold text-[#a3a3a3] hover:bg-[#1a1a1a] transition-colors"
+                className="mb-0.5 flex cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
                 onClick={() => toggleGroupExpansion(group.title)}
               >
                 <span>{group.title}</span>
@@ -665,11 +665,11 @@ export function AppSidebar() {
                               <SidebarMenuButton
                                 key={subItem.title}
                                 asChild
-                                className="rounded-lg hover:bg-[#008080]/10 hover:shadow-sm transition-all duration-200 h-7"
+                                className="rounded-lg hover:bg-primary/10 hover:shadow-sm transition-all duration-200 h-7"
                               >
                                 <a href={subItem.url} className="flex items-center gap-3 px-3 py-1">
-                                  <span className="text-[#a3a3a3]">{subItem.icon || item.icon}</span>
-                                  <span className="text-sm font-medium text-[#d4d4d4] leading-tight break-words">
+                                  <span className="text-muted-foreground">{subItem.icon || item.icon}</span>
+                                  <span className="text-sm font-medium text-foreground leading-tight break-words">
                                     {subItem.title}
                                   </span>
                                 </a>
@@ -679,11 +679,11 @@ export function AppSidebar() {
                         ) : (
                           <SidebarMenuButton
                             asChild
-                            className="rounded-lg hover:bg-[#008080]/10 hover:shadow-sm transition-all duration-200 h-7"
+                            className="rounded-lg hover:bg-primary/10 hover:shadow-sm transition-all duration-200 h-7"
                           >
                             <a href={item.url} className="flex items-center gap-3 px-3 py-1">
-                              <span className="text-[#a3a3a3]">{item.icon}</span>
-                              <span className="text-sm font-medium text-[#d4d4d4] leading-tight break-words">
+                              <span className="text-muted-foreground">{item.icon}</span>
+                              <span className="text-sm font-medium text-foreground leading-tight break-words">
                                 {item.title}
                               </span>
                             </a>
@@ -697,17 +697,17 @@ export function AppSidebar() {
             </SidebarGroup>
           ))}
         </SidebarContent>
-        <SidebarFooter className="border-t border-[#262626] bg-[#0f0f0f] p-4">
+        <SidebarFooter className="border-t border-border bg-sidebar p-4">
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-3 rounded-xl hover:bg-[#1a1a1a] transition-colors bg-[#141414] border border-[#262626] shadow-sm"
+                  className="w-full justify-start gap-3 rounded-xl hover:bg-muted transition-colors bg-card border border-border shadow-sm"
                 >
-                  <Avatar className="h-8 w-8 ring-2 ring-[#008080]/30">
+                  <Avatar className="h-8 w-8 ring-2 ring-primary/30">
                     <AvatarImage src="/images/user-avatar.jpg" alt={user.nome} />
-                    <AvatarFallback className="bg-gradient-to-br from-[#008080] to-[#006666] text-[#ffffff] text-xs font-semibold">
+                    <AvatarFallback className="bg-gradient-to-br from-[#0d9488] to-[#0f766e] text-white text-xs font-semibold">
                       {user.nome
                         ? user.nome
                             .split(" ")
@@ -718,30 +718,30 @@ export function AppSidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium text-[#f5f5f5]">{user.nome}</span>
-                    <span className="text-xs text-[#a3a3a3]">{getProfileDisplayName(user.role_nome)}</span>
+                    <span className="text-sm font-medium text-foreground">{user.nome}</span>
+                    <span className="text-xs text-muted-foreground">{getProfileDisplayName(user.role_nome)}</span>
                   </div>
-                  <ChevronUp className="ml-auto h-4 w-4 text-[#a3a3a3]" />
+                  <ChevronUp className="ml-auto h-4 w-4 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg bg-[#141414] border-[#262626]">
-                <DropdownMenuLabel className="text-[#f5f5f5]">Minha Conta</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-[#262626]" />
+              <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-lg bg-card border-border">
+                <DropdownMenuLabel className="text-foreground">Minha Conta</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem
-                  className="rounded-lg hover:bg-[#1a1a1a] transition-colors cursor-pointer text-[#d4d4d4]"
+                  className="rounded-lg hover:bg-muted transition-colors cursor-pointer text-foreground"
                   onClick={() => (window.location.href = "/dashboard/perfil")}
                 >
                   <span>Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-lg hover:bg-[#1a1a1a] transition-colors cursor-pointer text-[#d4d4d4]"
+                  className="rounded-lg hover:bg-muted transition-colors cursor-pointer text-foreground"
                   onClick={() => (window.location.href = "/dashboard/configuracoes")}
                 >
                   <span>Configuracoes</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#262626]" />
+                <DropdownMenuSeparator className="bg-border" />
                 <DropdownMenuItem
-                  className="rounded-lg hover:bg-[#008080]/10 text-[#008080] transition-colors cursor-pointer"
+                  className="rounded-lg hover:bg-primary/10 text-primary transition-colors cursor-pointer"
                   onClick={logout}
                 >
                   <span>Sair</span>

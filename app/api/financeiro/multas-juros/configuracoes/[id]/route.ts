@@ -1,19 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
+import { mockConfiguracoesMJ } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = params.id
+    const id = Number.parseInt(params.id)
 
-    const [rows] = await pool.execute(`SELECT * FROM configuracoes_multas_juros WHERE id = ? AND deleted_at IS NULL`, [
-      id,
-    ])
+    const config = mockConfiguracoesMJ.find(c => c.id === id)
 
-    if (rows.length === 0) {
+    if (!config) {
       return NextResponse.json({ error: "Configuração não encontrada" }, { status: 404 })
     }
 
-    return NextResponse.json(rows[0])
+    return NextResponse.json(config)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar configuração:", error)
     return NextResponse.json({ error: "Erro ao buscar configuração", details: error.message }, { status: 500 })
@@ -22,37 +20,17 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = params.id
+    const id = Number.parseInt(params.id)
     const body = await request.json()
 
-    // Se for configuração padrão, desmarcar outras
-    if (body.padrao) {
-      const [current] = await pool.execute(`SELECT id_administradora FROM configuracoes_multas_juros WHERE id = ?`, [
-        id,
-      ])
+    const config = mockConfiguracoesMJ.find(c => c.id === id)
 
-      if (current.length > 0) {
-        await pool.execute(
-          `UPDATE configuracoes_multas_juros SET padrao = FALSE WHERE id_administradora = ? AND id != ?`,
-          [current[0].id_administradora, id],
-        )
-      }
-    }
-
-    const keys = Object.keys(body)
-    const values = Object.values(body)
-    const setClause = keys.map((key) => `${key} = ?`).join(", ")
-
-    const [result] = await pool.execute(`UPDATE configuracoes_multas_juros SET ${setClause} WHERE id = ?`, [
-      ...values,
-      id,
-    ])
-
-    if (result.affectedRows === 0) {
+    if (!config) {
       return NextResponse.json({ error: "Configuração não encontrada" }, { status: 404 })
     }
 
-    return NextResponse.json({ message: "Configuração atualizada com sucesso" })
+    const updated = { ...config, ...body, updated_at: new Date().toISOString() }
+    return NextResponse.json({ message: "Configuração atualizada com sucesso", data: updated })
   } catch (error: any) {
     console.error("[v0] Erro ao atualizar configuração:", error)
     return NextResponse.json({ error: "Erro ao atualizar configuração", details: error.message }, { status: 500 })
@@ -61,11 +39,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const id = params.id
+    const id = Number.parseInt(params.id)
 
-    const [result] = await pool.execute(`UPDATE configuracoes_multas_juros SET deleted_at = NOW() WHERE id = ?`, [id])
+    const config = mockConfiguracoesMJ.find(c => c.id === id)
 
-    if (result.affectedRows === 0) {
+    if (!config) {
       return NextResponse.json({ error: "Configuração não encontrada" }, { status: 404 })
     }
 

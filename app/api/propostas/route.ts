@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get("status")
     const search = searchParams.get("search")
+    const tipo_plano = searchParams.get("tipo_plano")
 
     let propostas = [...mockPropostas]
 
@@ -13,11 +14,18 @@ export async function GET(request: NextRequest) {
       propostas = propostas.filter(p => p.status === status)
     }
 
+    if (tipo_plano) {
+      propostas = propostas.filter(p => p.tipo_plano === tipo_plano)
+    }
+
     if (search) {
       const searchLower = search.toLowerCase()
       propostas = propostas.filter(p => 
         p.numero_proposta.toLowerCase().includes(searchLower) ||
-        p.observacoes?.toLowerCase().includes(searchLower)
+        p.observacoes?.toLowerCase().includes(searchLower) ||
+        p.nome_proponente?.toLowerCase().includes(searchLower) ||
+        p.empresa?.toLowerCase().includes(searchLower) ||
+        p.cpf_cnpj?.includes(search)
       )
     }
 

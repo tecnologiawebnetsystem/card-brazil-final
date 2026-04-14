@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { sql } from "@/lib/database"
+import { mockContasPagar } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,60 +9,30 @@ export async function GET(request: NextRequest) {
     const tipo_conta = searchParams.get("tipo_conta")
     const fornecedor_id = searchParams.get("fornecedor_id")
     const beneficiario_id = searchParams.get("beneficiario_id")
-    const data_inicio = searchParams.get("data_inicio")
-    const data_fim = searchParams.get("data_fim")
 
-    let query = `
-      SELECT 
-        cp.*,
-        f.nome as fornecedor_nome,
-        b.nome as beneficiario_nome,
-        p.nome as pessoa_nome,
-        pr.numero_proposta
-      FROM contas_pagar cp
-      LEFT JOIN pessoas f ON cp.fornecedor_id = f.id
-      LEFT JOIN beneficiarios b ON cp.beneficiario_id = b.id
-      LEFT JOIN pessoas p ON b.pessoa_id = p.id
-      LEFT JOIN propostas pr ON cp.proposta_id = pr.id
-      WHERE cp.deleted_at IS NULL
-    `
-    const params: any[] = []
-    let paramIndex = 1
+    let resultado = [...mockContasPagar]
 
     if (status) {
-      query += ` AND cp.status = $${paramIndex++}`
-      params.push(status)
+      resultado = resultado.filter(cp => cp.status === status)
     }
 
     if (categoria) {
-      query += ` AND cp.categoria = $${paramIndex++}`
-      params.push(categoria)
+      resultado = resultado.filter(cp => cp.categoria === categoria)
     }
 
     if (tipo_conta) {
-      query += ` AND cp.tipo_conta = $${paramIndex++}`
-      params.push(tipo_conta)
+      resultado = resultado.filter(cp => cp.tipo_conta === tipo_conta)
     }
 
     if (fornecedor_id) {
-      query += ` AND cp.fornecedor_id = $${paramIndex++}`
-      params.push(fornecedor_id)
+      resultado = resultado.filter(cp => cp.fornecedor_id === Number.parseInt(fornecedor_id))
     }
 
     if (beneficiario_id) {
-      query += ` AND cp.beneficiario_id = $${paramIndex++}`
-      params.push(beneficiario_id)
+      resultado = resultado.filter(cp => cp.beneficiario_id === Number.parseInt(beneficiario_id))
     }
 
-    if (data_inicio && data_fim) {
-      query += ` AND cp.data_vencimento BETWEEN $${paramIndex++} AND $${paramIndex++}`
-      params.push(data_inicio, data_fim)
-    }
-
-    query += ` ORDER BY cp.data_vencimento DESC, cp.created_at DESC`
-
-    const rows = await sql(query, params)
-    return NextResponse.json(rows)
+    return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar contas a pagar:", error)
     return NextResponse.json({ error: "Erro ao buscar contas a pagar", details: error.message }, { status: 500 })

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
+import { mockTribunais } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,28 +8,21 @@ export async function GET(request: NextRequest) {
     const uf = searchParams.get("uf")
     const ativo = searchParams.get("ativo")
 
-    let query = `SELECT * FROM tribunais WHERE 1=1`
-    const params: any[] = []
+    let resultado = [...mockTribunais]
 
     if (tipo) {
-      query += ` AND tipo = ?`
-      params.push(tipo)
+      resultado = resultado.filter(t => t.tipo === tipo)
     }
 
     if (uf) {
-      query += ` AND uf = ?`
-      params.push(uf)
+      resultado = resultado.filter(t => t.uf === uf)
     }
 
     if (ativo !== null) {
-      query += ` AND ativo = ?`
-      params.push(ativo === "true" ? 1 : 0)
+      resultado = resultado.filter(t => t.ativo === (ativo === "true"))
     }
 
-    query += ` ORDER BY nome ASC`
-
-    const [rows] = await pool.execute(query, params)
-    return NextResponse.json(rows)
+    return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar tribunais:", error)
     return NextResponse.json({ error: "Erro ao buscar tribunais", details: error.message }, { status: 500 })

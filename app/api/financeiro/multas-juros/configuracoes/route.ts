@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
+import { mockConfiguracoesMJ } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,23 +7,17 @@ export async function GET(request: NextRequest) {
     const ativo = searchParams.get("ativo")
     const padrao = searchParams.get("padrao")
 
-    let query = `SELECT * FROM configuracoes_multas_juros WHERE deleted_at IS NULL`
-    const params: any[] = []
+    let resultado = [...mockConfiguracoesMJ]
 
     if (ativo !== null) {
-      query += ` AND ativo = ?`
-      params.push(ativo === "true" ? 1 : 0)
+      resultado = resultado.filter(c => c.ativo === (ativo === "true"))
     }
 
     if (padrao !== null) {
-      query += ` AND padrao = ?`
-      params.push(padrao === "true" ? 1 : 0)
+      resultado = resultado.filter(c => c.padrao === (padrao === "true"))
     }
 
-    query += ` ORDER BY padrao DESC, nome ASC`
-
-    const [rows] = await pool.execute(query, params)
-    return NextResponse.json(rows)
+    return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar configurações:", error)
     return NextResponse.json({ error: "Erro ao buscar configurações", details: error.message }, { status: 500 })

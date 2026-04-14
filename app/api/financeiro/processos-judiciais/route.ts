@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
+import { mockProcessosJudiciais } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,51 +9,25 @@ export async function GET(request: NextRequest) {
     const advogado_id = searchParams.get("advogado_id")
     const beneficiario_id = searchParams.get("beneficiario_id")
 
-    let query = `
-      SELECT 
-        pj.*,
-        b.nome as beneficiario_nome,
-        p.nome as pessoa_nome,
-        p.cpf,
-        a.nome as advogado_nome,
-        a.oab,
-        t.nome as tribunal_nome,
-        t.sigla as tribunal_sigla,
-        cr.numero_documento as conta_receber_documento
-      FROM processos_judiciais pj
-      INNER JOIN beneficiarios b ON pj.beneficiario_id = b.id
-      INNER JOIN pessoas p ON b.pessoa_id = p.id
-      LEFT JOIN advogados a ON pj.advogado_id = a.id
-      LEFT JOIN tribunais t ON pj.tribunal_id = t.id
-      LEFT JOIN contas_receber cr ON pj.conta_receber_id = cr.id
-      WHERE pj.deleted_at IS NULL
-    `
-    const params: any[] = []
+    let resultado = [...mockProcessosJudiciais]
 
     if (status) {
-      query += ` AND pj.status = ?`
-      params.push(status)
+      resultado = resultado.filter(pj => pj.status === status)
     }
 
     if (fase) {
-      query += ` AND pj.fase_processual = ?`
-      params.push(fase)
+      resultado = resultado.filter(pj => pj.fase_processual === fase)
     }
 
     if (advogado_id) {
-      query += ` AND pj.advogado_id = ?`
-      params.push(advogado_id)
+      resultado = resultado.filter(pj => pj.advogado_id === Number.parseInt(advogado_id))
     }
 
     if (beneficiario_id) {
-      query += ` AND pj.beneficiario_id = ?`
-      params.push(beneficiario_id)
+      resultado = resultado.filter(pj => pj.beneficiario_id === Number.parseInt(beneficiario_id))
     }
 
-    query += ` ORDER BY pj.data_distribuicao DESC`
-
-    const [rows] = await pool.execute(query, params)
-    return NextResponse.json(rows)
+    return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar processos:", error)
     return NextResponse.json({ error: "Erro ao buscar processos", details: error.message }, { status: 500 })

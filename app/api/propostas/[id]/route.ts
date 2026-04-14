@@ -1,26 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
+import { mockPropostas } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
+    const propostaId = Number.parseInt(id)
 
-    const sql = `
-      SELECT 
-        p.*,
-        u.nome as analisado_por_nome
-      FROM propostas p
-      LEFT JOIN usuarios u ON p.analisado_por = u.id
-      WHERE p.id = ? AND p.deleted_at IS NULL
-    `
+    const proposta = mockPropostas.find(p => p.id === propostaId)
 
-    const result: any = await query(sql, [id])
-
-    if (!result || result.length === 0) {
+    if (!proposta) {
       return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
     }
 
-    return NextResponse.json(result[0])
+    return NextResponse.json(proposta)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar proposta:", error)
     return NextResponse.json({ error: "Erro ao buscar proposta", details: error.message }, { status: 500 })

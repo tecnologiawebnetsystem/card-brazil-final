@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { sql } from "@/lib/database"
+import { mockAdvogados } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,24 +7,17 @@ export async function GET(request: NextRequest) {
     const ativo = searchParams.get("ativo")
     const oab_uf = searchParams.get("oab_uf")
 
-    let query = `SELECT * FROM advogados WHERE deleted_at IS NULL`
-    const params: any[] = []
-    let paramIndex = 1
+    let resultado = [...mockAdvogados]
 
     if (ativo !== null) {
-      query += ` AND ativo = $${paramIndex++}`
-      params.push(ativo === "true")
+      resultado = resultado.filter(a => a.ativo === (ativo === "true"))
     }
 
     if (oab_uf) {
-      query += ` AND oab_uf = $${paramIndex++}`
-      params.push(oab_uf)
+      resultado = resultado.filter(a => a.oab_uf === oab_uf)
     }
 
-    query += ` ORDER BY nome ASC`
-
-    const rows = await sql(query, params)
-    return NextResponse.json(rows)
+    return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar advogados:", error)
     return NextResponse.json({ error: "Erro ao buscar advogados", details: error.message }, { status: 500 })

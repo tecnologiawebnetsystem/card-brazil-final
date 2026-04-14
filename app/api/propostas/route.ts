@@ -1,35 +1,33 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
+import { mockPropostas } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get("status")
     const search = searchParams.get("search")
+    const tipo_plano = searchParams.get("tipo_plano")
 
-    let sql = `
-      SELECT 
-        p.*,
-        u.nome as analisado_por_nome
-      FROM propostas p
-      LEFT JOIN usuarios u ON p.analisado_por = u.id
-      WHERE p.deleted_at IS NULL
-    `
-    const params: any[] = []
+    let propostas = [...mockPropostas]
 
     if (status) {
-      sql += ` AND p.status = ?`
-      params.push(status)
+      propostas = propostas.filter(p => p.status === status)
+    }
+
+    if (tipo_plano) {
+      propostas = propostas.filter(p => p.tipo_plano === tipo_plano)
     }
 
     if (search) {
-      sql += ` AND (p.nome_proponente LIKE ? OR p.cpf_cnpj LIKE ? OR p.empresa LIKE ?)`
-      params.push(`%${search}%`, `%${search}%`, `%${search}%`)
+      const searchLower = search.toLowerCase()
+      propostas = propostas.filter(p => 
+        p.numero_proposta.toLowerCase().includes(searchLower) ||
+        p.observacoes?.toLowerCase().includes(searchLower) ||
+        p.nome_proponente?.toLowerCase().includes(searchLower) ||
+        p.empresa?.toLowerCase().includes(searchLower) ||
+        p.cpf_cnpj?.includes(search)
+      )
     }
-
-    sql += ` ORDER BY p.created_at DESC`
-
-    const propostas = await query(sql, params)
 
     return NextResponse.json(propostas)
   } catch (error: any) {
@@ -41,58 +39,26 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const {
-      nome_proponente,
-      cpf_cnpj,
-      email,
-      telefone,
-      empresa,
-      numero_funcionarios,
-      tipo_plano,
-      valor_proposto,
-      observacoes,
-      id_administradora = 1, // Default para primeira administradora
-    } = body
 
-    // Validação
-    if (!nome_proponente || !cpf_cnpj || !tipo_plano) {
-      return NextResponse.json({ error: "Campos obrigatórios: nome_proponente, cpf_cnpj, tipo_plano" }, { status: 400 })
+    const novaProposta = {
+      id: mockPropostas.length + 1,
+      numero_proposta: `PROP-2024-${String(mockPropostas.length + 1).padStart(4, '0')}`,
+      estipulante_id: body.estipulante_id || 1,
+      corretor_id: body.corretor_id || 1,
+      operadora_id: body.operadora_id || 1,
+      produto_id: body.produto_id || 1,
+      data_proposta: new Date().toISOString().split('T')[0],
+      data_vigencia: body.data_vigencia || null,
+      valor_total: body.valor_total || 0,
+      quantidade_vidas: body.quantidade_vidas || 0,
+      status: "pendente",
+      observacoes: body.observacoes || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
 
-    const sql = `
-      INSERT INTO propostas (
-        id_administradora,
-        nome_proponente,
-        cpf_cnpj,
-        email,
-        telefone,
-        empresa,
-        numero_funcionarios,
-        tipo_plano,
-        valor_proposto,
-        observacoes,
-        status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendente')
-    `
-
-    const result: any = await query(sql, [
-      id_administradora,
-      nome_proponente,
-      cpf_cnpj,
-      email,
-      telefone,
-      empresa,
-      numero_funcionarios,
-      tipo_plano,
-      valor_proposto,
-      observacoes,
-    ])
-
     return NextResponse.json(
-      {
-        message: "Proposta criada com sucesso",
-        id: result.insertId,
-      },
+      { message: "Proposta criada com sucesso", id: novaProposta.id },
       { status: 201 },
     )
   } catch (error: any) {

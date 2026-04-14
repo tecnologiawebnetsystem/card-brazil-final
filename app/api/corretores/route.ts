@@ -1,8 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { CrudService } from "@/lib/crud-service"
-import { successResponse, handleApiError } from "@/lib/api-response"
-
-const corretoresService = new CrudService("corretores")
+import { successResponse } from "@/lib/api-response"
+import { mockCorretores, filterMockData } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,26 +10,24 @@ export async function GET(request: NextRequest) {
     const filters: Record<string, any> = {}
     if (ativo !== null) filters.ativo = ativo === "true"
 
-    const corretores = await corretoresService.findAll(filters)
+    const corretores = filterMockData(mockCorretores, filters)
     return NextResponse.json(successResponse(corretores))
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-
-    const id = await corretoresService.create({
+    const novoCorretor = {
+      id: mockCorretores.length + 1,
       ...body,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-
-    const corretor = await corretoresService.findById(id)
-    return NextResponse.json(successResponse(corretor, "Corretor criado com sucesso"), { status: 201 })
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    return NextResponse.json(successResponse(novoCorretor, "Corretor criado com sucesso"), { status: 201 })
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }

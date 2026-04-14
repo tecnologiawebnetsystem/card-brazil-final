@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { sql } from "@/lib/database"
+import { mockContasReceber } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,50 +7,22 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status")
     const categoria = searchParams.get("categoria")
     const beneficiario_id = searchParams.get("beneficiario_id")
-    const data_inicio = searchParams.get("data_inicio")
-    const data_fim = searchParams.get("data_fim")
 
-    let query = `
-      SELECT 
-        cr.*,
-        b.nome as beneficiario_nome,
-        p.nome as pessoa_nome,
-        pr.numero_proposta,
-        c.numero_contrato
-      FROM contas_receber cr
-      LEFT JOIN beneficiarios b ON cr.beneficiario_id = b.id
-      LEFT JOIN pessoas p ON b.pessoa_id = p.id
-      LEFT JOIN propostas pr ON cr.proposta_id = pr.id
-      LEFT JOIN contratos c ON cr.contrato_id = c.id
-      WHERE cr.deleted_at IS NULL
-    `
-    const params: any[] = []
-    let paramIndex = 1
+    let resultado = [...mockContasReceber]
 
     if (status) {
-      query += ` AND cr.status = $${paramIndex++}`
-      params.push(status)
+      resultado = resultado.filter(cr => cr.status === status)
     }
 
     if (categoria) {
-      query += ` AND cr.categoria = $${paramIndex++}`
-      params.push(categoria)
+      resultado = resultado.filter(cr => cr.categoria === categoria)
     }
 
     if (beneficiario_id) {
-      query += ` AND cr.beneficiario_id = $${paramIndex++}`
-      params.push(beneficiario_id)
+      resultado = resultado.filter(cr => cr.beneficiario_id === Number.parseInt(beneficiario_id))
     }
 
-    if (data_inicio && data_fim) {
-      query += ` AND cr.data_vencimento BETWEEN $${paramIndex++} AND $${paramIndex++}`
-      params.push(data_inicio, data_fim)
-    }
-
-    query += ` ORDER BY cr.data_vencimento DESC, cr.created_at DESC`
-
-    const rows = await sql(query, params)
-    return NextResponse.json(rows)
+    return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar contas a receber:", error)
     return NextResponse.json({ error: "Erro ao buscar contas a receber", details: error.message }, { status: 500 })

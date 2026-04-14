@@ -1,8 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { CrudService } from "@/lib/crud-service"
-import { successResponse, handleApiError } from "@/lib/api-response"
-
-const planosService = new CrudService("planos_saude")
+import { successResponse } from "@/lib/api-response"
+import { mockPlanos } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,30 +8,32 @@ export async function GET(request: NextRequest) {
     const ativo = searchParams.get("ativo")
     const produto_id = searchParams.get("produto_id")
 
-    const filters: Record<string, any> = {}
-    if (ativo !== null) filters.ativo = ativo === "true"
-    if (produto_id) filters.produto_id = Number.parseInt(produto_id)
+    let planos = [...mockPlanos]
+    
+    if (ativo !== null) {
+      planos = planos.filter(p => p.ativo === (ativo === "true"))
+    }
+    if (produto_id) {
+      planos = planos.filter(p => p.produto_id === Number.parseInt(produto_id))
+    }
 
-    const planos = await planosService.findAll(filters)
     return NextResponse.json(successResponse(planos))
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-
-    const id = await planosService.create({
+    const novoPlano = {
+      id: mockPlanos.length + 1,
       ...body,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-
-    const plano = await planosService.findById(id)
-    return NextResponse.json(successResponse(plano, "Plano criado com sucesso"), { status: 201 })
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    return NextResponse.json(successResponse(novoPlano, "Plano criado com sucesso"), { status: 201 })
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }

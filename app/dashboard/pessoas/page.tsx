@@ -551,18 +551,30 @@ export default function PessoasPage() {
     }
   }
 
-  const getIniciais = (nome: string | undefined, razao_social: string | undefined) => {
+  const getIniciais = (pessoa: Pessoa) => {
+    // Tenta usar nome_completo ou nome
+    const nome = (pessoa as any).nome_completo || pessoa.nome
     if (nome) {
-      const palavras = nome.split(" ")
+      const palavras = nome.trim().split(" ")
       if (palavras.length >= 2) {
         return `${palavras[0][0]}${palavras[palavras.length - 1][0]}`.toUpperCase()
       }
       return nome.substring(0, 2).toUpperCase()
     }
-    if (razao_social) {
-      return razao_social.substring(0, 2).toUpperCase()
+    // Tenta usar razao_social
+    if (pessoa.razao_social) {
+      return pessoa.razao_social.substring(0, 2).toUpperCase()
     }
-    return "??"
+    // Fallback: extrai iniciais do email
+    if (pessoa.email) {
+      const emailName = pessoa.email.split("@")[0]
+      const parts = emailName.split(/[._-]/)
+      if (parts.length >= 2) {
+        return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+      }
+      return emailName.substring(0, 2).toUpperCase()
+    }
+    return "NA"
   }
 
   return (
@@ -582,7 +594,7 @@ export default function PessoasPage() {
             }}
           >
             <DialogTrigger asChild>
-              <Button className="bg-[#6B8E23] hover:bg-[#556B1F] text-white">
+              <Button className="bg-[#00d084] hover:bg-[#00f5a0] text-black">
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Pessoa
               </Button>
@@ -734,7 +746,7 @@ export default function PessoasPage() {
                     <Button
                       onClick={adicionarEndereco}
                       size="sm"
-                      className="bg-[#6B8E23] hover:bg-[#556B1F] text-white"
+                      className="bg-[#00d084] hover:bg-[#00f5a0] text-black"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Adicionar Endereço
@@ -906,7 +918,7 @@ export default function PessoasPage() {
                 <TabsContent value="dados-bancarios" className="space-y-4 mt-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">Dados Bancários</h3>
-                    <Button onClick={adicionarConta} size="sm" className="bg-[#6B8E23] hover:bg-[#556B1F] text-white">
+                    <Button onClick={adicionarConta} size="sm" className="bg-[#00d084] hover:bg-[#00f5a0] text-black">
                       <Plus className="w-4 h-4 mr-2" />
                       Adicionar Conta
                     </Button>
@@ -1021,7 +1033,7 @@ export default function PessoasPage() {
                 <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={saving}>
                   Cancelar
                 </Button>
-                <Button className="bg-[#6B8E23] hover:bg-[#556B1F] text-white" onClick={salvarPessoa} disabled={saving}>
+                <Button className="bg-[#00d084] hover:bg-[#00f5a0] text-black" onClick={salvarPessoa} disabled={saving}>
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1049,7 +1061,7 @@ export default function PessoasPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1"
               />
-              <Button className="bg-[#6B8E23] hover:bg-[#556B1F] text-white">
+              <Button className="bg-[#00d084] hover:bg-[#00f5a0] text-black">
                 <Search className="w-4 h-4 mr-2" />
                 Pesquisar
               </Button>
@@ -1116,14 +1128,16 @@ export default function PessoasPage() {
                       <TableRow key={pessoa.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10 bg-muted">
-                              <AvatarFallback className="text-sm font-medium">
-                                {getIniciais(pessoa.nome, pessoa.razao_social)}
+                            <Avatar className="h-10 w-10 bg-[#1a1a1a]">
+                              <AvatarFallback className="text-sm font-medium bg-[#00d084] text-black">
+                                {getIniciais(pessoa)}
                               </AvatarFallback>
                             </Avatar>
                             <div>
                               <div className="font-medium text-foreground">
-                                {pessoa.tipo_pessoa === "fisica" ? pessoa.nome : pessoa.razao_social}
+                                {pessoa.tipo_pessoa === "fisica" 
+                                  ? ((pessoa as any).nome_completo || pessoa.nome || pessoa.email?.split("@")[0]) 
+                                  : pessoa.razao_social}
                               </div>
                               <div className="text-sm text-muted-foreground">{pessoa.email || "Sem email"}</div>
                             </div>
@@ -1142,8 +1156,8 @@ export default function PessoasPage() {
                             variant="outline"
                             className={
                               pessoa.status === "ativo"
-                                ? "bg-[#6B8E23] text-white border-[#6B8E23]"
-                                : "bg-gray-500 text-white border-gray-500"
+                                ? "bg-[#00d084] text-black border-[#00d084]"
+                                : "bg-[#737373] text-white border-[#737373]"
                             }
                           >
                             {pessoa.status === "ativo" ? "Ativo" : "Inativo"}

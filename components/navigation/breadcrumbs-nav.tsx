@@ -59,8 +59,8 @@ export function BreadcrumbsNav() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/dashboard" className="flex items-center gap-1">
-              <Home className="h-4 w-4" />
+            <Link href="/dashboard" className="flex items-center gap-1 text-[#737373] hover:text-[#ededed] transition-colors">
+              <Home className="h-3.5 w-3.5" />
               <span className="sr-only">Dashboard</span>
             </Link>
           </BreadcrumbLink>
@@ -74,14 +74,14 @@ export function BreadcrumbsNav() {
           return (
             <div key={segment} className="flex items-center gap-1.5">
               <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5 text-[#525252]" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage>{name}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-[#ededed] text-sm">{name}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link href={href}>{name}</Link>
+                    <Link href={href} className="text-[#737373] hover:text-[#ededed] text-sm transition-colors">{name}</Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

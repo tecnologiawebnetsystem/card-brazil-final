@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
+import { mockFluxoCaixa } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,47 +7,22 @@ export async function GET(request: NextRequest) {
     const tipo = searchParams.get("tipo")
     const status = searchParams.get("status")
     const categoria = searchParams.get("categoria")
-    const data_inicio = searchParams.get("data_inicio")
-    const data_fim = searchParams.get("data_fim")
 
-    let query = `
-      SELECT 
-        fc.*,
-        cr.numero_documento as conta_receber_documento,
-        cp.numero_documento as conta_pagar_documento,
-        b.nome as banco_nome
-      FROM fluxo_caixa fc
-      LEFT JOIN contas_receber cr ON fc.conta_receber_id = cr.id
-      LEFT JOIN contas_pagar cp ON fc.conta_pagar_id = cp.id
-      LEFT JOIN bancos b ON fc.conta_bancaria_id = b.id
-      WHERE fc.deleted_at IS NULL
-    `
-    const params: any[] = []
+    let resultado = [...mockFluxoCaixa]
 
     if (tipo) {
-      query += ` AND fc.tipo = ?`
-      params.push(tipo)
+      resultado = resultado.filter(fc => fc.tipo === tipo)
     }
 
     if (status) {
-      query += ` AND fc.status = ?`
-      params.push(status)
+      resultado = resultado.filter(fc => fc.status === status)
     }
 
     if (categoria) {
-      query += ` AND fc.categoria = ?`
-      params.push(categoria)
+      resultado = resultado.filter(fc => fc.categoria === categoria)
     }
 
-    if (data_inicio && data_fim) {
-      query += ` AND fc.data_movimentacao BETWEEN ? AND ?`
-      params.push(data_inicio, data_fim)
-    }
-
-    query += ` ORDER BY fc.data_movimentacao DESC, fc.created_at DESC`
-
-    const [rows] = await pool.execute(query, params)
-    return NextResponse.json(rows)
+    return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar fluxo de caixa:", error)
     return NextResponse.json({ error: "Erro ao buscar fluxo de caixa", details: error.message }, { status: 500 })

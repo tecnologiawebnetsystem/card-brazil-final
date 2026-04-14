@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server"
-import { AuthService } from "@/lib/auth-service"
 import { cookies } from "next/headers"
+import jwt from "jsonwebtoken"
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production"
+
+// Usuário admin mockado
+const MOCK_ADMIN_USER = {
+  id: 1,
+  administradora_id: 1,
+  nome_completo: "Administrador Sistema",
+  email: "admin@talenthealth.com.br",
+  tipo_usuario: "admin",
+  status: "ativo",
+  ultimo_acesso: new Date().toISOString(),
+}
 
 /**
  * @swagger
@@ -25,30 +38,22 @@ export async function GET() {
       return NextResponse.json({ success: false, message: "Not authenticated" }, { status: 401 })
     }
 
-    const decoded = await AuthService.verifyToken(token)
+    // Verificar token mockado
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: number }
+      
+      if (!decoded || !decoded.userId) {
+        return NextResponse.json({ success: false, message: "Invalid token" }, { status: 401 })
+      }
 
-    if (!decoded || !decoded.userId) {
+      // Retornar usuário mockado
+      return NextResponse.json({
+        success: true,
+        user: MOCK_ADMIN_USER,
+      })
+    } catch {
       return NextResponse.json({ success: false, message: "Invalid token" }, { status: 401 })
     }
-
-    const user = await AuthService.getUserById(decoded.userId)
-
-    if (!user) {
-      return NextResponse.json({ success: false, message: "User not found" }, { status: 404 })
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        nome_completo: user.nome_completo,
-        email: user.email,
-        administradora_id: user.administradora_id,
-        tipo_usuario: user.tipo_usuario,
-        status: user.status,
-        ultimo_acesso: user.ultimo_acesso,
-      },
-    })
   } catch (error) {
     console.error("[v0] Auth check error:", error)
     return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 })

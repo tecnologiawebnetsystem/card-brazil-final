@@ -1,12 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { CrudService } from "@/lib/crud-service"
-import { successResponse, errorResponse, handleApiError } from "@/lib/api-response"
-
-const planosService = new CrudService("planos_saude")
+import { successResponse, errorResponse } from "@/lib/api-response"
+import { mockPlanos, findMockById } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const plano = await planosService.findById(Number.parseInt(params.id))
+    const plano = findMockById(mockPlanos, Number.parseInt(params.id))
 
     if (!plano) {
       return NextResponse.json(errorResponse("Plano não encontrado"), { status: 404 })
@@ -14,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(successResponse(plano))
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }
 
@@ -22,33 +20,29 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   try {
     const body = await request.json()
     const id = Number.parseInt(params.id)
+    const plano = findMockById(mockPlanos, id)
 
-    const updated = await planosService.update(id, {
-      ...body,
-      updated_at: new Date(),
-    })
-
-    if (!updated) {
+    if (!plano) {
       return NextResponse.json(errorResponse("Plano não encontrado"), { status: 404 })
     }
 
-    const plano = await planosService.findById(id)
-    return NextResponse.json(successResponse(plano, "Plano atualizado com sucesso"))
+    const updated = { ...plano, ...body, updated_at: new Date().toISOString() }
+    return NextResponse.json(successResponse(updated, "Plano atualizado com sucesso"))
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const deleted = await planosService.softDelete(Number.parseInt(params.id))
+    const plano = findMockById(mockPlanos, Number.parseInt(params.id))
 
-    if (!deleted) {
+    if (!plano) {
       return NextResponse.json(errorResponse("Plano não encontrado"), { status: 404 })
     }
 
     return NextResponse.json(successResponse(null, "Plano excluído com sucesso"))
   } catch (error) {
-    return NextResponse.json(handleApiError(error), { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }

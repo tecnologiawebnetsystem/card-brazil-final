@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { pool } from "@/lib/database"
+import { mockContasReceber, mockConfiguracoesMJ } from "@/lib/mock-data"
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,33 +10,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar conta a receber
-    const [contaRows] = await pool.execute(`SELECT * FROM contas_receber WHERE id = ?`, [body.conta_receber_id])
+    const conta = mockContasReceber.find(cr => cr.id === body.conta_receber_id)
 
-    if (contaRows.length === 0) {
+    if (!conta) {
       return NextResponse.json({ error: "Conta a receber não encontrada" }, { status: 404 })
     }
 
-    const conta = contaRows[0]
-
     // Buscar configuração (padrão ou específica)
-    const configuracao_id = body.configuracao_id
-    let configQuery = `SELECT * FROM configuracoes_multas_juros WHERE ativo = TRUE AND deleted_at IS NULL`
-
-    if (configuracao_id) {
-      configQuery += ` AND id = ?`
+    let config = null
+    if (body.configuracao_id) {
+      config = mockConfiguracoesMJ.find(c => c.id === body.configuracao_id && c.ativo)
     } else {
-      configQuery += ` AND padrao = TRUE`
+      config = mockConfiguracoesMJ.find(c => c.padrao && c.ativo)
     }
 
-    configQuery += ` LIMIT 1`
-
-    const [configRows] = await pool.execute(configQuery, configuracao_id ? [configuracao_id] : [])
-
-    if (configRows.length === 0) {
+    if (!config) {
       return NextResponse.json({ error: "Configuração de multas e juros não encontrada" }, { status: 404 })
     }
-
-    const config = configRows[0]
 
     // Calcular dias de atraso
     const dataVencimento = new Date(conta.data_vencimento)
@@ -75,43 +65,6 @@ export async function POST(request: NextRequest) {
     }
 
     const valor_total = conta.valor_original + valor_multa + valor_juros - (conta.valor_desconto || 0)
-
-    // Salvar histórico
-    await pool.execute(
-      `INSERT INTO historico_multas_juros (
-        id_administradora, conta_receber_id, configuracao_id,
-        dias_atraso, valor_original, valor_multa, valor_juros, valor_total,
-        percentual_multa_aplicado, percentual_juros_aplicado,
-        data_calculo, data_referencia, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        conta.id_administradora,
-        conta.id,
-        config.id,
-        diasAtraso,
-        conta.valor_original,
-        valor_multa,
-        valor_juros,
-        valor_total,
-        config.percentual_multa,
-        config.percentual_juros_mensal,
-        new Date().toISOString().split("T")[0],
-        dataReferencia.toISOString().split("T")[0],
-        body.created_by || 1,
-      ],
-    )
-
-    // Atualizar conta a receber
-    await pool.execute(
-      `UPDATE contas_receber SET 
-        valor_multa = ?, 
-        valor_juros = ?, 
-        valor_total = ?,
-        dias_atraso = ?,
-        status = CASE WHEN ? > 0 THEN 'vencido' ELSE status END
-      WHERE id = ?`,
-      [valor_multa, valor_juros, valor_total, diasAtraso, diasAtraso, conta.id],
-    )
 
     return NextResponse.json({
       message: "Multas e juros calculados com sucesso",

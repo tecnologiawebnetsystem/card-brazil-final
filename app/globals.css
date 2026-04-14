@@ -4,96 +4,96 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Talent Health - Paleta teal/azul escuro */
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
-  --card: #141414;
-  --card-foreground: #f5f5f5;
-  --popover: #141414;
-  --popover-foreground: #f5f5f5;
-  --primary: #008080; /* Teal principal */
-  --primary-foreground: #ffffff;
-  --secondary: #1e3a5f; /* Azul escuro */
-  --secondary-foreground: #f5f5f5;
-  --muted: #1a1a1a;
-  --muted-foreground: #a3a3a3;
-  --accent: #006666; /* Teal escuro */
-  --accent-foreground: #ffffff;
-  --destructive: #b91c1c;
+  /* Talent Health - Tema Escuro Profissional Vercel-Style */
+  --background: #000000;
+  --foreground: #ededed;
+  --card: #0a0a0a;
+  --card-foreground: #ededed;
+  --popover: #0a0a0a;
+  --popover-foreground: #ededed;
+  --primary: #00d084; /* Verde vibrante */
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #a1a1a1;
+  --muted: #171717;
+  --muted-foreground: #737373;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #ff4444;
   --destructive-foreground: #ffffff;
   --border: #262626;
-  --input: #1a1a1a;
-  --ring: rgba(0, 128, 128, 0.3);
-  --chart-1: #008080; /* Teal */
-  --chart-2: #1e3a5f; /* Azul escuro */
-  --chart-3: #006666; /* Teal escuro */
-  --chart-4: #00a3a3; /* Teal claro */
-  --chart-5: #2563eb; /* Azul */
-  --radius: 0.75rem;
-  --sidebar: #0f0f0f;
-  --sidebar-foreground: #f5f5f5;
-  --sidebar-primary: #1a1a1a;
-  --sidebar-primary-foreground: #f5f5f5;
-  --sidebar-accent: #008080;
-  --sidebar-accent-foreground: #ffffff;
+  --input: #171717;
+  --ring: rgba(0, 208, 132, 0.4);
+  --chart-1: #00d084;
+  --chart-2: #0070f3;
+  --chart-3: #f5a623;
+  --chart-4: #ff0080;
+  --chart-5: #7928ca;
+  --radius: 0.5rem;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #171717;
+  --sidebar-primary-foreground: #ededed;
+  --sidebar-accent: #00d084;
+  --sidebar-accent-foreground: #000000;
   --sidebar-border: #262626;
-  --sidebar-ring: rgba(0, 128, 128, 0.3);
+  --sidebar-ring: rgba(0, 208, 132, 0.4);
 
   /* Cores semanticas */
-  --success: #22c55e;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #0a0a0a;
-  --info: #3b82f6;
+  --success: #00d084;
+  --success-foreground: #000000;
+  --warning: #f5a623;
+  --warning-foreground: #000000;
+  --info: #0070f3;
   --info-foreground: #ffffff;
-  --health-primary: #008080;
-  --health-secondary: #1e3a5f;
+  --health-primary: #00d084;
+  --health-secondary: #0070f3;
   --health-neutral: #737373;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
-  --card: #141414;
-  --card-foreground: #f5f5f5;
-  --popover: #141414;
-  --popover-foreground: #f5f5f5;
-  --primary: #00a3a3;
-  --primary-foreground: #ffffff;
-  --secondary: #1e3a5f;
-  --secondary-foreground: #f5f5f5;
-  --muted: #1a1a1a;
-  --muted-foreground: #a3a3a3;
-  --accent: #006666;
-  --accent-foreground: #f5f5f5;
-  --destructive: #b91c1c;
-  --destructive-foreground: #f5f5f5;
+  --background: #000000;
+  --foreground: #ededed;
+  --card: #0a0a0a;
+  --card-foreground: #ededed;
+  --popover: #0a0a0a;
+  --popover-foreground: #ededed;
+  --primary: #00d084;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #a1a1a1;
+  --muted: #171717;
+  --muted-foreground: #737373;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #ff4444;
+  --destructive-foreground: #ffffff;
   --border: #262626;
-  --input: #1a1a1a;
-  --ring: rgba(0, 128, 128, 0.3);
-  --chart-1: #00a3a3;
-  --chart-2: #1e3a5f;
-  --chart-3: #006666;
-  --chart-4: #008080;
-  --chart-5: #2563eb;
-  --sidebar: #0f0f0f;
-  --sidebar-foreground: #f5f5f5;
-  --sidebar-primary: #1a1a1a;
-  --sidebar-primary-foreground: #f5f5f5;
-  --sidebar-accent: #00a3a3;
-  --sidebar-accent-foreground: #ffffff;
+  --input: #171717;
+  --ring: rgba(0, 208, 132, 0.4);
+  --chart-1: #00d084;
+  --chart-2: #0070f3;
+  --chart-3: #f5a623;
+  --chart-4: #ff0080;
+  --chart-5: #7928ca;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #171717;
+  --sidebar-primary-foreground: #ededed;
+  --sidebar-accent: #00d084;
+  --sidebar-accent-foreground: #000000;
   --sidebar-border: #262626;
-  --sidebar-ring: rgba(0, 128, 128, 0.3);
+  --sidebar-ring: rgba(0, 208, 132, 0.4);
 
-  --success: #22c55e;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #0a0a0a;
-  --info: #3b82f6;
+  --success: #00d084;
+  --success-foreground: #000000;
+  --warning: #f5a623;
+  --warning-foreground: #000000;
+  --info: #0070f3;
   --info-foreground: #ffffff;
-  --health-primary: #00a3a3;
-  --health-secondary: #1e3a5f;
-  --health-neutral: #a3a3a3;
+  --health-primary: #00d084;
+  --health-secondary: #0070f3;
+  --health-neutral: #737373;
 }
 
 @theme inline {
@@ -186,45 +186,45 @@
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #0a0a0a;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
     background: #333;
-    border-radius: 4px;
+    border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #008080;
+    background: #00d084;
   }
 
   /* Selection */
   ::selection {
-    background: rgba(0, 128, 128, 0.3);
-    color: #f5f5f5;
+    background: rgba(0, 208, 132, 0.3);
+    color: #ffffff;
   }
 
   /* Text gradient utility */
   .text-gradient {
-    @apply bg-gradient-to-r from-[#008080] via-[#00a3a3] to-[#008080] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#00d084] via-[#00f5a0] to-[#00d084] bg-clip-text text-transparent;
   }
 
   /* Glow effects */
-  .glow-red {
-    box-shadow: 0 0 20px rgba(0, 128, 128, 0.3), 0 0 40px rgba(0, 128, 128, 0.1);
-  }
-
-  .glow-orange {
-    box-shadow: 0 0 20px rgba(0, 102, 102, 0.3), 0 0 40px rgba(0, 102, 102, 0.1);
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(0, 208, 132, 0.2), 0 0 40px rgba(0, 208, 132, 0.1);
   }
 
   .glow-blue {
-    box-shadow: 0 0 20px rgba(30, 58, 95, 0.4), 0 0 40px rgba(30, 58, 95, 0.2);
+    box-shadow: 0 0 20px rgba(0, 112, 243, 0.2), 0 0 40px rgba(0, 112, 243, 0.1);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 20px rgba(245, 166, 35, 0.2), 0 0 40px rgba(245, 166, 35, 0.1);
   }
 
   /* Enhanced typography with better hierarchy */
@@ -301,28 +301,28 @@
 
   /* Gradient backgrounds */
   .gradient-primary {
-    @apply bg-gradient-to-br from-[#008080] via-[#006666] to-[#008080];
+    @apply bg-gradient-to-r from-[#00d084] to-[#00a86b];
   }
 
   .gradient-healthcare {
-    @apply bg-gradient-to-br from-[#008080]/5 via-[#0a0a0a] to-[#1e3a5f]/10;
+    @apply bg-gradient-to-br from-[#00d084]/5 via-transparent to-[#0070f3]/5;
   }
 
   .gradient-card {
-    @apply bg-gradient-to-br from-card via-background to-muted/20;
+    @apply bg-gradient-to-br from-card to-muted/20;
   }
 
   /* Talent Health utility classes */
   .healthcare-card {
-    @apply bg-card/95 border border-border/50 rounded-xl shadow-lg shadow-[#008080]/5 transition-all duration-300 hover:shadow-xl hover:shadow-[#008080]/10 hover:border-[#008080]/20;
+    @apply bg-card border border-border rounded-lg transition-all duration-200 hover:border-[#333];
   }
 
   .healthcare-button {
-    @apply bg-gradient-to-r from-[#008080] to-[#006666] text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-[#008080]/25 transition-all duration-200 hover:shadow-xl hover:shadow-[#008080]/40 hover:brightness-110;
+    @apply bg-[#00d084] text-black font-medium py-2.5 px-5 rounded-lg transition-all duration-200 hover:bg-[#00f5a0];
   }
 
   .healthcare-input {
-    @apply bg-[#1a1a1a] border-2 border-[#262626] text-[#f5f5f5] hover:border-[#008080]/50 focus:border-[#008080] focus:ring-2 focus:ring-[#008080]/20 transition-all duration-200 rounded-lg px-4 py-3;
+    @apply bg-[#171717] border border-[#262626] text-[#ededed] placeholder:text-[#737373] hover:border-[#333] focus:border-[#00d084] focus:ring-1 focus:ring-[#00d084]/30 transition-all duration-200 rounded-lg px-4 py-2.5;
   }
 
   /* Responsive utilities */

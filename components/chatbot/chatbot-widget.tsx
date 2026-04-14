@@ -786,12 +786,12 @@ export function ChatbotWidget() {
 
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 relative"
+        className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 relative bg-[#00d084] hover:bg-[#00f5a0] text-black"
         size="sm"
       >
         <MessageCircle className="h-6 w-6" />
         {unreadCount > 0 && (
-          <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs bg-destructive">{unreadCount}</Badge>
+          <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs bg-red-500 text-white">{unreadCount}</Badge>
         )}
       </Button>
     </div>

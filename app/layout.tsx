@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#008080",
+  themeColor: "#000000",
 }
 
 export default function RootLayout({
@@ -36,9 +36,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
-      <body className="font-sans">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable} antialiased dark`}>
+      <body className="font-sans bg-background text-foreground">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>

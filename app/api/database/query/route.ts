@@ -1,15 +1,35 @@
 import { NextRequest, NextResponse } from "next/server"
 import mysql from "mysql2/promise"
 
+// Configuração fixa do banco de dados via variáveis de ambiente
+function getDbConfig() {
+  return {
+    host: process.env.MYSQL_HOST,
+    port: parseInt(process.env.MYSQL_PORT || "3306"),
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { host, port, user, password, database, query } = body
+    const { query } = body
 
-    if (!host || !user || !database || !query) {
+    if (!query) {
       return NextResponse.json(
-        { error: "Host, usuario, banco de dados e query sao obrigatorios" },
+        { error: "Query e obrigatoria" },
         { status: 400 }
+      )
+    }
+
+    const config = getDbConfig()
+
+    if (!config.host || !config.user || !config.database) {
+      return NextResponse.json(
+        { error: "Configuracao do banco de dados nao encontrada. Verifique as variaveis de ambiente." },
+        { status: 500 }
       )
     }
 
@@ -31,11 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     const connection = await mysql.createConnection({
-      host,
-      port: parseInt(port) || 3306,
-      user,
-      password,
-      database,
+      ...config,
       connectTimeout: 10000,
     })
 

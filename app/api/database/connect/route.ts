@@ -1,38 +1,44 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import mysql from "mysql2/promise"
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { host, port, user, password, database } = body
+// Configuração fixa do banco de dados via variáveis de ambiente
+function getDbConfig() {
+  return {
+    host: process.env.MYSQL_HOST,
+    port: parseInt(process.env.MYSQL_PORT || "3306"),
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+  }
+}
 
-    if (!host || !user) {
+export async function GET() {
+  try {
+    const config = getDbConfig()
+
+    if (!config.host || !config.user || !config.database) {
       return NextResponse.json(
-        { error: "Host e usuario sao obrigatorios" },
-        { status: 400 }
+        { error: "Configuracao do banco de dados nao encontrada. Verifique as variaveis de ambiente." },
+        { status: 500 }
       )
     }
 
     // Create connection to test credentials
     const connection = await mysql.createConnection({
-      host,
-      port: parseInt(port) || 3306,
-      user,
-      password,
-      database: database || undefined,
+      ...config,
       connectTimeout: 10000,
     })
 
-    // Get list of databases
-    const [rows] = await connection.query("SHOW DATABASES")
-    const databases = (rows as { Database: string }[]).map((row) => row.Database)
+    // Test connection
+    await connection.query("SELECT 1")
 
     await connection.end()
 
     return NextResponse.json({
       success: true,
       message: "Conexao estabelecida com sucesso",
-      databases,
+      database: config.database,
+      host: config.host,
     })
   } catch (error: unknown) {
     console.error("Database connection error:", error)
@@ -49,7 +55,7 @@ export async function POST(request: NextRequest) {
     
     if (errorMessage.includes("Access denied")) {
       return NextResponse.json(
-        { error: "Acesso negado. Verifique o usuario e a senha." },
+        { error: "Acesso negado. Verifique o usuario e a senha nas variaveis de ambiente." },
         { status: 401 }
       )
     }

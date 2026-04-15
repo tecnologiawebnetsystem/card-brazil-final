@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import mysql from "mysql2/promise"
 
 interface TableColumn {
@@ -16,30 +16,36 @@ interface TableInfo {
   rowCount: number
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { host, port, user, password, database } = body
+// Configuração fixa do banco de dados via variáveis de ambiente
+function getDbConfig() {
+  return {
+    host: process.env.MYSQL_HOST,
+    port: parseInt(process.env.MYSQL_PORT || "3306"),
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+  }
+}
 
-    if (!host || !user || !database) {
+export async function GET() {
+  try {
+    const config = getDbConfig()
+
+    if (!config.host || !config.user || !config.database) {
       return NextResponse.json(
-        { error: "Host, usuario e banco de dados sao obrigatorios" },
-        { status: 400 }
+        { error: "Configuracao do banco de dados nao encontrada. Verifique as variaveis de ambiente." },
+        { status: 500 }
       )
     }
 
     const connection = await mysql.createConnection({
-      host,
-      port: parseInt(port) || 3306,
-      user,
-      password,
-      database,
+      ...config,
       connectTimeout: 10000,
     })
 
     // Get list of tables
     const [tableRows] = await connection.query("SHOW TABLES")
-    const tableKey = `Tables_in_${database}`
+    const tableKey = `Tables_in_${config.database}`
     const tableNames = (tableRows as Record<string, string>[]).map((row) => row[tableKey])
 
     const tables: TableInfo[] = []
@@ -78,6 +84,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      database: config.database,
       tables,
     })
   } catch (error: unknown) {

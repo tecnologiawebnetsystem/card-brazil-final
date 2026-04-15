@@ -476,11 +476,17 @@ const menuItems = [
     title: "Sistemas",
     items: [
       {
-        title: "Integra����������ão ANS",
+        title: "Gerenciador de Banco de Dados",
+        url: "/dashboard/database-manager",
+        icon: <LayoutDashboardIcon />,
+        requiredPermission: null,
+      },
+      {
+        title: "Integracao ANS",
         icon: <CogIcon />,
         subItems: [
           {
-            title: "Sincronização ANS",
+            title: "Sincronizacao ANS",
             url: "/dashboard/sistemas/sincronizacao-ans",
             icon: <CogIcon className="h-3 w-3" />,
           },
@@ -498,7 +504,7 @@ const menuItems = [
         ],
       },
       {
-        title: "Segurança",
+        title: "Seguranca",
         icon: <ShieldIcon />,
         subItems: [
           {
@@ -507,12 +513,12 @@ const menuItems = [
             icon: <CogIcon className="h-3 w-3" />,
           },
           {
-            title: "Perfis de Usuário",
+            title: "Perfis de Usuario",
             url: "/dashboard/sistemas/perfis-usuario",
             icon: <CogIcon className="h-3 w-3" />,
           },
           {
-            title: "Logs de Segurança",
+            title: "Logs de Seguranca",
             url: "/dashboard/sistemas/logs-seguranca",
             icon: <CogIcon className="h-3 w-3" />,
           },

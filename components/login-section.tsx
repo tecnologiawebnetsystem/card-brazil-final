@@ -21,7 +21,6 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { TalentHealthLogo } from "@/components/talent-health-logo"
 
 export function LoginSection() {
   const router = useRouter()
@@ -130,22 +129,19 @@ export function LoginSection() {
   }
 
   return (
-    <div className="flex flex-col justify-center p-8 lg:p-12 relative min-h-screen bg-black">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#00d084]/5 via-transparent to-[#0070f3]/5" />
-      <div className="absolute top-20 right-20 w-64 h-64 bg-[#00d084]/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-20 w-48 h-48 bg-[#0070f3]/5 rounded-full blur-2xl" />
+    <div className="flex flex-col justify-center p-5 sm:p-8 lg:p-12 relative min-h-screen bg-background">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(77,142,219,0.12),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(200,92,97,0.08),transparent_30%)]" />
 
       <div className="relative z-10">
         {/* Mobile logo - only show on small screens */}
         <div className="text-center mb-8 lg:hidden">
-          <TalentHealthLogo variant="full" size="md" glow />
+          <div className="flex items-center justify-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg"><Stethoscope className="size-5" /></div><span className="font-heading text-xl font-semibold tracking-tight text-foreground">Portal Corporativo</span></div>
         </div>
 
-        <Card className="w-full max-w-lg mx-auto bg-[#0a0a0a] border-[#1a1a1a] backdrop-blur-sm">
+        <Card className="w-full max-w-lg mx-auto bg-[#111c2d] border-[#1a1a1a] backdrop-blur-sm">
           <CardHeader className="text-center space-y-6 pb-6">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-14 h-14 bg-[#00d084] rounded-xl flex items-center justify-center">
+              <div className="w-14 h-14 bg-[#4d8edb] rounded-xl flex items-center justify-center">
                 <Stethoscope className="w-7 h-7 text-black" />
               </div>
               <div>
@@ -168,21 +164,21 @@ export function LoginSection() {
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-3">
                 <Label htmlFor="userType" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
-                  <Users className="w-4 h-4 text-[#00d084]" />
+                  <Users className="w-4 h-4 text-[#4d8edb]" />
                   Tipo de Usuario
                 </Label>
                 <Select value={userType} onValueChange={setUserType}>
-                  <SelectTrigger className="h-12 bg-[#171717] border-[#262626] text-[#ededed] focus:border-[#00d084]">
+                  <SelectTrigger className="h-12 bg-[#171717] border-[#262626] text-[#ededed] focus:border-[#4d8edb]">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0a0a0a] border-[#262626]">
+                  <SelectContent className="bg-[#111c2d] border-[#262626]">
                     {userTypes.map((type) => {
                       const Icon = type.icon
                       return (
                         <SelectItem key={type.value} value={type.value} className="py-3 hover:bg-[#171717] text-[#ededed]">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-[#00d084]/10 rounded-lg flex items-center justify-center border border-[#00d084]/20">
-                              <Icon className="w-4 h-4 text-[#00d084]" />
+                            <div className="w-9 h-9 bg-[#4d8edb]/10 rounded-lg flex items-center justify-center border border-[#4d8edb]/20">
+                              <Icon className="w-4 h-4 text-[#4d8edb]" />
                             </div>
                             <div className="text-left">
                               <div className="font-medium text-[#ededed]">{type.label}</div>
@@ -198,21 +194,21 @@ export function LoginSection() {
 
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
-                  <Mail className="w-4 h-4 text-[#00d084]" />
+                  <Mail className="w-4 h-4 text-[#4d8edb]" />
                   Email ou CPF
                 </Label>
                 <Input
                   id="email"
                   type="text"
                   placeholder="Digite seu email ou CPF"
-                  className="h-12 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#00d084]"
+                  className="h-12 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#4d8edb]"
                   required
                 />
               </div>
 
               <div className="space-y-3">
                 <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
-                  <Lock className="w-4 h-4 text-[#00d084]" />
+                  <Lock className="w-4 h-4 text-[#4d8edb]" />
                   Senha
                 </Label>
                 <div className="relative">
@@ -220,14 +216,14 @@ export function LoginSection() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Digite sua senha"
-                    className="h-12 pr-14 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#00d084]"
+                    className="h-12 pr-14 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#4d8edb]"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-[#737373] hover:text-[#00d084] transition-colors"
+                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-[#737373] hover:text-[#4d8edb] transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -249,14 +245,14 @@ export function LoginSection() {
                     id="codigo"
                     type="text"
                     placeholder={`Digite o codigo da ${userType}`}
-                    className="h-12 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#00d084]"
+                    className="h-12 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#4d8edb]"
                   />
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-[#00d084] hover:bg-[#00f5a0] text-black font-medium rounded-lg"
+                className="w-full h-12 bg-[#4d8edb] hover:bg-[#00f5a0] text-black font-medium rounded-lg"
                 disabled={loading}
               >
                 {loading ? (
@@ -302,7 +298,7 @@ export function LoginSection() {
             <div className="text-center pt-2">
               <Button
                 variant="link"
-                className="text-sm text-[#00d084] hover:text-[#00f5a0] p-0 font-medium underline-offset-4"
+                className="text-sm text-[#4d8edb] hover:text-[#00f5a0] p-0 font-medium underline-offset-4"
                 onClick={() => (window.location.href = "/esqueci-senha")}
               >
                 Esqueci minha senha

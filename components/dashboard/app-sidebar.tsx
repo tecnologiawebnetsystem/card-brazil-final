@@ -625,7 +625,7 @@ export function AppSidebar() {
         </Button>
       )}
 
-      <Sidebar variant="inset" className="border-r border-[#1a1a1a] bg-[#0a0a0a]">
+      <Sidebar variant="inset" className="border-r border-[#1a1a1a] bg-sidebar">
         <SidebarHeader className="border-b border-[#1a1a1a] p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00d084]">
@@ -703,7 +703,7 @@ export function AppSidebar() {
             </SidebarGroup>
           ))}
         </SidebarContent>
-        <SidebarFooter className="border-t border-[#1a1a1a] bg-[#0a0a0a] p-3">
+        <SidebarFooter className="border-t border-[#1a1a1a] bg-sidebar p-3">
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -730,7 +730,7 @@ export function AppSidebar() {
                   <ChevronUp className="ml-auto h-4 w-4 text-[#737373]" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-lg bg-[#0a0a0a] border-[#262626]">
+              <DropdownMenuContent align="end" className="w-56 rounded-lg bg-sidebar border-[#262626]">
                 <DropdownMenuLabel className="text-[#ededed]">Minha Conta</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[#262626]" />
                 <DropdownMenuItem

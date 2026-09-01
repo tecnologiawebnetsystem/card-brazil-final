@@ -7,13 +7,13 @@ export function DashboardFooter() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-black border-t border-[#1a1a1a] mt-auto">
+    <footer className="bg-card border-t border-border mt-auto">
       <div className="px-6 py-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Left side - Company info */}
           <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-[#737373]">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-[#a1a1a1]">Talent Health CRM</span>
+              <span className="font-medium text-[#a1a1a1]">Portal Corporativo</span>
               <Badge variant="secondary" className="text-xs bg-[#1a1a1a] text-[#00d084] border border-[#262626]">
                 v2.1.0
               </Badge>
@@ -44,7 +44,7 @@ export function DashboardFooter() {
             <Separator orientation="vertical" className="hidden md:block h-4 bg-[#262626]" />
 
             <div className="text-center">
-              <p>© {currentYear} Talent Health. Todos os direitos reservados.</p>
+              <p>© {currentYear} Portal Corporativo. Todos os direitos reservados.</p>
             </div>
           </div>
         </div>

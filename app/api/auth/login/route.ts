@@ -1,18 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import jwt from "jsonwebtoken"
-
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production"
-
-// Usuário admin mockado
-const MOCK_ADMIN_USER = {
-  id: 1,
-  administradora_id: 1,
-  nome_completo: "Administrador Sistema",
-  email: "admin@talenthealth.com.br",
-  tipo_usuario: "admin",
-  status: "ativo",
-  ultimo_acesso: new Date().toISOString(),
-}
+import { AuthService } from "@/lib/auth-service"
 
 /**
  * @swagger
@@ -72,34 +59,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Email e senha são obrigatórios" }, { status: 400 })
     }
 
-    // Login mockado - aceita qualquer credencial para demonstração
-    const token = jwt.sign(
-      {
-        userId: MOCK_ADMIN_USER.id,
-        email: MOCK_ADMIN_USER.email,
-        administradoraId: MOCK_ADMIN_USER.administradora_id,
-        tipoUsuario: MOCK_ADMIN_USER.tipo_usuario,
-      },
-      JWT_SECRET,
-      { expiresIn: "24h" }
-    )
+    const result = await AuthService.login(String(email).trim(), String(senha))
 
-    const result = {
-      success: true,
-      message: "Login realizado com sucesso",
-      data: {
-        usuario: MOCK_ADMIN_USER,
-        token,
-      },
+    if (!result.success || !result.data) {
+      return NextResponse.json(result, { status: 401 })
     }
 
     const response = NextResponse.json(result)
-
-    response.cookies.set("auth-token", token, {
+    response.cookies.set("auth-token", result.data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60, // 24 hours
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60,
       path: "/",
     })
 

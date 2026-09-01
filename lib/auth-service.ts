@@ -2,7 +2,13 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { query, queryOne } from "./database"
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production"
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET
+  if (!secret || secret.length < 32) {
+    throw new Error("JWT_SECRET deve estar configurado com pelo menos 32 caracteres")
+  }
+  return secret
+}
 const JWT_EXPIRES_IN = "24h"
 const REFRESH_TOKEN_EXPIRES_IN = "7d"
 
@@ -67,7 +73,7 @@ export class AuthService {
           administradoraId: usuario.administradora_id,
           tipoUsuario: usuario.tipo_usuario,
         },
-        JWT_SECRET,
+        getJwtSecret(),
         { expiresIn: JWT_EXPIRES_IN },
       )
 
@@ -89,7 +95,7 @@ export class AuthService {
 
   static async logout(token: string): Promise<{ success: boolean; message: string }> {
     try {
-      jwt.verify(token, JWT_SECRET)
+      jwt.verify(token, getJwtSecret())
       return { success: true, message: "Logout realizado com sucesso" }
     } catch (error) {
       return { success: false, message: "Token inválido" }
@@ -98,7 +104,7 @@ export class AuthService {
 
   static async verifyToken(token: string): Promise<any> {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET)
+      const decoded = jwt.verify(token, getJwtSecret())
       return decoded
     } catch (error) {
       return null

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockTribunais } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,20 +8,13 @@ export async function GET(request: NextRequest) {
     const uf = searchParams.get("uf")
     const ativo = searchParams.get("ativo")
 
-    let resultado = [...mockTribunais]
-
-    if (tipo) {
-      resultado = resultado.filter(t => t.tipo === tipo)
-    }
-
-    if (uf) {
-      resultado = resultado.filter(t => t.uf === uf)
-    }
-
-    if (ativo !== null) {
-      resultado = resultado.filter(t => t.ativo === (ativo === "true"))
-    }
-
+    const params: unknown[] = []
+    const conditions: string[] = []
+    if (tipo) { params.push(tipo); conditions.push(`tipo = $${params.length}`) }
+    if (uf) { params.push(uf); conditions.push(`uf = $${params.length}`) }
+    if (ativo !== null) { params.push(ativo === "true"); conditions.push(`ativo = $${params.length}`) }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    const resultado = await query(`SELECT * FROM tribunais${where} ORDER BY nome ASC`, params)
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar tribunais:", error)
@@ -37,13 +30,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
 
-    const [result] = await pool.execute(
+    const rows = await query(
       `INSERT INTO tribunais (
-        id_administradora, nome, sigla, tipo, instancia, uf, cidade,
+        administradora_id, nome, sigla, tipo, instancia, uf, cidade,
         telefone, email, site, cep, logradouro, numero, complemento, bairro, ativo
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      RETURNING id`,
       [
-        body.id_administradora || 1,
+        body.administradora_id || 1,
         body.nome,
         body.sigla || null,
         body.tipo,
@@ -62,7 +56,7 @@ export async function POST(request: NextRequest) {
       ],
     )
 
-    return NextResponse.json({ id: result.insertId, message: "Tribunal cadastrado com sucesso" }, { status: 201 })
+    return NextResponse.json({ id: rows[0].id, message: "Tribunal cadastrado com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao cadastrar tribunal:", error)
     return NextResponse.json({ error: "Erro ao cadastrar tribunal", details: error.message }, { status: 500 })

@@ -1,55 +1,28 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockContasPagar } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = Number.parseInt(params.id)
+const fields = ["descricao", "categoria", "valor", "data_vencimento", "data_pagamento", "status", "observacoes"]
 
-    const conta = mockContasPagar.find(cp => cp.id === id)
-
-    if (!conta) {
-      return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
-    }
-
-    return NextResponse.json(conta)
-  } catch (error: any) {
-    console.error("[v0] Erro ao buscar conta a pagar:", error)
-    return NextResponse.json({ error: "Erro ao buscar conta a pagar", details: error.message }, { status: 500 })
-  }
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+  const rows = await query("SELECT * FROM contas_pagar WHERE id = $1", [Number.parseInt(params.id, 10)])
+  if (!rows.length) return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
+  return NextResponse.json(rows[0])
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = Number.parseInt(params.id)
-    const body = await request.json()
-
-    const conta = mockContasPagar.find(cp => cp.id === id)
-
-    if (!conta) {
-      return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
-    }
-
-    const updated = { ...conta, ...body, updated_at: new Date().toISOString() }
-    return NextResponse.json({ message: "Conta a pagar atualizada com sucesso", data: updated })
-  } catch (error: any) {
-    console.error("[v0] Erro ao atualizar conta a pagar:", error)
-    return NextResponse.json({ error: "Erro ao atualizar conta a pagar", details: error.message }, { status: 500 })
-  }
+  const body = await request.json()
+  const entries = Object.entries(body).filter(([key]) => fields.includes(key))
+  if (!entries.length) return NextResponse.json({ error: "Nenhum campo válido para atualizar" }, { status: 400 })
+  const values = entries.map(([, value]) => value)
+  const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
+  values.push(Number.parseInt(params.id, 10))
+  const rows = await query(`UPDATE contas_pagar SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length} RETURNING *`, values)
+  if (!rows.length) return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
+  return NextResponse.json({ message: "Conta a pagar atualizada com sucesso", data: rows[0] })
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = Number.parseInt(params.id)
-
-    const conta = mockContasPagar.find(cp => cp.id === id)
-
-    if (!conta) {
-      return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
-    }
-
-    return NextResponse.json({ message: "Conta a pagar excluída com sucesso" })
-  } catch (error: any) {
-    console.error("[v0] Erro ao excluir conta a pagar:", error)
-    return NextResponse.json({ error: "Erro ao excluir conta a pagar", details: error.message }, { status: 500 })
-  }
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  const rows = await query("DELETE FROM contas_pagar WHERE id = $1 RETURNING id", [Number.parseInt(params.id, 10)])
+  if (!rows.length) return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
+  return NextResponse.json({ message: "Conta a pagar excluída com sucesso" })
 }

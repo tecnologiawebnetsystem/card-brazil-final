@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status")
     const search = searchParams.get("search")
     const tipo_plano = searchParams.get("tipo_plano")
+    const limit = Math.min(Math.max(Number.parseInt(searchParams.get("limit") || "50", 10) || 50, 1), 100)
+    const offset = Math.max(Number.parseInt(searchParams.get("offset") || "0", 10) || 0, 0)
 
     const params: unknown[] = []
     const conditions: string[] = []
@@ -14,11 +16,12 @@ export async function GET(request: NextRequest) {
     if (tipo_plano) { params.push(tipo_plano); conditions.push(`tipo_plano = $${params.length}`) }
     if (search) { params.push(`%${search}%`); conditions.push(`(nome_proponente ILIKE $${params.length} OR empresa ILIKE $${params.length} OR cpf_cnpj ILIKE $${params.length} OR observacoes ILIKE $${params.length})`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
-    const propostas = await query(`SELECT * FROM propostas${where} ORDER BY created_at DESC NULLS LAST`, params)
-    return NextResponse.json(propostas)
+    params.push(limit, offset)
+    const propostas = await query(`SELECT * FROM propostas${where} ORDER BY created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
+    return NextResponse.json({ data: propostas, pagination: { limit, offset, count: propostas.length } })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar propostas:", error)
-    return NextResponse.json({ error: "Erro ao buscar propostas", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar propostas" }, { status: 500 })
   }
 }
 
@@ -33,6 +36,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Proposta criada com sucesso", id: rows[0].id }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar proposta:", error)
-    return NextResponse.json({ error: "Erro ao criar proposta", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar proposta" }, { status: 500 })
   }
 }

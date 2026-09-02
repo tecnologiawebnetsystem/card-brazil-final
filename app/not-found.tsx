@@ -65,9 +65,9 @@ export default function NotFound() {
             </Button>
 
             <Button variant="outline" asChild className="border-primary/30 hover:bg-primary/5 bg-transparent">
-              <Link href="javascript:history.back()">
+              <Link href="/dashboard">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Página Anterior
+                Voltar ao Dashboard
               </Link>
             </Button>
           </div>

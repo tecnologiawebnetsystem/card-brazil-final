@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar fluxo de caixa:", error)
-    return NextResponse.json({ error: "Erro ao buscar fluxo de caixa", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar fluxo de caixa" }, { status: 500 })
   }
 }
 
@@ -69,6 +69,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: rows[0].id, message: "Movimentação criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar movimentação:", error)
-    return NextResponse.json({ error: "Erro ao criar movimentação", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar movimentação" }, { status: 500 })
   }
 }

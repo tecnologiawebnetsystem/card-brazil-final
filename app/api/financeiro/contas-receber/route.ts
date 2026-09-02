@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar contas a receber:", error)
-    return NextResponse.json({ error: "Erro ao buscar contas a receber", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar contas a receber" }, { status: 500 })
   }
 }
 
@@ -86,6 +86,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: rows[0].id, message: "Conta a receber criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("Erro ao criar conta a receber:", error)
-    return NextResponse.json({ error: "Erro ao criar conta a receber", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar conta a receber" }, { status: 500 })
   }
 }

@@ -111,9 +111,14 @@ export class AuthService {
     }
   }
 
-  static async getUserById(userId: number): Promise<Omit<Usuario, "senha_hash"> | null> {
+  static async getUserById(userId: number, administradoraId?: number): Promise<Omit<Usuario, "senha_hash"> | null> {
     try {
-      const usuario = await queryOne<Usuario>("SELECT * FROM usuarios WHERE id = $1 AND status = 'ativo'", [userId])
+      const usuario = await queryOne<Usuario>(
+        administradoraId === undefined
+          ? "SELECT * FROM usuarios WHERE id = $1 AND status = 'ativo'"
+          : "SELECT * FROM usuarios WHERE id = $1 AND administradora_id = $2 AND status = 'ativo'",
+        administradoraId === undefined ? [userId] : [userId, administradoraId],
+      )
 
       if (!usuario) {
         return null

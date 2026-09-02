@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
     const ativo = searchParams.get("ativo")
     const tipo_beneficiario = searchParams.get("tipo_beneficiario")
     const titular_id = searchParams.get("titular_id")
+    const limit = Math.min(Math.max(Number.parseInt(searchParams.get("limit") || "50", 10) || 50, 1), 100)
+    const offset = Math.max(Number.parseInt(searchParams.get("offset") || "0", 10) || 0, 0)
 
     const params: unknown[] = []
     const conditions: string[] = []
@@ -14,15 +16,16 @@ export async function GET(request: NextRequest) {
     if (tipo_beneficiario) { params.push(tipo_beneficiario); conditions.push(`tipo_beneficiario = $${params.length}`) }
     if (titular_id) { params.push(Number.parseInt(titular_id, 10)); conditions.push(`titular_id = $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
-    const result = await query(`SELECT * FROM beneficiarios${where} ORDER BY created_at DESC NULLS LAST`, params)
-    return NextResponse.json({ success: true, data: result, count: result.length })
+    params.push(limit, offset)
+    const result = await query(`SELECT * FROM beneficiarios${where} ORDER BY created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
+    return NextResponse.json({ success: true, data: result, count: result.length, pagination: { limit, offset } })
   } catch (error) {
     console.error("[v0] Erro ao buscar beneficiários:", error)
     return NextResponse.json(
       {
         success: false,
         message: "Erro ao buscar beneficiários",
-        error: error instanceof Error ? error.message : "Erro desconhecido",
+        error: "Falha ao consultar beneficiários",
       },
       { status: 500 },
     )

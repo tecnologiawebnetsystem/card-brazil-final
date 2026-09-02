@@ -11,10 +11,10 @@ export function DashboardFooter() {
       <div className="px-6 py-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Left side - Company info */}
-          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-[#737373]">
+          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <span className="font-medium text-[#a1a1a1]">Portal Corporativo</span>
-              <Badge variant="secondary" className="text-xs bg-[#1a1a1a] text-[#00d084] border border-[#262626]">
+              <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground border border-border">
                 v2.1.0
               </Badge>
             </div>
@@ -25,11 +25,11 @@ export function DashboardFooter() {
           </div>
 
           {/* Right side - Copyright and links */}
-          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-[#737373]">
+          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-4">
               <span>
                 Usuarios Online:{" "}
-                <Badge variant="outline" className="ml-1 border-[#262626] text-[#00d084]">
+                <Badge variant="outline" className="ml-1 border-border text-primary">
                   12
                 </Badge>
               </span>

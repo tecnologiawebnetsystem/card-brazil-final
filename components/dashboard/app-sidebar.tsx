@@ -639,7 +639,7 @@ export function AppSidebar() {
               </svg>
             </div>
             <div>
-              <h1 className="text-base font-semibold text-[#ededed]">
+              <h1 className="text-base font-semibold text-sidebar-foreground">
                 Talent Health
               </h1>
               <p className="text-xs text-sidebar-foreground/60">Sistema de Gestao</p>
@@ -675,7 +675,7 @@ export function AppSidebar() {
                               >
                                 <a href={subItem.url} className="flex items-center gap-3 px-3 py-1.5">
                                   <span className="text-sidebar-foreground/60">{subItem.icon || item.icon}</span>
-                                  <span className="text-sm text-sidebar-foreground/80 hover:text-[#ededed] transition-colors">
+                                  <span className="text-sm text-sidebar-foreground/80 hover:text-sidebar-foreground transition-colors">
                                     {subItem.title}
                                   </span>
                                 </a>
@@ -689,7 +689,7 @@ export function AppSidebar() {
                           >
                             <a href={item.url} className="flex items-center gap-3 px-3 py-1.5">
                               <span className="text-sidebar-foreground/60">{item.icon}</span>
-                              <span className="text-sm text-sidebar-foreground/80 hover:text-[#ededed] transition-colors">
+                              <span className="text-sm text-sidebar-foreground/80 hover:text-sidebar-foreground transition-colors">
                                 {item.title}
                               </span>
                             </a>
@@ -703,7 +703,7 @@ export function AppSidebar() {
             </SidebarGroup>
           ))}
         </SidebarContent>
-        <SidebarFooter className="border-t border-[#1a1a1a] bg-sidebar p-3">
+        <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-3">
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -713,7 +713,7 @@ export function AppSidebar() {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/images/user-avatar.jpg" alt={user.nome} />
-                    <AvatarFallback className="bg-sidebar-accent text-black text-xs font-semibold">
+                    <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs font-semibold">
                       {user.nome
                         ? user.nome
                             .split(" ")
@@ -724,15 +724,15 @@ export function AppSidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium text-[#ededed]">{user.nome}</span>
+                    <span className="text-sm font-medium text-sidebar-foreground">{user.nome}</span>
                     <span className="text-xs text-sidebar-foreground/60">{getProfileDisplayName(user.role_nome)}</span>
                   </div>
                   <ChevronUp className="ml-auto h-4 w-4 text-sidebar-foreground/60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-lg bg-sidebar border-[#262626]">
-                <DropdownMenuLabel className="text-[#ededed]">Minha Conta</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-[#262626]" />
+              <DropdownMenuContent align="end" className="w-56 rounded-lg bg-sidebar border-sidebar-border">
+                <DropdownMenuLabel className="text-sidebar-foreground">Minha Conta</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-sidebar-border" />
                 <DropdownMenuItem
                   className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
                   onClick={() => (window.location.href = "/dashboard/perfil")}
@@ -745,9 +745,9 @@ export function AppSidebar() {
                 >
                   <span>Configuracoes</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-[#262626]" />
+                <DropdownMenuSeparator className="bg-sidebar-border" />
                 <DropdownMenuItem
-                  className="rounded-md hover:bg-sidebar-primary text-[#00d084] transition-colors cursor-pointer"
+                  className="rounded-md hover:bg-sidebar-primary text-sidebar-accent transition-colors cursor-pointer"
                   onClick={logout}
                 >
                   <span>Sair</span>

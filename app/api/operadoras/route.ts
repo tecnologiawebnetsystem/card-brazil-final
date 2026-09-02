@@ -20,13 +20,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const novaOperadora = {
-      id: mockOperadoras.length + 1,
-      ...body,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }
-    return NextResponse.json(successResponse(novaOperadora, "Operadora criada com sucesso"), { status: 201 })
+    const rows = await query(`INSERT INTO operadoras (administradora_id, nome, registro_ans, cnpj, status) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [body.administradora_id || 1, body.nome, body.registro_ans || null, body.cnpj || null, body.status || "ativo"])
+    return NextResponse.json(successResponse(rows[0], "Operadora criada com sucesso"), { status: 201 })
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }

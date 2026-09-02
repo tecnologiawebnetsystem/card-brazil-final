@@ -136,11 +136,8 @@ export default function PessoasPage() {
   const carregarPessoas = async () => {
     try {
       setLoading(true)
-      const token = localStorage.getItem("token")
       const response = await fetch(`/api/pessoas?id_administradora=${user?.perfil_id || 1}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       })
 
       if (!response.ok) throw new Error("Erro ao carregar pessoas")
@@ -161,23 +158,21 @@ export default function PessoasPage() {
 
   const carregarDetalhesPessoa = async (pessoaId: number) => {
     try {
-      const token = localStorage.getItem("token")
-
       // Carregar pessoa
       const pessoaResponse = await fetch(`/api/pessoas/${pessoaId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       })
       const pessoaData = await pessoaResponse.json()
 
       // Carregar endereços
       const enderecosResponse = await fetch(`/api/enderecos?pessoa_id=${pessoaId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       })
       const enderecosData = await enderecosResponse.json()
 
       // Carregar contas bancárias
       const contasResponse = await fetch(`/api/dados-bancarios?pessoa_id=${pessoaId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       })
       const contasData = await contasResponse.json()
 
@@ -279,10 +274,9 @@ export default function PessoasPage() {
     if (!pessoaParaExcluir) return
 
     try {
-      const token = localStorage.getItem("token")
       const response = await fetch(`/api/pessoas/${pessoaParaExcluir.id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       })
 
       if (!response.ok) throw new Error("Erro ao excluir pessoa")
@@ -307,8 +301,6 @@ export default function PessoasPage() {
   const salvarPessoa = async () => {
     try {
       setSaving(true)
-      const token = localStorage.getItem("token")
-
       if (tipoPessoa === "fisica" && (!formData.nome || !formData.cpf)) {
         toast({
           title: "Erro de validação",
@@ -351,7 +343,7 @@ export default function PessoasPage() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            credentials: "include",
           },
           body: JSON.stringify(pessoaPayload),
         })
@@ -364,7 +356,7 @@ export default function PessoasPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            credentials: "include",
           },
           body: JSON.stringify(pessoaPayload),
         })
@@ -381,10 +373,8 @@ export default function PessoasPage() {
             // Atualizar endereço existente
             await fetch(`/api/enderecos/${endereco.id}`, {
               method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({
                 ...endereco,
                 pessoa_id: pessoaId,
@@ -395,10 +385,8 @@ export default function PessoasPage() {
             // Criar novo endereço
             await fetch("/api/enderecos", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({
                 ...endereco,
                 pessoa_id: pessoaId,
@@ -416,10 +404,8 @@ export default function PessoasPage() {
             // Atualizar conta existente
             await fetch(`/api/dados-bancarios/${conta.id}`, {
               method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({
                 ...conta,
                 pessoa_id: pessoaId,
@@ -430,10 +416,8 @@ export default function PessoasPage() {
             // Criar nova conta
             await fetch("/api/dados-bancarios", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
               body: JSON.stringify({
                 ...conta,
                 pessoa_id: pessoaId,

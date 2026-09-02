@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,40 +14,16 @@ export default function ConsultaPessoasPage() {
   const [filterType, setFilterType] = useState("todos")
   const [filterStatus, setFilterStatus] = useState("todos")
 
-  const mockPessoas = [
-    {
-      id: "1",
-      nome: "João Silva Santos",
-      documento: "123.456.789-00",
-      tipo: "Física",
-      status: "Ativo",
-      operadora: "Unimed SP",
-      plano: "Enfermaria",
-      ultimaMovimentacao: "2024-01-15",
-    },
-    {
-      id: "2",
-      nome: "Empresa ABC Ltda",
-      documento: "12.345.678/0001-90",
-      tipo: "Jurídica",
-      status: "Ativo",
-      operadora: "Bradesco Saúde",
-      plano: "Apartamento",
-      ultimaMovimentacao: "2024-01-10",
-    },
-    {
-      id: "3",
-      nome: "Maria Oliveira Costa",
-      documento: "987.654.321-00",
-      tipo: "Física",
-      status: "Suspenso",
-      operadora: "SulAmérica",
-      plano: "Enfermaria",
-      ultimaMovimentacao: "2023-12-20",
-    },
-  ]
+  const [pessoas, setPessoas] = useState<any[]>([])
 
-  const filteredPessoas = mockPessoas.filter((pessoa) => {
+  useEffect(() => {
+    fetch("/api/pessoas", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => setPessoas((payload.data || []).map((item: any) => ({ ...item, nome: item.nome_completo || item.razao_social || "", documento: item.cpf || item.cnpj || "", tipo: item.tipo_pessoa === "juridica" ? "Jurídica" : "Física", status: item.status === "ativo" ? "Ativo" : item.status }))))
+      .catch((error) => console.error("[v0] Erro ao carregar consulta de pessoas:", error))
+  }, [])
+
+  const filteredPessoas = pessoas.filter((pessoa) => {
     const matchesSearch =
       pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) || pessoa.documento.includes(searchTerm)
     const matchesType = filterType === "todos" || pessoa.tipo === filterType

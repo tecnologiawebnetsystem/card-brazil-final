@@ -24,13 +24,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const novoBanco = {
-      id: mockBancos.length + 1,
-      ...body,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }
-    return NextResponse.json(novoBanco, { status: 201 })
+    const rows = await query(`INSERT INTO bancos (administradora_id, codigo, nome, nome_curto, tipo, status) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`, [body.administradora_id || 1, body.codigo, body.nome, body.nome_curto || null, body.tipo || null, body.status || "Ativo"])
+    return NextResponse.json(rows[0], { status: 201 })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

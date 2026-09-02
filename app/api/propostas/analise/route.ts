@@ -24,9 +24,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ID da proposta é obrigatório" }, { status: 400 })
     }
 
-    const proposta = mockPropostas.find(p => p.id === body.proposta_id)
-    
-    if (!proposta) {
+    const propostaRows = await query(`SELECT id FROM propostas WHERE id = $1`, [body.proposta_id])
+    if (!propostaRows.length) {
       return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
     }
 

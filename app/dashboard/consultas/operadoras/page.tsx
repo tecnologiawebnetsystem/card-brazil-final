@@ -15,12 +15,21 @@ export default function ConsultaOperadorasPage() {
   const [filterStatus, setFilterStatus] = useState("todos")
 
   const [operadoras, setOperadoras] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/operadoras", { credentials: "include" })
       .then((response) => response.json())
-      .then((payload) => setOperadoras((payload.data || []).map((item: any) => ({ ...item, registroANS: item.registro_ans || "", natureza: item.natureza || item.tipo || "", status: item.status === "ativo" ? "Ativo" : item.status, segurados: Number(item.segurados || 0), receita: Number(item.receita || 0), codigo: item.codigo || String(item.id) }))))
-      .catch((error) => console.error("[v0] Erro ao carregar operadoras:", error))
+      .then((payload) => {
+        setOperadoras((payload.data || []).map((item: any) => ({ ...item, registroANS: item.registro_ans || "", natureza: item.natureza || item.tipo || "", status: item.status === "ativo" ? "Ativo" : item.status, segurados: Number(item.segurados || 0), receita: Number(item.receita || 0), codigo: item.codigo || String(item.id) })))
+        setError(null)
+      })
+      .catch((error) => {
+        console.error("[v0] Erro ao carregar operadoras:", error)
+        setError("Não foi possível carregar as operadoras.")
+      })
+      .finally(() => setIsLoading(false))
   }, [])
 
   const filteredOperadoras = operadoras.filter((op) => {
@@ -215,7 +224,13 @@ export default function ConsultaOperadorasPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOperadoras.map((operadora) => (
+                {isLoading ? (
+                  <TableRow><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">Carregando operadoras...</TableCell></TableRow>
+                ) : error ? (
+                  <TableRow><TableCell colSpan={7} className="h-24 text-center text-destructive">{error}</TableCell></TableRow>
+                ) : filteredOperadoras.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">Nenhuma operadora encontrada.</TableCell></TableRow>
+                ) : filteredOperadoras.map((operadora) => (
                   <TableRow key={operadora.id}>
                     <TableCell className="font-medium">{operadora.codigo}</TableCell>
                     <TableCell>{operadora.nome}</TableCell>

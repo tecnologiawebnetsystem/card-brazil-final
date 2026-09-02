@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 export default function RelatorioSeguradosPage() {
   const [periodo, setPeriodo] = useState("mes")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const handleGenerateReport = () => {
     setIsGenerating(true)
@@ -18,13 +20,31 @@ export default function RelatorioSeguradosPage() {
     }, 2000)
   }
 
-  const mockDados = [
-    { operadora: "Unimed SP", ativos: 1250, inativos: 45, novos: 32, cancelados: 8 },
-    { operadora: "Bradesco Saúde", ativos: 890, inativos: 23, novos: 18, cancelados: 5 },
-    { operadora: "SulAmérica", ativos: 650, inativos: 15, novos: 12, cancelados: 3 },
-  ]
+  const [dados, setDados] = useState<Array<{ operadora: string; ativos: number; inativos: number; novos: number; cancelados: number }>>([])
 
-  const totais = mockDados.reduce(
+  useEffect(() => {
+    fetch("/api/beneficiarios", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => {
+        const beneficiarios = payload.data || payload || []
+        const porOperadora = beneficiarios.reduce((acc: Record<string, any>, item: any) => {
+          const nome = item.operadora_nome || item.operadora?.nome || "Não informada"
+          acc[nome] ||= { operadora: nome, ativos: 0, inativos: 0, novos: 0, cancelados: 0 }
+          if (["ativo", "Ativo"].includes(item.status)) acc[nome].ativos += 1
+          else acc[nome].inativos += 1
+          return acc
+        }, {})
+        setDados(Object.values(porOperadora))
+        setError(null)
+      })
+      .catch((error) => {
+        console.error("[v0] Erro ao carregar segurados:", error)
+        setError("Não foi possível carregar os segurados.")
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  const totais = dados.reduce(
     (acc, curr) => ({
       ativos: acc.ativos + curr.ativos,
       inativos: acc.inativos + curr.inativos,
@@ -162,7 +182,13 @@ export default function RelatorioSeguradosPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockDados.map((item, index) => {
+                {isLoading ? (
+                  <TableRow><TableCell colSpan={6} className="h-24 text-center text-muted-foreground">Carregando dados...</TableCell></TableRow>
+                ) : error ? (
+                  <TableRow><TableCell colSpan={6} className="h-24 text-center text-destructive">{error}</TableCell></TableRow>
+                ) : dados.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="h-24 text-center text-muted-foreground">Nenhum segurado encontrado.</TableCell></TableRow>
+                ) : dados.map((item, index) => {
                   const crescimento = (((item.novos - item.cancelados) / item.ativos) * 100).toFixed(1)
                   return (
                     <TableRow key={index}>

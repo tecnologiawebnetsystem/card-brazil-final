@@ -15,18 +15,15 @@ export const dynamic = "force-dynamic"
 export default function EsqueciSenhaPage() {
   const router = useRouter()
   const [token, setToken] = useState("")
-  const [origin, setOrigin] = useState("")
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
   const [confirmacao, setConfirmacao] = useState("")
   const [message, setMessage] = useState("")
-  const [recoveryToken, setRecoveryToken] = useState("")
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
 
   useEffect(() => {
     setToken(new URLSearchParams(window.location.search).get("token") || "")
-    setOrigin(window.location.origin)
   }, [])
 
   async function requestReset(event: React.FormEvent) {
@@ -39,7 +36,6 @@ export default function EsqueciSenhaPage() {
       body: JSON.stringify({ email }),
     })
     const data = await response.json()
-    setRecoveryToken(data.recoveryToken || "")
     setMessage(data.message)
     setLoading(false)
   }
@@ -58,8 +54,6 @@ export default function EsqueciSenhaPage() {
     setDone(data.success)
     setLoading(false)
   }
-
-  const link = recoveryToken && origin ? `${origin}/esqueci-senha?token=${recoveryToken}` : ""
 
   return (
     <main className="aperTo-abraco-pattern flex min-h-screen items-center justify-center p-4">
@@ -88,8 +82,7 @@ export default function EsqueciSenhaPage() {
             <form onSubmit={requestReset} className="space-y-5">
               <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" type="email" autoComplete="email" placeholder="voce@empresa.com" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
               {message && <Alert><AlertDescription>{message}</AlertDescription></Alert>}
-              {link && <Alert><AlertDescription><strong>Link de desenvolvimento:</strong><br /><a className="break-all text-primary underline" href={link}>{link}</a></AlertDescription></Alert>}
-              <Button className="w-full" disabled={loading}>{loading ? "Gerando link..." : "Gerar link de recuperação"}</Button>
+              <Button className="w-full" disabled={loading}>{loading ? "Enviando e-mail..." : "Enviar link de recuperação"}</Button>
             </form>
           )}
         </CardContent>

@@ -177,7 +177,7 @@ export default function CodigosPostaisPage() {
     if (cleanCep.length === 8) {
       setIsLoading(true)
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+        const response = await fetch(`/api/cep/${cleanCep}`)
         const data = await response.json()
 
         if (data.erro) {
@@ -219,7 +219,7 @@ export default function CodigosPostaisPage() {
       setIsLoading(true)
       try {
         const cleanCep = searchTerm.replace(/\D/g, "")
-        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+        const response = await fetch(`/api/cep/${cleanCep}`)
         const data = await response.json()
 
         if (data.erro) {
@@ -261,12 +261,10 @@ export default function CodigosPostaisPage() {
         setIsLoading(false)
       }
     } else if (searchType === "endereco" && searchTerm.length >= 3) {
-      const results = mockCodigosPostais.filter(
-        (codigo) =>
-          codigo.logradouro.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          codigo.bairro.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          codigo.cidade.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+      const [cidade = "", uf = ""] = formData.cidade.split("/")
+      const response = await fetch(`/api/cep/buscar?uf=${encodeURIComponent(uf || "SP")}&cidade=${encodeURIComponent(cidade || "São Paulo")}&logradouro=${encodeURIComponent(searchTerm)}`)
+      const results = response.ok ? await response.json() : []
+      setCodigosPostais(results.map((codigo: any, index: number) => ({ ...codigo, id: `api-${index}-${codigo.cep}`, estado: codigo.uf, status: "ativo" })))
 
       if (results.length === 0) {
         toast({

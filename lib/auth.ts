@@ -17,109 +17,44 @@ export interface UserPermissions {
 }
 
 export function getUserProfile(): UserProfile | null {
-  if (typeof window === "undefined") return null
-
-  const storedProfile = localStorage.getItem("userProfile")
-  const storedName = localStorage.getItem("userName") || "Usuário"
-
-  if (!storedProfile) return null
-
-  // Se for string simples (compatibilidade), converter para objeto
-  if (typeof storedProfile === "string" && !storedProfile.startsWith("{")) {
-    return {
-      name: storedName,
-      role: storedProfile as UserProfile["role"],
-      avatar: undefined,
-      email: undefined,
-    }
-  }
-
-  try {
-    return JSON.parse(storedProfile) as UserProfile
-  } catch {
-    // Fallback para compatibilidade
-    return {
-      name: storedName,
-      role: storedProfile as UserProfile["role"],
-      avatar: undefined,
-      email: undefined,
-    }
-  }
+  return null
 }
 
 export function getUserPermissions(profile: UserProfile): UserPermissions {
-  const permissions: Record<UserProfile["role"], UserPermissions> = {
-    admin: {
-      canViewFinanceiro: true,
-      canViewCadastros: true,
-      canViewContratos: true,
-      canViewCompliance: true,
-      canViewConfiguracoes: true,
-      canManageUsers: true,
-      canGenerateReports: true,
-      canViewAllData: true,
-    },
-    operadora: {
-      canViewFinanceiro: true,
-      canViewCadastros: true,
-      canViewContratos: true,
-      canViewCompliance: true,
-      canViewConfiguracoes: false,
-      canManageUsers: false,
-      canGenerateReports: true,
-      canViewAllData: true,
-    },
-    estipulante: {
-      canViewFinanceiro: false,
-      canViewCadastros: false,
-      canViewContratos: true,
-      canViewCompliance: false,
-      canViewConfiguracoes: false,
-      canManageUsers: false,
-      canGenerateReports: false,
-      canViewAllData: false,
-    },
-    subestipulante: {
-      canViewFinanceiro: false,
-      canViewCadastros: false,
-      canViewContratos: true,
-      canViewCompliance: false,
-      canViewConfiguracoes: false,
-      canManageUsers: false,
-      canGenerateReports: false,
-      canViewAllData: false,
-    },
-    usuario: {
-      canViewFinanceiro: false,
-      canViewCadastros: false,
-      canViewContratos: false,
-      canViewCompliance: false,
-      canViewConfiguracoes: false,
-      canManageUsers: false,
-      canGenerateReports: false,
-      canViewAllData: false,
-    },
+  const restricted: UserPermissions = {
+    canViewFinanceiro: false,
+    canViewCadastros: false,
+    canViewContratos: false,
+    canViewCompliance: false,
+    canViewConfiguracoes: false,
+    canManageUsers: false,
+    canGenerateReports: false,
+    canViewAllData: false,
   }
 
-  return permissions[profile.role]
+  if (profile.role === "admin") {
+    return Object.fromEntries(Object.keys(restricted).map((key) => [key, true])) as UserPermissions
+  }
+
+  if (profile.role === "operadora") {
+    return { ...restricted, canViewFinanceiro: true, canViewCadastros: true, canViewContratos: true, canViewCompliance: true, canGenerateReports: true, canViewAllData: true }
+  }
+
+  if (profile.role === "estipulante" || profile.role === "subestipulante") {
+    return { ...restricted, canViewContratos: true }
+  }
+
+  return restricted
 }
 
 export function isLoggedIn(): boolean {
-  if (typeof window === "undefined") return false
-  return localStorage.getItem("isLoggedIn") === "true"
+  return false
 }
 
 export function logout(): void {
-  if (typeof window === "undefined") return
-  localStorage.removeItem("userProfile")
-  localStorage.removeItem("userName")
-  localStorage.removeItem("isLoggedIn")
-  localStorage.removeItem("loginTime")
-  localStorage.removeItem("isDemoMode")
+  // A sessão é encerrada pelo endpoint /api/auth/logout e pelo cookie HTTP-only.
 }
 
-export function saveUserProfile(profile: UserProfile): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem("userProfile", JSON.stringify(profile))
-  localStorage.setItem("userName", profile.name)
+export function saveUserProfile(_profile: UserProfile): void {
+  // Perfil não é persistido no cliente; consulte /api/auth/me.
 }

@@ -1,14 +1,25 @@
 import { sql } from "./database"
 
+const IDENTIFIER = /^[a-z_][a-z0-9_]*$/i
+
+function assertIdentifier(value: string, kind: string) {
+  if (!IDENTIFIER.test(value)) {
+    throw new Error(`Identificador de ${kind} inválido`)
+  }
+}
+
 export class CrudService<T> {
-  constructor(private tableName: string) {}
+  constructor(private tableName: string) {
+    assertIdentifier(tableName, "tabela")
+  }
 
   async findAll(filters?: Record<string, any>): Promise<T[]> {
     let query = `SELECT * FROM ${this.tableName}`
     const params: any[] = []
 
     if (filters && Object.keys(filters).length > 0) {
-      const conditions = Object.keys(filters).map((key, index) => `${key} = $${index + 1}`)
+      Object.keys(filters).forEach((key) => assertIdentifier(key, "coluna"))
+      const conditions = Object.keys(filters).map((key, index) => `${key} = ${index + 1}`)
       query += ` WHERE ${conditions.join(" AND ")}`
       params.push(...Object.values(filters))
     }
@@ -26,6 +37,8 @@ export class CrudService<T> {
 
   async create(data: Partial<T>): Promise<number> {
     const keys = Object.keys(data)
+    keys.forEach((key) => assertIdentifier(key, "coluna"))
+    if (keys.length === 0) throw new Error("Nenhum dado informado")
     const values = Object.values(data)
     const placeholders = keys.map((_, index) => `$${index + 1}`).join(", ")
 
@@ -39,6 +52,8 @@ export class CrudService<T> {
 
   async update(id: number, data: Partial<T>): Promise<boolean> {
     const keys = Object.keys(data)
+    keys.forEach((key) => assertIdentifier(key, "coluna"))
+    if (keys.length === 0) throw new Error("Nenhum dado informado")
     const values = Object.values(data)
     const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ")
 
@@ -61,7 +76,8 @@ export class CrudService<T> {
     const params: any[] = []
 
     if (filters && Object.keys(filters).length > 0) {
-      const conditions = Object.keys(filters).map((key, index) => `${key} = $${index + 1}`)
+      Object.keys(filters).forEach((key) => assertIdentifier(key, "coluna"))
+      const conditions = Object.keys(filters).map((key, index) => `${key} = ${index + 1}`)
       query += ` WHERE ${conditions.join(" AND ")}`
       params.push(...Object.values(filters))
     }

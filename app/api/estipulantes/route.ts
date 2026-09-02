@@ -1,16 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { successResponse } from "@/lib/api-response"
-import { mockEstipulantes, filterMockData } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const ativo = searchParams.get("ativo")
 
-    const filters: Record<string, any> = {}
-    if (ativo !== null) filters.ativo = ativo === "true"
-
-    const estipulantes = filterMockData(mockEstipulantes, filters)
+    const params: unknown[] = []
+    const where = ativo !== null ? " WHERE status = $1" : ""
+    if (ativo !== null) params.push(ativo === "true" ? "ativo" : "inativo")
+    const estipulantes = await query(`SELECT * FROM estipulantes${where} ORDER BY created_at DESC NULLS LAST`, params)
     return NextResponse.json(successResponse(estipulantes))
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })

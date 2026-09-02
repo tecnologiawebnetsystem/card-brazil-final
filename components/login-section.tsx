@@ -139,14 +139,14 @@ export function LoginSection() {
           <div className="flex items-center justify-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg"><Stethoscope className="size-5" /></div><span className="font-heading text-xl font-semibold tracking-tight text-foreground">Portal Corporativo</span></div>
         </div>
 
-        <Card className="w-full max-w-lg mx-auto bg-[#111c2d] border-[#1a1a1a] backdrop-blur-sm">
+        <Card className="w-full max-w-lg mx-auto bg-card/95 border-border shadow-2xl shadow-primary/10 backdrop-blur-sm">
           <CardHeader className="text-center space-y-6 pb-6">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-14 h-14 bg-[#4d8edb] rounded-xl flex items-center justify-center">
+              <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/25">
                 <Stethoscope className="w-7 h-7 text-black" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-semibold text-[#ededed]">Bem-vindo de volta</CardTitle>
+                <CardTitle className="text-2xl font-semibold text-foreground">Bem-vindo de volta</CardTitle>
                 <CardDescription className="text-[#737373] mt-2">
                   Acesse o sistema de gestao de saude
                 </CardDescription>
@@ -156,7 +156,7 @@ export function LoginSection() {
 
           <CardContent className="space-y-6 px-6 pb-6">
             {error && (
-              <Alert variant="destructive" className="bg-red-500/10 border-red-500/30 text-[#ededed]">
+              <Alert variant="destructive" className="bg-red-500/10 border-red-500/30 text-foreground">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
@@ -165,24 +165,24 @@ export function LoginSection() {
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-3">
                 <Label htmlFor="userType" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
-                  <Users className="w-4 h-4 text-[#4d8edb]" />
+                  <Users className="w-4 h-4 text-primary" />
                   Tipo de Usuario
                 </Label>
                 <Select value={userType} onValueChange={setUserType}>
-                  <SelectTrigger className="h-12 bg-[#171717] border-[#262626] text-[#ededed] focus:border-[#4d8edb]">
+                  <SelectTrigger className="h-12 bg-[#171717] border-[#262626] text-foreground focus:border-[#4d8edb]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111c2d] border-[#262626]">
                     {userTypes.map((type) => {
                       const Icon = type.icon
                       return (
-                        <SelectItem key={type.value} value={type.value} className="py-3 hover:bg-[#171717] text-[#ededed]">
+                        <SelectItem key={type.value} value={type.value} className="py-3 hover:bg-[#171717] text-foreground">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 bg-[#4d8edb]/10 rounded-lg flex items-center justify-center border border-[#4d8edb]/20">
-                              <Icon className="w-4 h-4 text-[#4d8edb]" />
+                              <Icon className="w-4 h-4 text-primary" />
                             </div>
                             <div className="text-left">
-                              <div className="font-medium text-[#ededed]">{type.label}</div>
+                              <div className="font-medium text-foreground">{type.label}</div>
                               <div className="text-xs text-[#737373]">{type.description}</div>
                             </div>
                           </div>
@@ -195,7 +195,7 @@ export function LoginSection() {
 
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
-                  <Mail className="w-4 h-4 text-[#4d8edb]" />
+                  <Mail className="w-4 h-4 text-primary" />
                   Email ou CPF
                 </Label>
                 <Input
@@ -212,7 +212,7 @@ export function LoginSection() {
 
               <div className="space-y-3">
                 <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
-                  <Lock className="w-4 h-4 text-[#4d8edb]" />
+                  <Lock className="w-4 h-4 text-primary" />
                   Senha
                 </Label>
                 <div className="relative">
@@ -230,7 +230,7 @@ export function LoginSection() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-[#737373] hover:text-[#4d8edb] transition-colors"
+                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-[#737373] hover:text-primary transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -252,14 +252,14 @@ export function LoginSection() {
                     id="codigo"
                     type="text"
                     placeholder={`Digite o codigo da ${userType}`}
-                    className="h-12 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#4d8edb]"
+                    className="h-12 bg-[#171717] border-[#262626] text-foreground placeholder:text-[#525252] focus:border-[#4d8edb]"
                   />
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-[#4d8edb] hover:bg-[#00f5a0] text-black font-medium rounded-lg"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg shadow-primary/20"
                 disabled={loading}
               >
                 {loading ? (
@@ -283,7 +283,7 @@ export function LoginSection() {
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   variant="outline"
-                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-[#a1a1a1] hover:text-[#ededed]"
+                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-[#a1a1a1] hover:text-foreground"
                   onClick={() => handleDemoLogin("admin")}
                   disabled={loading}
                 >
@@ -292,7 +292,7 @@ export function LoginSection() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-[#a1a1a1] hover:text-[#ededed]"
+                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-[#a1a1a1] hover:text-foreground"
                   onClick={() => handleDemoLogin("user")}
                   disabled={loading}
                 >
@@ -305,7 +305,7 @@ export function LoginSection() {
             <div className="text-center pt-2">
               <Button
                 variant="link"
-                className="text-sm text-[#4d8edb] hover:text-[#00f5a0] p-0 font-medium underline-offset-4"
+                className="text-sm text-primary hover:text-[#00f5a0] p-0 font-medium underline-offset-4"
                 onClick={() => (window.location.href = "/esqueci-senha")}
               >
                 Esqueci minha senha

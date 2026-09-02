@@ -1,0 +1,15 @@
+DADOS DE ACESSO — AMBIENTE DE DEMONSTRAÇÃO
+
+Sistema: Portal Corporativo / Talent Health
+URL: /
+
+Administrador
+E-mail: admin@talenthealth.com.br
+Senha: admin123
+Perfil: Administrador
+
+Observações:
+- Estas credenciais são exclusivas para demonstração local/homologação.
+- Não utilizar em produção.
+- Altere a senha antes de disponibilizar o sistema externamente.
+- O login real é processado por POST /api/auth/login e usa cookie HTTP-only.

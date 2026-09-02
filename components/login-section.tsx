@@ -28,6 +28,8 @@ export function LoginSection() {
   const [userType, setUserType] = useState("usuario")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
 
   const userTypes = [
     {
@@ -67,15 +69,14 @@ export function LoginSection() {
     setError(null)
     setLoading(true)
 
-    const form = e.target as HTMLFormElement
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value
-    const senha = (form.elements.namedItem("password") as HTMLInputElement).value
+    const senha = password.trim()
+    const login = email.trim()
 
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({ email: login, senha }),
       })
 
       const data = await response.json()
@@ -200,8 +201,11 @@ export function LoginSection() {
                 <Input
                   id="email"
                   type="text"
-                  placeholder="Digite seu email ou CPF"
-                  className="h-12 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#4d8edb]"
+                  placeholder="Digite seu e-mail ou CPF"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="username"
+                  className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                   required
                 />
               </div>
@@ -216,7 +220,10 @@ export function LoginSection() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Digite sua senha"
-                    className="h-12 pr-14 bg-[#171717] border-[#262626] text-[#ededed] placeholder:text-[#525252] focus:border-[#4d8edb]"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete="current-password"
+                    className="h-12 pr-14 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                     required
                   />
                   <Button

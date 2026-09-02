@@ -5,7 +5,10 @@ import { QuickActions } from "@/components/dashboard/quick-actions"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
 import { InteractiveChart } from "@/components/dashboard/interactive-chart"
 import { DateRangePicker } from "@/components/dashboard/date-range-picker"
+import useSWR from "swr"
 import { useState } from "react"
+
+const fetcher = (url: string) => fetch(url, { credentials: "include" }).then((response) => response.json())
 import { Users, DollarSign, Clock, AlertTriangle } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -14,13 +17,15 @@ import { Button } from "@/components/ui/button"
 import { Settings, Edit } from "lucide-react"
 
 export default function DashboardPage() {
+  const { data: sessionData } = useSWR("/api/auth/me", fetcher)
+  const sessionUser = sessionData?.user
   const user = {
-    name: "Admin Demo",
-    email: "admin@talenthealth.com.br",
-    role: "Administrador",
+    name: sessionUser?.nome || sessionUser?.name || "Usuário autenticado",
+    email: sessionUser?.email || "Sessão ativa",
+    role: sessionUser?.perfil_nome || sessionUser?.role || "Usuário",
   }
 
-  const [dateRange, setDateRange] = useState({ from: new Date(2024, 0, 1), to: new Date() })
+  const [dateRange, setDateRange] = useState({ from: new Date(new Date().getFullYear(), 0, 1), to: new Date() })
 
   const chartData = [
     { name: "Jan", value: 4000, comparison: 3800 },

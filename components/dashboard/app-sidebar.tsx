@@ -625,10 +625,10 @@ export function AppSidebar() {
         </Button>
       )}
 
-      <Sidebar variant="inset" className="border-r border-[#1a1a1a] bg-sidebar">
-        <SidebarHeader className="border-b border-[#1a1a1a] p-4">
+<Sidebar variant="inset" className="border-r border-sidebar-border bg-sidebar">
+      <SidebarHeader className="border-b border-sidebar-border p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00d084]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-accent">
               <svg className="h-5 w-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -642,7 +642,7 @@ export function AppSidebar() {
               <h1 className="text-base font-semibold text-[#ededed]">
                 Talent Health
               </h1>
-              <p className="text-xs text-[#737373]">Sistema de Gestao</p>
+              <p className="text-xs text-sidebar-foreground/60">Sistema de Gestao</p>
             </div>
           </div>
         </SidebarHeader>
@@ -650,7 +650,7 @@ export function AppSidebar() {
           {filteredMenuItems.map((group) => (
             <SidebarGroup key={group.title} className="mb-2">
               <SidebarGroupLabel
-                className="mb-1 flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[#737373] hover:text-[#a1a1a1] transition-colors"
+                className="mb-1 flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-sidebar-foreground/60 hover:text-sidebar-foreground/80 transition-colors"
                 onClick={() => toggleGroupExpansion(group.title)}
               >
                 <span>{group.title}</span>
@@ -671,11 +671,11 @@ export function AppSidebar() {
                               <SidebarMenuButton
                                 key={subItem.title}
                                 asChild
-                                className="rounded-md hover:bg-[#1a1a1a] transition-colors h-8"
+                                className="rounded-md hover:bg-sidebar-primary transition-colors h-8"
                               >
                                 <a href={subItem.url} className="flex items-center gap-3 px-3 py-1.5">
-                                  <span className="text-[#737373]">{subItem.icon || item.icon}</span>
-                                  <span className="text-sm text-[#a1a1a1] hover:text-[#ededed] transition-colors">
+                                  <span className="text-sidebar-foreground/60">{subItem.icon || item.icon}</span>
+                                  <span className="text-sm text-sidebar-foreground/80 hover:text-[#ededed] transition-colors">
                                     {subItem.title}
                                   </span>
                                 </a>
@@ -685,11 +685,11 @@ export function AppSidebar() {
                         ) : (
                           <SidebarMenuButton
                             asChild
-                            className="rounded-md hover:bg-[#1a1a1a] transition-colors h-8"
+                            className="rounded-md hover:bg-sidebar-primary transition-colors h-8"
                           >
                             <a href={item.url} className="flex items-center gap-3 px-3 py-1.5">
-                              <span className="text-[#737373]">{item.icon}</span>
-                              <span className="text-sm text-[#a1a1a1] hover:text-[#ededed] transition-colors">
+                              <span className="text-sidebar-foreground/60">{item.icon}</span>
+                              <span className="text-sm text-sidebar-foreground/80 hover:text-[#ededed] transition-colors">
                                 {item.title}
                               </span>
                             </a>
@@ -709,11 +709,11 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-3 rounded-lg hover:bg-[#1a1a1a] transition-colors h-auto py-2"
+                  className="w-full justify-start gap-3 rounded-lg hover:bg-sidebar-primary transition-colors h-auto py-2"
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/images/user-avatar.jpg" alt={user.nome} />
-                    <AvatarFallback className="bg-[#00d084] text-black text-xs font-semibold">
+                    <AvatarFallback className="bg-sidebar-accent text-black text-xs font-semibold">
                       {user.nome
                         ? user.nome
                             .split(" ")
@@ -725,29 +725,29 @@ export function AppSidebar() {
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
                     <span className="text-sm font-medium text-[#ededed]">{user.nome}</span>
-                    <span className="text-xs text-[#737373]">{getProfileDisplayName(user.role_nome)}</span>
+                    <span className="text-xs text-sidebar-foreground/60">{getProfileDisplayName(user.role_nome)}</span>
                   </div>
-                  <ChevronUp className="ml-auto h-4 w-4 text-[#737373]" />
+                  <ChevronUp className="ml-auto h-4 w-4 text-sidebar-foreground/60" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 rounded-lg bg-sidebar border-[#262626]">
                 <DropdownMenuLabel className="text-[#ededed]">Minha Conta</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-[#262626]" />
                 <DropdownMenuItem
-                  className="rounded-md hover:bg-[#1a1a1a] transition-colors cursor-pointer text-[#a1a1a1]"
+                  className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
                   onClick={() => (window.location.href = "/dashboard/perfil")}
                 >
                   <span>Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-md hover:bg-[#1a1a1a] transition-colors cursor-pointer text-[#a1a1a1]"
+                  className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
                   onClick={() => (window.location.href = "/dashboard/configuracoes")}
                 >
                   <span>Configuracoes</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-[#262626]" />
                 <DropdownMenuItem
-                  className="rounded-md hover:bg-[#1a1a1a] text-[#00d084] transition-colors cursor-pointer"
+                  className="rounded-md hover:bg-sidebar-primary text-[#00d084] transition-colors cursor-pointer"
                   onClick={logout}
                 >
                   <span>Sair</span>

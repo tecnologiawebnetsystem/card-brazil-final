@@ -130,8 +130,9 @@ export function LoginSection() {
   }
 
   return (
-    <div className="flex flex-col justify-center p-5 sm:p-8 lg:p-12 relative min-h-screen bg-background">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,168,89,0.18),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(245,196,0,0.12),transparent_32%)]" />
+    <div className="aperTo-abraco-pattern flex min-h-screen items-center justify-center p-5 sm:p-8 lg:p-12 relative overflow-hidden">
+      <div className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full border-[24px] border-primary/10" />
+      <div className="pointer-events-none absolute -bottom-32 -right-20 size-96 rounded-full border-[32px] border-accent/40" />
 
       <div className="relative z-10">
         {/* Mobile logo - only show on small screens */}
@@ -139,7 +140,7 @@ export function LoginSection() {
           <div className="flex items-center justify-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg"><Stethoscope className="size-5" /></div><span className="font-heading text-xl font-semibold tracking-tight text-foreground">Portal Corporativo</span></div>
         </div>
 
-        <Card className="w-full max-w-lg mx-auto bg-card/95 border-primary/25 shadow-2xl shadow-primary/15 backdrop-blur-sm">
+        <Card className="w-full max-w-md mx-auto bg-card/95 border-border shadow-xl shadow-primary/10 backdrop-blur-sm rounded-2xl">
           <CardHeader className="text-center space-y-6 pb-6">
             <div className="flex flex-col items-center gap-4">
               <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30">
@@ -172,7 +173,7 @@ export function LoginSection() {
                   <SelectTrigger className="h-12 bg-background border-border text-foreground focus-visible:ring-primary">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111c2d] border-[#262626]">
+                  <SelectContent className="bg-card border-border">
                     {userTypes.map((type) => {
                       const Icon = type.icon
                       return (
@@ -252,14 +253,14 @@ export function LoginSection() {
                     id="codigo"
                     type="text"
                     placeholder={`Digite o codigo da ${userType}`}
-                    className="h-12 bg-[#171717] border-[#262626] text-foreground placeholder:text-[#525252] focus:border-[#4d8edb]"
+                    className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                   />
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg shadow-primary/25"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl shadow-lg shadow-primary/20"
                 disabled={loading}
               >
                 {loading ? (
@@ -276,7 +277,7 @@ export function LoginSection() {
               </Button>
             </form>
 
-            <Separator className="bg-[#1a1a1a]" />
+            <Separator className="bg-border" />
 
             <div className="space-y-3">
               <p className="text-center text-sm text-muted-foreground">Acesso rapido para demonstracao</p>

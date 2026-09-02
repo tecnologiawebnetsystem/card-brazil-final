@@ -5,25 +5,25 @@
 
 :root {
   /* Portal Corporativo — sistema visual profissional */
-  --background: #f5f7fa;
-  --foreground: #182536;
+  --background: #f4f8fb;
+  --foreground: #16324f;
   --card: #ffffff;
-  --card-foreground: #182536;
+  --card-foreground: #16324f;
   --popover: #ffffff;
-  --popover-foreground: #182536;
-  --primary: #007f3e;
+  --popover-foreground: #16324f;
+  --primary: #0878be;
   --primary-foreground: #ffffff;
-  --secondary: #e5f3eb;
-  --secondary-foreground: #073b24;
-  --muted: #f1f6f3;
-  --muted-foreground: #52675c;
-  --accent: #fff1b8;
-  --accent-foreground: #4a3500;
-  --destructive: #c4314b;
+  --secondary: #e7f4fb;
+  --secondary-foreground: #164c70;
+  --muted: #eef5f8;
+  --muted-foreground: #657b8d;
+  --accent: #d9f2f3;
+  --accent-foreground: #15515a;
+  --destructive: #c9405b;
   --destructive-foreground: #ffffff;
-  --border: #d4e4da;
+  --border: #d4e4ec;
   --input: #ffffff;
-  --ring: rgba(0, 127, 62, 0.42);
+  --ring: rgba(8, 120, 190, 0.35);
   --chart-1: #007f3e;
   --chart-2: #f5c400;
   --chart-3: #00a859;
@@ -52,12 +52,12 @@
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #ededed;
-  --card: #0a0a0a;
-  --card-foreground: #ededed;
-  --popover: #0a0a0a;
-  --popover-foreground: #ededed;
+  --background: #102a43;
+  --foreground: #edf7ff;
+  --card: #163b59;
+  --card-foreground: #edf7ff;
+  --popover: #163b59;
+  --popover-foreground: #edf7ff;
   --primary: #f5c400;
   --primary-foreground: #172b22;
   --secondary: #123d2a;
@@ -94,6 +94,12 @@
   --health-primary: #00a859;
   --health-secondary: #005b82;
   --health-neutral: #737373;
+}
+
+.aperTo-abraco-pattern {
+  background-color: var(--background);
+  background-image: radial-gradient(circle at 12% 18%, rgba(8, 120, 190, 0.12) 0 1px, transparent 1.5px), radial-gradient(circle at 78% 72%, rgba(0, 168, 170, 0.14) 0 1px, transparent 1.5px), linear-gradient(135deg, transparent 0 48%, rgba(8, 120, 190, 0.035) 48% 50%, transparent 50% 100%);
+  background-size: 26px 26px, 34px 34px, 100% 100%;
 }
 
 @theme inline {

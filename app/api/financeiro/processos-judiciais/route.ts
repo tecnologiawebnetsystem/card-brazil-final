@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockProcessosJudiciais } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,24 +9,14 @@ export async function GET(request: NextRequest) {
     const advogado_id = searchParams.get("advogado_id")
     const beneficiario_id = searchParams.get("beneficiario_id")
 
-    let resultado = [...mockProcessosJudiciais]
-
-    if (status) {
-      resultado = resultado.filter(pj => pj.status === status)
-    }
-
-    if (fase) {
-      resultado = resultado.filter(pj => pj.fase_processual === fase)
-    }
-
-    if (advogado_id) {
-      resultado = resultado.filter(pj => pj.advogado_id === Number.parseInt(advogado_id))
-    }
-
-    if (beneficiario_id) {
-      resultado = resultado.filter(pj => pj.beneficiario_id === Number.parseInt(beneficiario_id))
-    }
-
+    const params: unknown[] = []
+    const conditions: string[] = []
+    if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
+    if (fase) { params.push(fase); conditions.push(`fase_processual = $${params.length}`) }
+    if (advogado_id) { params.push(Number.parseInt(advogado_id, 10)); conditions.push(`advogado_id = $${params.length}`) }
+    if (beneficiario_id) { params.push(Number.parseInt(beneficiario_id, 10)); conditions.push(`beneficiario_id = $${params.length}`) }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    const resultado = await query(`SELECT * FROM processos_judiciais${where} ORDER BY created_at DESC NULLS LAST`, params)
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar processos:", error)
@@ -48,17 +38,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
 
-    const [result] = await pool.execute(
+    const rows = await query(
       `INSERT INTO processos_judiciais (
-        id_administradora, beneficiario_id, advogado_id, tribunal_id, conta_receber_id,
+        administradora_id, beneficiario_id, advogado_id, tribunal_id, conta_receber_id,
         numero_processo, tipo_acao, valor_causa,
         data_distribuicao, data_citacao, data_audiencia, data_sentenca, data_transito_julgado,
         status, fase_processual, resultado,
         valor_sentenca, valor_acordo, valor_recuperado,
         observacoes, historico, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING id`,
       [
-        body.id_administradora || 1,
+        body.administradora_id || 1,
         body.beneficiario_id,
         body.advogado_id || null,
         body.tribunal_id || null,
@@ -83,7 +73,7 @@ export async function POST(request: NextRequest) {
       ],
     )
 
-    return NextResponse.json({ id: result.insertId, message: "Processo judicial criado com sucesso" }, { status: 201 })
+    return NextResponse.json({ id: rows[0].id, message: "Processo judicial criado com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar processo:", error)
     return NextResponse.json({ error: "Erro ao criar processo", details: error.message }, { status: 500 })

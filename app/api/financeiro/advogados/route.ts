@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
 
-    const rows = await sql(
+    const rows = await query(
       `INSERT INTO advogados (
         administradora_id, nome, oab, oab_uf, cpf,
         email, telefone, celular,

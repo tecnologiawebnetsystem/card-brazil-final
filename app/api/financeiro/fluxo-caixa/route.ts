@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockFluxoCaixa } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,20 +8,13 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status")
     const categoria = searchParams.get("categoria")
 
-    let resultado = [...mockFluxoCaixa]
-
-    if (tipo) {
-      resultado = resultado.filter(fc => fc.tipo === tipo)
-    }
-
-    if (status) {
-      resultado = resultado.filter(fc => fc.status === status)
-    }
-
-    if (categoria) {
-      resultado = resultado.filter(fc => fc.categoria === categoria)
-    }
-
+    const params: unknown[] = []
+    const conditions: string[] = []
+    if (tipo) { params.push(tipo); conditions.push(`tipo = $${params.length}`) }
+    if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
+    if (categoria) { params.push(categoria); conditions.push(`categoria = $${params.length}`) }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    const resultado = await query(`SELECT * FROM fluxo_caixa${where} ORDER BY data_movimentacao DESC`, params)
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar fluxo de caixa:", error)
@@ -46,15 +39,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Datas obrigatórias faltando" }, { status: 400 })
     }
 
-    const [result] = await pool.execute(
+    const rows = await query(
       `INSERT INTO fluxo_caixa (
-        id_administradora, conta_receber_id, conta_pagar_id, conta_bancaria_id,
+        administradora_id, conta_receber_id, conta_pagar_id, conta_bancaria_id,
         tipo, categoria, descricao, valor,
         data_movimentacao, data_competencia, status,
         conta_origem, conta_destino, observacoes, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      RETURNING id`,
       [
-        body.id_administradora || 1,
+        body.administradora_id || 1,
         body.conta_receber_id || null,
         body.conta_pagar_id || null,
         body.conta_bancaria_id || null,
@@ -72,7 +66,7 @@ export async function POST(request: NextRequest) {
       ],
     )
 
-    return NextResponse.json({ id: result.insertId, message: "Movimentação criada com sucesso" }, { status: 201 })
+    return NextResponse.json({ id: rows[0].id, message: "Movimentação criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar movimentação:", error)
     return NextResponse.json({ error: "Erro ao criar movimentação", details: error.message }, { status: 500 })

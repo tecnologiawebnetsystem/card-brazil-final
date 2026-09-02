@@ -20,13 +20,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const novoEstipulante = {
-      id: mockEstipulantes.length + 1,
-      ...body,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+    if (!body.pessoa_id && !body.nome) {
+      return NextResponse.json({ success: false, message: "Pessoa ou nome é obrigatório" }, { status: 400 })
     }
-    return NextResponse.json(successResponse(novoEstipulante, "Estipulante criado com sucesso"), { status: 201 })
+    const rows = await query(`INSERT INTO estipulantes (administradora_id, pessoa_id, nome, cnpj, cpf, email, telefone, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`, [body.administradora_id || 1, body.pessoa_id || null, body.nome || null, body.cnpj || null, body.cpf || null, body.email || null, body.telefone || null, body.status || "ativo"])
+    return NextResponse.json(successResponse(rows[0], "Estipulante criado com sucesso"), { status: 201 })
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }

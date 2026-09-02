@@ -23,7 +23,7 @@ import { AuthService } from "@/lib/auth-service"
  *                 example: admin@talenthealth.com.br
  *               senha:
  *                 type: string
- *                 example: admin123
+ *                 example: sua-senha-segura
  *     responses:
  *       200:
  *         description: Login realizado com sucesso

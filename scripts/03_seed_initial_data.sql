@@ -14,8 +14,8 @@ INSERT INTO roles (id_administradora, nome, descricao, nivel_acesso, ativo)
 SELECT 1, 'Administrador', 'Acesso total ao sistema', 10, true
 WHERE NOT EXISTS (SELECT 1 FROM roles WHERE nome = 'Administrador' AND id_administradora = 1);
 
--- Inserir usuário admin demo
--- Senha: admin123
+-- Inserir usuário administrador inicial
+-- A senha deve ser definida por procedimento seguro de provisionamento.
 INSERT INTO usuarios (id_administradora, nome, email, senha_hash, ativo, email_verificado)
 SELECT 
   1,

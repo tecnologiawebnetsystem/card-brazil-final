@@ -3,12 +3,11 @@ import { NextResponse } from "next/server"
 const swaggerSpec = {
   openapi: "3.0.0",
   info: {
-    title: "Talent Health CRM API",
+    title: "Card Brazil API",
     version: "1.0.0",
-    description: "API REST completa do sistema Talent Health CRM para gestão de seguros de saúde corporativo",
+    description: "API REST do Card Brazil para gestão de administradoras, pessoas, beneficiários, propostas e operações financeiras.",
     contact: {
-      name: "Suporte Talent Health",
-      email: "suporte@talenthealth.com.br",
+      name: "Suporte Card Brazil",
     },
     license: {
       name: "Proprietário",
@@ -18,11 +17,7 @@ const swaggerSpec = {
   servers: [
     {
       url: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
-      description: "Servidor de Desenvolvimento",
-    },
-    {
-      url: "https://talenthealth.vercel.app",
-      description: "Servidor de Produção",
+      description: "Servidor atual",
     },
   ],
   tags: [

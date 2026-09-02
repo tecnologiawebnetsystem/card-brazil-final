@@ -354,3 +354,63 @@
     }
   }
 }
+
+.swagger-ui {
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.swagger-ui .information-container,
+.swagger-ui .scheme-container {
+  background: transparent;
+}
+
+.swagger-ui .opblock-tag,
+.swagger-ui .opblock .opblock-summary-description,
+.swagger-ui .opblock-description-wrapper p,
+.swagger-ui table thead tr th,
+.swagger-ui table thead tr td,
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_description,
+.swagger-ui label,
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type,
+.swagger-ui .model-title,
+.swagger-ui section.models h4 {
+  color: var(--foreground);
+}
+
+.swagger-ui .opblock-tag {
+  border-bottom-color: var(--border);
+}
+
+.swagger-ui .opblock {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  box-shadow: none;
+}
+
+.swagger-ui .opblock .opblock-summary {
+  border-color: var(--border);
+}
+
+.swagger-ui input,
+.swagger-ui textarea,
+.swagger-ui select {
+  color: var(--foreground);
+  border-color: var(--border);
+  background: var(--background);
+}
+
+.swagger-ui .btn.authorize,
+.swagger-ui .btn.execute {
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.swagger-ui .model-box,
+.swagger-ui section.models {
+  border-color: var(--border);
+  background: transparent;
+}

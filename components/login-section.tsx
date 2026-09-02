@@ -131,7 +131,7 @@ export function LoginSection() {
 
   return (
     <div className="flex flex-col justify-center p-5 sm:p-8 lg:p-12 relative min-h-screen bg-background">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(77,142,219,0.12),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(200,92,97,0.08),transparent_30%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,168,89,0.18),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(245,196,0,0.12),transparent_32%)]" />
 
       <div className="relative z-10">
         {/* Mobile logo - only show on small screens */}
@@ -139,15 +139,15 @@ export function LoginSection() {
           <div className="flex items-center justify-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg"><Stethoscope className="size-5" /></div><span className="font-heading text-xl font-semibold tracking-tight text-foreground">Portal Corporativo</span></div>
         </div>
 
-        <Card className="w-full max-w-lg mx-auto bg-card/95 border-border shadow-2xl shadow-primary/10 backdrop-blur-sm">
+        <Card className="w-full max-w-lg mx-auto bg-card/95 border-primary/25 shadow-2xl shadow-primary/15 backdrop-blur-sm">
           <CardHeader className="text-center space-y-6 pb-6">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/25">
-                <Stethoscope className="w-7 h-7 text-black" />
+              <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30">
+                <Stethoscope className="w-7 h-7 text-primary-foreground" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-semibold text-foreground">Bem-vindo de volta</CardTitle>
-                <CardDescription className="text-[#737373] mt-2">
+                <CardTitle className="text-2xl font-semibold text-foreground">Login</CardTitle>
+                <CardDescription className="text-muted-foreground mt-2">
                   Acesse o sistema de gestao de saude
                 </CardDescription>
               </div>
@@ -164,12 +164,12 @@ export function LoginSection() {
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-3">
-                <Label htmlFor="userType" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
+                <Label htmlFor="userType" className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
                   <Users className="w-4 h-4 text-primary" />
                   Tipo de Usuario
                 </Label>
                 <Select value={userType} onValueChange={setUserType}>
-                  <SelectTrigger className="h-12 bg-[#171717] border-[#262626] text-foreground focus:border-[#4d8edb]">
+                  <SelectTrigger className="h-12 bg-background border-border text-foreground focus-visible:ring-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111c2d] border-[#262626]">
@@ -178,12 +178,12 @@ export function LoginSection() {
                       return (
                         <SelectItem key={type.value} value={type.value} className="py-3 hover:bg-[#171717] text-foreground">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-[#4d8edb]/10 rounded-lg flex items-center justify-center border border-[#4d8edb]/20">
+                            <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
                               <Icon className="w-4 h-4 text-primary" />
                             </div>
                             <div className="text-left">
                               <div className="font-medium text-foreground">{type.label}</div>
-                              <div className="text-xs text-[#737373]">{type.description}</div>
+                              <div className="text-xs text-muted-foreground">{type.description}</div>
                             </div>
                           </div>
                         </SelectItem>
@@ -194,7 +194,7 @@ export function LoginSection() {
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
+                <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
                   <Mail className="w-4 h-4 text-primary" />
                   Email ou CPF
                 </Label>
@@ -211,7 +211,7 @@ export function LoginSection() {
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2 text-[#a1a1a1]">
+                <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
                   <Lock className="w-4 h-4 text-primary" />
                   Senha
                 </Label>
@@ -230,7 +230,7 @@ export function LoginSection() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-[#737373] hover:text-primary transition-colors"
+                    className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-muted-foreground hover:text-primary transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -240,7 +240,7 @@ export function LoginSection() {
 
               {(userType === "operadora" || userType === "estipulante" || userType === "subestipulante") && (
                 <div className="space-y-3">
-                  <Label htmlFor="codigo" className="text-sm font-medium text-[#a1a1a1]">
+                  <Label htmlFor="codigo" className="text-sm font-medium text-muted-foreground">
                     Codigo da{" "}
                     {userType === "operadora"
                       ? "Operadora"
@@ -259,7 +259,7 @@ export function LoginSection() {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg shadow-primary/20"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg shadow-primary/25"
                 disabled={loading}
               >
                 {loading ? (
@@ -279,11 +279,11 @@ export function LoginSection() {
             <Separator className="bg-[#1a1a1a]" />
 
             <div className="space-y-3">
-              <p className="text-center text-sm text-[#737373]">Acesso rapido para demonstracao</p>
+              <p className="text-center text-sm text-muted-foreground">Acesso rapido para demonstracao</p>
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   variant="outline"
-                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-[#a1a1a1] hover:text-foreground"
+                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-muted-foreground hover:text-foreground"
                   onClick={() => handleDemoLogin("admin")}
                   disabled={loading}
                 >
@@ -292,7 +292,7 @@ export function LoginSection() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-[#a1a1a1] hover:text-foreground"
+                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-muted-foreground hover:text-foreground"
                   onClick={() => handleDemoLogin("user")}
                   disabled={loading}
                 >

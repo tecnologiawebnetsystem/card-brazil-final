@@ -11,43 +11,43 @@
   --card-foreground: #182536;
   --popover: #ffffff;
   --popover-foreground: #182536;
-  --primary: #0f6cbd;
+  --primary: #007f3e;
   --primary-foreground: #ffffff;
-  --secondary: #e8f1fb;
-  --secondary-foreground: #12344d;
-  --muted: #f1f5f9;
-  --muted-foreground: #526579;
-  --accent: #dff6ff;
-  --accent-foreground: #12344d;
+  --secondary: #e5f3eb;
+  --secondary-foreground: #073b24;
+  --muted: #f1f6f3;
+  --muted-foreground: #52675c;
+  --accent: #fff1b8;
+  --accent-foreground: #4a3500;
   --destructive: #c4314b;
   --destructive-foreground: #ffffff;
-  --border: #d5e2ef;
+  --border: #d4e4da;
   --input: #ffffff;
-  --ring: rgba(15, 108, 189, 0.4);
-  --chart-1: #0f6cbd;
-  --chart-2: #8764b8;
-  --chart-3: #107c10;
-  --chart-4: #ffb900;
-  --chart-5: #00a4ef;
+  --ring: rgba(0, 127, 62, 0.42);
+  --chart-1: #007f3e;
+  --chart-2: #f5c400;
+  --chart-3: #00a859;
+  --chart-4: #005b82;
+  --chart-5: #6b4f2a;
   --radius: 0.5rem;
-  --sidebar: #0b1f33;
-  --sidebar-foreground: #eaf4ff;
-  --sidebar-primary: #143b61;
+  --sidebar: #063b24;
+  --sidebar-foreground: #f0f8f3;
+  --sidebar-primary: #0a5c37;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #4cc2ff;
-  --sidebar-accent-foreground: #071a2b;
-  --sidebar-border: #214568;
-  --sidebar-ring: rgba(76, 194, 255, 0.5);
+  --sidebar-accent: #f5c400;
+  --sidebar-accent-foreground: #172b22;
+  --sidebar-border: #17633e;
+  --sidebar-ring: rgba(245, 196, 0, 0.5);
 
   /* Cores semanticas */
-  --success: #00d084;
-  --success-foreground: #000000;
-  --warning: #f5a623;
-  --warning-foreground: #000000;
-  --info: #0070f3;
+  --success: #00a859;
+  --success-foreground: #ffffff;
+  --warning: #f5c400;
+  --warning-foreground: #172b22;
+  --info: #005b82;
   --info-foreground: #ffffff;
-  --health-primary: #00d084;
-  --health-secondary: #0070f3;
+  --health-primary: #00a859;
+  --health-secondary: #005b82;
   --health-neutral: #737373;
 }
 
@@ -58,41 +58,41 @@
   --card-foreground: #ededed;
   --popover: #0a0a0a;
   --popover-foreground: #ededed;
-  --primary: #4cc2ff;
-  --primary-foreground: #071a2b;
-  --secondary: #172b42;
-  --secondary-foreground: #d8eaff;
-  --muted: #142235;
-  --muted-foreground: #a7b8ca;
-  --accent: #243b5a;
-  --accent-foreground: #f4f9ff;
+  --primary: #f5c400;
+  --primary-foreground: #172b22;
+  --secondary: #123d2a;
+  --secondary-foreground: #e5f3eb;
+  --muted: #10271d;
+  --muted-foreground: #adc2b6;
+  --accent: #174d35;
+  --accent-foreground: #fff5c7;
   --destructive: #f1707f;
   --destructive-foreground: #21070d;
-  --border: #2a4564;
-  --input: #102238;
-  --ring: rgba(76, 194, 255, 0.55);
-  --chart-1: #4cc2ff;
-  --chart-2: #b4a0ff;
-  --chart-3: #6ccb5f;
-  --chart-4: #ffd166;
-  --chart-5: #00a4ef;
-  --sidebar: #0b1f33;
-  --sidebar-foreground: #eaf4ff;
-  --sidebar-primary: #143b61;
+  --border: #24573e;
+  --input: #0d2118;
+  --ring: rgba(245, 196, 0, 0.55);
+  --chart-1: #f5c400;
+  --chart-2: #00a859;
+  --chart-3: #7ac943;
+  --chart-4: #005b82;
+  --chart-5: #e87722;
+  --sidebar: #063b24;
+  --sidebar-foreground: #f0f8f3;
+  --sidebar-primary: #0a5c37;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #4cc2ff;
-  --sidebar-accent-foreground: #071a2b;
-  --sidebar-border: #214568;
-  --sidebar-ring: rgba(76, 194, 255, 0.5);
+  --sidebar-accent: #f5c400;
+  --sidebar-accent-foreground: #172b22;
+  --sidebar-border: #17633e;
+  --sidebar-ring: rgba(245, 196, 0, 0.5);
 
-  --success: #00d084;
-  --success-foreground: #000000;
-  --warning: #f5a623;
-  --warning-foreground: #000000;
-  --info: #0070f3;
+  --success: #00a859;
+  --success-foreground: #ffffff;
+  --warning: #f5c400;
+  --warning-foreground: #172b22;
+  --info: #005b82;
   --info-foreground: #ffffff;
-  --health-primary: #00d084;
-  --health-secondary: #0070f3;
+  --health-primary: #00a859;
+  --health-secondary: #005b82;
   --health-neutral: #737373;
 }
 
@@ -353,4 +353,64 @@
       @apply shadow-none border border-black;
     }
   }
+}
+
+.swagger-ui {
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.swagger-ui .information-container,
+.swagger-ui .scheme-container {
+  background: transparent;
+}
+
+.swagger-ui .opblock-tag,
+.swagger-ui .opblock .opblock-summary-description,
+.swagger-ui .opblock-description-wrapper p,
+.swagger-ui table thead tr th,
+.swagger-ui table thead tr td,
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_description,
+.swagger-ui label,
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type,
+.swagger-ui .model-title,
+.swagger-ui section.models h4 {
+  color: var(--foreground);
+}
+
+.swagger-ui .opblock-tag {
+  border-bottom-color: var(--border);
+}
+
+.swagger-ui .opblock {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  box-shadow: none;
+}
+
+.swagger-ui .opblock .opblock-summary {
+  border-color: var(--border);
+}
+
+.swagger-ui input,
+.swagger-ui textarea,
+.swagger-ui select {
+  color: var(--foreground);
+  border-color: var(--border);
+  background: var(--background);
+}
+
+.swagger-ui .btn.authorize,
+.swagger-ui .btn.execute {
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.swagger-ui .model-box,
+.swagger-ui section.models {
+  border-color: var(--border);
+  background: transparent;
 }

@@ -81,67 +81,9 @@ interface CodigoPostal {
   status: "ativo" | "inativo"
 }
 
-const mockCodigosPostais: CodigoPostal[] = [
-  {
-    id: "1",
-    cep: "01310-100",
-    logradouro: "Avenida Paulista",
-    bairro: "Bela Vista",
-    cidade: "São Paulo",
-    estado: "SP",
-    latitude: "-23.5613",
-    longitude: "-46.6565",
-    status: "ativo",
-  },
-  {
-    id: "2",
-    cep: "20040-020",
-    logradouro: "Rua da Assembleia",
-    bairro: "Centro",
-    cidade: "Rio de Janeiro",
-    estado: "RJ",
-    latitude: "-22.9068",
-    longitude: "-43.1729",
-    status: "ativo",
-  },
-  {
-    id: "3",
-    cep: "30112-000",
-    logradouro: "Rua da Bahia",
-    bairro: "Centro",
-    cidade: "Belo Horizonte",
-    estado: "MG",
-    latitude: "-19.9167",
-    longitude: "-43.9345",
-    status: "ativo",
-  },
-  {
-    id: "4",
-    cep: "01310-200",
-    logradouro: "Avenida Paulista",
-    bairro: "Bela Vista",
-    cidade: "São Paulo",
-    estado: "SP",
-    latitude: "-23.5615",
-    longitude: "-46.6568",
-    complemento: "lado par",
-    status: "ativo",
-  },
-  {
-    id: "5",
-    cep: "04038-001",
-    logradouro: "Rua Vergueiro",
-    bairro: "Vila Mariana",
-    cidade: "São Paulo",
-    estado: "SP",
-    latitude: "-23.5729",
-    longitude: "-46.6395",
-    status: "ativo",
-  },
-]
 
 export default function CodigosPostaisPage() {
-  const [codigosPostais, setCodigosPostais] = useState<CodigoPostal[]>(mockCodigosPostais)
+  const [codigosPostais, setCodigosPostais] = useState<CodigoPostal[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [searchType, setSearchType] = useState<"cep" | "endereco">("cep")
   const [isModalOpen, setIsModalOpen] = useState(false)

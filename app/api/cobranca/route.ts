@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: resultado, pagination: { limit, offset, count: resultado.length } })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar cobranças:", error)
-    return NextResponse.json({ error: "Erro ao buscar cobranças", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar cobranças" }, { status: 500 })
   }
 }
 
@@ -38,6 +38,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error("[v0] Erro ao criar cobrança:", error)
-    return NextResponse.json({ error: "Erro ao criar cobrança", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar cobrança" }, { status: 500 })
   }
 }

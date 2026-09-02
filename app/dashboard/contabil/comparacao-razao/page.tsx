@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,36 +14,26 @@ export default function ComparacaoRazaoPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("")
   const [selectedAccount, setSelectedAccount] = useState("")
   const [isComparing, setIsComparing] = useState(false)
+  const [comparisons, setComparisons] = useState<any[]>([])
+  const [comparisonError, setComparisonError] = useState<string | null>(null)
 
-  const mockComparisons = [
-    {
-      conta: "1.1.1.01.001",
-      descricao: "Caixa Geral",
-      saldoContabil: 125000.0,
-      saldoERP: 124850.0,
-      diferenca: 150.0,
-      status: "divergente",
-      ramo: "Ambulatorial",
-    },
-    {
-      conta: "1.1.2.01.001",
-      descricao: "Banco Bradesco",
-      saldoContabil: 2500000.0,
-      saldoERP: 2500000.0,
-      diferenca: 0.0,
-      status: "ok",
-      ramo: "Hospitalar",
-    },
-    {
-      conta: "2.1.1.01.001",
-      descricao: "Provisão PEONA",
-      saldoContabil: 850000.0,
-      saldoERP: 845000.0,
-      diferenca: 5000.0,
-      status: "divergente",
-      ramo: "Ambulatorial",
-    },
-  ]
+  useEffect(() => {
+    fetch("/api/contabil/lancamentos?limit=100", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => setComparisons((payload.data || []).map((item: any) => ({
+        conta: `${item.conta_debito_id} → ${item.conta_credito_id}`,
+        descricao: item.historico || "Lançamento contábil",
+        saldoContabil: Number(item.valor || 0),
+        saldoERP: null,
+        diferenca: null,
+        status: item.estornado ? "ok" : "divergente",
+        ramo: item.origem || "Contábil",
+      }))))
+      .catch((requestError) => {
+        console.error("[v0] Erro ao carregar razão:", requestError)
+        setComparisonError("Não foi possível carregar os lançamentos contábeis.")
+      })
+  }, [])
 
   const handleCompare = () => {
     setIsComparing(true)
@@ -144,7 +134,7 @@ export default function ComparacaoRazaoPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockComparisons
+                {comparisons
                   .filter((item) => item.status === "divergente")
                   .map((item, index) => (
                     <div key={index} className="flex items-center justify-between p-4 border rounded-lg bg-amber-50/50">
@@ -165,11 +155,11 @@ export default function ComparacaoRazaoPage() {
                         <div className="text-sm">
                           <span className="text-muted-foreground">ERP: </span>
                           <span className="font-medium">
-                            R$ {item.saldoERP.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            {item.saldoERP == null ? "Não disponível" : `R$ ${item.saldoERP.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                           </span>
                         </div>
                         <div className="text-sm font-medium text-red-600">
-                          Diferença: R$ {item.diferenca.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                          Diferença: {item.diferenca == null ? "Não disponível" : `R$ ${item.diferenca.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                         </div>
                       </div>
                     </div>
@@ -189,7 +179,7 @@ export default function ComparacaoRazaoPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockComparisons
+                {comparisons
                   .filter((item) => item.status === "ok")
                   .map((item, index) => (
                     <div key={index} className="flex items-center justify-between p-4 border rounded-lg bg-green-50/50">
@@ -221,7 +211,7 @@ export default function ComparacaoRazaoPage() {
                 <CardTitle className="text-sm font-medium text-green-700">Contas Conferidas</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">1</div>
+                <div className="text-2xl font-bold text-green-600">{comparisons.filter((item) => item.status === "ok").length}</div>
                 <p className="text-xs text-green-600">100% de precisão</p>
               </CardContent>
             </Card>
@@ -231,7 +221,7 @@ export default function ComparacaoRazaoPage() {
                 <CardTitle className="text-sm font-medium text-amber-700">Com Divergências</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-amber-600">2</div>
+                <div className="text-2xl font-bold text-amber-600">{comparisons.filter((item) => item.status === "divergente").length}</div>
                 <p className="text-xs text-amber-600">Requer atenção</p>
               </CardContent>
             </Card>

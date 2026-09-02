@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,40 +14,10 @@ import { CalendarIcon, Search, Download, Eye, Filter } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
-const mockHistorico = [
-  {
-    id: "PAG-001",
-    beneficiario: "João Silva Santos",
-    valor: 450.0,
-    dataPagamento: "2024-01-15",
-    dataVencimento: "2024-01-10",
-    formaPagamento: "Boleto Bancário",
-    status: "Confirmado",
-    observacao: "Pagamento em dia",
-  },
-  {
-    id: "PAG-002",
-    beneficiario: "Maria Costa Lima",
-    valor: 280.0,
-    dataPagamento: "2024-01-18",
-    dataVencimento: "2024-01-15",
-    formaPagamento: "PIX",
-    status: "Confirmado",
-    observacao: "Pagamento com atraso de 3 dias",
-  },
-  {
-    id: "PAG-003",
-    beneficiario: "Pedro Oliveira",
-    valor: 680.0,
-    dataPagamento: "2024-01-20",
-    dataVencimento: "2024-01-20",
-    formaPagamento: "Débito Automático",
-    status: "Processando",
-    observacao: "Aguardando confirmação bancária",
-  },
-]
-
 export default function HistoricoPagamentosPage() {
+  const [historico, setHistorico] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [dataInicio, setDataInicio] = useState<Date>()
   const [dataFim, setDataFim] = useState<Date>()
   const [filtros, setFiltros] = useState({
@@ -55,6 +25,25 @@ export default function HistoricoPagamentosPage() {
     formaPagamento: "all",
     status: "all",
   })
+
+  useEffect(() => {
+    fetch("/api/financeiro/contas-receber", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => setHistorico((Array.isArray(payload) ? payload : payload.data || []).map((item: any) => ({
+        ...item,
+        beneficiario: item.beneficiario_nome || item.beneficiario_id || "—",
+        valor: Number(item.valor_pago || item.valor_recebido || item.valor || 0),
+        dataPagamento: item.data_pagamento || item.data_recebimento || item.data_vencimento,
+        dataVencimento: item.data_vencimento,
+        formaPagamento: item.forma_pagamento || "—",
+        status: item.status === "pago" ? "Confirmado" : item.status || "Pendente",
+      }))))
+      .catch((requestError) => {
+        console.error("[v0] Erro ao carregar histórico de pagamentos:", requestError)
+        setError("Não foi possível carregar o histórico de pagamentos.")
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
 
   return (
     <div className="space-y-6 p-6">
@@ -181,7 +170,7 @@ export default function HistoricoPagamentosPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockHistorico.map((pagamento) => (
+              {isLoading ? <TableRow><TableCell colSpan={8} className="h-24 text-center text-muted-foreground">Carregando pagamentos...</TableCell></TableRow> : error ? <TableRow><TableCell colSpan={8} className="h-24 text-center text-destructive">{error}</TableCell></TableRow> : historico.length === 0 ? <TableRow><TableCell colSpan={8} className="h-24 text-center text-muted-foreground">Nenhum pagamento encontrado.</TableCell></TableRow> : historico.map((pagamento) => (
                 <TableRow key={pagamento.id} className="hover:bg-emerald-50/50">
                   <TableCell className="font-medium">{pagamento.id}</TableCell>
                   <TableCell>{pagamento.beneficiario}</TableCell>

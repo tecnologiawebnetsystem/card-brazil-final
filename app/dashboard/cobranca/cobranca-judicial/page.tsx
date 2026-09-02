@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,30 +11,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Gavel, FileText, Calendar } from "lucide-react"
 
-const mockProcessos = [
-  {
-    id: "PROC-001",
-    beneficiario: "João Silva Santos",
-    valorDevido: 2450.0,
-    dataInicioProcesso: "2024-01-10",
-    statusProcesso: "Em Andamento",
-    advogado: "Dr. Carlos Mendes",
-    tribunal: "1ª Vara Cível - SP",
-    observacao: "Processo iniciado por inadimplência superior a 90 dias",
-  },
-  {
-    id: "PROC-002",
-    beneficiario: "Maria Costa Lima",
-    valorDevido: 1680.0,
-    dataInicioProcesso: "2023-12-15",
-    statusProcesso: "Sentença Favorável",
-    advogado: "Dra. Ana Santos",
-    tribunal: "2ª Vara Cível - RJ",
-    observacao: "Sentença favorável obtida, aguardando execução",
-  },
-]
-
 export default function CobrancaJudicialPage() {
+  const [processos, setProcessos] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [novoProcesso, setNovoProcesso] = useState({
     beneficiario: "",
     valorDevido: "",
@@ -42,6 +22,17 @@ export default function CobrancaJudicialPage() {
     tribunal: "",
     observacao: "",
   })
+
+  useEffect(() => {
+    fetch("/api/financeiro/processos-judiciais", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => setProcessos(Array.isArray(payload) ? payload : payload.data || []))
+      .catch((requestError) => {
+        console.error("[v0] Erro ao carregar processos judiciais:", requestError)
+        setError("Não foi possível carregar os processos judiciais.")
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
 
   return (
     <div className="space-y-6 p-6">
@@ -146,19 +137,19 @@ export default function CobrancaJudicialPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockProcessos.map((processo) => (
+              {isLoading ? <TableRow><TableCell colSpan={8} className="h-24 text-center text-muted-foreground">Carregando processos...</TableCell></TableRow> : error ? <TableRow><TableCell colSpan={8} className="h-24 text-center text-destructive">{error}</TableCell></TableRow> : processos.length === 0 ? <TableRow><TableCell colSpan={8} className="h-24 text-center text-muted-foreground">Nenhum processo judicial encontrado.</TableCell></TableRow> : processos.map((processo) => (
                 <TableRow key={processo.id} className="hover:bg-red-50/50">
                   <TableCell className="font-medium">{processo.id}</TableCell>
-                  <TableCell>{processo.beneficiario}</TableCell>
-                  <TableCell className="font-semibold text-red-600">R$ {processo.valorDevido.toFixed(2)}</TableCell>
-                  <TableCell>{new Date(processo.dataInicioProcesso).toLocaleDateString("pt-BR")}</TableCell>
+                  <TableCell>{processo.beneficiario_nome || processo.beneficiario_id || "—"}</TableCell>
+                  <TableCell className="font-semibold text-red-600">R$ {Number(processo.valor_causa || processo.valorDevido || 0).toFixed(2)}</TableCell>
+                  <TableCell>{new Date(processo.data_distribuicao).toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell>
-                    <Badge variant={processo.statusProcesso === "Sentença Favorável" ? "default" : "secondary"}>
-                      {processo.statusProcesso}
+                    <Badge variant={(processo.status || processo.resultado) === "Sentença Favorável" || processo.status === "concluido" ? "default" : "secondary"}>
+                      {processo.status || processo.resultado || "—"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{processo.advogado}</TableCell>
-                  <TableCell>{processo.tribunal}</TableCell>
+                  <TableCell>{processo.advogado_nome || processo.advogado_id || "—"}</TableCell>
+                  <TableCell>{processo.tribunal_nome || processo.tribunal_id || "—"}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">

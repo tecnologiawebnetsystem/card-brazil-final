@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,54 +14,33 @@ export default function ConsultaFinanceiraPage() {
   const [filterPeriodo, setFilterPeriodo] = useState("mes")
   const [filterStatus, setFilterStatus] = useState("todos")
 
-  const mockMovimentacoes = [
-    {
-      id: "1",
-      data: "2024-01-15",
-      tipo: "Receita",
-      descricao: "Mensalidade - João Silva",
-      valor: 450.0,
-      status: "Pago",
-      operadora: "Unimed SP",
-    },
-    {
-      id: "2",
-      data: "2024-01-14",
-      tipo: "Despesa",
-      descricao: "Sinistro - Maria Costa",
-      valor: -1200.0,
-      status: "Processado",
-      operadora: "SulAmérica",
-    },
-    {
-      id: "3",
-      data: "2024-01-13",
-      tipo: "Receita",
-      descricao: "Mensalidade - Empresa ABC",
-      valor: 2800.0,
-      status: "Pendente",
-      operadora: "Bradesco Saúde",
-    },
-  ]
+  const [movimentacoes, setMovimentacoes] = useState<any[]>([])
 
-  const filteredMovimentacoes = mockMovimentacoes.filter((mov) => {
-    const matchesSearch =
-      mov.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      mov.operadora.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    fetch("/api/financeiro/fluxo-caixa", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => setMovimentacoes((Array.isArray(payload) ? payload : payload.data || []).map((item: any) => ({
+        ...item,
+        data: item.data_movimentacao || item.data,
+        tipo: item.tipo === "entrada" ? "Receita" : item.tipo === "saida" ? "Despesa" : item.tipo,
+        descricao: item.descricao || item.categoria || "Movimentação financeira",
+        valor: Number(item.valor || 0),
+        status: item.status === "pago" ? "Pago" : item.status === "processado" ? "Processado" : item.status,
+        operadora: item.operadora || item.conta_destino || item.conta_origem || "—",
+      }))))
+      .catch((error) => console.error("[v0] Erro ao carregar fluxo de caixa:", error))
+  }, [])
+
+  const filteredMovimentacoes = movimentacoes.filter((mov) => {
+    const matchesSearch = `${mov.descricao} ${mov.operadora}`.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = filterStatus === "todos" || mov.status === filterStatus
-
     return matchesSearch && matchesStatus
   })
 
-  const totalReceitas = mockMovimentacoes
-    .filter((m) => m.tipo === "Receita" && m.status === "Pago")
-    .reduce((sum, m) => sum + m.valor, 0)
-
-  const totalDespesas = Math.abs(
-    mockMovimentacoes.filter((m) => m.tipo === "Despesa").reduce((sum, m) => sum + m.valor, 0),
-  )
-
+  const totalReceitas = movimentacoes.filter((m) => m.tipo === "Receita" && m.status === "Pago").reduce((sum, m) => sum + m.valor, 0)
+  const totalDespesas = Math.abs(movimentacoes.filter((m) => m.tipo === "Despesa").reduce((sum, m) => sum + m.valor, 0))
   const saldoLiquido = totalReceitas - totalDespesas
+  const totalPendentes = movimentacoes.filter((m) => m.status === "Pendente").reduce((sum, m) => sum + Math.abs(m.valor), 0)
 
   return (
     <div className="min-h-screen bg-background">
@@ -158,7 +137,7 @@ export default function ConsultaFinanceiraPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Pendentes</p>
-                  <p className="text-xl font-bold text-blue-600">R$ 2.800,00</p>
+                  <p className="text-xl font-bold text-blue-600">R$ {totalPendentes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
                 </div>
               </div>
             </CardContent>

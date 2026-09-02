@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Portal Corporativo — sistema visual profissional */
+  /* Portal CardBrazil — sistema visual profissional */
   --background: #f4f8fb;
   --foreground: #16324f;
   --card: #ffffff;

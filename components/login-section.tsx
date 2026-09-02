@@ -64,7 +64,7 @@ export function LoginSection() {
       <div className="relative z-10">
         {/* Mobile logo - only show on small screens */}
         <div className="text-center mb-8 lg:hidden">
-          <div className="flex items-center justify-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg"><Stethoscope className="size-5" /></div><span className="font-heading text-xl font-semibold tracking-tight text-foreground">Portal Corporativo</span></div>
+          <div className="flex items-center justify-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg"><Stethoscope className="size-5" /></div><span className="font-heading text-xl font-semibold tracking-tight text-foreground">Portal CardBrazil</span></div>
         </div>
 
         <Card className="w-full max-w-md mx-auto bg-card/95 border-border shadow-xl shadow-primary/10 backdrop-blur-sm rounded-2xl">

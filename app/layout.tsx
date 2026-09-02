@@ -16,7 +16,7 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: "Portal Corporativo",
+  title: "Portal CardBrazil",
   description: "Portal corporativo para gestão segura e eficiente.",
   generator: "v0.app",
   icons: {

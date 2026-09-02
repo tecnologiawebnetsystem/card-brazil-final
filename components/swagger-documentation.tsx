@@ -1,9 +1,23 @@
 "use client"
 
-import SwaggerUI from "swagger-ui-react"
+import { useEffect, useState } from "react"
 import "swagger-ui-react/swagger-ui.css"
 
+type SwaggerComponent = typeof import("swagger-ui-react").default
+
 export function SwaggerDocumentation() {
+  const [SwaggerUI, setSwaggerUI] = useState<SwaggerComponent | null>(null)
+
+  useEffect(() => {
+    let active = true
+    import("swagger-ui-react").then((module) => {
+      if (active) setSwaggerUI(() => module.default)
+    })
+    return () => {
+      active = false
+    }
+  }, [])
+
   return (
     <main className="min-h-screen bg-background">
       <header className="border-b border-border bg-sidebar px-6 py-5 text-sidebar-foreground">
@@ -17,7 +31,7 @@ export function SwaggerDocumentation() {
       </header>
       <section className="mx-auto max-w-7xl px-4 py-6 md:px-6">
         <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-          <SwaggerUI
+          {SwaggerUI ? <SwaggerUI
             url="/api/swagger"
             docExpansion="list"
             defaultModelsExpandDepth={1}
@@ -25,7 +39,7 @@ export function SwaggerDocumentation() {
             filter
             persistAuthorization
             tryItOutEnabled
-          />
+          /> : <div className="p-8 text-sm text-muted-foreground">Carregando documentação da API...</div>}
         </div>
       </section>
     </main>

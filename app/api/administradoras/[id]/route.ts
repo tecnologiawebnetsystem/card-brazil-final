@@ -4,6 +4,8 @@ import { successResponse, errorResponse, handleApiError } from "@/lib/api-respon
 
 const service = new CrudService("administradoras")
 
+export const dynamic = "force-dynamic"
+
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   try { const row = await service.findById(Number.parseInt(params.id, 10)); return row ? NextResponse.json(successResponse(row)) : NextResponse.json(errorResponse("Administradora não encontrada"), { status: 404 }) } catch (error) { return NextResponse.json(handleApiError(error), { status: 500 }) }
 }

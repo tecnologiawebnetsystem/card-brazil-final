@@ -20,6 +20,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error("[v0] Erro ao aprovar proposta:", error)
-    return NextResponse.json({ error: "Erro ao aprovar proposta", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao aprovar proposta" }, { status: 500 })
   }
 }

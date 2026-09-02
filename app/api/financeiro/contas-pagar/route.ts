@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar contas a pagar:", error)
-    return NextResponse.json({ error: "Erro ao buscar contas a pagar", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar contas a pagar" }, { status: 500 })
   }
 }
 
@@ -98,6 +98,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: rows[0].id, message: "Conta a pagar criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("Erro ao criar conta a pagar:", error)
-    return NextResponse.json({ error: "Erro ao criar conta a pagar", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar conta a pagar" }, { status: 500 })
   }
 }

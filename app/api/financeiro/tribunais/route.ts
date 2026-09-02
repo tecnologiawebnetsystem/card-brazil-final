@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar tribunais:", error)
-    return NextResponse.json({ error: "Erro ao buscar tribunais", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar tribunais" }, { status: 500 })
   }
 }
 
@@ -59,6 +59,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: rows[0].id, message: "Tribunal cadastrado com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao cadastrar tribunal:", error)
-    return NextResponse.json({ error: "Erro ao cadastrar tribunal", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao cadastrar tribunal" }, { status: 500 })
   }
 }

@@ -27,38 +27,9 @@ export default function DashboardPage() {
 
   const [dateRange, setDateRange] = useState({ from: new Date(new Date().getFullYear(), 0, 1), to: new Date() })
 
-  const chartData = [
-    { name: "Jan", value: 4000, comparison: 3800 },
-    { name: "Fev", value: 3000, comparison: 2800 },
-    { name: "Mar", value: 5000, comparison: 4200 },
-    { name: "Abr", value: 4500, comparison: 4000 },
-    { name: "Mai", value: 6000, comparison: 5200 },
-    { name: "Jun", value: 5500, comparison: 5000 },
-  ]
+  const chartData: { name: string; value: number; comparison: number }[] = []
 
-  const activities = [
-    {
-      id: "1",
-      user: "João Silva",
-      action: "cadastrou novo segurado",
-      timestamp: new Date(Date.now() - 1000 * 60 * 5),
-      type: "create" as const,
-    },
-    {
-      id: "2",
-      user: "Maria Santos",
-      action: "aprovou proposta #1234",
-      timestamp: new Date(Date.now() - 1000 * 60 * 15),
-      type: "update" as const,
-    },
-    {
-      id: "3",
-      user: "Pedro Costa",
-      action: "gerou relatório ANS",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30),
-      type: "info" as const,
-    },
-  ]
+  const activities: { id: string; user: string; action: string; timestamp: Date; type: "create" | "update" | "info" }[] = []
 
   return (
     <div className="space-y-6">
@@ -122,30 +93,30 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Segurados Ativos"
-          value={12847}
+          value={0}
           format="number"
-          change={5.2}
+          change={0}
           icon={<Users className="h-6 w-6" />}
         />
         <StatCard
           title="Pagamentos em Dia"
-          value={2400000}
+          value={0}
           format="currency"
-          change={12.1}
+          change={0}
           icon={<DollarSign className="h-6 w-6" />}
         />
         <StatCard
           title="Pendências"
-          value={180000}
+          value={0}
           format="currency"
-          change={-8.3}
+          change={0}
           icon={<Clock className="h-6 w-6" />}
         />
         <StatCard
           title="Inadimplência"
-          value={95000}
+          value={0}
           format="currency"
-          change={-15.2}
+          change={0}
           icon={<AlertTriangle className="h-6 w-6" />}
         />
       </div>

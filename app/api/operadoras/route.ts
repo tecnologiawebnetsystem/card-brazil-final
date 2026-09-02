@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
     const operadoras = await query(`SELECT * FROM operadoras${where} ORDER BY created_at DESC NULLS LAST`, params)
     return NextResponse.json(successResponse(operadoras))
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
+    console.error("[v0] Erro ao consultar operadoras:", error)
+    return NextResponse.json({ success: false, message: "Erro ao consultar operadoras" }, { status: 500 })
   }
 }
 

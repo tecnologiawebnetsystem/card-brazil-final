@@ -43,6 +43,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(relatorio)
   } catch (error: any) {
     console.error("[v0] Erro ao gerar relatório de propostas:", error)
-    return NextResponse.json({ error: "Erro ao gerar relatório", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: 500 })
   }
 }

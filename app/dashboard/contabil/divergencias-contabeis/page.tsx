@@ -25,13 +25,13 @@ export default function DivergenciasContabeisPage() {
       .then((response) => response.json())
       .then((payload) => setDivergencias((payload.data || []).map((item: any) => ({
         id: `LCT-${item.id}`,
-        conta: `${item.conta_debito_id} → ${item.conta_credito_id}`,
+        conta: `${item.plano_conta_id || "—"} / ${item.centro_custo_id || "—"}`,
         descricao: item.historico || "Lançamento contábil",
         valorContabil: Number(item.valor || 0),
         valorERP: null,
         diferenca: null,
         dataIdentificacao: item.data_lancamento,
-        status: item.estornado ? "Corrigida" : "Pendente",
+        status: item.status === "conciliado" ? "Corrigida" : item.status === "em_analise" ? "Em Análise" : "Pendente",
         responsavel: item.origem || "Sistema",
       }))))
       .catch((requestError) => {

@@ -21,12 +21,12 @@ export default function ComparacaoRazaoPage() {
     fetch("/api/contabil/lancamentos?limit=100", { credentials: "include" })
       .then((response) => response.json())
       .then((payload) => setComparisons((payload.data || []).map((item: any) => ({
-        conta: `${item.conta_debito_id} → ${item.conta_credito_id}`,
+        conta: `${item.plano_conta_id || "—"} / ${item.centro_custo_id || "—"}`,
         descricao: item.historico || "Lançamento contábil",
         saldoContabil: Number(item.valor || 0),
         saldoERP: null,
         diferenca: null,
-        status: item.estornado ? "ok" : "divergente",
+        status: item.status === "conciliado" ? "ok" : "divergente",
         ramo: item.origem || "Contábil",
       }))))
       .catch((requestError) => {

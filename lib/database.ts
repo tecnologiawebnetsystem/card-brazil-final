@@ -27,7 +27,7 @@ function normalizePostgresQuery(text: string) {
 
 export async function query<T = any>(text: string, params?: any[]): Promise<T[]> {
   try {
-    const result = await sql(normalizePostgresQuery(text), params || [])
+    const result = await getSql()(normalizePostgresQuery(text), params || [])
     return result as T[]
   } catch (error) {
     console.error("Database query error:", error)

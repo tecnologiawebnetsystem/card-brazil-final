@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockBeneficiarios, mockDependentes } from "@/lib/mock-data"
+import { query } from "@/lib/database"
+
+export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,31 +9,11 @@ export async function GET(request: NextRequest) {
     const ativo = searchParams.get("ativo")
     const search = searchParams.get("search")
 
-    // Filtrar apenas titulares
-    let titulares = mockBeneficiarios.filter(b => b.tipo_beneficiario === "titular")
-
-    if (ativo !== null) {
-      titulares = titulares.filter(b => b.ativo === (ativo === "true"))
-    }
-
-    if (search) {
-      const searchLower = search.toLowerCase()
-      titulares = titulares.filter(b => 
-        b.nome?.toLowerCase().includes(searchLower) ||
-        b.cpf?.includes(search) ||
-        b.email?.toLowerCase().includes(searchLower)
-      )
-    }
-
-    // Adicionar contagem de dependentes para cada titular
-    const titularesComDependentes = titulares.map(titular => {
-      const dependentes = mockDependentes.filter(d => d.beneficiario_titular_id === titular.id)
-      return {
-        ...titular,
-        quantidade_dependentes: dependentes.length,
-        dependentes_ativos: dependentes.filter(d => d.ativo).length,
-      }
-    })
+    const params: unknown[] = []
+    const conditions = [`b.tipo_beneficiario = 'titular'`]
+    if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`b.status = $${params.length}`) }
+    if (search) { params.push(`%${search}%`); conditions.push(`(p.nome_completo ILIKE $${params.length} OR p.cpf ILIKE $${params.length} OR p.email ILIKE $${params.length})`) }
+    const titularesComDependentes = await query(`SELECT b.*, p.nome_completo AS nome, p.cpf, p.email, COUNT(d.id)::int AS quantidade_dependentes, COUNT(d.id) FILTER (WHERE d.status = 'ativo')::int AS dependentes_ativos FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id LEFT JOIN beneficiarios d ON d.titular_id = b.id WHERE ${conditions.join(" AND ")} GROUP BY b.id, p.nome_completo, p.cpf, p.email ORDER BY b.created_at DESC NULLS LAST`, params)
 
     return NextResponse.json({
       success: true,

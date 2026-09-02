@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockPropostas } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,28 +13,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Motivo da rejeição é obrigatório" }, { status: 400 })
     }
 
-    const proposta = mockPropostas.find(p => p.id === body.proposta_id)
-    
-    if (!proposta) {
-      return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
-    }
-
-    if (proposta.status === "aprovada") {
-      return NextResponse.json({ error: "Proposta já está aprovada" }, { status: 400 })
-    }
-
-    if (proposta.status === "rejeitada") {
-      return NextResponse.json({ error: "Proposta já foi rejeitada" }, { status: 400 })
-    }
-
-    // Simular rejeição
-    const rejeicao = {
-      proposta_id: body.proposta_id,
-      status: "rejeitada",
-      parecer: body.motivo,
-      analisado_por: body.analisado_por || 1,
-      data_analise: new Date().toISOString(),
-    }
+    const rows = await query(`UPDATE propostas SET status = 'rejeitada', observacoes = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND status NOT IN ('aprovada', 'rejeitada') RETURNING *`, [body.proposta_id, body.motivo])
+    if (!rows.length) return NextResponse.json({ error: "Proposta não encontrada ou já finalizada" }, { status: 404 })
+    const rejeicao = { proposta_id: body.proposta_id, status: rows[0].status, parecer: body.motivo, analisado_por: body.analisado_por || 1, data_analise: new Date().toISOString() }
 
     return NextResponse.json({
       success: true,
@@ -43,6 +24,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error("[v0] Erro ao rejeitar proposta:", error)
-    return NextResponse.json({ error: "Erro ao rejeitar proposta", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao rejeitar proposta" }, { status: 500 })
   }
 }

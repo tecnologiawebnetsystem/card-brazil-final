@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockDependentes, mockBeneficiarios } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,25 +8,12 @@ export async function GET(request: NextRequest) {
     const titular_id = searchParams.get("titular_id")
     const search = searchParams.get("search")
 
-    // Filtrar dependentes
-    let dependentes = [...mockDependentes]
-
-    if (ativo !== null) {
-      dependentes = dependentes.filter(d => d.ativo === (ativo === "true"))
-    }
-
-    if (titular_id) {
-      dependentes = dependentes.filter(d => d.beneficiario_titular_id === Number.parseInt(titular_id))
-    }
-
-    if (search) {
-      const searchLower = search.toLowerCase()
-      dependentes = dependentes.filter(d => 
-        d.nome?.toLowerCase().includes(searchLower) ||
-        d.cpf?.includes(search) ||
-        d.titular_nome?.toLowerCase().includes(searchLower)
-      )
-    }
+    const params: unknown[] = []
+    const conditions = [`b.tipo_beneficiario = 'dependente'`]
+    if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`b.status = $${params.length}`) }
+    if (titular_id) { params.push(Number.parseInt(titular_id, 10)); conditions.push(`b.titular_id = $${params.length}`) }
+    if (search) { params.push(`%${search}%`); conditions.push(`(p.nome_completo ILIKE $${params.length} OR p.cpf ILIKE $${params.length} OR tp.nome_completo ILIKE $${params.length})`) }
+    const dependentes = await query(`SELECT b.*, p.nome_completo AS nome, p.cpf, p.email, tp.nome_completo AS titular_nome FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id LEFT JOIN beneficiarios t ON t.id = b.titular_id LEFT JOIN pessoas tp ON tp.id = t.pessoa_id WHERE ${conditions.join(" AND ")} ORDER BY b.created_at DESC NULLS LAST`, params)
 
     return NextResponse.json({
       success: true,
@@ -54,52 +41,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar se o titular existe
-    const titular = mockBeneficiarios.find(b => b.id === body.beneficiario_titular_id)
-    if (!titular) {
-      return NextResponse.json(
-        { success: false, message: "Titular não encontrado" },
-        { status: 404 },
-      )
-    }
-
-    if (!body.parentesco) {
-      return NextResponse.json(
-        { success: false, message: "parentesco é obrigatório" },
-        { status: 400 },
-      )
-    }
-
-    // Mock: criar novo dependente
-    const novoDependente = {
-      id: mockBeneficiarios.length + mockDependentes.length + 1,
-      pessoa_id: body.pessoa_id || null,
-      tipo_beneficiario: "dependente",
-      proposta_id: titular.proposta_id,
-      beneficiario_titular_id: body.beneficiario_titular_id,
-      parentesco: body.parentesco,
-      plano_id: titular.plano_id,
-      operadora_id: titular.operadora_id,
-      data_adesao: body.data_adesao || new Date().toISOString().split('T')[0],
-      status: body.status || "ativo",
-      ativo: body.ativo !== undefined ? body.ativo : true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      nome: body.nome || "Novo Dependente",
-      cpf: body.cpf || null,
-      telefone: body.telefone || null,
-      email: body.email || null,
-      data_nascimento: body.data_nascimento || null,
-      sexo: body.sexo || null,
-      titular_nome: titular.nome,
-      plano_nome: titular.plano_nome,
-      operadora_nome: titular.operadora_nome,
-    }
-
-    return NextResponse.json(
-      { success: true, data: novoDependente, message: "Dependente criado com sucesso" },
-      { status: 201 },
-    )
+    const titularRows = await query(`SELECT id, proposta_id, plano_id, operadora_id FROM beneficiarios WHERE id = $1 AND tipo_beneficiario = 'titular'`, [body.beneficiario_titular_id])
+    const titular = titularRows[0]
+    if (!titular) return NextResponse.json({ success: false, message: "Titular não encontrado" }, { status: 404 })
+    if (!body.parentesco) return NextResponse.json({ success: false, message: "parentesco é obrigatório" }, { status: 400 })
+    const rows = await query(`INSERT INTO beneficiarios (administradora_id, pessoa_id, proposta_id, contrato_id, plano_id, operadora_id, tipo_beneficiario, titular_id, parentesco, data_inclusao, status) VALUES ($1,$2,$3,$4,$5,$6,'dependente',$7,$8,$9,$10) RETURNING *`, [body.administradora_id || 1, body.pessoa_id || null, titular.proposta_id || null, body.contrato_id || null, titular.plano_id, titular.operadora_id, titular.id, body.parentesco, body.data_inclusao || new Date().toISOString().split('T')[0], body.status || 'ativo'])
+    return NextResponse.json({ success: true, data: rows[0], message: "Dependente criado com sucesso" }, { status: 201 })
   } catch (error) {
     console.error("[v0] Erro ao criar dependente:", error)
     return NextResponse.json(

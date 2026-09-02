@@ -1,10 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockPropostas } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    // Retornar propostas em análise
-    const emAnalise = mockPropostas.filter(p => p.status === "em_analise")
+    const emAnalise = await query(`SELECT * FROM propostas WHERE status = 'em_analise' ORDER BY created_at DESC NULLS LAST`)
 
     return NextResponse.json({
       success: true,
@@ -25,9 +24,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ID da proposta é obrigatório" }, { status: 400 })
     }
 
-    const proposta = mockPropostas.find(p => p.id === body.proposta_id)
-    
-    if (!proposta) {
+    const propostaRows = await query(`SELECT id FROM propostas WHERE id = $1`, [body.proposta_id])
+    if (!propostaRows.length) {
       return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
     }
 

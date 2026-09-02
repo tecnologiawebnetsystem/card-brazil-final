@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockAdvogados } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,16 +7,12 @@ export async function GET(request: NextRequest) {
     const ativo = searchParams.get("ativo")
     const oab_uf = searchParams.get("oab_uf")
 
-    let resultado = [...mockAdvogados]
-
-    if (ativo !== null) {
-      resultado = resultado.filter(a => a.ativo === (ativo === "true"))
-    }
-
-    if (oab_uf) {
-      resultado = resultado.filter(a => a.oab_uf === oab_uf)
-    }
-
+    const params: unknown[] = []
+    const conditions: string[] = []
+    if (ativo !== null) { params.push(ativo === "true"); conditions.push(`ativo = $${params.length}`) }
+    if (oab_uf) { params.push(oab_uf); conditions.push(`oab_uf = $${params.length}`) }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    const resultado = await query(`SELECT * FROM advogados${where} ORDER BY nome ASC`, params)
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar advogados:", error)
@@ -33,16 +29,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
     }
 
-    const rows = await sql(
+    const rows = await query(
       `INSERT INTO advogados (
-        id_administradora, nome, oab, oab_uf, cpf,
+        administradora_id, nome, oab, oab_uf, cpf,
         email, telefone, celular,
         cep, logradouro, numero, complemento, bairro, cidade, uf,
         ativo, observacoes
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING id`,
       [
-        body.id_administradora || 1,
+        body.administradora_id || 1,
         body.nome,
         body.oab,
         body.oab_uf,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,48 +10,36 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { AlertTriangle, Search, RefreshCw, CheckCircle, X } from "lucide-react"
 
-const mockDivergencias = [
-  {
-    id: "DIV-001",
-    conta: "1.1.01.001 - Caixa",
-    descricao: "Diferença entre saldo contábil e ERP",
-    valorContabil: 15000.0,
-    valorERP: 14750.0,
-    diferenca: 250.0,
-    dataIdentificacao: "2024-01-15",
-    status: "Pendente",
-    responsavel: "João Silva",
-  },
-  {
-    id: "DIV-002",
-    conta: "2.1.01.001 - Fornecedores",
-    descricao: "Lançamento duplicado no sistema ERP",
-    valorContabil: 8500.0,
-    valorERP: 9200.0,
-    diferenca: -700.0,
-    dataIdentificacao: "2024-01-14",
-    status: "Em Análise",
-    responsavel: "Maria Santos",
-  },
-  {
-    id: "DIV-003",
-    conta: "1.2.01.001 - Contas a Receber",
-    descricao: "Baixa não contabilizada",
-    valorContabil: 25000.0,
-    valorERP: 23800.0,
-    diferenca: 1200.0,
-    dataIdentificacao: "2024-01-13",
-    status: "Corrigida",
-    responsavel: "Carlos Lima",
-  },
-]
-
 export default function DivergenciasContabeisPage() {
+  const [divergencias, setDivergencias] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filtros, setFiltros] = useState({
     conta: "",
     status: "all", // Updated default value to "all"
     responsavel: "",
   })
+
+  useEffect(() => {
+    fetch("/api/contabil/lancamentos?limit=100", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => setDivergencias((payload.data || []).map((item: any) => ({
+        id: `LCT-${item.id}`,
+        conta: `${item.plano_conta_id || "—"} / ${item.centro_custo_id || "—"}`,
+        descricao: item.historico || "Lançamento contábil",
+        valorContabil: Number(item.valor || 0),
+        valorERP: null,
+        diferenca: null,
+        dataIdentificacao: item.data_lancamento,
+        status: item.status === "conciliado" ? "Corrigida" : item.status === "em_analise" ? "Em Análise" : "Pendente",
+        responsavel: item.origem || "Sistema",
+      }))))
+      .catch((requestError) => {
+        console.error("[v0] Erro ao carregar lançamentos contábeis:", requestError)
+        setError("Não foi possível carregar os lançamentos contábeis.")
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
 
   return (
     <div className="space-y-6 p-6">
@@ -73,7 +61,7 @@ export default function DivergenciasContabeisPage() {
             <AlertTriangle className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{mockDivergencias.length}</div>
+            <div className="text-2xl font-bold text-orange-600">{divergencias.length}</div>
             <p className="text-xs text-muted-foreground">divergências identificadas</p>
           </CardContent>
         </Card>
@@ -85,7 +73,7 @@ export default function DivergenciasContabeisPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {mockDivergencias.filter((d) => d.status === "Pendente").length}
+              {divergencias.filter((d) => d.status === "Pendente").length}
             </div>
             <p className="text-xs text-muted-foreground">aguardando correção</p>
           </CardContent>
@@ -98,7 +86,7 @@ export default function DivergenciasContabeisPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {mockDivergencias.filter((d) => d.status === "Em Análise").length}
+              {divergencias.filter((d) => d.status === "Em Análise").length}
             </div>
             <p className="text-xs text-muted-foreground">sendo analisadas</p>
           </CardContent>
@@ -111,7 +99,7 @@ export default function DivergenciasContabeisPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {mockDivergencias.filter((d) => d.status === "Corrigida").length}
+              {divergencias.filter((d) => d.status === "Corrigida").length}
             </div>
             <p className="text-xs text-muted-foreground">já corrigidas</p>
           </CardContent>
@@ -201,17 +189,17 @@ export default function DivergenciasContabeisPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockDivergencias.map((divergencia) => (
+              {isLoading ? <TableRow><TableCell colSpan={10} className="h-24 text-center text-muted-foreground">Carregando lançamentos...</TableCell></TableRow> : error ? <TableRow><TableCell colSpan={10} className="h-24 text-center text-destructive">{error}</TableCell></TableRow> : divergencias.length === 0 ? <TableRow><TableCell colSpan={10} className="h-24 text-center text-muted-foreground">Nenhum lançamento encontrado.</TableCell></TableRow> : divergencias.map((divergencia) => (
                 <TableRow key={divergencia.id} className="hover:bg-orange-50/50">
                   <TableCell className="font-medium">{divergencia.id}</TableCell>
                   <TableCell className="text-sm">{divergencia.conta}</TableCell>
                   <TableCell className="text-sm">{divergencia.descricao}</TableCell>
                   <TableCell className="font-semibold">R$ {divergencia.valorContabil.toFixed(2)}</TableCell>
-                  <TableCell className="font-semibold">R$ {divergencia.valorERP.toFixed(2)}</TableCell>
+                  <TableCell className="font-semibold">{divergencia.valorERP == null ? "Não disponível" : `R$ ${divergencia.valorERP.toFixed(2)}`}</TableCell>
                   <TableCell
-                    className={`font-semibold ${divergencia.diferenca > 0 ? "text-green-600" : "text-red-600"}`}
+                    className={`font-semibold ${divergencia.diferenca == null ? "text-muted-foreground" : divergencia.diferenca > 0 ? "text-green-600" : "text-red-600"}`}
                   >
-                    R$ {divergencia.diferenca.toFixed(2)}
+                    {divergencia.diferenca == null ? "Não disponível" : `R$ ${divergencia.diferenca.toFixed(2)}`}
                   </TableCell>
                   <TableCell>{new Date(divergencia.dataIdentificacao).toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell>

@@ -1,55 +1,28 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockFluxoCaixa } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = Number.parseInt(params.id)
+const fields = ["tipo", "categoria", "descricao", "valor", "data_movimentacao", "data_competencia", "status", "conta_origem", "conta_destino", "observacoes"]
 
-    const movimentacao = mockFluxoCaixa.find(fc => fc.id === id)
-
-    if (!movimentacao) {
-      return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
-    }
-
-    return NextResponse.json(movimentacao)
-  } catch (error: any) {
-    console.error("[v0] Erro ao buscar movimentação:", error)
-    return NextResponse.json({ error: "Erro ao buscar movimentação", details: error.message }, { status: 500 })
-  }
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+  const rows = await query("SELECT * FROM fluxo_caixa WHERE id = $1", [Number.parseInt(params.id, 10)])
+  if (!rows.length) return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
+  return NextResponse.json(rows[0])
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = Number.parseInt(params.id)
-    const body = await request.json()
-
-    const movimentacao = mockFluxoCaixa.find(fc => fc.id === id)
-
-    if (!movimentacao) {
-      return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
-    }
-
-    const updated = { ...movimentacao, ...body, updated_at: new Date().toISOString() }
-    return NextResponse.json({ message: "Movimentação atualizada com sucesso", data: updated })
-  } catch (error: any) {
-    console.error("[v0] Erro ao atualizar movimentação:", error)
-    return NextResponse.json({ error: "Erro ao atualizar movimentação", details: error.message }, { status: 500 })
-  }
+  const body = await request.json()
+  const entries = Object.entries(body).filter(([key]) => fields.includes(key))
+  if (!entries.length) return NextResponse.json({ error: "Nenhum campo válido para atualizar" }, { status: 400 })
+  const values = entries.map(([, value]) => value)
+  const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
+  values.push(Number.parseInt(params.id, 10))
+  const rows = await query(`UPDATE fluxo_caixa SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length} RETURNING *`, values)
+  if (!rows.length) return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
+  return NextResponse.json({ message: "Movimentação atualizada com sucesso", data: rows[0] })
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = Number.parseInt(params.id)
-
-    const movimentacao = mockFluxoCaixa.find(fc => fc.id === id)
-
-    if (!movimentacao) {
-      return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
-    }
-
-    return NextResponse.json({ message: "Movimentação excluída com sucesso" })
-  } catch (error: any) {
-    console.error("[v0] Erro ao excluir movimentação:", error)
-    return NextResponse.json({ error: "Erro ao excluir movimentação", details: error.message }, { status: 500 })
-  }
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  const rows = await query("DELETE FROM fluxo_caixa WHERE id = $1 RETURNING id", [Number.parseInt(params.id, 10)])
+  if (!rows.length) return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
+  return NextResponse.json({ message: "Movimentação excluída com sucesso" })
 }

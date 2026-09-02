@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,43 +14,25 @@ export default function ConsultaOperadorasPage() {
   const [filterNatureza, setFilterNatureza] = useState("todas")
   const [filterStatus, setFilterStatus] = useState("todos")
 
-  const mockOperadoras = [
-    {
-      id: "1",
-      codigo: "ADM001-OP001",
-      nome: "Unimed São Paulo",
-      natureza: "Cooperativa Médica",
-      registroANS: "12345-6",
-      status: "Ativo",
-      segurados: 1250,
-      receita: 2400000,
-      ultimaAtualizacao: "2024-01-15",
-    },
-    {
-      id: "2",
-      codigo: "ADM001-OP002",
-      nome: "Bradesco Saúde",
-      natureza: "Seguradora",
-      registroANS: "78901-2",
-      status: "Ativo",
-      segurados: 890,
-      receita: 1800000,
-      ultimaAtualizacao: "2024-01-14",
-    },
-    {
-      id: "3",
-      codigo: "ADM001-OP003",
-      nome: "SulAmérica Saúde",
-      natureza: "Seguradora",
-      registroANS: "34567-8",
-      status: "Suspenso",
-      segurados: 650,
-      receita: 1200000,
-      ultimaAtualizacao: "2024-01-10",
-    },
-  ]
+  const [operadoras, setOperadoras] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredOperadoras = mockOperadoras.filter((op) => {
+  useEffect(() => {
+    fetch("/api/operadoras", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => {
+        setOperadoras((payload.data || []).map((item: any) => ({ ...item, registroANS: item.registro_ans || "", natureza: item.natureza || item.tipo || "", status: item.status === "ativo" ? "Ativo" : item.status, segurados: Number(item.segurados || 0), receita: Number(item.receita || 0), codigo: item.codigo || String(item.id) })))
+        setError(null)
+      })
+      .catch((error) => {
+        console.error("[v0] Erro ao carregar operadoras:", error)
+        setError("Não foi possível carregar as operadoras.")
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  const filteredOperadoras = operadoras.filter((op) => {
     const matchesSearch =
       op.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       op.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,9 +43,9 @@ export default function ConsultaOperadorasPage() {
     return matchesSearch && matchesNatureza && matchesStatus
   })
 
-  const totalSegurados = mockOperadoras.reduce((sum, op) => sum + op.segurados, 0)
-  const totalReceita = mockOperadoras.reduce((sum, op) => sum + op.receita, 0)
-  const operadorasAtivas = mockOperadoras.filter((op) => op.status === "Ativo").length
+  const totalSegurados = operadoras.reduce((sum, op) => sum + op.segurados, 0)
+  const totalReceita = operadoras.reduce((sum, op) => sum + op.receita, 0)
+  const operadorasAtivas = operadoras.filter((op) => op.status === "Ativo").length
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,7 +74,7 @@ export default function ConsultaOperadorasPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total de Operadoras</p>
-                  <p className="text-xl font-bold text-emerald-700">{mockOperadoras.length}</p>
+                  <p className="text-xl font-bold text-emerald-700">{operadoras.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -242,7 +224,13 @@ export default function ConsultaOperadorasPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOperadoras.map((operadora) => (
+                {isLoading ? (
+                  <TableRow><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">Carregando operadoras...</TableCell></TableRow>
+                ) : error ? (
+                  <TableRow><TableCell colSpan={7} className="h-24 text-center text-destructive">{error}</TableCell></TableRow>
+                ) : filteredOperadoras.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">Nenhuma operadora encontrada.</TableCell></TableRow>
+                ) : filteredOperadoras.map((operadora) => (
                   <TableRow key={operadora.id}>
                     <TableCell className="font-medium">{operadora.codigo}</TableCell>
                     <TableCell>{operadora.nome}</TableCell>

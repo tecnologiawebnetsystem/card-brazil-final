@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockContasReceber } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,24 +8,17 @@ export async function GET(request: NextRequest) {
     const categoria = searchParams.get("categoria")
     const beneficiario_id = searchParams.get("beneficiario_id")
 
-    let resultado = [...mockContasReceber]
-
-    if (status) {
-      resultado = resultado.filter(cr => cr.status === status)
-    }
-
-    if (categoria) {
-      resultado = resultado.filter(cr => cr.categoria === categoria)
-    }
-
-    if (beneficiario_id) {
-      resultado = resultado.filter(cr => cr.beneficiario_id === Number.parseInt(beneficiario_id))
-    }
-
+    const params: unknown[] = []
+    const conditions: string[] = []
+    if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
+    if (categoria) { params.push(categoria); conditions.push(`categoria = $${params.length}`) }
+    if (beneficiario_id) { params.push(Number.parseInt(beneficiario_id, 10)); conditions.push(`beneficiario_id = $${params.length}`) }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    const resultado = await query(`SELECT * FROM contas_receber${where} ORDER BY data_vencimento ASC`, params)
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar contas a receber:", error)
-    return NextResponse.json({ error: "Erro ao buscar contas a receber", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar contas a receber" }, { status: 500 })
   }
 }
 
@@ -50,7 +43,7 @@ export async function POST(request: NextRequest) {
     const valor_desconto = body.valor_desconto || 0
     const valor_total = body.valor_original + valor_multa + valor_juros - valor_desconto
 
-    const rows = await sql(
+    const rows = await query(
       `INSERT INTO contas_receber (
         id_administradora, beneficiario_id, proposta_id, contrato_id,
         numero_documento, descricao, categoria,
@@ -62,7 +55,7 @@ export async function POST(request: NextRequest) {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
       RETURNING id`,
       [
-        body.id_administradora || 1,
+        body.administradora_id || 1,
         body.beneficiario_id || null,
         body.proposta_id || null,
         body.contrato_id || null,
@@ -93,6 +86,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: rows[0].id, message: "Conta a receber criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("Erro ao criar conta a receber:", error)
-    return NextResponse.json({ error: "Erro ao criar conta a receber", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar conta a receber" }, { status: 500 })
   }
 }

@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const normalizedQuery = query.trim().replace(/\s+/g, " ")
+    if (!/^(SELECT|SHOW|DESCRIBE)\b/i.test(normalizedQuery) || normalizedQuery.includes(";")) {
+      return NextResponse.json(
+        { error: "Apenas consultas de leitura simples são permitidas" },
+        { status: 403 }
+      )
+    }
+
     // Basic SQL injection prevention - block dangerous commands
     const dangerousPatterns = [
       /DROP\s+DATABASE/i,
@@ -88,32 +96,8 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error("Query execution error:", error)
     
-    const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
-
-    // Provide user-friendly error messages
-    if (errorMessage.includes("syntax")) {
-      return NextResponse.json(
-        { error: `Erro de sintaxe SQL: ${errorMessage}` },
-        { status: 400 }
-      )
-    }
-
-    if (errorMessage.includes("doesn't exist")) {
-      return NextResponse.json(
-        { error: `Tabela ou coluna nao encontrada: ${errorMessage}` },
-        { status: 404 }
-      )
-    }
-
-    if (errorMessage.includes("Duplicate entry")) {
-      return NextResponse.json(
-        { error: `Entrada duplicada: ${errorMessage}` },
-        { status: 409 }
-      )
-    }
-
     return NextResponse.json(
-      { error: `Erro ao executar query: ${errorMessage}` },
+      { error: "Não foi possível executar a consulta" },
       { status: 500 }
     )
   }

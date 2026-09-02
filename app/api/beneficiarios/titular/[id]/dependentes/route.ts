@@ -1,30 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockBeneficiarios, mockDependentes } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
     const titularId = Number.parseInt(id)
 
-    // Verifica se o titular existe
-    const titular = mockBeneficiarios.find(b => b.id === titularId)
-
-    if (!titular) {
-      return NextResponse.json(
-        { success: false, message: "Titular não encontrado" },
-        { status: 404 },
-      )
-    }
-
-    if (titular.tipo_beneficiario !== "titular") {
-      return NextResponse.json(
-        { success: false, message: "O beneficiário informado não é um titular" },
-        { status: 400 },
-      )
-    }
-
-    // Busca os dependentes deste titular
-    const dependentes = mockDependentes.filter(d => d.beneficiario_titular_id === titularId)
+    const titularRows = await query(`SELECT id FROM beneficiarios WHERE id = $1 AND tipo_beneficiario = 'titular'`, [titularId])
+    if (!titularRows.length) return NextResponse.json({ success: false, message: "Titular não encontrado ou inválido" }, { status: 404 })
+    const dependentes = await query(`SELECT b.*, p.nome_completo AS nome, p.cpf FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id WHERE b.titular_id = $1 ORDER BY b.created_at DESC NULLS LAST`, [titularId])
 
     return NextResponse.json({
       success: true,

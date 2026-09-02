@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockPropostas } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,32 +7,21 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status")
     const search = searchParams.get("search")
     const tipo_plano = searchParams.get("tipo_plano")
+    const limit = Math.min(Math.max(Number.parseInt(searchParams.get("limit") || "50", 10) || 50, 1), 100)
+    const offset = Math.max(Number.parseInt(searchParams.get("offset") || "0", 10) || 0, 0)
 
-    let propostas = [...mockPropostas]
-
-    if (status) {
-      propostas = propostas.filter(p => p.status === status)
-    }
-
-    if (tipo_plano) {
-      propostas = propostas.filter(p => p.tipo_plano === tipo_plano)
-    }
-
-    if (search) {
-      const searchLower = search.toLowerCase()
-      propostas = propostas.filter(p => 
-        p.numero_proposta.toLowerCase().includes(searchLower) ||
-        p.observacoes?.toLowerCase().includes(searchLower) ||
-        p.nome_proponente?.toLowerCase().includes(searchLower) ||
-        p.empresa?.toLowerCase().includes(searchLower) ||
-        p.cpf_cnpj?.includes(search)
-      )
-    }
-
-    return NextResponse.json(propostas)
+    const params: unknown[] = []
+    const conditions: string[] = []
+    if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
+    if (tipo_plano) { params.push(tipo_plano); conditions.push(`tipo_plano = $${params.length}`) }
+    if (search) { params.push(`%${search}%`); conditions.push(`(nome_proponente ILIKE $${params.length} OR empresa ILIKE $${params.length} OR cpf_cnpj ILIKE $${params.length} OR observacoes ILIKE $${params.length})`) }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    params.push(limit, offset)
+    const propostas = await query(`SELECT * FROM propostas${where} ORDER BY created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
+    return NextResponse.json({ data: propostas, pagination: { limit, offset, count: propostas.length } })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar propostas:", error)
-    return NextResponse.json({ error: "Erro ao buscar propostas", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar propostas" }, { status: 500 })
   }
 }
 
@@ -40,29 +29,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const novaProposta = {
-      id: mockPropostas.length + 1,
-      numero_proposta: `PROP-2024-${String(mockPropostas.length + 1).padStart(4, '0')}`,
-      estipulante_id: body.estipulante_id || 1,
-      corretor_id: body.corretor_id || 1,
-      operadora_id: body.operadora_id || 1,
-      produto_id: body.produto_id || 1,
-      data_proposta: new Date().toISOString().split('T')[0],
-      data_vigencia: body.data_vigencia || null,
-      valor_total: body.valor_total || 0,
-      quantidade_vidas: body.quantidade_vidas || 0,
-      status: "pendente",
-      observacoes: body.observacoes || null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+    if (!body.nome_proponente || !body.cpf_cnpj || !body.tipo_plano) {
+      return NextResponse.json({ error: "nome_proponente, cpf_cnpj e tipo_plano são obrigatórios" }, { status: 400 })
     }
-
-    return NextResponse.json(
-      { message: "Proposta criada com sucesso", id: novaProposta.id },
-      { status: 201 },
-    )
+    const rows = await query(`INSERT INTO propostas (administradora_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pendente') RETURNING id`, [body.administradora_id || 1, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, body.empresa || null, body.numero_funcionarios || null, body.tipo_plano, body.valor_proposto || null, body.observacoes || null])
+    return NextResponse.json({ message: "Proposta criada com sucesso", id: rows[0].id }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar proposta:", error)
-    return NextResponse.json({ error: "Erro ao criar proposta", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar proposta" }, { status: 500 })
   }
 }

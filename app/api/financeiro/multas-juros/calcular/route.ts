@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockContasReceber, mockConfiguracoesMJ } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,20 +9,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ID da conta a receber é obrigatório" }, { status: 400 })
     }
 
-    // Buscar conta a receber
-    const conta = mockContasReceber.find(cr => cr.id === body.conta_receber_id)
-
-    if (!conta) {
-      return NextResponse.json({ error: "Conta a receber não encontrada" }, { status: 404 })
-    }
-
-    // Buscar configuração (padrão ou específica)
-    let config = null
-    if (body.configuracao_id) {
-      config = mockConfiguracoesMJ.find(c => c.id === body.configuracao_id && c.ativo)
-    } else {
-      config = mockConfiguracoesMJ.find(c => c.padrao && c.ativo)
-    }
+    const contaRows = await query(`SELECT data_vencimento, valor_original, valor_desconto FROM contas_receber WHERE id = $1`, [body.conta_receber_id])
+    const conta = contaRows[0]
+    if (!conta) return NextResponse.json({ error: "Conta a receber não encontrada" }, { status: 404 })
+    const configRows = body.configuracao_id
+      ? await query(`SELECT * FROM configuracoes_multas_juros WHERE id = $1 AND ativo = TRUE AND deleted_at IS NULL`, [body.configuracao_id])
+      : await query(`SELECT * FROM configuracoes_multas_juros WHERE padrao = TRUE AND ativo = TRUE AND deleted_at IS NULL ORDER BY id LIMIT 1`)
+    const config = configRows[0]
 
     if (!config) {
       return NextResponse.json({ error: "Configuração de multas e juros não encontrada" }, { status: 404 })

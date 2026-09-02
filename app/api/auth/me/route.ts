@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import AuthService from "@/lib/auth-service"
 
+export const dynamic = "force-dynamic"
+
 /**
  * @swagger
  * /api/auth/me:
@@ -30,7 +32,7 @@ export async function GET() {
       return NextResponse.json({ success: false, message: "Invalid token" }, { status: 401 })
     }
 
-    const user = await AuthService.getUserById(Number(decoded.userId))
+    const user = await AuthService.getUserById(Number(decoded.userId), Number(decoded.administradoraId))
     if (!user) {
       return NextResponse.json({ success: false, message: "Usuário não encontrado" }, { status: 401 })
     }

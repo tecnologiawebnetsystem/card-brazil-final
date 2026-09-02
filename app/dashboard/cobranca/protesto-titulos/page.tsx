@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,45 +10,35 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, FileText, Send, X, AlertTriangle } from "lucide-react"
 
-const mockTitulos = [
-  {
-    id: "TIT-001",
-    beneficiario: "João Silva Santos",
-    numeroTitulo: "BOL-2024-001",
-    valorTitulo: 850.0,
-    dataVencimento: "2023-12-15",
-    diasAtraso: 45,
-    statusProtesto: "Enviado",
-    cartorio: "1º Cartório de Protestos - SP",
-  },
-  {
-    id: "TIT-002",
-    beneficiario: "Maria Costa Lima",
-    numeroTitulo: "BOL-2024-002",
-    valorTitulo: 1200.0,
-    dataVencimento: "2023-11-20",
-    diasAtraso: 75,
-    statusProtesto: "Protestado",
-    cartorio: "2º Cartório de Protestos - RJ",
-  },
-  {
-    id: "TIT-003",
-    beneficiario: "Roberto Santos",
-    numeroTitulo: "BOL-2024-003",
-    valorTitulo: 650.0,
-    dataVencimento: "2024-01-10",
-    diasAtraso: 30,
-    statusProtesto: "Pendente",
-    cartorio: "-",
-  },
-]
-
 export default function ProtestoTitulosPage() {
   const [filtros, setFiltros] = useState({
     beneficiario: "",
     statusProtesto: "Todos",
     cartorio: "Todos",
   })
+  const [titulos, setTitulos] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch("/api/cobranca?limit=100", { credentials: "include" })
+      .then((response) => response.json())
+      .then((payload) => setTitulos((payload.data || []).map((item: any) => ({
+        id: `COB-${item.id}`,
+        beneficiario: item.beneficiario_id ? `Beneficiário #${item.beneficiario_id}` : "Não informado",
+        numeroTitulo: item.documento || `Cobrança #${item.id}`,
+        valorTitulo: Number(item.valor_atual ?? item.valor_original ?? 0),
+        dataVencimento: item.data_vencimento || item.created_at,
+        diasAtraso: item.dias_atraso || 0,
+        statusProtesto: item.status === "protestado" ? "Protestado" : item.status === "enviado" ? "Enviado" : "Pendente",
+        cartorio: item.cartorio || "Não informado",
+      }))))
+      .catch((requestError) => {
+        console.error("[v0] Erro ao carregar cobranças para protesto:", requestError)
+        setError("Não foi possível carregar as cobranças.")
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -152,7 +142,7 @@ export default function ProtestoTitulosPage() {
               </CardDescription>
             </div>
             <Badge className="bg-[#1a1a1a] text-[#a1a1a1] border-[#262626]">
-              {mockTitulos.length} registros
+              {titulos.length} registros
             </Badge>
           </div>
         </CardHeader>
@@ -173,7 +163,7 @@ export default function ProtestoTitulosPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockTitulos.map((titulo) => (
+                {isLoading ? <TableRow><TableCell colSpan={9} className="h-24 text-center text-[#737373]">Carregando cobranças...</TableCell></TableRow> : error ? <TableRow><TableCell colSpan={9} className="h-24 text-center text-red-400">{error}</TableCell></TableRow> : titulos.length === 0 ? <TableRow><TableCell colSpan={9} className="h-24 text-center text-[#737373]">Nenhuma cobrança encontrada.</TableCell></TableRow> : titulos.map((titulo) => (
                   <TableRow key={titulo.id} className="border-b border-[#1a1a1a] hover:bg-[#0f0f0f]">
                     <TableCell className="font-mono text-sm text-[#a1a1a1]">{titulo.id}</TableCell>
                     <TableCell className="text-[#ededed]">{titulo.beneficiario}</TableCell>

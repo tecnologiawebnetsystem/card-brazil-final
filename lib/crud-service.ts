@@ -14,19 +14,19 @@ export class CrudService<T> {
   }
 
   async findAll(filters?: Record<string, any>): Promise<T[]> {
-    let query = `SELECT * FROM ${this.tableName}`
+    let statement = `SELECT * FROM ${this.tableName}`
     const params: any[] = []
 
     if (filters && Object.keys(filters).length > 0) {
       Object.keys(filters).forEach((key) => assertIdentifier(key, "coluna"))
       const conditions = Object.keys(filters).map((key, index) => `${key} = ${index + 1}`)
-      query += ` WHERE ${conditions.join(" AND ")}`
+      statement += ` WHERE ${conditions.join(" AND ")}`
       params.push(...Object.values(filters))
     }
 
-    query += " ORDER BY created_at DESC"
+    statement += " ORDER BY created_at DESC"
 
-    const rows = await query(query, params)
+    const rows = await query(statement, params)
     return rows as T[]
   }
 
@@ -72,17 +72,17 @@ export class CrudService<T> {
   }
 
   async count(filters?: Record<string, any>): Promise<number> {
-    let query = `SELECT COUNT(*) as total FROM ${this.tableName}`
+    let statement = `SELECT COUNT(*) as total FROM ${this.tableName}`
     const params: any[] = []
 
     if (filters && Object.keys(filters).length > 0) {
       Object.keys(filters).forEach((key) => assertIdentifier(key, "coluna"))
       const conditions = Object.keys(filters).map((key, index) => `${key} = ${index + 1}`)
-      query += ` WHERE ${conditions.join(" AND ")}`
+      statement += ` WHERE ${conditions.join(" AND ")}`
       params.push(...Object.values(filters))
     }
 
-    const rows = await query(query, params)
+    const rows = await query(statement, params)
     return Number(rows[0].total)
   }
 }

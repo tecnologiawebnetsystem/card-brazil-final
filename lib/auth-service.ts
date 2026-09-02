@@ -116,7 +116,8 @@ export class AuthService {
       "INSERT INTO tokens_recuperacao_senha (usuario_id, token_hash, expira_em, ip_address) VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '30 minutes', $3)",
       [usuario.id, tokenHash, ipAddress || "unknown"],
     )
-    return process.env.NODE_ENV === "production" ? generic : { ...generic, recoveryToken: rawToken }
+    // Fluxo temporário sem envio de e-mail: o link é exibido diretamente na tela.
+    return { ...generic, recoveryToken: rawToken }
   }
 
   static async resetPassword(rawToken: string, senha: string) {

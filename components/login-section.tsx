@@ -7,12 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import {
-  Building2,
-  Users,
-  User,
   Eye,
   EyeOff,
   Lock,
@@ -25,44 +20,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 export function LoginSection() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [userType, setUserType] = useState("usuario")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-
-  const userTypes = [
-    {
-      value: "admin",
-      label: "Administrador",
-      icon: Lock,
-      description: "Acesso total ao sistema",
-    },
-    {
-      value: "operadora",
-      label: "Operadora",
-      icon: Building2,
-      description: "Gestao de seguros e apolices",
-    },
-    {
-      value: "estipulante",
-      label: "Estipulante",
-      icon: Users,
-      description: "Gestao de grupos e contratos",
-    },
-    {
-      value: "subestipulante",
-      label: "Sub-estipulante",
-      icon: User,
-      description: "Gestao de sub-grupos",
-    },
-    {
-      value: "usuario",
-      label: "Usuario",
-      icon: User,
-      description: "Sistema de gestao de saude",
-    },
-  ]
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,40 +51,6 @@ export function LoginSection() {
       router.push("/dashboard")
     } catch (err) {
       console.error("Login error:", err)
-      setError("Erro ao conectar com o servidor")
-      setLoading(false)
-    }
-  }
-
-  const handleDemoLogin = async (demoType: "admin" | "user") => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const credentials = {
-        admin: { email: "admin@talenthealth.com.br", senha: "admin123" },
-        user: { email: "admin@talenthealth.com.br", senha: "admin123" },
-      }
-
-      const { email, senha } = credentials[demoType]
-
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok || !data.success) {
-        setError(data.message || "Erro ao fazer login")
-        setLoading(false)
-        return
-      }
-
-      router.push("/dashboard")
-    } catch (err) {
-      console.error("Demo login error:", err)
       setError("Erro ao conectar com o servidor")
       setLoading(false)
     }
@@ -164,36 +91,6 @@ export function LoginSection() {
             )}
 
             <form onSubmit={handleLogin} className="space-y-5">
-              <div className="space-y-3">
-                <Label htmlFor="userType" className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
-                  <Users className="w-4 h-4 text-primary" />
-                  Tipo de Usuario
-                </Label>
-                <Select value={userType} onValueChange={setUserType}>
-                  <SelectTrigger className="h-12 bg-background border-border text-foreground focus-visible:ring-primary">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
-                    {userTypes.map((type) => {
-                      const Icon = type.icon
-                      return (
-                        <SelectItem key={type.value} value={type.value} className="py-3 hover:bg-[#171717] text-foreground">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20">
-                              <Icon className="w-4 h-4 text-primary" />
-                            </div>
-                            <div className="text-left">
-                              <div className="font-medium text-foreground">{type.label}</div>
-                              <div className="text-xs text-muted-foreground">{type.description}</div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                      )
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
                   <Mail className="w-4 h-4 text-primary" />
@@ -239,25 +136,6 @@ export function LoginSection() {
                 </div>
               </div>
 
-              {(userType === "operadora" || userType === "estipulante" || userType === "subestipulante") && (
-                <div className="space-y-3">
-                  <Label htmlFor="codigo" className="text-sm font-medium text-muted-foreground">
-                    Codigo da{" "}
-                    {userType === "operadora"
-                      ? "Operadora"
-                      : userType === "estipulante"
-                        ? "Estipulante"
-                        : "Sub-estipulante"}
-                  </Label>
-                  <Input
-                    id="codigo"
-                    type="text"
-                    placeholder={`Digite o codigo da ${userType}`}
-                    className="h-12 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-                  />
-                </div>
-              )}
-
               <Button
                 type="submit"
                 className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl shadow-lg shadow-primary/20"
@@ -276,32 +154,6 @@ export function LoginSection() {
                 )}
               </Button>
             </form>
-
-            <Separator className="bg-border" />
-
-            <div className="space-y-3">
-              <p className="text-center text-sm text-muted-foreground">Acesso rapido para demonstracao</p>
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  variant="outline"
-                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-muted-foreground hover:text-foreground"
-                  onClick={() => handleDemoLogin("admin")}
-                  disabled={loading}
-                >
-                  <Lock className="w-4 h-4 mr-2" />
-                  Demo Admin
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-10 border-[#262626] hover:bg-[#171717] bg-transparent text-muted-foreground hover:text-foreground"
-                  onClick={() => handleDemoLogin("user")}
-                  disabled={loading}
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Demo Usuario
-                </Button>
-              </div>
-            </div>
 
             <div className="text-center pt-2">
               <Button

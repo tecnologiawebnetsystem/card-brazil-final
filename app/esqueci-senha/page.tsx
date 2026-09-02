@@ -8,25 +8,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Mail, Phone, Shield, Building2, Users, User, CheckCircle, AlertCircle } from "lucide-react"
+import { ArrowLeft, Mail, Phone, Shield, CheckCircle, AlertCircle } from "lucide-react"
 
 export default function EsqueciSenhaPage() {
   const [step, setStep] = useState(1) // 1: identificação, 2: método recuperação, 3: confirmação
-  const [userType, setUserType] = useState("")
   const [recoveryMethod, setRecoveryMethod] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
   const router = useRouter()
-
-  const userTypes = [
-    { value: "admin", label: "Administrador", icon: Shield },
-    { value: "operadora", label: "Operadora", icon: Building2 },
-    { value: "estipulante", label: "Estipulante", icon: Users },
-    { value: "subestipulante", label: "Sub-estipulante", icon: User },
-    { value: "usuario", label: "Usuário", icon: User },
-  ]
 
   const handleSubmitIdentification = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -88,28 +78,6 @@ export default function EsqueciSenhaPage() {
               <CardContent className="space-y-6">
                 <form onSubmit={handleSubmitIdentification} className="space-y-6">
                   <div className="space-y-3">
-                    <Label htmlFor="userType">Tipo de Usuário</Label>
-                    <Select value={userType} onValueChange={setUserType} required>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Selecione seu tipo de usuário" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {userTypes.map((type) => {
-                          const Icon = type.icon
-                          return (
-                            <SelectItem key={type.value} value={type.value}>
-                              <div className="flex items-center gap-2">
-                                <Icon className="w-4 h-4" />
-                                {type.label}
-                              </div>
-                            </SelectItem>
-                          )
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-3">
                     <Label htmlFor="email">Email ou CPF</Label>
                     <Input
                       id="email"
@@ -121,20 +89,6 @@ export default function EsqueciSenhaPage() {
                       required
                     />
                   </div>
-
-                  {(userType === "operadora" || userType === "estipulante" || userType === "subestipulante") && (
-                    <div className="space-y-3">
-                      <Label htmlFor="codigo">
-                        Código da{" "}
-                        {userType === "operadora"
-                          ? "Operadora"
-                          : userType === "estipulante"
-                            ? "Estipulante"
-                            : "Sub-estipulante"}
-                      </Label>
-                      <Input id="codigo" type="text" placeholder={`Digite o código da ${userType}`} className="h-12" />
-                    </div>
-                  )}
 
                   <Button
                     type="submit"

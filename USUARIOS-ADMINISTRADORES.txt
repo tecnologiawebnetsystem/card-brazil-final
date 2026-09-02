@@ -1,0 +1,21 @@
+USUÁRIOS ADMINISTRADORES — CARD BRAZIL
+========================================
+
+Este arquivo não contém senhas. Senhas não são armazenadas nem divulgadas em texto puro.
+
+Usuário administrativo identificado nos scripts de inicialização:
+- E-mail: admin@talenthealth.com.br
+- Perfil: Administrador
+- Status esperado: ativo
+- Acesso: painel administrativo
+
+Para acessar:
+1. Use o e-mail acima na tela de login.
+2. Informe a senha definida no ambiente seguro do banco/projeto.
+3. Se a senha não estiver disponível, use o fluxo “Esqueci minha senha” ou redefina-a pelo procedimento administrativo.
+
+Importante:
+- Não usar credenciais de demonstração em produção.
+- Não compartilhar senhas em arquivos TXT, código, logs ou chat.
+- O seletor “Tipo de Usuário” e os atalhos Demo Admin/Demo Usuário foram removidos.
+- O login agora usa somente e-mail e senha.

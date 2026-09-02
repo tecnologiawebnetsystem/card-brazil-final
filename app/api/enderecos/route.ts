@@ -1,57 +1,22 @@
 import type { NextRequest } from "next/server"
 import { apiResponse, apiError } from "@/lib/api-response"
-import { mockEnderecos } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const pessoa_id = searchParams.get("pessoa_id")
-    const id_administradora = searchParams.get("id_administradora")
-
-    let enderecos = [...mockEnderecos]
-
-    if (pessoa_id) {
-      enderecos = enderecos.filter(e => e.pessoa_id === Number.parseInt(pessoa_id))
-    }
-
-    if (id_administradora) {
-      enderecos = enderecos.filter(e => e.id_administradora === Number.parseInt(id_administradora))
-    }
-
-    return apiResponse(enderecos, "Endereços listados com sucesso")
-  } catch (error: any) {
-    console.error("[v0] Erro ao listar endereços:", error)
-    return apiError(error.message, 500)
-  }
+    const sp = request.nextUrl.searchParams
+    const params: unknown[] = []
+    const conditions: string[] = []
+    for (const key of ["pessoa_id", "id_administradora"]) { const value = sp.get(key); if (value) { params.push(Number.parseInt(value, 10)); conditions.push(`${key === "id_administradora" ? "administradora_id" : key} = $${params.length}`) } }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    return apiResponse(await query(`SELECT * FROM enderecos${where} ORDER BY id DESC`, params), "Endereços listados com sucesso")
+  } catch (error: any) { return apiError(error.message, 500) }
 }
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-
-    const novoEndereco = {
-      id: mockEnderecos.length + 1,
-      id_administradora: body.id_administradora || 1,
-      pessoa_id: body.pessoa_id,
-      tipo_endereco: body.tipo_endereco,
-      principal: body.principal || false,
-      cep: body.cep,
-      logradouro: body.logradouro,
-      numero: body.numero,
-      complemento: body.complemento || null,
-      bairro: body.bairro,
-      cidade: body.cidade,
-      estado: body.estado,
-      pais: body.pais || "Brasil",
-      observacoes: body.observacoes || null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      deleted_at: null,
-    }
-
-    return apiResponse(novoEndereco, "Endereço criado com sucesso", 201)
-  } catch (error: any) {
-    console.error("[v0] Erro ao criar endereço:", error)
-    return apiError(error.message, 500)
-  }
+    if (!body.pessoa_id) return apiError("pessoa_id é obrigatório", 400)
+    const rows = await query(`INSERT INTO enderecos (pessoa_id, tipo_endereco, cep, logradouro, numero, complemento, bairro, cidade, estado, pais, is_principal) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`, [body.pessoa_id, body.tipo_endereco || "residencial", body.cep || null, body.logradouro || null, body.numero || null, body.complemento || null, body.bairro || null, body.cidade || null, body.estado || null, body.pais || "Brasil", body.is_principal ?? body.principal ?? false])
+    return apiResponse(rows[0], "Endereço criado com sucesso", 201)
+  } catch (error: any) { return apiError(error.message, 500) }
 }

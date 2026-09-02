@@ -1,10 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockPropostas } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    // Retornar propostas em análise
-    const emAnalise = mockPropostas.filter(p => p.status === "em_analise")
+    const emAnalise = await query(`SELECT * FROM propostas WHERE status = 'em_analise' ORDER BY created_at DESC NULLS LAST`)
 
     return NextResponse.json({
       success: true,

@@ -7,16 +7,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { id } = params
     const body = await request.json()
 
-    const endereco = await query("SELECT * FROM enderecos WHERE id = ? AND deleted_at IS NULL", [id])
+    const endereco = await query("SELECT * FROM enderecos WHERE id = ?", [id])
     if (!endereco || endereco.length === 0) {
       return apiError("Endereço não encontrado", 404)
     }
 
     // Se for principal, remove principal dos outros endereços
-    if (body.principal) {
-      await query("UPDATE enderecos SET principal = FALSE WHERE pessoa_id = ? AND id_administradora = ? AND id != ?", [
+    if ((body.is_principal ?? body.principal)) {
+      await query("UPDATE enderecos SET is_principal = FALSE WHERE pessoa_id = ? AND id != ?", [
         endereco[0].pessoa_id,
-        endereco[0].id_administradora,
         id,
       ])
     }
@@ -44,12 +43,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const { id } = params
 
-    const endereco = await query("SELECT * FROM enderecos WHERE id = ? AND deleted_at IS NULL", [id])
+    const endereco = await query("SELECT * FROM enderecos WHERE id = ?", [id])
     if (!endereco || endereco.length === 0) {
       return apiError("Endereço não encontrado", 404)
     }
 
-    await query("UPDATE enderecos SET deleted_at = NOW() WHERE id = ?", [id])
+    await query("DELETE FROM enderecos WHERE id = ?", [id])
     return apiResponse(null, "Endereço excluído com sucesso")
   } catch (error: any) {
     console.error("[v0] Erro ao excluir endereço:", error)

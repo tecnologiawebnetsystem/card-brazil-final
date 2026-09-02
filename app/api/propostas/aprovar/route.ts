@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockPropostas } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,29 +9,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ID da proposta é obrigatório" }, { status: 400 })
     }
 
-    const proposta = mockPropostas.find(p => p.id === body.proposta_id)
-    
-    if (!proposta) {
-      return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
-    }
-
-    if (proposta.status === "aprovada") {
-      return NextResponse.json({ error: "Proposta já está aprovada" }, { status: 400 })
-    }
-
-    if (proposta.status === "rejeitada") {
-      return NextResponse.json({ error: "Proposta já foi rejeitada" }, { status: 400 })
-    }
-
-    // Simular aprovação
-    const aprovacao = {
-      proposta_id: body.proposta_id,
-      status: "aprovada",
-      parecer: body.parecer || "Proposta aprovada após análise.",
-      analisado_por: body.analisado_por || 1,
-      data_analise: new Date().toISOString(),
-      data_vigencia: body.data_vigencia || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    }
+    const rows = await query(`UPDATE propostas SET status = 'aprovada', observacoes = COALESCE($2, observacoes), updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND status NOT IN ('aprovada', 'rejeitada') RETURNING *`, [body.proposta_id, body.parecer || "Proposta aprovada após análise."])
+    if (!rows.length) return NextResponse.json({ error: "Proposta não encontrada ou já finalizada" }, { status: 404 })
+    const aprovacao = { proposta_id: body.proposta_id, status: rows[0].status, parecer: body.parecer || "Proposta aprovada após análise.", analisado_por: body.analisado_por || 1, data_analise: new Date().toISOString(), data_vigencia: body.data_vigencia || new Date().toISOString().split('T')[0] }
 
     return NextResponse.json({
       success: true,

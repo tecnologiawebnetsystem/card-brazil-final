@@ -1,48 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { successResponse, errorResponse } from "@/lib/api-response"
-import { mockCorretores, findMockById } from "@/lib/mock-data"
+import { CrudService } from "@/lib/crud-service"
+import { successResponse, errorResponse, handleApiError } from "@/lib/api-response"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const corretor = findMockById(mockCorretores, Number.parseInt(params.id))
-
-    if (!corretor) {
-      return NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 })
-    }
-
-    return NextResponse.json(successResponse(corretor))
-  } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
-  }
-}
-
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const body = await request.json()
-    const id = Number.parseInt(params.id)
-    const corretor = findMockById(mockCorretores, id)
-
-    if (!corretor) {
-      return NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 })
-    }
-
-    const updated = { ...corretor, ...body, updated_at: new Date().toISOString() }
-    return NextResponse.json(successResponse(updated, "Corretor atualizado com sucesso"))
-  } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
-  }
-}
-
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const corretor = findMockById(mockCorretores, Number.parseInt(params.id))
-
-    if (!corretor) {
-      return NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 })
-    }
-
-    return NextResponse.json(successResponse(null, "Corretor excluído com sucesso"))
-  } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
-  }
-}
+const service = new CrudService("corretores")
+export async function GET(_: NextRequest, { params }: { params: { id: string } }) { try { const row = await service.findById(Number.parseInt(params.id, 10)); return row ? NextResponse.json(successResponse(row)) : NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 }) } catch (error) { return NextResponse.json(handleApiError(error), { status: 500 }) } }
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) { try { const updated = await service.update(Number.parseInt(params.id, 10), await request.json()); return updated ? NextResponse.json(successResponse(updated, "Corretor atualizado com sucesso")) : NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 }) } catch (error) { return NextResponse.json(handleApiError(error), { status: 500 }) } }
+export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) { try { const deleted = await service.delete(Number.parseInt(params.id, 10)); return deleted ? NextResponse.json(successResponse(null, "Corretor excluído com sucesso")) : NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 }) } catch (error) { return NextResponse.json(handleApiError(error), { status: 500 }) } }

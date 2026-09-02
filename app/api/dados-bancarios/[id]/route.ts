@@ -7,16 +7,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { id } = params
     const body = await request.json()
 
-    const conta = await query("SELECT * FROM dados_bancarios WHERE id = ? AND deleted_at IS NULL", [id])
+    const conta = await query("SELECT * FROM dados_bancarios WHERE id = ?", [id])
     if (!conta || conta.length === 0) {
       return apiError("Conta bancária não encontrada", 404)
     }
 
     // Se for principal, remove principal das outras contas
-    if (body.principal) {
+    if ((body.is_principal ?? body.principal)) {
       await query(
-        "UPDATE dados_bancarios SET principal = FALSE WHERE pessoa_id = ? AND id_administradora = ? AND id != ?",
-        [conta[0].pessoa_id, conta[0].id_administradora, id],
+        "UPDATE dados_bancarios SET is_principal = FALSE WHERE pessoa_id = ? AND id != ?",
+        [conta[0].pessoa_id, id],
       )
     }
 
@@ -43,12 +43,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const { id } = params
 
-    const conta = await query("SELECT * FROM dados_bancarios WHERE id = ? AND deleted_at IS NULL", [id])
+    const conta = await query("SELECT * FROM dados_bancarios WHERE id = ?", [id])
     if (!conta || conta.length === 0) {
       return apiError("Conta bancária não encontrada", 404)
     }
 
-    await query("UPDATE dados_bancarios SET deleted_at = NOW() WHERE id = ?", [id])
+    await query("DELETE FROM dados_bancarios WHERE id = ?", [id])
     return apiResponse(null, "Conta bancária excluída com sucesso")
   } catch (error: any) {
     console.error("[v0] Erro ao excluir conta bancária:", error)

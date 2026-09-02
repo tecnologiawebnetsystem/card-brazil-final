@@ -1,12 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockPropostas } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
     const propostaId = Number.parseInt(id)
 
-    const proposta = mockPropostas.find(p => p.id === propostaId)
+    const rows = await query(`SELECT * FROM propostas WHERE id = $1 AND deleted_at IS NULL`, [propostaId])
+    const proposta = rows[0]
 
     if (!proposta) {
       return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
@@ -47,7 +48,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const updateParams: any[] = []
 
     if (nome_proponente !== undefined) {
-      updates.push("nome_proponente = ?")
+      updates.push(`nome_proponente = $${updateParams.length + 1}`)
       updateParams.push(nome_proponente)
     }
     if (cpf_cnpj !== undefined) {

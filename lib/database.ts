@@ -24,9 +24,14 @@ export const pool = {
   },
 }
 
+function normalizePostgresQuery(text: string) {
+  let index = 0
+  return text.replace(/\?/g, () => `$${++index}`)
+}
+
 export async function query<T = any>(text: string, params?: any[]): Promise<T[]> {
   try {
-    const result = await sql(text, params || [])
+    const result = await sql(normalizePostgresQuery(text), params || [])
     return result as T[]
   } catch (error) {
     console.error("Database query error:", error)

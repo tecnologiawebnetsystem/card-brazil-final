@@ -1,58 +1,22 @@
 import type { NextRequest } from "next/server"
 import { apiResponse, apiError } from "@/lib/api-response"
-import { mockDadosBancarios } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const pessoa_id = searchParams.get("pessoa_id")
-    const id_administradora = searchParams.get("id_administradora")
-
-    let contas = [...mockDadosBancarios]
-
-    if (pessoa_id) {
-      contas = contas.filter(c => c.pessoa_id === Number.parseInt(pessoa_id))
-    }
-
-    if (id_administradora) {
-      contas = contas.filter(c => c.id_administradora === Number.parseInt(id_administradora))
-    }
-
-    return apiResponse(contas, "Contas bancárias listadas com sucesso")
-  } catch (error: any) {
-    console.error("[v0] Erro ao listar contas bancárias:", error)
-    return apiError(error.message, 500)
-  }
+    const sp = request.nextUrl.searchParams
+    const params: unknown[] = []
+    const conditions: string[] = []
+    for (const key of ["pessoa_id"]) { const value = sp.get(key); if (value) { params.push(Number.parseInt(value, 10)); conditions.push(`${key} = $${params.length}`) } }
+    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    return apiResponse(await query(`SELECT id, pessoa_id, banco_codigo, banco_nome, agencia, agencia_digito, conta, conta_digito, tipo_conta, pix_tipo, pix_chave, is_principal, created_at, updated_at FROM dados_bancarios${where} ORDER BY id DESC`, params), "Contas bancárias listadas com sucesso")
+  } catch (error: any) { return apiError(error.message, 500) }
 }
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-
-    const novaConta = {
-      id: mockDadosBancarios.length + 1,
-      id_administradora: body.id_administradora || 1,
-      pessoa_id: body.pessoa_id,
-      principal: body.principal || false,
-      banco_codigo: body.banco_codigo,
-      banco_nome: body.banco_nome,
-      agencia: body.agencia,
-      agencia_digito: body.agencia_digito || null,
-      conta: body.conta,
-      conta_digito: body.conta_digito,
-      tipo_conta: body.tipo_conta,
-      pix_tipo: body.pix_tipo || null,
-      pix_chave: body.pix_chave || null,
-      observacoes: body.observacoes || null,
-      status: body.status || "ativo",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      deleted_at: null,
-    }
-
-    return apiResponse(novaConta, "Conta bancária criada com sucesso", 201)
-  } catch (error: any) {
-    console.error("[v0] Erro ao criar conta bancária:", error)
-    return apiError(error.message, 500)
-  }
+    if (!body.pessoa_id) return apiError("pessoa_id é obrigatório", 400)
+    const rows = await query(`INSERT INTO dados_bancarios (pessoa_id, banco_codigo, banco_nome, agencia, agencia_digito, conta, conta_digito, tipo_conta, pix_tipo, pix_chave, is_principal) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id, pessoa_id, banco_codigo, banco_nome, agencia, agencia_digito, conta, conta_digito, tipo_conta, pix_tipo, pix_chave, is_principal`, [body.pessoa_id, body.banco_codigo || null, body.banco_nome || null, body.agencia || null, body.agencia_digito || null, body.conta || null, body.conta_digito || null, body.tipo_conta || null, body.pix_tipo || null, body.pix_chave || null, body.is_principal ?? body.principal ?? false])
+    return apiResponse(rows[0], "Conta bancária criada com sucesso", 201)
+  } catch (error: any) { return apiError(error.message, 500) }
 }

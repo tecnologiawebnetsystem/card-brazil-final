@@ -1,240 +1,99 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { ArrowLeft, CheckCircle, KeyRound, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Mail, Phone, Shield, CheckCircle, AlertCircle } from "lucide-react"
+
+export const dynamic = "force-dynamic"
 
 export default function EsqueciSenhaPage() {
-  const [step, setStep] = useState(1) // 1: identificação, 2: método recuperação, 3: confirmação
-  const [recoveryMethod, setRecoveryMethod] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState("")
   const router = useRouter()
+  const [token, setToken] = useState("")
+  const [origin, setOrigin] = useState("")
+  const [email, setEmail] = useState("")
+  const [senha, setSenha] = useState("")
+  const [confirmacao, setConfirmacao] = useState("")
+  const [message, setMessage] = useState("")
+  const [recoveryToken, setRecoveryToken] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
 
-  const handleSubmitIdentification = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  useEffect(() => {
+    setToken(new URLSearchParams(window.location.search).get("token") || "")
+    setOrigin(window.location.origin)
+  }, [])
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    setIsLoading(false)
-    setStep(2)
+  async function requestReset(event: React.FormEvent) {
+    event.preventDefault()
+    setLoading(true)
+    setMessage("")
+    const response = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    })
+    const data = await response.json()
+    setRecoveryToken(data.recoveryToken || "")
+    setMessage(data.message)
+    setLoading(false)
   }
 
-  const handleSubmitRecovery = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    // Simulate sending recovery
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    setIsLoading(false)
-    setStep(3)
+  async function resetPassword(event: React.FormEvent) {
+    event.preventDefault()
+    if (senha !== confirmacao) return setMessage("As senhas não coincidem.")
+    setLoading(true)
+    const response = await fetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, senha }),
+    })
+    const data = await response.json()
+    setMessage(data.message)
+    setDone(data.success)
+    setLoading(false)
   }
+
+  const link = recoveryToken && origin ? `${origin}/esqueci-senha?token=${recoveryToken}` : ""
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/")}
-            className="mb-4 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar ao Login
+    <main className="aperTo-abraco-pattern flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md rounded-2xl border-border/80 bg-card/95 shadow-xl shadow-primary/10 backdrop-blur">
+        <CardHeader className="space-y-4 text-center">
+          <Button variant="ghost" className="mx-auto w-fit text-muted-foreground" onClick={() => router.push("/")}>
+            <ArrowLeft className="mr-2 size-4" /> Voltar ao login
           </Button>
-
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#008080] to-[#006666] rounded-xl flex items-center justify-center shadow-lg shadow-[#008080]/20">
-              <Shield className="w-6 h-6 text-[#ffffff]" />
-            </div>
-            <div className="text-left">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#008080] to-[#006666] bg-clip-text text-transparent">
-                Talent Health
-              </h1>
-              <p className="text-sm text-[#a3a3a3]">Recuperacao de Acesso</p>
-            </div>
+          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            {token ? <KeyRound className="size-7" /> : <ShieldAlert className="size-7" />}
           </div>
-        </div>
-
-        <Card className="shadow-2xl shadow-[#008080]/10 border border-[#262626] bg-[#141414]/95 backdrop-blur-sm">
-          {step === 1 && (
-            <>
-              <CardHeader className="text-center space-y-4">
-                <CardTitle className="text-2xl font-bold">Esqueci minha senha</CardTitle>
-                <CardDescription>Informe seus dados para recuperar o acesso ao sistema</CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                <form onSubmit={handleSubmitIdentification} className="space-y-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="email">Email ou CPF</Label>
-                    <Input
-                      id="email"
-                      type="text"
-                      placeholder="Digite seu email ou CPF"
-                      className="h-12"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full h-12 healthcare-button"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-[#ffffff]/30 border-t-[#ffffff] rounded-full animate-spin" />
-                        Verificando...
-                      </div>
-                    ) : (
-                      "Continuar"
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </>
+          <CardTitle className="text-2xl">{token ? "Criar nova senha" : "Recuperar acesso"}</CardTitle>
+          <CardDescription>{token ? "Defina uma senha forte com pelo menos 12 caracteres." : "Informe seu e-mail para gerar um link seguro."}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {done ? (
+            <div className="space-y-4 text-center"><CheckCircle className="mx-auto size-10 text-primary" /><p className="text-sm text-muted-foreground">Senha atualizada. Agora você já pode entrar com a nova senha.</p><Button className="w-full" onClick={() => router.push("/")}>Ir para o login</Button></div>
+          ) : token ? (
+            <form onSubmit={resetPassword} className="space-y-5">
+              <div className="space-y-2"><Label htmlFor="senha">Nova senha</Label><Input id="senha" type="password" minLength={12} value={senha} onChange={(event) => setSenha(event.target.value)} required /></div>
+              <div className="space-y-2"><Label htmlFor="confirmacao">Confirmar senha</Label><Input id="confirmacao" type="password" minLength={12} value={confirmacao} onChange={(event) => setConfirmacao(event.target.value)} required /></div>
+              {message && <Alert variant="destructive"><AlertDescription>{message}</AlertDescription></Alert>}
+              <Button className="w-full" disabled={loading}>{loading ? "Atualizando..." : "Atualizar senha"}</Button>
+            </form>
+          ) : (
+            <form onSubmit={requestReset} className="space-y-5">
+              <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" type="email" autoComplete="email" placeholder="voce@empresa.com" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
+              {message && <Alert><AlertDescription>{message}</AlertDescription></Alert>}
+              {link && <Alert><AlertDescription><strong>Link de desenvolvimento:</strong><br /><a className="break-all text-primary underline" href={link}>{link}</a></AlertDescription></Alert>}
+              <Button className="w-full" disabled={loading}>{loading ? "Gerando link..." : "Gerar link de recuperação"}</Button>
+            </form>
           )}
-
-          {step === 2 && (
-            <>
-              <CardHeader className="text-center space-y-4">
-                <CardTitle className="text-2xl font-bold">Método de Recuperação</CardTitle>
-                <CardDescription>Escolha como deseja receber as instruções de recuperação</CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Usuário encontrado: <strong>{email}</strong>
-                  </AlertDescription>
-                </Alert>
-
-                <form onSubmit={handleSubmitRecovery} className="space-y-6">
-                  <div className="space-y-4">
-                    <Label>Método de Recuperação</Label>
-
-                    <div className="space-y-3">
-                      <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                        <input
-                          type="radio"
-                          name="recovery"
-                          value="email"
-                          checked={recoveryMethod === "email"}
-                          onChange={(e) => setRecoveryMethod(e.target.value)}
-                          className="text-primary"
-                        />
-                        <Mail className="w-5 h-5 text-primary" />
-                        <div>
-                          <div className="font-medium">Email</div>
-                          <div className="text-sm text-muted-foreground">
-                            Enviar instruções para {email.includes("@") ? email : "email cadastrado"}
-                          </div>
-                        </div>
-                      </label>
-
-                      <label className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                        <input
-                          type="radio"
-                          name="recovery"
-                          value="sms"
-                          checked={recoveryMethod === "sms"}
-                          onChange={(e) => setRecoveryMethod(e.target.value)}
-                          className="text-primary"
-                        />
-                        <Phone className="w-5 h-5 text-primary" />
-                        <div>
-                          <div className="font-medium">SMS</div>
-                          <div className="text-sm text-muted-foreground">Enviar código para celular cadastrado</div>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full h-12 healthcare-button"
-                    disabled={isLoading || !recoveryMethod}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Enviando...
-                      </div>
-                    ) : (
-                      "Enviar Instruções"
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </>
-          )}
-
-          {step === 3 && (
-            <>
-              <CardHeader className="text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                </div>
-                <CardTitle className="text-2xl font-bold text-green-700">Instruções Enviadas!</CardTitle>
-                <CardDescription>As instruções de recuperação foram enviadas com sucesso</CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                <Alert>
-                  <CheckCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    {recoveryMethod === "email"
-                      ? `Enviamos um email com as instruções para ${email}`
-                      : "Enviamos um SMS com o código de recuperação para seu celular cadastrado"}
-                  </AlertDescription>
-                </Alert>
-
-                <div className="space-y-4">
-                  <div className="text-sm text-muted-foreground space-y-2">
-                    <p>
-                      <strong>Próximos passos:</strong>
-                    </p>
-                    <ul className="list-disc list-inside space-y-1 ml-4">
-                      <li>Verifique sua caixa de entrada {recoveryMethod === "email" ? "de email" : "de SMS"}</li>
-                      <li>Siga as instruções recebidas</li>
-                      <li>Crie uma nova senha segura</li>
-                      <li>Faça login com suas novas credenciais</li>
-                    </ul>
-                  </div>
-
-                  <div className="pt-4 space-y-3">
-                    <Button
-                      onClick={() => router.push("/")}
-                      className="w-full h-12 healthcare-button"
-                    >
-                      Voltar ao Login
-                    </Button>
-
-                    <Button variant="outline" onClick={() => setStep(1)} className="w-full h-12">
-                      Tentar Novamente
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </>
-          )}
-        </Card>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </main>
   )
 }

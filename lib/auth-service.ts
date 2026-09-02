@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
+import crypto from "node:crypto"
 import { query, queryOne } from "./database"
 
 function getJwtSecret() {
@@ -91,6 +92,45 @@ export class AuthService {
       console.error("[v0] Erro no login:", error)
       return { success: false, message: "Erro interno do servidor" }
     }
+  }
+
+  static async requestPasswordReset(email: string, ipAddress?: string) {
+    const generic = { success: true, message: "Se o e-mail estiver cadastrado, um link de recuperação foi gerado." }
+    const normalizedEmail = email.trim().toLowerCase()
+    const recent = await queryOne<{ total: number }>(
+      "SELECT COUNT(*)::int AS total FROM tokens_recuperacao_senha WHERE criado_em > CURRENT_TIMESTAMP - INTERVAL '15 minutes' AND (ip_address = $1 OR usuario_id IN (SELECT id FROM usuarios WHERE LOWER(email) = $2))",
+      [ipAddress || "unknown", normalizedEmail],
+    )
+    if ((recent?.total || 0) >= 5) return generic
+
+    const usuario = await queryOne<{ id: number }>(
+      "SELECT id FROM usuarios WHERE LOWER(email) = $1 AND ativo = TRUE",
+      [normalizedEmail],
+    )
+    if (!usuario) return generic
+
+    const rawToken = crypto.randomBytes(32).toString("hex")
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex")
+    await query("UPDATE tokens_recuperacao_senha SET usado_em = CURRENT_TIMESTAMP WHERE usuario_id = $1 AND usado_em IS NULL", [usuario.id])
+    await query(
+      "INSERT INTO tokens_recuperacao_senha (usuario_id, token_hash, expira_em, ip_address) VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '30 minutes', $3)",
+      [usuario.id, tokenHash, ipAddress || "unknown"],
+    )
+    // Fluxo temporário sem envio de e-mail: o link é exibido diretamente na tela.
+    return { ...generic, recoveryToken: rawToken }
+  }
+
+  static async resetPassword(rawToken: string, senha: string) {
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex")
+    const senhaHash = await bcrypt.hash(senha, 12)
+    const token = await queryOne<{ usuario_id: number }>(
+      "UPDATE tokens_recuperacao_senha SET usado_em = CURRENT_TIMESTAMP WHERE token_hash = $1 AND usado_em IS NULL AND expira_em > CURRENT_TIMESTAMP RETURNING usuario_id",
+      [tokenHash],
+    )
+    if (!token) return { success: false, message: "Link inválido ou expirado." }
+    await query("UPDATE usuarios SET senha_hash = $1, updated_at = CURRENT_TIMESTAMP, tentativas_login = 0, bloqueado_ate = NULL WHERE id = $2 AND ativo = TRUE", [senhaHash, token.usuario_id])
+    await query("DELETE FROM sessoes_usuario WHERE usuario_id = $1", [token.usuario_id])
+    return { success: true, message: "Senha atualizada com sucesso." }
   }
 
   static async logout(token: string): Promise<{ success: boolean; message: string }> {

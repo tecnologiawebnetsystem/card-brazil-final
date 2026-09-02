@@ -146,7 +146,7 @@ export function LoginSection() {
                 <Stethoscope className="w-7 h-7 text-black" />
               </div>
               <div>
-                <CardTitle className="text-2xl font-semibold text-foreground">Bem-vindo de volta</CardTitle>
+                <CardTitle className="text-2xl font-semibold text-foreground">Login</CardTitle>
                 <CardDescription className="text-[#737373] mt-2">
                   Acesse o sistema de gestao de saude
                 </CardDescription>

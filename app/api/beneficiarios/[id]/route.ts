@@ -1,14 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { mockBeneficiarios, mockDependentes } from "@/lib/mock-data"
+import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
     const beneficiarioId = Number.parseInt(id)
 
-    // Busca em titulares e dependentes
-    const todos = [...mockBeneficiarios, ...mockDependentes]
-    const beneficiario = todos.find(b => b.id === beneficiarioId)
+    const rows = await query(`SELECT b.*, p.nome_completo AS nome, p.cpf, p.email, p.telefone_principal AS telefone FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id WHERE b.id = $1`, [beneficiarioId])
+    const beneficiario = rows[0]
 
     if (!beneficiario) {
       return NextResponse.json(
@@ -33,8 +32,14 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { id } = params
     const beneficiarioId = Number.parseInt(id)
 
-    const todos = [...mockBeneficiarios, ...mockDependentes]
-    const beneficiario = todos.find(b => b.id === beneficiarioId)
+    const allowed = ["plano_id", "contrato_id", "numero_carteirinha", "parentesco", "data_inclusao", "data_exclusao", "valor_mensalidade", "status"]
+    const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
+    if (!entries.length) return NextResponse.json({ success: false, message: "Nenhum campo válido para atualizar" }, { status: 400 })
+    const values = entries.map(([, value]) => value)
+    const updates = entries.map(([key], index) => `${key} = ${index + 1}`)
+    values.push(beneficiarioId)
+    const updatedRows = await query(`UPDATE beneficiarios SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ${values.length} RETURNING *`, values)
+    const beneficiario = updatedRows[0]
 
     if (!beneficiario) {
       return NextResponse.json(
@@ -57,10 +62,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
-    const beneficiarioId = Number.parseInt(id)
+    const beneficiarioId = Number.parseInt(id, 10)
 
-    const todos = [...mockBeneficiarios, ...mockDependentes]
-    const beneficiario = todos.find(b => b.id === beneficiarioId)
+    const deletedRows = await query(`DELETE FROM beneficiarios WHERE id = $1 RETURNING id`, [beneficiarioId])
+    const beneficiario = deletedRows[0]
 
     if (!beneficiario) {
       return NextResponse.json(

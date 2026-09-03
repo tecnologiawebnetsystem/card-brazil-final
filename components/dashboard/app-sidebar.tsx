@@ -221,7 +221,7 @@ const menuItems = [
     title: "Tabelas Gerais",
     items: [
       {
-        title: "Códigos e Classificaç��es",
+        title: "Códigos e Classificaç����es",
         icon: <CogIcon />,
         subItems: [
           {
@@ -546,11 +546,6 @@ const menuItems = [
           {
             title: "Cadastro de Usuários",
             url: "/dashboard/configuracoes/usuarios",
-            icon: <CogIcon className="h-3 w-3" />,
-          },
-          {
-            title: "Grupos de Usuários",
-            url: "/dashboard/configuracoes/grupos-usuarios",
             icon: <CogIcon className="h-3 w-3" />,
           },
           {

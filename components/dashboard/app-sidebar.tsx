@@ -139,12 +139,7 @@ const menuItems = [
         icon: <UsersIcon />,
         requiredPermission: null,
       },
-      {
-        title: "Sobre o Sistema",
-        url: "/dashboard/sobre",
-        icon: <FileTextIcon />,
-        requiredPermission: null,
-      },
+
     ],
   },
   {

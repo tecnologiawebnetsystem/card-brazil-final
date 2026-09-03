@@ -476,8 +476,8 @@ const menuItems = [
     title: "Sistemas",
     items: [
       {
-        title: "Gerenciador de Banco de Dados",
-        url: "/dashboard/database-manager",
+        title: "SQL Manager",
+        url: "/dashboard/sql-manager",
         icon: <LayoutDashboardIcon />,
         requiredPermission: null,
       },

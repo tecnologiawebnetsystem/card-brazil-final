@@ -10,7 +10,7 @@ Sistema completo de gestão para operadoras de saúde, administradoras de benef�
 - **Integrações Externas** - ViaCEP, Brasil API (Bacen), AwesomeAPI (Cotações)
 - **Dashboard Interativo** - Métricas em tempo real, gráficos e ações rápidas
 - **UX/UI Moderna** - Componentes responsivos, acessíveis e com feedback visual
-- **Documentação Swagger** - API REST totalmente documentada
+- **Documentação Swagger/OpenAPI** - API REST documentada e explorável
 
 ## 📋 Módulos do Sistema
 
@@ -217,6 +217,15 @@ Todas as tabelas incluem `administradora_id` para isolamento de dados entre admi
 - Contadores animados
 - Estados vazios
 - Toasts de notificação
+
+## Documentação da API
+
+Com o projeto em execução, acesse:
+
+- Interface interativa Swagger UI: `http://localhost:3000/api/docs`
+- Especificação OpenAPI em JSON: `http://localhost:3000/api/swagger`
+
+Na Swagger UI, use **Authorize** para informar o token Bearer obtido no login e testar os endpoints protegidos diretamente pelo botão **Try it out**.
 
 ### Formulários
 - Máscaras (CPF, CNPJ, telefone, CEP, data, moeda)

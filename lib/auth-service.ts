@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import crypto from "node:crypto"
 import { query, queryOne } from "./database"
+import { Resend } from "resend"
 
 function getJwtSecret() {
   const secret = process.env.JWT_SECRET
@@ -116,8 +117,25 @@ export class AuthService {
       "INSERT INTO tokens_recuperacao_senha (usuario_id, token_hash, expira_em, ip_address) VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '30 minutes', $3)",
       [usuario.id, tokenHash, ipAddress || "unknown"],
     )
-    // Fluxo temporário sem envio de e-mail: o link é exibido diretamente na tela.
-    return { ...generic, recoveryToken: rawToken }
+    const baseUrl = process.env.BETTER_AUTH_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || process.env.V0_RUNTIME_URL
+    const recoveryUrl = `${baseUrl?.startsWith("http") ? baseUrl : `https://${baseUrl || "localhost:3000"}`}/esqueci-senha?token=${rawToken}`
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const senderDomain = process.env.RESEND_EMAIL_DOMAIN
+    const from = senderDomain ? `Segurança Talent Health <no-reply@${senderDomain}>` : "Talent Health <onboarding@resend.dev>"
+    const { error } = await resend.emails.send(
+      {
+        from,
+        to: [normalizedEmail],
+        subject: "Recuperação de senha — Talent Health",
+        html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><h2>Recuperação de senha</h2><p>Recebemos uma solicitação para redefinir sua senha.</p><p><a href="${recoveryUrl}" style="background:#0878be;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px">Criar nova senha</a></p><p>Este link expira em 30 minutos e só pode ser usado uma vez.</p><p>Se você não solicitou esta alteração, ignore este e-mail.</p></div>`,
+      },
+      { idempotencyKey: `password-reset/${usuario.id}/${tokenHash}` },
+    )
+    if (error) {
+      console.error("[v0] Falha ao enviar recuperação:", error.message)
+      return generic
+    }
+    return generic
   }
 
   static async resetPassword(rawToken: string, senha: string) {

@@ -13,7 +13,7 @@ export function DashboardFooter() {
           {/* Left side - Company info */}
           <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-[#a1a1a1]">Portal Corporativo</span>
+              <span className="font-medium text-[#a1a1a1]">Portal CardBrazil</span>
               <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground border border-border">
                 v2.1.0
               </Badge>
@@ -44,7 +44,7 @@ export function DashboardFooter() {
             <Separator orientation="vertical" className="hidden md:block h-4 bg-[#262626]" />
 
             <div className="text-center">
-              <p>© {currentYear} Portal Corporativo. Todos os direitos reservados.</p>
+              <p>© {currentYear} Portal CardBrazil. Todos os direitos reservados.</p>
             </div>
           </div>
         </div>

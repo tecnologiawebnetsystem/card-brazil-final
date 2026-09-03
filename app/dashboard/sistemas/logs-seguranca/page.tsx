@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -25,58 +25,24 @@ export default function LogsSegurancaPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("all")
 
-  const securityLogs = [
-    {
-      id: 1,
-      timestamp: "2024-01-15 14:30:25",
-      user: "João Silva",
-      action: "Login realizado",
-      ip: "192.168.1.100",
-      status: "Sucesso",
-      severity: "Info",
-      details: "Login via navegador Chrome",
-    },
-    {
-      id: 2,
-      timestamp: "2024-01-15 14:28:15",
-      user: "Sistema",
-      action: "Tentativa de acesso não autorizado",
-      ip: "192.168.1.200",
-      status: "Bloqueado",
-      severity: "Alto",
-      details: "Múltiplas tentativas de login falharam",
-    },
-    {
-      id: 3,
-      timestamp: "2024-01-15 14:25:10",
-      user: "Maria Santos",
-      action: "Alteração de permissões",
-      ip: "192.168.1.101",
-      status: "Sucesso",
-      severity: "Médio",
-      details: "Permissões do usuário Carlos alteradas",
-    },
-    {
-      id: 4,
-      timestamp: "2024-01-15 14:20:05",
-      user: "Carlos Oliveira",
-      action: "Acesso a dados sensíveis",
-      ip: "192.168.1.102",
-      status: "Sucesso",
-      severity: "Médio",
-      details: "Visualização de relatório financeiro",
-    },
-    {
-      id: 5,
-      timestamp: "2024-01-15 14:15:30",
-      user: "Sistema",
-      action: "Falha na autenticação 2FA",
-      ip: "192.168.1.150",
-      status: "Falha",
-      severity: "Alto",
-      details: "Token 2FA inválido fornecido",
-    },
-  ]
+  const [securityLogs, setSecurityLogs] = useState<any[]>([])
+  const [loadingLogs, setLoadingLogs] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/sistemas/logs")
+      .then(async (response) => {
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.error)
+        setSecurityLogs(data.map((log: any) => ({
+          ...log,
+          timestamp: new Date(log.timestamp).toLocaleString("pt-BR"),
+          user: log.usuario,
+          action: log.action.replace("login", "Login").replace("logout", "Logout"),
+        })))
+      })
+      .catch((error) => console.error("[v0] Erro ao carregar logs", error))
+      .finally(() => setLoadingLogs(false))
+  }, [])
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -207,6 +173,8 @@ export default function LogsSegurancaPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
+                {loadingLogs ? <p className="text-sm text-muted-foreground">Carregando logs reais...</p> : null}
+                {!loadingLogs && securityLogs.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum evento registrado.</p> : null}
                 {securityLogs.map((log) => (
                   <div key={log.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4">

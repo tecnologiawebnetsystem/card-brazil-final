@@ -64,15 +64,50 @@ export default function PerfisUsuarioPage() {
     },
   ]
 
-  const permissions = [
-    { module: "Dashboard", view: true, create: false, edit: false, delete: false },
-    { module: "Cadastros", view: true, create: true, edit: true, delete: false },
-    { module: "Propostas", view: true, create: true, edit: true, delete: false },
-    { module: "Beneficiários", view: true, create: false, edit: true, delete: false },
-    { module: "Cobrança", view: true, create: false, edit: false, delete: false },
-    { module: "Relatórios", view: true, create: false, edit: false, delete: false },
-    { module: "Configurações", view: false, create: false, edit: false, delete: false },
-  ]
+  const [permissions, setPermissions] = useState<any[]>([])
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
+  const [permissionUsers, setPermissionUsers] = useState<any[]>([])
+  const [savingPermissions, setSavingPermissions] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/configuracoes/usuarios").then((response) => response.json()).then(setPermissionUsers).catch((error) => console.error("[v0] Erro ao carregar usuários da matriz", error))
+    fetch("/api/sistemas/permissoes")
+      .then(async (response) => {
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.error)
+        setPermissions(data.map((permission: any) => ({
+          id: permission.id,
+          module: permission.modulo,
+          code: permission.codigo,
+          view: permission.codigo.includes("view") || permission.codigo.includes("read"),
+          create: permission.codigo.includes("create") || permission.codigo.includes("write"),
+          edit: permission.codigo.includes("edit") || permission.codigo.includes("update"),
+          delete: permission.codigo.includes("delete"),
+        })))
+      })
+      .catch((error) => console.error("[v0] Erro ao carregar permissões", error))
+  }, [])
+
+  const togglePermission = (id: number, key: "view" | "create" | "edit" | "delete") => {
+    setPermissions((current) => current.map((permission) => permission.id === id ? { ...permission, [key]: !permission[key] } : permission))
+  }
+
+  const savePermissions = async () => {
+    if (!selectedUserId) return
+    setSavingPermissions(true)
+    try {
+      const response = await fetch("/api/sistemas/permissoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuarioId: selectedUserId, permissaoIds: permissions.filter((permission) => permission.view || permission.create || permission.edit || permission.delete).map((permission) => permission.id) }),
+      })
+      if (!response.ok) throw new Error("Não foi possível salvar as permissões")
+    } catch (error) {
+      console.error("[v0] Erro ao salvar permissões", error)
+    } finally {
+      setSavingPermissions(false)
+    }
+  }
 
   return (
     <div className="flex-1 space-y-6 p-6">
@@ -217,23 +252,29 @@ export default function PerfisUsuarioPage() {
                       <tr key={index} className="border-b">
                         <td className="p-2 font-medium">{perm.module}</td>
                         <td className="text-center p-2">
-                          <input type="checkbox" checked={perm.view} readOnly />
+                          <input type="checkbox" checked={perm.view} onChange={() => togglePermission(perm.id, "view")} aria-label={`${perm.module} visualizar`} />
                         </td>
                         <td className="text-center p-2">
-                          <input type="checkbox" checked={perm.create} readOnly />
+                          <input type="checkbox" checked={perm.create} onChange={() => togglePermission(perm.id, "create")} aria-label={`${perm.module} criar`} />
                         </td>
                         <td className="text-center p-2">
-                          <input type="checkbox" checked={perm.edit} readOnly />
+                          <input type="checkbox" checked={perm.edit} onChange={() => togglePermission(perm.id, "edit")} aria-label={`${perm.module} editar`} />
                         </td>
                         <td className="text-center p-2">
-                          <input type="checkbox" checked={perm.delete} readOnly />
+                          <input type="checkbox" checked={perm.delete} onChange={() => togglePermission(perm.id, "delete")} aria-label={`${perm.module} excluir`} />
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <Button className="mt-4">Salvar Permissões</Button>
+              <div className="mt-4 flex items-center gap-3">
+                <select className="rounded-md border bg-background p-2 text-sm" value={selectedUserId ?? ""} onChange={(event) => setSelectedUserId(event.target.value ? Number(event.target.value) : null)} aria-label="Usuário para permissões">
+                  <option value="">Selecione um usuário</option>
+                  {permissionUsers.map((user) => <option key={user.id} value={user.id}>{user.nome} — {user.email}</option>) }
+                </select>
+                <Button onClick={savePermissions} disabled={!selectedUserId || savingPermissions}>{savingPermissions ? "Salvando..." : "Salvar Permissões"}</Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -180,6 +180,11 @@ export default function FeriadosPage() {
     return format(new Date(data + "T00:00:00"), "dd/MM/yyyy")
   }
 
+  const formatarDiaSemana = (data: string) =>
+    new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "America/Sao_Paulo" }).format(
+      new Date(`${data}T12:00:00-03:00`),
+    ).replace(/^./, (letra) => letra.toUpperCase())
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -272,6 +277,9 @@ export default function FeriadosPage() {
               <option value="2025">2025</option>
               <option value="2026">2026</option>
               <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
             </select>
           </div>
 
@@ -284,6 +292,7 @@ export default function FeriadosPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Data</TableHead>
+                  <TableHead>Dia da semana</TableHead>
                   <TableHead>Feriado</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>UF/Cidade</TableHead>
@@ -295,6 +304,7 @@ export default function FeriadosPage() {
                 {filteredFeriados.map((feriado) => (
                   <TableRow key={feriado.id}>
                     <TableCell className="font-mono">{formatarData(feriado.data)}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{formatarDiaSemana(feriado.data)}</TableCell>
                     <TableCell className="font-medium">{feriado.nome}</TableCell>
                     <TableCell>
                       <Badge variant={feriado.tipo === "Nacional" ? "default" : "secondary"}>{feriado.tipo}</Badge>

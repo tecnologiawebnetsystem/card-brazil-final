@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const operadoraId = request.nextUrl.searchParams.get("operadora_id")
   const params = operadoraId ? [Number(operadoraId)] : []
   const where = operadoraId ? " WHERE c.operadora_id = $1" : ""
-  const rows = await query(`SELECT c.*, p.nome AS pessoa_nome FROM convenios c JOIN pessoas p ON p.id = c.pessoa_id${where} ORDER BY c.created_at DESC`, params)
+  const rows = await query(`SELECT c.*, p.nome_completo AS pessoa_nome FROM convenios c JOIN pessoas p ON p.id = c.pessoa_id${where} ORDER BY c.created_at DESC`, params)
   return NextResponse.json({ success: true, data: rows })
 }
 

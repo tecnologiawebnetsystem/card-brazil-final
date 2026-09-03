@@ -211,7 +211,13 @@ export default function LogsSegurancaPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border-l-4 border-red-500 bg-red-50 rounded-lg">
+                {securityLogs.filter((log) => ["Falha", "Bloqueado"].includes(log.status)).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum alerta ativo encontrado nos registros reais.</p> : securityLogs.filter((log) => ["Falha", "Bloqueado"].includes(log.status)).map((log) => (
+                  <div key={log.id} className="flex items-center justify-between rounded-lg border p-4">
+                    <div><p className="font-medium">{log.action}</p><p className="text-sm text-muted-foreground">{log.usuario || "Sistema"} — {log.ip || "IP não informado"}</p></div><Badge>{log.status}</Badge>
+                  </div>
+                ))}
+                {/* Os alertas abaixo são renderizados somente a partir da auditoria real. */}
+                {false && <div className="flex items-center justify-between p-4 border-l-4 border-red-500 bg-red-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="h-5 w-5 text-red-600" />
                     <div>

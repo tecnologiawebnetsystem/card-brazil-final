@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +10,20 @@ import { Users2, UserPlus, Edit, Search, Shield, Key, Eye, Settings, Crown, User
 
 export default function PerfisUsuarioPage() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [profileStats, setProfileStats] = useState<Record<string, { users: number; permissions: number }>>({})
+
+  useEffect(() => {
+    fetch("/api/sistemas/perfis")
+      .then(async (response) => {
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.error)
+        setProfileStats(Object.fromEntries(data.profiles.map((profile: any) => [profile.nome, {
+          users: Number(profile.usuarios || 0),
+          permissions: Number(profile.permissoes || 0),
+        }])))
+      })
+      .catch((error) => console.error("[v0] Erro ao carregar perfis", error))
+  }, [])
 
   const userProfiles = [
     {
@@ -156,11 +170,11 @@ export default function PerfisUsuarioPage() {
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Usuários</span>
-                        <Badge variant="outline">{profile.users}</Badge>
+                        <Badge variant="outline">{profileStats[profile.name.toLowerCase()]?.users ?? profile.users}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Permissões</span>
-                        <Badge variant="outline">{profile.permissions}</Badge>
+                        <Badge variant="outline">{profileStats[profile.name.toLowerCase()]?.permissions ?? profile.permissions}</Badge>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm" className="flex-1 bg-transparent">

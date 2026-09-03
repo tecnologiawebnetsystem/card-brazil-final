@@ -367,10 +367,10 @@ export default function OperadoraPage() {
   }
 
   const handleSearchByFilter = () => {
-    if (!searchTerm.trim()) {
-      setFilteredOperadoras(operadoras)
-      return
-    }
+  if (!searchTerm.trim() && searchFilter === "todas") {
+  setFilteredOperadoras(operadoras)
+  return
+  }
 
     const filtered = operadoras.filter((op) => {
       const pessoa = pessoas.find((p) => p.id === op.pessoa_id)
@@ -393,8 +393,12 @@ export default function OperadoraPage() {
       return matchesSearchTerm && matchesFilter
     })
 
-    setFilteredOperadoras(filtered)
+  setFilteredOperadoras(filtered)
   }
+
+  useEffect(() => {
+  handleSearchByFilter()
+  }, [searchTerm, searchFilter, operadoras, pessoas])
 
   const handleExportData = () => {
     const dataToExport = filteredOperadoras.map((pessoa) => {

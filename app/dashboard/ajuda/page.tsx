@@ -25,7 +25,7 @@ export default function AjudaPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Central de Ajuda</h1>
-            <p className="text-muted-foreground">Encontre respostas e suporte para o sistema Talent Health</p>
+            <p className="text-muted-foreground">Encontre respostas e suporte para o sistema CardBrazil</p>
           </div>
         </div>
 

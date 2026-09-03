@@ -33,7 +33,7 @@ export function HeroSection() {
 
       {/* Stats bar */}
       <div className="bg-[#141414] border border-[#262626] rounded-2xl p-6 mb-10 glow-red">
-        <h3 className="text-lg font-bold text-[#f5f5f5] mb-4">Por que escolher a Talent Health?</h3>
+        <h3 className="text-lg font-bold text-[#f5f5f5] mb-4">Por que escolher a CardBrazil?</h3>
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold text-[#008080] mb-1">500K+</div>

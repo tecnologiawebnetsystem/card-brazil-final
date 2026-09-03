@@ -26,7 +26,7 @@ export default function DashboardPage() {
     <div className="mx-auto w-full max-w-[1500px] space-y-6">
       <section className="flex flex-col justify-between gap-4 border-b border-border pb-6 md:flex-row md:items-end">
         <div>
-          <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-primary">Talent · Visão geral</p>
+          <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-primary">CardBrazil · Visão geral</p>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Bom dia, {userName.split(" ")[0]}</h1>
           <p className="mt-2 text-muted-foreground">Acompanhe a operação e tome decisões com clareza.</p>
         </div>

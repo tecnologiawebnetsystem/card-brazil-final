@@ -16,8 +16,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: "Talent | Gestão de pessoas e benefícios",
-  description: "Plataforma Talent para gestão inteligente de pessoas, propostas e benefícios.",
+  title: "CardBrazil | Gestão de pessoas e benefícios",
+  description: "Plataforma CardBrazil para gestão inteligente de pessoas, propostas e benefícios.",
   generator: "v0.app",
   icons: {
     icon: "/cardbrazil-icon.svg",

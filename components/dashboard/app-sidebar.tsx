@@ -221,7 +221,7 @@ const menuItems = [
     title: "Tabelas Gerais",
     items: [
       {
-        title: "Códigos e Classificaç����es",
+        title: "Códigos e Classificaç������es",
         icon: <CogIcon />,
         subItems: [
           {
@@ -632,7 +632,7 @@ export function AppSidebar() {
             </div>
             <div>
               <h1 className="text-base font-semibold text-sidebar-foreground">
-                Talent
+                CardBrazil
               </h1>
               <p className="text-xs text-sidebar-foreground/60">Gestão de pessoas e benefícios</p>
             </div>

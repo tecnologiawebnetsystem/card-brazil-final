@@ -4,7 +4,8 @@ import { query } from "@/lib/database"
 export async function GET() {
   try {
     const logs = await query(`
-      SELECT a.id, a.created_at AS timestamp, COALESCE(u.nome, 'Sistema') AS usuario,
+      SELECT a.id, a.created_at AS timestamp,
+             COALESCE(u.nome_completo, 'Sistema') AS usuario,
              a.acao AS action, COALESCE(a.ip, '—') AS ip,
              CASE WHEN a.acao = 'erro' THEN 'Falha' ELSE 'Sucesso' END AS status,
              CASE WHEN a.acao = 'erro' THEN 'Alto' WHEN a.acao IN ('login','logout') THEN 'Info' ELSE 'Médio' END AS severity,

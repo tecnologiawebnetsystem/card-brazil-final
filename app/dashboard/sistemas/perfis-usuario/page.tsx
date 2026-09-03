@@ -17,7 +17,15 @@ export default function PerfisUsuarioPage() {
       .then(async (response) => {
         const data = await response.json()
         if (!response.ok) throw new Error(data.error)
-        setProfileStats(Object.fromEntries(data.profiles.map((profile: any) => [profile.nome, {
+        const nomesPerfis: Record<string, string> = {
+          admin: "Administrador",
+          administrador: "Administrador",
+          operador: "Operador",
+          consulta: "Visualizador",
+          visualizador: "Visualizador",
+          gerente: "Gerente",
+        }
+        setProfileStats(Object.fromEntries(data.profiles.map((profile: any) => [nomesPerfis[String(profile.nome).toLowerCase()] || profile.nome, {
           users: Number(profile.usuarios || 0),
           permissions: Number(profile.permissoes || 0),
         }])))

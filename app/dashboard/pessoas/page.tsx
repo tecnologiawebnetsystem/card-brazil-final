@@ -143,7 +143,11 @@ export default function PessoasPage() {
       if (!response.ok) throw new Error("Erro ao carregar pessoas")
 
       const data = await response.json()
-      setPessoas(data.data || [])
+      const pessoasCarregadas = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
+        ...pessoa,
+        nome: pessoa.nome || pessoa.nome_completo || "",
+      }))
+      setPessoas(pessoasCarregadas)
     } catch (error) {
       console.error("[v0] Erro ao carregar pessoas:", error)
       toast({

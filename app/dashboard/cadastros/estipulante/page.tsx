@@ -160,6 +160,7 @@ export default function EstipulantePage() {
 
   useEffect(() => {
     loadEstipulantes()
+    handleSearch()
   }, [])
 
   useEffect(() => {
@@ -226,19 +227,16 @@ export default function EstipulantePage() {
   }
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      setSearchResults([])
-      setShowResults(false)
-      return
-    }
-
     try {
       setLoading(true)
       const response = await fetch(`/api/pessoas?tipo_pessoa=juridica&search=${encodeURIComponent(searchTerm)}`)
       const data = await response.json()
 
       if (data.success) {
-        let results = data.data
+        let results = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
+          ...pessoa,
+          nome: pessoa.nome || pessoa.nome_completo || pessoa.razao_social || "",
+        }))
 
         // Filtrar apenas estipulantes se necessário
         if (searchFilter === "estipulantes") {
@@ -632,7 +630,7 @@ export default function EstipulantePage() {
                       onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                     />
                   </div>
-                  <Button onClick={handleSearch} className="bg-cyan-500 hover:bg-cyan-600" disabled={loading}>
+                  <Button type="button" onClick={handleSearch} className="bg-cyan-500 hover:bg-cyan-600" disabled={loading}>
                     {loading ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (

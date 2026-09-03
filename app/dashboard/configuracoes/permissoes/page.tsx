@@ -129,7 +129,7 @@ export default function ConfiguracoesPermissoesPage() {
                           <p className="text-xs text-muted-foreground">Pode ver os dados</p>
                         </div>
                         <Switch
-                          checked={currentPermissions[module.key as keyof typeof currentPermissions]?.read || false}
+                          checked={currentPermissions?.[module.key]?.read || false}
                           onCheckedChange={(checked) => handlePermissionChange(module.key, "read", checked)}
                         />
                       </div>
@@ -140,7 +140,7 @@ export default function ConfiguracoesPermissoesPage() {
                           <p className="text-xs text-muted-foreground">Pode modificar</p>
                         </div>
                         <Switch
-                          checked={currentPermissions[module.key as keyof typeof currentPermissions]?.write || false}
+                          checked={currentPermissions?.[module.key]?.write || false}
                           onCheckedChange={(checked) => handlePermissionChange(module.key, "write", checked)}
                         />
                       </div>
@@ -151,7 +151,7 @@ export default function ConfiguracoesPermissoesPage() {
                           <p className="text-xs text-muted-foreground">Pode remover</p>
                         </div>
                         <Switch
-                          checked={currentPermissions[module.key as keyof typeof currentPermissions]?.delete || false}
+                          checked={currentPermissions?.[module.key]?.delete || false}
                           onCheckedChange={(checked) => handlePermissionChange(module.key, "delete", checked)}
                         />
                       </div>
@@ -174,8 +174,8 @@ export default function ConfiguracoesPermissoesPage() {
                     <Badge className={role.color + " mb-2"}>{role.name}</Badge>
                     <div className="space-y-2">
                       {modules.map((module) => {
-                        const rolePermissions = permissions[role.value as keyof typeof permissions]
-                        const modulePermissions = rolePermissions[module.key as keyof typeof rolePermissions]
+                        const rolePermissions = permissions[role.value] || {}
+                        const modulePermissions = rolePermissions?.[module.key] || {}
                         const permissionCount = Object.values(modulePermissions || {}).filter(Boolean).length
 
                         return (

@@ -11,7 +11,7 @@ const swaggerSpec = {
     },
     license: {
       name: "Proprietário",
-      url: "https://talenthealth.com.br/licenca",
+      url: "https://cardbrazil.com.br/licenca",
     },
   },
   servers: [
@@ -111,7 +111,7 @@ const swaggerSpec = {
           email: {
             type: "string",
             format: "email",
-            example: "admin@talenthealth.com.br",
+            example: "admin@cardbrazil.com.br",
             description: "Email do usuário",
           },
           senha: {
@@ -163,7 +163,7 @@ const swaggerSpec = {
           email: {
             type: "string",
             format: "email",
-            example: "admin@talenthealth.com.br",
+            example: "admin@cardbrazil.com.br",
           },
           ativo: {
             type: "boolean",
@@ -332,7 +332,7 @@ const swaggerSpec = {
           nome: { type: "string", example: "Talent Health" },
           cnpj: { type: "string", example: "12.345.678/0001-90" },
           razao_social: { type: "string", example: "Talent Health Administradora Ltda" },
-          email: { type: "string", format: "email", example: "contato@talenthealth.com.br" },
+          email: { type: "string", format: "email", example: "contato@cardbrazil.com.br" },
           telefone: { type: "string", example: "(11) 3000-0000" },
           status: { type: "string", enum: ["ativo", "inativo"], example: "ativo" },
         },
@@ -512,7 +512,7 @@ const swaggerSpec = {
                 type: "object",
                 required: ["email", "password"],
                 properties: {
-                  email: { type: "string", format: "email", example: "admin@talenthealth.com.br" },
+                  email: { type: "string", format: "email", example: "admin@cardbrazil.com.br" },
                   password: { type: "string", format: "password", example: "admin123" },
                 },
               },
@@ -1925,6 +1925,45 @@ const swaggerSpec = {
       },
     },
   },
+}
+
+// Rotas descobertas no projeto e ainda sem bloco específico recebem uma descrição
+// operacional explícita, mantendo o inventário OpenAPI completo e navegável.
+const additionalApiRoutes: Record<string, string[]> = {
+  "/api/configuracoes/usuarios": ["get"], "/api/convenios": ["get", "post"], "/api/convenios/{id}": ["put", "delete"],
+  "/api/financeiro/multas-juros/configuracoes": ["get", "post"], "/api/financeiro/multas-juros/configuracoes/{id}": ["get", "put", "delete"],
+  "/api/planos-faixas": ["get", "post"], "/api/planos-faixas/{id}": ["put", "delete"],
+  "/api/propostas/analise": ["get", "post"], "/api/propostas/aprovar": ["post"], "/api/propostas/pendentes": ["get"], "/api/propostas/rejeitar": ["post"], "/api/propostas/relatorio": ["get"],
+  "/api/sistemas/logs": ["get"], "/api/sistemas/perfis": ["get"], "/api/sistemas/permissoes": ["get", "post"],
+  "/api/sql-manager/query": ["get", "post"], "/api/sql-manager/tables": ["get"],
+  "/api/administradoras": ["get", "post"], "/api/administradoras/{id}": ["get", "put", "delete"],
+  "/api/agenciadores": ["get", "post"], "/api/agenciadores/{id}": ["get", "put", "delete"],
+  "/api/auth/forgot-password": ["post"], "/api/auth/logout": ["post"], "/api/auth/me": ["get", "patch"], "/api/auth/reset-password": ["post"],
+  "/api/bancos": ["get", "post"], "/api/bancos/{id}": ["get", "put", "delete"], "/api/bancos/atualizar-bacen": ["post"],
+  "/api/beneficiarios": ["get", "post"], "/api/beneficiarios/{id}": ["get", "put", "delete"], "/api/beneficiarios/consulta": ["get"], "/api/beneficiarios/dependentes": ["get", "post"], "/api/beneficiarios/titulares": ["get"], "/api/beneficiarios/titular/{id}/dependentes": ["get", "post"],
+  "/api/cobranca": ["get", "post"], "/api/cobranca/{id}": ["get", "put", "delete"],
+  "/api/database/connect": ["get"], "/api/database/query": ["post"], "/api/database/tables": ["get"],
+  "/api/enderecos": ["get", "post"], "/api/enderecos/{id}": ["get", "put", "delete"], "/api/estipulantes": ["get", "post"], "/api/estipulantes/{id}": ["get", "put", "delete"],
+  "/api/financeiro/advogados": ["get", "post"], "/api/financeiro/advogados/{id}": ["get", "put", "delete"], "/api/financeiro/contas-pagar": ["get", "post"], "/api/financeiro/contas-pagar/{id}": ["get", "put", "delete"], "/api/financeiro/contas-receber": ["get", "post"], "/api/financeiro/contas-receber/{id}": ["get", "put", "delete"], "/api/financeiro/fluxo-caixa": ["get", "post"], "/api/financeiro/fluxo-caixa/{id}": ["get", "put", "delete"], "/api/financeiro/multas-juros/calcular": ["post"], "/api/financeiro/processos-judiciais": ["get", "post"], "/api/financeiro/processos-judiciais/{id}": ["get", "put", "delete"], "/api/financeiro/tribunais": ["get", "post"],
+  "/api/produtos": ["get", "post"], "/api/produtos/{id}": ["get", "put", "delete"], "/api/contabil/lancamentos": ["get"], "/api/indicadores/ipca": ["get"],
+}
+
+for (const [path, methods] of Object.entries(additionalApiRoutes)) {
+  const pathItem = (swaggerSpec.paths as Record<string, Record<string, unknown>>)[path] ?? {}
+  for (const method of methods) {
+    if (!pathItem[method]) {
+      pathItem[method] = {
+        tags: [path.split("/")[2] || "Sistema"],
+        summary: `${method.toUpperCase()} ${path}`,
+        description: `Endpoint ${method.toUpperCase()} disponível no backend CardBrazil. Consulte o contrato da rota para os campos específicos.`,
+        security: path.startsWith("/api/auth/") && path !== "/api/auth/me" ? [] : [{ bearerAuth: [] }],
+        parameters: path.includes("{id}") ? [{ name: "id", in: "path", required: true, schema: { type: "integer" } }] : [],
+        requestBody: ["post", "put", "patch"].includes(method) ? { required: false, content: { "application/json": { schema: { type: "object", additionalProperties: true } } } } : undefined,
+        responses: { "200": { description: "Operação realizada com sucesso" }, "400": { description: "Dados inválidos" }, "401": { description: "Não autenticado" }, "404": { description: "Registro não encontrado" }, "500": { description: "Erro interno" } },
+      }
+    }
+  }
+  ;(swaggerSpec.paths as Record<string, unknown>)[path] = pathItem
 }
 
 export async function GET() {

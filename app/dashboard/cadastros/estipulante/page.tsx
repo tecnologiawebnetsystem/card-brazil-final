@@ -12,7 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { PersonModal } from "@/components/shared/person-modal"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2 } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 
 interface Estipulante {
   id: number
@@ -113,7 +114,7 @@ export default function EstipulantePage() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [searchFilter, setSearchFilter] = useState("todas")
+  const [searchFilter, setSearchFilter] = useState("estipulantes")
   const [searchResults, setSearchResults] = useState<Pessoa[]>([])
   const [showResults, setShowResults] = useState(false)
   const [selectedPerson, setSelectedPerson] = useState<Pessoa | null>(null)
@@ -263,6 +264,42 @@ export default function EstipulantePage() {
   const handleSelectPerson = (pessoa: Pessoa) => {
     setSelectedPerson(pessoa)
     setShowResults(false)
+  }
+
+  const handleToggleStatus = async (pessoa: Pessoa) => {
+    const estipulante = estipulantes.find((e) => e.pessoa_id === pessoa.id)
+    if (!estipulante) {
+      handleSelectPerson(pessoa)
+      toast({
+        title: "Cadastro necessário",
+        description: "Cadastre o estipulante antes de alterar a situação.",
+      })
+      return
+    }
+    const novaSituacao = estipulante.situacao === "ativo" ? "inativo" : "ativo"
+    try {
+      const response = await fetch(`/api/estipulantes/${estipulante.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ situacao: novaSituacao }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({
+          title: "Sucesso",
+          description: `Estipulante ${novaSituacao === "ativo" ? "ativado" : "desativado"} com sucesso`,
+        })
+        await loadEstipulantes()
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível alterar a situação do estipulante",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleBackToSearch = () => {
@@ -591,113 +628,87 @@ export default function EstipulantePage() {
             <h1 className="text-2xl font-bold text-foreground">Estipulantes</h1>
             <p className="text-muted-foreground">Gerencie os estipulantes do sistema</p>
           </div>
-          {selectedPerson && (
+          {selectedPerson ? (
             <Button variant="outline" onClick={handleBackToSearch}>
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Voltar à Pesquisa
             </Button>
+          ) : (
+            <Button onClick={() => setShowNewPersonModal(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Pessoa
+            </Button>
           )}
         </div>
 
         {!selectedPerson && (
-          <Card className="mb-6">
+          <Card>
             <CardHeader>
-              <CardTitle>Pesquisar Estipulante</CardTitle>
-              <CardDescription>Digite o nome, CPF ou CNPJ para pesquisar</CardDescription>
+              <CardTitle>Estipulantes cadastrados</CardTitle>
+              <CardDescription>Busque, visualize, edite e altere a situação dos estipulantes.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label>Filtro de Pesquisa</Label>
+              <CadastroTable
+                data={
+                  searchFilter === "estipulantes"
+                    ? searchResults.filter((p) => estipulantes.some((est) => est.pessoa_id === p.id))
+                    : searchResults
+                }
+                loading={loading}
+                getId={(p) => p.id}
+                getSearchText={(p) => `${p.razao_social ?? ""} ${p.nome ?? ""} ${p.cnpj ?? ""} ${p.cpf ?? ""}`}
+                isActive={(p) =>
+                  estipulantes.some((est) => est.pessoa_id === p.id && est.situacao === "ativo")
+                }
+                searchPlaceholder="Buscar por nome ou CNPJ..."
+                emptyMessage="Nenhum estipulante encontrado."
+                extraFilters={
                   <Select value={searchFilter} onValueChange={setSearchFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full sm:w-52">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todas">Todas as Pessoas</SelectItem>
-                      <SelectItem value="estipulantes">Apenas Estipulantes</SelectItem>
+                      <SelectItem value="estipulantes">Apenas estipulantes</SelectItem>
+                      <SelectItem value="todas">Todas as pessoas</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Digite aqui..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    />
-                  </div>
-
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {showResults && !selectedPerson && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Resultados da Pesquisa</CardTitle>
-                  <CardDescription>{searchResults.length} pessoa(s) jurídica(s) encontrada(s)</CardDescription>
-                </div>
-                {searchResults.length === 0 && (
-                  <Button onClick={() => setShowNewPersonModal(true)}>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Nova Pessoa
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {searchResults.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    Nenhuma pessoa jurídica encontrada com os critérios informados.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {searchResults.map((pessoa) => {
-                    const isEst = estipulantes.some((est) => est.pessoa_id === pessoa.id)
-
-                    return (
-                      <div
-                        key={pessoa.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                        onClick={() => handleSelectPerson(pessoa)}
-                      >
+                }
+                columns={
+                  [
+                    {
+                      key: "nome",
+                      header: "Nome",
+                      sortable: true,
+                      sortValue: (p) => p.razao_social || p.nome || "",
+                      render: (p) => (
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback>
-                              {(pessoa.nome_fantasia || pessoa.razao_social || pessoa.nome || "")
-                                .substring(0, 2)
-                                .toUpperCase()}
+                          <Avatar className="h-9 w-9">
+                            <AvatarFallback className="text-xs">
+                              {(p.nome_fantasia || p.razao_social || p.nome || "").substring(0, 2).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="font-medium">{pessoa.razao_social || pessoa.nome}</p>
-                            <p className="text-sm text-muted-foreground">CNPJ: {pessoa.cnpj}</p>
-                          </div>
+                          <span className="font-medium text-foreground">{p.razao_social || p.nome}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">Pessoa Jurídica</Badge>
-                          {isEst && <Badge variant="default">Estipulante</Badge>}
-                          <Button variant="ghost" size="sm">
-                            Ver Detalhes
-                          </Button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
+                      ),
+                    },
+                    { key: "cnpj", header: "CNPJ", render: (p) => p.cnpj || "—" },
+                    {
+                      key: "tipo",
+                      header: "Tipo",
+                      render: () => (
+                        <Badge variant="outline" className="text-xs">
+                          Pessoa Jurídica
+                        </Badge>
+                      ),
+                    },
+                  ] as CadastroColumn<Pessoa>[]
+                }
+                onView={(p) => handleSelectPerson(p)}
+                onEdit={(p) => handleSelectPerson(p)}
+                onToggleStatus={handleToggleStatus}
+              />
             </CardContent>
           </Card>
         )}

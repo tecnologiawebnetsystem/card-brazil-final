@@ -17,8 +17,11 @@ import {
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { Search, Plus, Edit, Trash2, BarChart3, TrendingUp, Users, DollarSign } from "lucide-react"
+import { Plus, BarChart3, TrendingUp, Users, DollarSign } from "lucide-react"
 import { toast } from "sonner"
+import { CardDescription } from "@/components/ui/card"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
+import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 
 interface PlanoFaixa {
   id: number
@@ -195,6 +198,13 @@ export default function PlanosFaixaPage() {
     toast.success("Plano faixa excluído com sucesso!")
   }
 
+  const handleToggleStatus = (plano: PlanoFaixa) => {
+    setPlanosFaixa(planosFaixa.map((p) => (p.id === plano.id ? { ...p, ativo: !p.ativo } : p)))
+    toast.success(`Faixa ${plano.ativo ? "desativada" : "ativada"} com sucesso!`)
+  }
+
+  const planosPorPlano = filterPlano === "todos" ? planosFaixa : planosFaixa.filter((p) => p.plano === filterPlano)
+
   const totalPlanos = planosFaixa.length
   const planosAtivos = planosFaixa.filter((p) => p.ativo).length
   const valorMedio = planosFaixa.reduce((acc, p) => acc + p.valor, 0) / planosFaixa.length
@@ -207,18 +217,36 @@ export default function PlanosFaixaPage() {
           <h1 className="text-3xl font-bold text-foreground">Planos por Faixa Etária</h1>
           <p className="text-muted-foreground">Gerencie os valores por faixa etária dos planos</p>
         </div>
+        <Button
+          onClick={() => {
+            setEditingPlano(null)
+            setFormData({
+              plano: "",
+              faixaEtaria: "",
+              idadeMinima: "",
+              idadeMaxima: "",
+              valor: "",
+              percentualReajuste: "",
+              ativo: true,
+            })
+            setShowModal(true)
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Faixa
+        </Button>
       </div>
 
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="bg-emerald-700 text-white border-0">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Faixas</CardTitle>
-            <BarChart3 className="h-4 w-4 bg-emerald-600 p-1 rounded ml-6" />
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalPlanos}</div>
-            <p className="text-xs text-emerald-100">faixas cadastradas</p>
+            <p className="text-xs text-muted-foreground">faixas cadastradas</p>
           </CardContent>
         </Card>
 
@@ -256,31 +284,24 @@ export default function PlanosFaixaPage() {
         </Card>
       </div>
 
-      {/* Filtros e Busca */}
-      <Card className="mb-6">
+      {/* Grid padronizado */}
+      <Card>
         <CardHeader>
-          <CardTitle>Filtros</CardTitle>
+          <CardTitle>Faixas etárias cadastradas</CardTitle>
+          <CardDescription>Busque, visualize, edite e altere o status das faixas etárias.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="search">Buscar</Label>
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Plano ou faixa etária..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Plano</Label>
+          <CadastroTable
+            data={planosPorPlano}
+            loading={isLoading && planosFaixa.length === 0}
+            getId={(p) => p.id}
+            getSearchText={(p) => `${p.plano} ${p.faixaEtaria}`}
+            isActive={(p) => p.ativo}
+            searchPlaceholder="Buscar por plano ou faixa etária..."
+            emptyMessage="Nenhuma faixa etária encontrada."
+            extraFilters={
               <Select value={filterPlano} onValueChange={setFilterPlano}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full sm:w-56">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -292,174 +313,143 @@ export default function PlanosFaixaPage() {
                   ))}
                 </SelectContent>
               </Select>
+            }
+            columns={
+              [
+                { key: "plano", header: "Plano", sortable: true, className: "font-medium text-foreground" },
+                { key: "faixaEtaria", header: "Faixa etária", sortable: true },
+                {
+                  key: "idades",
+                  header: "Idades",
+                  render: (p) => `${p.idadeMinima} a ${p.idadeMaxima} anos`,
+                },
+                {
+                  key: "valor",
+                  header: "Valor",
+                  sortable: true,
+                  sortValue: (p) => p.valor,
+                  render: (p) => `R$ ${p.valor.toFixed(2)}`,
+                },
+                {
+                  key: "percentualReajuste",
+                  header: "Reajuste",
+                  sortable: true,
+                  sortValue: (p) => p.percentualReajuste,
+                  render: (p) => `${p.percentualReajuste}%`,
+                },
+              ] as CadastroColumn<PlanoFaixa>[]
+            }
+            onEdit={handleEditPlano}
+            onToggleStatus={handleToggleStatus}
+            detailsTitle={(p) => `${p.plano} — ${p.faixaEtaria}`}
+            renderDetails={(p) => (
+              <CadastroDetailsGrid>
+                <CadastroDetailField label="Plano" value={p.plano} />
+                <CadastroDetailField label="Faixa etária" value={p.faixaEtaria} />
+                <CadastroDetailField label="Idade mínima" value={`${p.idadeMinima} anos`} />
+                <CadastroDetailField label="Idade máxima" value={`${p.idadeMaxima} anos`} />
+                <CadastroDetailField label="Valor" value={`R$ ${p.valor.toFixed(2)}`} />
+                <CadastroDetailField label="Reajuste" value={`${p.percentualReajuste}%`} />
+                <CadastroDetailField label="Status" value={p.ativo ? "Ativo" : "Inativo"} />
+              </CadastroDetailsGrid>
+            )}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Modal de Criar/Editar Faixa */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingPlano ? "Editar Faixa Etária" : "Cadastrar Nova Faixa Etária"}</DialogTitle>
+            <DialogDescription>Preencha as informações da faixa etária do plano</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="plano">Plano *</Label>
+              <Input
+                id="plano"
+                value={formData.plano}
+                onChange={(e) => setFormData({ ...formData, plano: e.target.value })}
+                placeholder="Nome do plano"
+              />
+            </div>
+
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="faixaEtaria">Descrição da Faixa *</Label>
+              <Input
+                id="faixaEtaria"
+                value={formData.faixaEtaria}
+                onChange={(e) => setFormData({ ...formData, faixaEtaria: e.target.value })}
+                placeholder="Ex: 0 a 18 anos"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="inativo">Inativo</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="idadeMinima">Idade Mínima *</Label>
+              <Input
+                id="idadeMinima"
+                type="number"
+                value={formData.idadeMinima}
+                onChange={(e) => setFormData({ ...formData, idadeMinima: e.target.value })}
+                placeholder="0"
+              />
             </div>
 
-            <div className="flex items-end">
-              <Dialog open={showModal} onOpenChange={setShowModal}>
-                <DialogTrigger asChild>
-                  <Button className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nova Faixa
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>{editingPlano ? "Editar Faixa Etária" : "Cadastrar Nova Faixa Etária"}</DialogTitle>
-                    <DialogDescription>Preencha as informações da faixa etária do plano</DialogDescription>
-                  </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="idadeMaxima">Idade Máxima *</Label>
+              <Input
+                id="idadeMaxima"
+                type="number"
+                value={formData.idadeMaxima}
+                onChange={(e) => setFormData({ ...formData, idadeMaxima: e.target.value })}
+                placeholder="18"
+              />
+            </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2 space-y-2">
-                      <Label htmlFor="plano">Plano *</Label>
-                      <Input
-                        id="plano"
-                        value={formData.plano}
-                        onChange={(e) => setFormData({ ...formData, plano: e.target.value })}
-                        placeholder="Nome do plano"
-                      />
-                    </div>
+            <div className="space-y-2">
+              <Label htmlFor="valor">Valor (R$)</Label>
+              <Input
+                id="valor"
+                type="number"
+                step="0.01"
+                value={formData.valor}
+                onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+                placeholder="0.00"
+              />
+            </div>
 
-                    <div className="col-span-2 space-y-2">
-                      <Label htmlFor="faixaEtaria">Descrição da Faixa *</Label>
-                      <Input
-                        id="faixaEtaria"
-                        value={formData.faixaEtaria}
-                        onChange={(e) => setFormData({ ...formData, faixaEtaria: e.target.value })}
-                        placeholder="Ex: 0 a 18 anos"
-                      />
-                    </div>
+            <div className="space-y-2">
+              <Label htmlFor="percentualReajuste">% Reajuste</Label>
+              <Input
+                id="percentualReajuste"
+                type="number"
+                step="0.01"
+                value={formData.percentualReajuste}
+                onChange={(e) => setFormData({ ...formData, percentualReajuste: e.target.value })}
+                placeholder="0.00"
+              />
+            </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="idadeMinima">Idade Mínima *</Label>
-                      <Input
-                        id="idadeMinima"
-                        type="number"
-                        value={formData.idadeMinima}
-                        onChange={(e) => setFormData({ ...formData, idadeMinima: e.target.value })}
-                        placeholder="0"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="idadeMaxima">Idade Máxima *</Label>
-                      <Input
-                        id="idadeMaxima"
-                        type="number"
-                        value={formData.idadeMaxima}
-                        onChange={(e) => setFormData({ ...formData, idadeMaxima: e.target.value })}
-                        placeholder="18"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="valor">Valor (R$)</Label>
-                      <Input
-                        id="valor"
-                        type="number"
-                        step="0.01"
-                        value={formData.valor}
-                        onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
-                        placeholder="0.00"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="percentualReajuste">% Reajuste</Label>
-                      <Input
-                        id="percentualReajuste"
-                        type="number"
-                        step="0.01"
-                        value={formData.percentualReajuste}
-                        onChange={(e) => setFormData({ ...formData, percentualReajuste: e.target.value })}
-                        placeholder="0.00"
-                      />
-                    </div>
-
-                    <div className="col-span-2 flex items-center space-x-2">
-                      <Switch
-                        id="ativo"
-                        checked={formData.ativo}
-                        onCheckedChange={(checked) => setFormData({ ...formData, ativo: checked })}
-                      />
-                      <Label htmlFor="ativo">Faixa ativa</Label>
-                    </div>
-                  </div>
-
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowModal(false)}>
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleSavePlano}>{editingPlano ? "Atualizar" : "Cadastrar"}</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+            <div className="col-span-2 flex items-center space-x-2">
+              <Switch
+                id="ativo"
+                checked={formData.ativo}
+                onCheckedChange={(checked) => setFormData({ ...formData, ativo: checked })}
+              />
+              <Label htmlFor="ativo">Faixa ativa</Label>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Lista de Planos Faixa */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Faixas Etárias Cadastradas ({filteredPlanos.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {filteredPlanos.map((plano) => (
-              <div key={plano.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold">{plano.plano}</h3>
-                    <Badge variant={plano.ativo ? "default" : "secondary"}>{plano.ativo ? "Ativo" : "Inativo"}</Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p>
-                      <strong>Faixa Etária:</strong> {plano.faixaEtaria}
-                    </p>
-                    <p>
-                      <strong>Idades:</strong> {plano.idadeMinima} a {plano.idadeMaxima} anos
-                    </p>
-                    <p>
-                      <strong>Valor:</strong> R$ {plano.valor.toFixed(2)}
-                    </p>
-                    <p>
-                      <strong>Reajuste:</strong> {plano.percentualReajuste}%
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEditPlano(plano)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDeletePlano(plano.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-
-            {filteredPlanos.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                Nenhuma faixa etária encontrada com os filtros aplicados.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSavePlano}>{editingPlano ? "Atualizar" : "Cadastrar"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

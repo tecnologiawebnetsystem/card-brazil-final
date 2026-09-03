@@ -17,54 +17,24 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Plus } from "lucide-react"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
+import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 
-const UserPlusIcon = () => (
-  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-    />
-  </svg>
-)
-
-const SearchIcon = () => (
-  <svg
-    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-    />
-  </svg>
-)
-
-const PlusIcon = () => (
-  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-  </svg>
-)
-
-const MoreIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-    />
-  </svg>
-)
+interface Subestipulante {
+  id: number
+  nome: string
+  estipulante: string
+  contrato: string
+  status: string
+  segurados: number
+  responsavel: string
+  telefone: string
+}
 
 export default function SubestipulantePage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [subestipulantes, setSubestipulantes] = useState([
+  const [subestipulantes, setSubestipulantes] = useState<Subestipulante[]>([
     {
       id: 1,
       nome: "Departamento RH - ABC",
@@ -106,6 +76,12 @@ export default function SubestipulantePage() {
     setIsModalOpen(false)
   }
 
+  const handleToggleStatus = (sub: Subestipulante) => {
+    setSubestipulantes(
+      subestipulantes.map((s) => (s.id === sub.id ? { ...s, status: s.status === "Ativo" ? "Inativo" : "Ativo" } : s)),
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-6">
@@ -115,59 +91,60 @@ export default function SubestipulantePage() {
             <p className="text-muted-foreground">Gerencie os subestipulantes cadastrados</p>
           </div>
           <Button onClick={() => setIsModalOpen(true)}>
-            <PlusIcon />
+            <Plus className="mr-2 h-4 w-4" />
             Novo Subestipulante
           </Button>
         </div>
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Lista de Subestipulantes</CardTitle>
-                <CardDescription>Total de {subestipulantes.length} subestipulantes cadastrados</CardDescription>
-              </div>
-              <div className="relative">
-                <SearchIcon />
-                <Input placeholder="Buscar subestipulante..." className="pl-10 w-64" />
-              </div>
-            </div>
+            <CardTitle>Subestipulantes cadastrados</CardTitle>
+            <CardDescription>Busque, visualize e altere o status dos subestipulantes.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {subestipulantes.map((subestipulante) => (
-                <div
-                  key={subestipulante.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <UserPlusIcon />
-                    <div>
-                      <h3 className="font-medium text-foreground">{subestipulante.nome}</h3>
-                      <p className="text-sm text-muted-foreground">Estipulante: {subestipulante.estipulante}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <p className="text-sm font-medium text-foreground">{subestipulante.contrato}</p>
-                      <p className="text-xs text-muted-foreground">{subestipulante.segurados} segurados</p>
-                    </div>
-
-                    <div className="text-center">
-                      <p className="text-sm font-medium text-foreground">{subestipulante.responsavel}</p>
-                      <p className="text-xs text-muted-foreground">{subestipulante.telefone}</p>
-                    </div>
-
-                    <Badge variant="default">{subestipulante.status}</Badge>
-
-                    <Button variant="ghost" size="sm">
-                      <MoreIcon />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <CadastroTable
+              data={subestipulantes}
+              getId={(s) => s.id}
+              getSearchText={(s) => `${s.nome} ${s.estipulante} ${s.contrato} ${s.responsavel}`}
+              isActive={(s) => s.status === "Ativo"}
+              searchPlaceholder="Buscar por nome, estipulante, contrato ou responsável..."
+              emptyMessage="Nenhum subestipulante encontrado."
+              columns={
+                [
+                  { key: "nome", header: "Nome", sortable: true, className: "font-medium text-foreground" },
+                  { key: "estipulante", header: "Estipulante", sortable: true },
+                  {
+                    key: "contrato",
+                    header: "Contrato",
+                    render: (s) => (
+                      <Badge variant="outline" className="text-xs">
+                        {s.contrato}
+                      </Badge>
+                    ),
+                  },
+                  {
+                    key: "segurados",
+                    header: "Segurados",
+                    sortable: true,
+                    sortValue: (s) => s.segurados,
+                  },
+                  { key: "responsavel", header: "Responsável" },
+                ] as CadastroColumn<Subestipulante>[]
+              }
+              onToggleStatus={handleToggleStatus}
+              detailsTitle={(s) => s.nome}
+              renderDetails={(s) => (
+                <CadastroDetailsGrid>
+                  <CadastroDetailField label="Nome" value={s.nome} />
+                  <CadastroDetailField label="Estipulante" value={s.estipulante} />
+                  <CadastroDetailField label="Contrato" value={s.contrato} />
+                  <CadastroDetailField label="Segurados" value={String(s.segurados)} />
+                  <CadastroDetailField label="Responsável" value={s.responsavel} />
+                  <CadastroDetailField label="Telefone" value={s.telefone} />
+                  <CadastroDetailField label="Status" value={s.status} />
+                </CadastroDetailsGrid>
+              )}
+            />
           </CardContent>
         </Card>
 

@@ -228,17 +228,17 @@ export default function AnalisePropostaPage() {
               </div>
               <div>
                 <Label className="text-sm font-medium text-slate-600">CPF/CNPJ</Label>
-                <p className="text-slate-900">{proposta.cpf_cnpj_proponente}</p>
+                <p className="text-slate-900">{proposta.cpf_cnpj}</p>
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <Label className="text-sm font-medium text-slate-600">E-mail</Label>
-                <p className="text-slate-900">{proposta.email_proponente || "-"}</p>
+                <p className="text-slate-900">{proposta.email || "-"}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-slate-600">Telefone</Label>
-                <p className="text-slate-900">{proposta.telefone_proponente || "-"}</p>
+                <p className="text-slate-900">{proposta.telefone || "-"}</p>
               </div>
             </div>
           </CardContent>

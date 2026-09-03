@@ -184,19 +184,22 @@ export default function RelatoriosPropostasPage() {
   )
 
   const handleExportarRelatorio = (tipo: string) => {
-    toast({
-      title: "Exportando relatório",
-      description: `Gerando relatório de ${tipo}...`,
-    })
-    // Aqui seria a lógica de exportação real
+    const headers = ["ID", "Status", "Tipo de plano", "Valor", "Data de submissão"]
+    const rows = propostas.map((p) => [p.id, p.status, p.tipo_plano, p.valor_proposto, p.data_submissao])
+    const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`).join(";")).join("\\n")
+    const blob = new Blob(["\\ufeff" + csv], { type: "text/csv;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `relatorio-propostas-${tipo}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast({ title: "Relatório exportado", description: `Relatório de ${tipo} baixado em CSV.` })
   }
 
   const handleImprimirRelatorio = (tipo: string) => {
-    toast({
-      title: "Imprimindo relatório",
-      description: `Preparando impressão do relatório de ${tipo}...`,
-    })
-    // Aqui seria a lógica de impressão real
+    document.title = `Relatório de propostas - ${tipo}`
+    window.print()
   }
 
   const handleExportarGrafico = (formato: string) => {

@@ -41,6 +41,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       score_financeiro,
       score_documentacao,
       score_historico,
+      contrato_gerado,
+      data_geracao_contrato,
     } = body
 
     let sql = `UPDATE propostas SET `
@@ -111,6 +113,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (score_historico !== undefined) {
       updates.push(`score_historico = $${updateParams.length + 1}`)
       updateParams.push(score_historico)
+    }
+    if (contrato_gerado !== undefined) {
+      updates.push(`contrato_gerado = $${updateParams.length + 1}`)
+      updateParams.push(contrato_gerado)
+    }
+    if (data_geracao_contrato !== undefined) {
+      updates.push(`data_geracao_contrato = $${updateParams.length + 1}`)
+      updateParams.push(data_geracao_contrato)
     }
 
     if (updates.length === 0) {

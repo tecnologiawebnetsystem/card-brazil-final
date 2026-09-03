@@ -367,10 +367,10 @@ export default function OperadoraPage() {
   }
 
   const handleSearchByFilter = () => {
-    if (!searchTerm.trim()) {
-      setFilteredOperadoras(operadoras)
-      return
-    }
+  if (!searchTerm.trim() && searchFilter === "todas") {
+  setFilteredOperadoras(operadoras)
+  return
+  }
 
     const filtered = operadoras.filter((op) => {
       const pessoa = pessoas.find((p) => p.id === op.pessoa_id)
@@ -393,8 +393,12 @@ export default function OperadoraPage() {
       return matchesSearchTerm && matchesFilter
     })
 
-    setFilteredOperadoras(filtered)
+  setFilteredOperadoras(filtered)
   }
+
+  useEffect(() => {
+  handleSearchByFilter()
+  }, [searchTerm, searchFilter, operadoras, pessoas])
 
   const handleExportData = () => {
     const dataToExport = filteredOperadoras.map((pessoa) => {
@@ -742,19 +746,7 @@ export default function OperadoraPage() {
                     onKeyPress={(e) => e.key === "Enter" && handleSearchByFilter()} // Mudado para handleSearchByFilter
                   />
                 </div>
-                <Button onClick={handleSearchByFilter} className="bg-cyan-500 hover:bg-cyan-600">
-                  {" "}
-                  {/* Mudado para handleSearchByFilter */}
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                  Pesquisar
-                </Button>
+
               </div>
             </div>
           </CardContent>

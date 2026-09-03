@@ -224,7 +224,7 @@ export default function AgenteCobradorPage() {
           </div>
 
           <div className="flex gap-4 justify-end">
-            <Button onClick={handleConsultar} className="bg-blue-600 hover:bg-blue-700">
+            <Button type="button" onClick={handleConsultar} className="bg-blue-600 hover:bg-blue-700">
               Consultar
             </Button>
             <Button onClick={handleLimpar} variant="destructive">

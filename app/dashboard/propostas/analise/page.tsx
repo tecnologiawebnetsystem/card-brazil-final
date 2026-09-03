@@ -100,7 +100,7 @@ export default function AnalisePropostaPage() {
         },
         body: JSON.stringify({
           status: "aprovada",
-          parecer_analise: parecer,
+          parecer: parecer,
           data_analise: new Date().toISOString(),
         }),
       })
@@ -148,7 +148,7 @@ export default function AnalisePropostaPage() {
         },
         body: JSON.stringify({
           status: "rejeitada",
-          parecer_analise: parecer,
+          parecer: parecer,
           data_analise: new Date().toISOString(),
         }),
       })

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SearchIcon, FilterIcon, EyeIcon, EditIcon, PlusIcon } from "lucide-react"
+import { SearchIcon, FilterIcon, EyeIcon, EditIcon, PlusIcon, Trash2Icon } from "lucide-react"
 
 interface Proposta {
   id: number
@@ -50,7 +50,7 @@ export default function ListaPropostasPage() {
       try {
         const params = new URLSearchParams()
         if (statusFilter !== "todos") {
-          params.append("status", statusFilter.toLowerCase())
+          params.append("status", ({ Pendente: "pendente", "Em Análise": "em_analise", Aprovada: "aprovada", Rejeitada: "rejeitada" } as Record<string, string>)[statusFilter] || statusFilter.toLowerCase())
         }
         if (searchTerm) {
           params.append("search", searchTerm)
@@ -62,7 +62,7 @@ export default function ListaPropostasPage() {
         }
 
         const data = await response.json()
-        setPropostas(data)
+        setPropostas(Array.isArray(data) ? data : data.data || [])
       } catch (error) {
         console.error("[v0] Erro ao carregar propostas:", error)
       } finally {
@@ -81,6 +81,13 @@ export default function ListaPropostasPage() {
 
   const handleViewProposta = (id: string) => {
     router.push(`/dashboard/propostas/analise?id=${id}`)
+  }
+
+  const handleDeleteProposta = async (id: number) => {
+    if (!window.confirm("Deseja excluir esta proposta?")) return
+    const response = await fetch(`/api/propostas/${id}`, { method: "DELETE" })
+    if (!response.ok) throw new Error("Não foi possível excluir a proposta")
+    setPropostas((current) => current.filter((item) => item.id !== id))
   }
 
   return (
@@ -176,8 +183,11 @@ export default function ListaPropostasPage() {
                         <Button variant="ghost" size="sm" onClick={() => handleViewProposta(String(proposta.id))}>
                           <EyeIcon className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleViewProposta(String(proposta.id))}>
+                        <Button variant="ghost" size="sm" onClick={() => handleViewProposta(String(proposta.id))} aria-label="Editar proposta">
                           <EditIcon className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteProposta(proposta.id)} aria-label="Excluir proposta">
+                          <Trash2Icon className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>

@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     const propostaId = Number.parseInt(id)
 
     const rows = await query(`SELECT * FROM propostas WHERE id = $1 AND deleted_at IS NULL`, [propostaId])
@@ -20,9 +20,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     const {
@@ -52,39 +52,39 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       updateParams.push(nome_proponente)
     }
     if (cpf_cnpj !== undefined) {
-      updates.push("cpf_cnpj = ?")
+      updates.push(`cpf_cnpj = $${updateParams.length + 1}`)
       updateParams.push(cpf_cnpj)
     }
     if (email !== undefined) {
-      updates.push("email = ?")
+      updates.push(`email = $${updateParams.length + 1}`)
       updateParams.push(email)
     }
     if (telefone !== undefined) {
-      updates.push("telefone = ?")
+      updates.push(`telefone = $${updateParams.length + 1}`)
       updateParams.push(telefone)
     }
     if (empresa !== undefined) {
-      updates.push("empresa = ?")
+      updates.push(`empresa = $${updateParams.length + 1}`)
       updateParams.push(empresa)
     }
     if (numero_funcionarios !== undefined) {
-      updates.push("numero_funcionarios = ?")
+      updates.push(`numero_funcionarios = $${updateParams.length + 1}`)
       updateParams.push(numero_funcionarios)
     }
     if (tipo_plano !== undefined) {
-      updates.push("tipo_plano = ?")
+      updates.push(`tipo_plano = $${updateParams.length + 1}`)
       updateParams.push(tipo_plano)
     }
     if (valor_proposto !== undefined) {
-      updates.push("valor_proposto = ?")
+      updates.push(`valor_proposto = $${updateParams.length + 1}`)
       updateParams.push(valor_proposto)
     }
     if (observacoes !== undefined) {
-      updates.push("observacoes = ?")
+      updates.push(`observacoes = $${updateParams.length + 1}`)
       updateParams.push(observacoes)
     }
     if (status !== undefined) {
-      updates.push("status = ?")
+      updates.push(`status = $${updateParams.length + 1}`)
       updateParams.push(status)
 
       // Se mudou para aprovada ou rejeitada, adicionar data de análise
@@ -93,23 +93,23 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       }
     }
     if (parecer !== undefined) {
-      updates.push("parecer = ?")
+      updates.push(`parecer = $${updateParams.length + 1}`)
       updateParams.push(parecer)
     }
     if (analisado_por !== undefined) {
-      updates.push("analisado_por = ?")
+      updates.push(`analisado_por = $${updateParams.length + 1}`)
       updateParams.push(analisado_por)
     }
     if (score_financeiro !== undefined) {
-      updates.push("score_financeiro = ?")
+      updates.push(`score_financeiro = $${updateParams.length + 1}`)
       updateParams.push(score_financeiro)
     }
     if (score_documentacao !== undefined) {
-      updates.push("score_documentacao = ?")
+      updates.push(`score_documentacao = $${updateParams.length + 1}`)
       updateParams.push(score_documentacao)
     }
     if (score_historico !== undefined) {
-      updates.push("score_historico = ?")
+      updates.push(`score_historico = $${updateParams.length + 1}`)
       updateParams.push(score_historico)
     }
 
@@ -118,7 +118,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     sql += updates.join(", ")
-    sql += ` WHERE id = ? AND deleted_at IS NULL`
+    sql += ` WHERE id = $${updateParams.length + 1} AND deleted_at IS NULL`
     updateParams.push(id)
 
     await query(sql, updateParams)
@@ -130,9 +130,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
 
     // Soft delete
     const sql = `UPDATE propostas SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`

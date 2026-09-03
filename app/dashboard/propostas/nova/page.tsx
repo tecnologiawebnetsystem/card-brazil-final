@@ -53,7 +53,7 @@ export default function NovaPropostaPage() {
         },
         body: JSON.stringify({
           nome_proponente: formData.nomeProponente,
-          cpf_cnpj_proponente: formData.cpfCnpj,
+          cpf_cnpj: formData.cpfCnpj,
           email_proponente: formData.email,
           telefone_proponente: formData.telefone,
           nome_empresa: formData.empresa,

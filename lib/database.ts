@@ -15,7 +15,7 @@ export { sql }
 
 export const pool = {
   execute: async <T = any>(query: string, params?: any[]) => {
-    const result = await getSql()(query, params || [])
+    const result = await getSql().query(query, params || [])
     return [result] as [T[]]
   },
 }
@@ -37,7 +37,7 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
 
 export async function queryOne<T = any>(text: string, params?: any[]): Promise<T | null> {
   try {
-    const result = await getSql().query(text, params || [])
+    const result = await getSql().query(normalizePostgresQuery(text), params || [])
     return result.length > 0 ? (result[0] as T) : null
   } catch (error) {
     console.error("Database query error:", error)

@@ -203,10 +203,18 @@ export default function RelatoriosPropostasPage() {
   }
 
   const handleExportarGrafico = (formato: string) => {
-    toast({
-      title: "Exportando gráfico",
-      description: `Exportando gráfico em formato ${formato}...`,
-    })
+    if (formato.toLowerCase() === "pdf" || formato.toLowerCase() === "imprimir") {
+      window.print()
+      return
+    }
+    const csv = ["Métrica;Quantidade", ...dadosStatusPropostas.map((item) => `${item.name};${item.value}`)].join("\\n")
+    const url = URL.createObjectURL(new Blob(["\\ufeff" + csv], { type: "text/csv;charset=utf-8" }))
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `grafico-propostas-${formato.toLowerCase()}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast({ title: "Gráfico exportado", description: `Dados do gráfico exportados em CSV.` })
   }
 
   if (isLoading) {

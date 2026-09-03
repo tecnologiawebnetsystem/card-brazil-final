@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     if (data_inicio) { params.push(data_inicio); conditions.push(`created_at::date >= $${params.length}`) }
     if (data_fim) { params.push(data_fim); conditions.push(`created_at::date <= $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
-    const propostas = await query(`SELECT status, COALESCE(valor_proposto, 0) AS valor_total, COALESCE(numero_funcionarios, 0) AS quantidade_vidas, tipo_plano FROM propostas${where}`, params)
+    const propostas = await query(`SELECT status, COALESCE(valor_proposto, 0) AS valor_total, CASE WHEN numero_funcionarios ~ '^[0-9]+$' THEN numero_funcionarios::numeric ELSE 0 END AS quantidade_vidas, tipo_plano FROM propostas${where}`, params)
     const total_propostas = propostas.length
     const aprovadas = propostas.filter((p: any) => p.status === "aprovada")
     const rejeitadas = propostas.filter((p: any) => p.status === "rejeitada")

@@ -89,8 +89,8 @@ export default function PropostasAprovadasPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contrato_gerado: true,
-          data_geracao_contrato: new Date().toISOString(),
+          numero_contrato: `CONT-${new Date().getFullYear()}-${String(id).padStart(4, "0")}`,
+          data_contrato: new Date().toISOString(),
         }),
       })
 

@@ -477,7 +477,7 @@ const menuItems = [
     items: [
       {
         title: "SQL Manager",
-        url: "/dashboard/sql-manager",
+        url: "/sql-manager",
         icon: <LayoutDashboardIcon />,
         requiredPermission: null,
       },

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -84,6 +84,25 @@ export default function ConveniosPage() {
   const [showModal, setShowModal] = useState(false)
   const [editingConvenio, setEditingConvenio] = useState<Convenio | null>(null)
   const [formData, setFormData] = useState<Partial<Convenio>>({})
+  const [isLoading, setIsLoading] = useState(false)
+
+  const loadConvenios = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/convenios")
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.message || "Erro ao carregar convênios")
+      setConvenios((payload.data || []).map((item: any) => ({
+        id: item.id, nome: item.pessoa_nome || item.codigo_convenio || "Convênio", tipo: item.tipo_prestador,
+        cnpj: "", contato: item.pessoa_nome || "", telefone: "", email: "", percentualCobertura: 0,
+        prazoAutorizacao: 0, situacao: item.ativo ? "Ativo" : "Desativo", dataContrato: item.data_inicio || "",
+        dataVencimento: item.data_fim, observacoes: item.especialidades,
+      })))
+    } catch (error) { console.error("[v0] Erro ao carregar convênios", error) }
+    finally { setIsLoading(false) }
+  }
+
+  useEffect(() => { loadConvenios() }, [])
 
   const conveniosFiltrados = convenios.filter((convenio) => {
     const matchBusca =
@@ -118,7 +137,7 @@ export default function ConveniosPage() {
     setShowModal(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (formData.nome && formData.contato && formData.telefone && formData.email) {
       if (editingConvenio) {
         // Editar existente
@@ -150,10 +169,11 @@ export default function ConveniosPage() {
     }
   }
 
-  const handleDelete = (id: number) => {
-    if (confirm("Tem certeza que deseja excluir este convênio?")) {
-      setConvenios(convenios.filter((c) => c.id !== id))
-    }
+  const handleDelete = async (id: number) => {
+    if (!confirm("Tem certeza que deseja excluir este convênio?")) return
+    const response = await fetch(`/api/convenios/${id}`, { method: "DELETE" })
+    if (!response.ok) { console.error("[v0] Erro ao excluir convênio"); return }
+    setConvenios(convenios.filter((c) => c.id !== id))
   }
 
   const toggleSituacao = (id: number) => {

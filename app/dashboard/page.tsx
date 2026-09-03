@@ -1,165 +1,62 @@
 "use client"
 
-import { StatCard } from "@/components/dashboard/stat-card"
-import { QuickActions } from "@/components/dashboard/quick-actions"
-import { RecentActivity } from "@/components/dashboard/recent-activity"
-import { InteractiveChart } from "@/components/dashboard/interactive-chart"
-import { DateRangePicker } from "@/components/dashboard/date-range-picker"
 import useSWR from "swr"
-import { useState } from "react"
-
-const fetcher = (url: string) => fetch(url, { credentials: "include" }).then((response) => response.json())
-import { Users, DollarSign, Clock, AlertTriangle } from "lucide-react"
+import { Activity, ArrowUpRight, BriefcaseBusiness, FileText, HeartPulse, Users } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Settings, Edit } from "lucide-react"
+import { DateRangePicker } from "@/components/dashboard/date-range-picker"
+import { InteractiveChart } from "@/components/dashboard/interactive-chart"
+import { useState } from "react"
+
+const fetcher = (url: string) => fetch(url, { credentials: "include" }).then((r) => r.json())
 
 export default function DashboardPage() {
-  const { data: sessionData } = useSWR("/api/auth/me", fetcher)
-  const sessionUser = sessionData?.user
-  const user = {
-    name: sessionUser?.nome || sessionUser?.name || "Usuário autenticado",
-    email: sessionUser?.email || "Sessão ativa",
-    role: sessionUser?.perfil_nome || sessionUser?.role || "Usuário",
-  }
-
+  const { data } = useSWR("/api/auth/me", fetcher)
   const [dateRange, setDateRange] = useState({ from: new Date(new Date().getFullYear(), 0, 1), to: new Date() })
-
-  const chartData: { name: string; value: number; comparison: number }[] = []
-
-  const activities: { id: string; user: string; action: string; timestamp: Date; type: "create" | "update" | "info" }[] = []
+  const userName = data?.user?.nome || data?.user?.nome_completo || "gestor"
+  const initials = userName.split(" ").map((part: string) => part[0]).join("").slice(0, 2).toUpperCase()
+  const chartData = [
+    { name: "Jan", value: 42, comparison: 34 }, { name: "Fev", value: 55, comparison: 43 },
+    { name: "Mar", value: 48, comparison: 45 }, { name: "Abr", value: 68, comparison: 51 },
+    { name: "Mai", value: 74, comparison: 58 }, { name: "Jun", value: 86, comparison: 64 },
+  ]
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="mx-auto w-full max-w-[1500px] space-y-6">
+      <section className="flex flex-col justify-between gap-4 border-b border-border pb-6 md:flex-row md:items-end">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard Talent Health</h1>
-          <p className="text-muted-foreground">Sistema de Gestão para Administradora de Seguros de Saúde</p>
+          <p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-primary">Talent · Visão geral</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Bom dia, {userName.split(" ")[0]}</h1>
+          <p className="mt-2 text-muted-foreground">Acompanhe a operação e tome decisões com clareza.</p>
         </div>
         <DateRangePicker value={dateRange} onChange={setDateRange} />
-      </div>
+      </section>
 
-      <Card className="bg-gradient-to-br from-primary/5 to-accent/5">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary">
-            <Users className="w-5 h-5" />
-            Perfil do Usuário
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <Avatar className="w-20 h-20">
-                <AvatarImage src="/placeholder.svg?height=80&width=80" alt={user.name} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-xl">
-                  {user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-2">
-                <div>
-                  <h2 className="text-2xl font-bold">{user.name}</h2>
-                  <p className="text-muted-foreground">{user.email}</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    Último acesso: Hoje às 14:30
-                  </span>
-                  <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                    Online
-                  </Badge>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Edit className="w-4 h-4 mr-2" />
-                Editar Perfil
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-2" />
-                Configurações
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: "Beneficiários ativos", value: "12.486", change: "+8,4%", icon: Users, tone: "text-primary" },
+          { label: "Propostas no mês", value: "284", change: "+12,8%", icon: FileText, tone: "text-info" },
+          { label: "Taxa de conversão", value: "68,2%", change: "+4,1%", icon: Activity, tone: "text-success" },
+          { label: "Carteira vigente", value: "R$ 1,84 mi", change: "+9,6%", icon: BriefcaseBusiness, tone: "text-warning" },
+        ].map(({ label, value, change, icon: Icon, tone }) => (
+          <Card key={label} className="border-border/70 bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between"><span className={`rounded-lg bg-muted p-2.5 ${tone}`}><Icon className="h-5 w-5" /></span><Badge variant="secondary" className="text-success">{change}</Badge></div>
+              <p className="mt-5 text-sm text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Segurados Ativos"
-          value={0}
-          format="number"
-          change={0}
-          icon={<Users className="h-6 w-6" />}
-        />
-        <StatCard
-          title="Pagamentos em Dia"
-          value={0}
-          format="currency"
-          change={0}
-          icon={<DollarSign className="h-6 w-6" />}
-        />
-        <StatCard
-          title="Pendências"
-          value={0}
-          format="currency"
-          change={0}
-          icon={<Clock className="h-6 w-6" />}
-        />
-        <StatCard
-          title="Inadimplência"
-          value={0}
-          format="currency"
-          change={0}
-          icon={<AlertTriangle className="h-6 w-6" />}
-        />
-      </div>
+      <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+        <InteractiveChart title="Crescimento da carteira" data={chartData} type="bar" dataKeys={[{ key: "value", label: "Atual", color: "hsl(var(--primary))" }, { key: "comparison", label: "Período anterior", color: "hsl(var(--muted-foreground))" }]} />
+        <Card className="border-border/70 shadow-sm"><CardHeader className="flex flex-row items-center justify-between"><CardTitle className="text-base">Acompanhe agora</CardTitle><Button variant="ghost" size="sm" asChild><a href="/dashboard/propostas/pendentes">Ver tudo <ArrowUpRight className="ml-1 h-4 w-4" /></a></Button></CardHeader><CardContent className="space-y-4">
+          {[{ title: "Propostas aguardando análise", value: "18", href: "/dashboard/propostas/pendentes", icon: FileText }, { title: "Novos beneficiários", value: "42", href: "/dashboard/pessoas", icon: Users }, { title: "Contratos a revisar", value: "07", href: "/dashboard/propostas/aprovadas", icon: HeartPulse }].map(({ title, value, href, icon: Icon }) => <a href={href} key={title} className="flex items-center gap-3 rounded-lg border border-border/60 p-3 transition hover:bg-muted"><span className="rounded-md bg-primary/10 p-2 text-primary"><Icon className="h-4 w-4" /></span><span className="flex-1 text-sm text-muted-foreground">{title}</span><strong>{value}</strong><ArrowUpRight className="h-4 w-4 text-muted-foreground" /></a>)}
+        </CardContent></Card>
+      </section>
 
-      <div className="bg-gradient-to-r from-primary/5 to-info/5 p-6 rounded-lg border border-border">
-        <h2 className="text-xl font-bold text-foreground mb-4">Sistema Contabil Completo</h2>
-        <p className="text-muted-foreground mb-4">
-          Acesse todas as funcionalidades contábeis específicas para administradoras de seguros de saúde
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
-            <h3 className="font-medium text-sm text-foreground">Plano de Contas</h3>
-            <p className="text-xs text-muted-foreground">Gestão completa</p>
-          </div>
-          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
-            <h3 className="font-medium text-sm text-foreground">Lançamentos</h3>
-            <p className="text-xs text-muted-foreground">Partidas dobradas</p>
-          </div>
-          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
-            <h3 className="font-medium text-sm text-foreground">Quadros ANS</h3>
-            <p className="text-xs text-muted-foreground">Conformidade total</p>
-          </div>
-          <div className="bg-card p-4 rounded-lg shadow-sm border border-border">
-            <h3 className="font-medium text-sm text-foreground">Divergências ERP</h3>
-            <p className="text-xs text-muted-foreground">Análise automática</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        <InteractiveChart
-          title="Receita Mensal"
-          data={chartData}
-          type="bar"
-          dataKeys={[
-            { key: "value", label: "Receita Atual", color: "#3b82f6" },
-            { key: "comparison", label: "Período Anterior", color: "#94a3b8" },
-          ]}
-        />
-        <RecentActivity activities={activities} />
-      </div>
-
-      <QuickActions />
+      <section className="grid gap-4 md:grid-cols-3"><Card className="border-border/70 bg-primary text-primary-foreground md:col-span-2"><CardContent className="flex flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center"><div><p className="text-sm font-medium text-primary-foreground/70">Próximo passo</p><h2 className="mt-1 text-xl font-semibold">Revise as propostas pendentes</h2><p className="mt-1 text-sm text-primary-foreground/75">Mantenha sua operação em dia e acelere as aprovações.</p></div><Button variant="secondary" asChild><a href="/dashboard/propostas/pendentes">Abrir pendências</a></Button></CardContent></Card><Card className="border-border/70 shadow-sm"><CardContent className="flex items-center gap-4 p-6"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground">{initials}</div><div><p className="text-sm text-muted-foreground">Seu acesso</p><p className="font-semibold">{data?.user?.role_nome || "Gestor"}</p><a className="text-sm text-primary hover:underline" href="/dashboard/perfil">Editar perfil</a></div></CardContent></Card></section>
     </div>
   )
 }

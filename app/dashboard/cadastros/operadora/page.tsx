@@ -746,7 +746,7 @@ export default function OperadoraPage() {
                     onKeyPress={(e) => e.key === "Enter" && handleSearchByFilter()} // Mudado para handleSearchByFilter
                   />
                 </div>
-                <Button onClick={handleSearchByFilter} className="bg-cyan-500 hover:bg-cyan-600">
+                <Button type="button" onClick={handleSearchByFilter} className="bg-cyan-500 hover:bg-cyan-600">
                   {" "}
                   {/* Mudado para handleSearchByFilter */}
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

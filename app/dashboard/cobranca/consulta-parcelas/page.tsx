@@ -590,7 +590,7 @@ export default function ConsultaParcelasPage() {
           </div>
 
           <div className="flex gap-3 justify-end pt-4 border-t">
-            <Button onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            <Button type="button" onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white">
               <Search className="h-4 w-4 mr-2" />
               Consultar
             </Button>

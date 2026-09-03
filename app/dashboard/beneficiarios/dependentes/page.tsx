@@ -213,10 +213,7 @@ export default function DependentesPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1"
             />
-            <Button type="button" onClick={handleSearch} disabled={isLoading}>
-              <SearchIcon className="h-4 w-4 mr-2" />
-              {isLoading ? "Buscando..." : "Buscar"}
-            </Button>
+
           </div>
 
           <div className="rounded-md border">

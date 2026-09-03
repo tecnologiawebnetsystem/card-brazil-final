@@ -1201,13 +1201,7 @@ export default function PessoasPage() {
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                   />
                 </div>
-                <Button type="button" onClick={handleSearch}>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.35-4.35" />
-                  </svg>
-                  Pesquisar
-                </Button>
+
               </div>
 
               {showResults && (

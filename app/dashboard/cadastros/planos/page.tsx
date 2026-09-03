@@ -17,6 +17,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import { Plus } from "lucide-react"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
+import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 
 const ClipboardIcon = () => (
   <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,6 +228,42 @@ export default function PlanosPage() {
     }
   }
 
+  const handleToggleStatus = async (plano: Plano) => {
+    const novoAtivo = !plano.ativo
+    try {
+      const response = await fetch(`/api/planos/${plano.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: plano.nome,
+          codigo: plano.codigo ?? null,
+          tipo: plano.tipo ?? null,
+          valor: plano.valor ?? null,
+          cobertura: plano.cobertura ?? null,
+          descricao: plano.descricao ?? null,
+          status: novoAtivo ? "Ativo" : "Inativo",
+          ativo: novoAtivo,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({
+          title: "Sucesso",
+          description: `Plano ${plano.ativo ? "desativado" : "ativado"} com sucesso`,
+        })
+        await loadPlanos()
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível alterar o status do plano",
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleDeletePlano = async () => {
     if (!planoToDelete) return
 
@@ -268,107 +307,70 @@ export default function PlanosPage() {
             <p className="text-muted-foreground">Gerencie os planos de saúde disponíveis</p>
           </div>
           <Button onClick={() => handleOpenModal()}>
-            <PlusIcon />
+            <Plus className="mr-2 h-4 w-4" />
             Novo Plano
           </Button>
         </div>
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Lista de Planos</CardTitle>
-                <CardDescription>Total de {filteredPlanos.length} planos cadastrados</CardDescription>
-              </div>
-              <div className="relative">
-                <SearchIcon />
-                <Input
-                  placeholder="Buscar plano..."
-                  className="pl-10 w-64"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
+            <CardTitle>Planos cadastrados</CardTitle>
+            <CardDescription>Busque, visualize, edite e altere o status dos planos.</CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading && planos.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">Carregando planos...</div>
-            ) : filteredPlanos.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {searchTerm ? "Nenhum plano encontrado com os critérios de busca" : "Nenhum plano cadastrado"}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredPlanos.map((plano) => (
-                  <div
-                    key={plano.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <ClipboardIcon />
-                      <div>
-                        <h3 className="font-medium text-foreground">{plano.nome}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {plano.codigo && `Código: ${plano.codigo}`}
-                          {plano.tipo && ` | Tipo: ${plano.tipo}`}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                      {plano.cobertura && (
-                        <div className="text-center">
-                          <p className="text-sm font-medium text-foreground">{plano.cobertura}</p>
-                          <p className="text-xs text-muted-foreground">Cobertura</p>
-                        </div>
-                      )}
-
-                      {plano.valor && (
-                        <div className="text-center">
-                          <p className="text-sm font-medium text-foreground">
-                            R$ {plano.valor.toFixed(2).replace(".", ",")}
-                          </p>
-                          <p className="text-xs text-muted-foreground">Valor</p>
-                        </div>
-                      )}
-
-                      <Badge variant={plano.ativo ? "default" : "secondary"}>{plano.status}</Badge>
-
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleOpenModal(plano)}>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setPlanoToDelete(plano.id)
-                            setShowDeleteDialog(true)
-                          }}
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <CadastroTable
+              data={planos}
+              loading={isLoading && planos.length === 0}
+              getId={(p) => p.id}
+              getSearchText={(p) => `${p.nome} ${p.codigo ?? ""} ${p.tipo ?? ""} ${p.cobertura ?? ""}`}
+              isActive={(p) => p.ativo}
+              searchPlaceholder="Buscar por nome, código, tipo ou cobertura..."
+              emptyMessage="Nenhum plano encontrado."
+              columns={
+                [
+                  { key: "nome", header: "Plano", sortable: true, className: "font-medium text-foreground" },
+                  {
+                    key: "codigo",
+                    header: "Código",
+                    sortable: true,
+                    render: (p) =>
+                      p.codigo ? (
+                        <Badge variant="outline" className="text-xs">
+                          {p.codigo}
+                        </Badge>
+                      ) : (
+                        "—"
+                      ),
+                  },
+                  { key: "tipo", header: "Tipo", sortable: true, render: (p) => p.tipo || "—" },
+                  { key: "cobertura", header: "Cobertura", render: (p) => p.cobertura || "—" },
+                  {
+                    key: "valor",
+                    header: "Valor",
+                    sortable: true,
+                    sortValue: (p) => p.valor ?? 0,
+                    render: (p) => (p.valor ? `R$ ${p.valor.toFixed(2).replace(".", ",")}` : "—"),
+                  },
+                ] as CadastroColumn<Plano>[]
+              }
+              onEdit={(p) => handleOpenModal(p)}
+              onToggleStatus={handleToggleStatus}
+              detailsTitle={(p) => p.nome}
+              renderDetails={(p) => (
+                <CadastroDetailsGrid>
+                  <CadastroDetailField label="Plano" value={p.nome} />
+                  <CadastroDetailField label="Código" value={p.codigo} />
+                  <CadastroDetailField label="Tipo" value={p.tipo} />
+                  <CadastroDetailField label="Cobertura" value={p.cobertura} />
+                  <CadastroDetailField
+                    label="Valor"
+                    value={p.valor ? `R$ ${p.valor.toFixed(2).replace(".", ",")}` : undefined}
+                  />
+                  <CadastroDetailField label="Status" value={p.ativo ? "Ativo" : "Inativo"} />
+                  <CadastroDetailField label="Descrição" value={p.descricao} full />
+                </CadastroDetailsGrid>
+              )}
+            />
           </CardContent>
         </Card>
 

@@ -7,6 +7,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { CardDescription } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Plus } from "lucide-react"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
+import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 
 interface Convenio {
   id: number
@@ -187,206 +192,95 @@ export default function ConveniosPage() {
       <div className="container mx-auto px-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Convênios</h1>
-            <p className="text-gray-600">Gerencie os convênios médicos e hospitalares</p>
+            <h1 className="text-3xl font-bold text-foreground">Convênios</h1>
+            <p className="text-muted-foreground">Gerencie os convênios médicos e hospitalares</p>
           </div>
           <Button onClick={handleAdd}>
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus className="mr-2 h-4 w-4" />
             Novo Convênio
           </Button>
         </div>
 
-        {/* Filtros e Busca */}
+        {/* Grid padronizado de convênios */}
         <Card>
           <CardHeader>
-            <CardTitle>Filtros</CardTitle>
+            <CardTitle>Convênios cadastrados</CardTitle>
+            <CardDescription>Busque, visualize, edite e altere o status dos convênios.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <Label htmlFor="busca">Buscar</Label>
-                <Input
-                  id="busca"
-                  placeholder="Nome, contato ou CNPJ..."
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="filtroTipo">Tipo</Label>
-                <select
-                  id="filtroTipo"
-                  value={filtroTipo}
-                  onChange={(e) => setFiltroTipo(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="Todos">Todos os tipos</option>
-                  <option value="Médico">Médico</option>
-                  <option value="Odontológico">Odontológico</option>
-                  <option value="Hospitalar">Hospitalar</option>
-                  <option value="Laboratorial">Laboratorial</option>
-                  <option value="Farmácia">Farmácia</option>
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="filtroSituacao">Situação</Label>
-                <select
-                  id="filtroSituacao"
-                  value={filtroSituacao}
-                  onChange={(e) => setFiltroSituacao(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="Todos">Todas as situações</option>
-                  <option value="Ativo">Ativo</option>
-                  <option value="Desativo">Desativo</option>
-                </select>
-              </div>
-              <div className="flex items-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setBusca("")
-                    setFiltroTipo("Todos")
-                    setFiltroSituacao("Todos")
-                  }}
-                >
-                  Limpar Filtros
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Lista de Convênios */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Lista de Convênios ({conveniosFiltrados.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {conveniosFiltrados.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <svg
-                  className="w-12 h-12 mx-auto mb-4 text-gray-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            <CadastroTable
+              data={convenios.filter((c) => filtroTipo === "Todos" || c.tipo === filtroTipo)}
+              loading={isLoading && convenios.length === 0}
+              getId={(c) => c.id}
+              getSearchText={(c) => `${c.nome} ${c.contato} ${c.cnpj ?? ""} ${c.tipo}`}
+              isActive={(c) => c.situacao === "Ativo"}
+              searchPlaceholder="Buscar por nome, contato, CNPJ ou tipo..."
+              emptyMessage="Nenhum convênio encontrado."
+              extraFilters={
+                <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Todos">Todos os tipos</SelectItem>
+                    <SelectItem value="Médico">Médico</SelectItem>
+                    <SelectItem value="Odontológico">Odontológico</SelectItem>
+                    <SelectItem value="Hospitalar">Hospitalar</SelectItem>
+                    <SelectItem value="Laboratorial">Laboratorial</SelectItem>
+                    <SelectItem value="Farmácia">Farmácia</SelectItem>
+                  </SelectContent>
+                </Select>
+              }
+              columns={
+                [
+                  { key: "nome", header: "Convênio", sortable: true, className: "font-medium text-foreground" },
+                  {
+                    key: "tipo",
+                    header: "Tipo",
+                    sortable: true,
+                    render: (c) => (
+                      <Badge variant="secondary" className="text-xs">
+                        {c.tipo}
+                      </Badge>
+                    ),
+                  },
+                  { key: "contato", header: "Contato", render: (c) => c.contato || "—" },
+                  { key: "telefone", header: "Telefone", render: (c) => c.telefone || "—" },
+                  {
+                    key: "percentualCobertura",
+                    header: "Cobertura",
+                    sortable: true,
+                    sortValue: (c) => c.percentualCobertura,
+                    render: (c) => `${c.percentualCobertura}%`,
+                  },
+                ] as CadastroColumn<Convenio>[]
+              }
+              onEdit={handleEdit}
+              onToggleStatus={(c) => toggleSituacao(c.id)}
+              detailsTitle={(c) => c.nome}
+              renderDetails={(c) => (
+                <CadastroDetailsGrid>
+                  <CadastroDetailField label="Convênio" value={c.nome} />
+                  <CadastroDetailField label="Tipo" value={c.tipo} />
+                  <CadastroDetailField label="Contato" value={c.contato} />
+                  <CadastroDetailField label="Telefone" value={c.telefone} />
+                  <CadastroDetailField label="E-mail" value={c.email} />
+                  <CadastroDetailField label="CNPJ" value={c.cnpj} />
+                  <CadastroDetailField label="Cobertura" value={`${c.percentualCobertura}%`} />
+                  <CadastroDetailField label="Prazo autorização" value={`${c.prazoAutorizacao}h`} />
+                  <CadastroDetailField
+                    label="Valor consulta"
+                    value={c.valorConsulta ? `R$ ${c.valorConsulta.toFixed(2)}` : undefined}
                   />
-                </svg>
-                <p>Nenhum convênio encontrado</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {conveniosFiltrados.map((convenio) => (
-                  <Card key={convenio.id} className="border-l-4 border-l-blue-500">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">{convenio.nome}</h3>
-                            <Badge variant={convenio.tipo === "Médico" ? "default" : "secondary"}>
-                              {convenio.tipo}
-                            </Badge>
-                            <Badge variant={convenio.situacao === "Ativo" ? "default" : "destructive"}>
-                              {convenio.situacao}
-                            </Badge>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                            <div>
-                              <Label className="text-xs font-medium text-gray-500">Contato</Label>
-                              <p className="text-gray-900">{convenio.contato}</p>
-                            </div>
-                            <div>
-                              <Label className="text-xs font-medium text-gray-500">Telefone</Label>
-                              <p className="text-gray-900">{convenio.telefone}</p>
-                            </div>
-                            <div>
-                              <Label className="text-xs font-medium text-gray-500">Cobertura</Label>
-                              <p className="text-gray-900">{convenio.percentualCobertura}%</p>
-                            </div>
-                            <div>
-                              <Label className="text-xs font-medium text-gray-500">Prazo Autorização</Label>
-                              <p className="text-gray-900">{convenio.prazoAutorizacao}h</p>
-                            </div>
-                            {convenio.valorConsulta && (
-                              <div>
-                                <Label className="text-xs font-medium text-gray-500">Valor Consulta</Label>
-                                <p className="text-gray-900">R$ {convenio.valorConsulta.toFixed(2)}</p>
-                              </div>
-                            )}
-                            {convenio.valorExame && (
-                              <div>
-                                <Label className="text-xs font-medium text-gray-500">Valor Exame</Label>
-                                <p className="text-gray-900">R$ {convenio.valorExame.toFixed(2)}</p>
-                              </div>
-                            )}
-                            <div>
-                              <Label className="text-xs font-medium text-gray-500">Data Contrato</Label>
-                              <p className="text-gray-900">
-                                {new Date(convenio.dataContrato).toLocaleDateString("pt-BR")}
-                              </p>
-                            </div>
-                            {convenio.dataVencimento && (
-                              <div>
-                                <Label className="text-xs font-medium text-gray-500">Vencimento</Label>
-                                <p className="text-gray-900">
-                                  {new Date(convenio.dataVencimento).toLocaleDateString("pt-BR")}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-
-                          {convenio.observacoes && (
-                            <div className="mt-3">
-                              <Label className="text-xs font-medium text-gray-500">Observações</Label>
-                              <p className="text-sm text-gray-700">{convenio.observacoes}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex gap-2 ml-4">
-                          <Button
-                            onClick={() => toggleSituacao(convenio.id)}
-                            variant={convenio.situacao === "Ativo" ? "destructive" : "default"}
-                            size="sm"
-                          >
-                            {convenio.situacao === "Ativo" ? "Desativar" : "Ativar"}
-                          </Button>
-                          <Button onClick={() => handleEdit(convenio)} variant="outline" size="sm">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                              />
-                            </svg>
-                          </Button>
-                          <Button onClick={() => handleDelete(convenio.id)} variant="destructive" size="sm">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+                  <CadastroDetailField
+                    label="Valor exame"
+                    value={c.valorExame ? `R$ ${c.valorExame.toFixed(2)}` : undefined}
+                  />
+                  <CadastroDetailField label="Status" value={c.situacao} />
+                  <CadastroDetailField label="Observações" value={c.observacoes} full />
+                </CadastroDetailsGrid>
+              )}
+            />
           </CardContent>
         </Card>
 

@@ -20,9 +20,9 @@ export const metadata: Metadata = {
   description: "Portal corporativo para gestão segura e eficiente.",
   generator: "v0.app",
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
+    icon: "/cardbrazil-icon.svg",
+    shortcut: "/cardbrazil-icon.svg",
+    apple: "/cardbrazil-icon.svg",
   },
 }
 

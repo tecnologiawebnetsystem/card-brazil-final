@@ -704,20 +704,23 @@ export function AppSidebar() {
                   className="w-full justify-start gap-3 rounded-lg hover:bg-sidebar-primary transition-colors h-auto py-2"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/images/user-avatar.jpg" alt={user.nome} />
+                    <AvatarImage src="/images/user-avatar.jpg" alt={user.nome_completo} />
                     <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs font-semibold">
-                      {user.nome
-                        ? user.nome
+                      {user.nome_completo
+                        ? user.nome_completo
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
+                            .slice(0, 2)
                             .toUpperCase()
                         : "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium text-sidebar-foreground">{user.nome}</span>
-                    <span className="text-xs text-sidebar-foreground/60">{getProfileDisplayName(user.role_nome)}</span>
+                    <span className="text-sm font-medium text-sidebar-foreground">{user.nome_completo || "Usuário"}</span>
+                    <span className="text-xs capitalize text-sidebar-foreground/60">
+                      {getProfileDisplayName(user.tipo_usuario)}
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto h-4 w-4 text-sidebar-foreground/60" />
                 </Button>
@@ -730,6 +733,12 @@ export function AppSidebar() {
                   onClick={() => (window.location.href = "/dashboard/perfil")}
                 >
                   <span>Perfil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
+                  onClick={() => (window.location.href = "/dashboard/perfil#seguranca")}
+                >
+                  <span>Alterar senha</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-sidebar-border" />
                 <DropdownMenuItem

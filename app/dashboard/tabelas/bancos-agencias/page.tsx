@@ -207,7 +207,7 @@ export default function BancosAgenciasPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bancos e Agências</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Bancos</h1>
           <p className="text-muted-foreground">Cadastro oficial de bancos para operações financeiras</p>
         </div>
         <div className="flex gap-2">

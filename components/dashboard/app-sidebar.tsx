@@ -230,7 +230,7 @@ const menuItems = [
             icon: <CogIcon className="h-3 w-3" />,
           },
           {
-            title: "Bancos e Agências",
+            title: "Bancos",
             url: "/dashboard/tabelas/bancos-agencias",
             icon: <CogIcon className="h-3 w-3" />,
           },

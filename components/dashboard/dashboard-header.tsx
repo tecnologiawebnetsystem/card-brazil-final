@@ -23,12 +23,6 @@ export function DashboardHeader() {
 
         {/* Right side - Status and notifications only */}
         <div className="flex items-center gap-4">
-          {/* System Status */}
-          <div className="hidden lg:flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full"></div>
-            <span className="text-sm text-[#737373]">Sistema Online</span>
-          </div>
-
           {/* Current Date */}
           <div className="hidden md:block text-sm text-[#737373]">
             {new Date().toLocaleDateString("pt-BR", {

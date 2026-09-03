@@ -121,13 +121,13 @@ export class AuthService {
     const recoveryUrl = `${baseUrl?.startsWith("http") ? baseUrl : `https://${baseUrl || "localhost:3000"}`}/esqueci-senha?token=${rawToken}`
     const resend = new Resend(process.env.RESEND_API_KEY)
     const senderDomain = process.env.RESEND_EMAIL_DOMAIN
-    const from = senderDomain ? `Segurança Talent Health <no-reply@${senderDomain}>` : "Talent Health <onboarding@resend.dev>"
+    const from = senderDomain ? `Segurança CardBrazil <no-reply@${senderDomain}>` : "CardBrazil <onboarding@resend.dev>"
     const { error } = await resend.emails.send(
       {
         from,
         to: [normalizedEmail],
-        subject: "Recuperação de senha — Talent Health",
-        html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><h2>Recuperação de senha</h2><p>Recebemos uma solicitação para redefinir sua senha.</p><p><a href="${recoveryUrl}" style="background:#0878be;color:#fff;padding:12px 18px;text-decoration:none;border-radius:6px">Criar nova senha</a></p><p>Este link expira em 30 minutos e só pode ser usado uma vez.</p><p>Se você não solicitou esta alteração, ignore este e-mail.</p></div>`,
+        subject: "Seu acesso CardBrazil: crie uma nova senha",
+        html: `<div style="margin:0;background:#f4f7fb;padding:40px 16px;font-family:Arial,Helvetica,sans-serif;color:#102a43"><div style="max-width:580px;margin:auto;background:#fff;border:1px solid #dce5ee;border-radius:24px;overflow:hidden;box-shadow:0 12px 36px rgba(16,42,67,.10)"><div style="background:#102a43;padding:28px 34px;color:#fff"><div style="font-size:22px;font-weight:700;letter-spacing:-.04em">CardBrazil</div><div style="margin-top:8px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#a9c5d8">Gestão que move pessoas</div></div><div style="padding:36px 34px"><div style="display:inline-block;background:#e9f5f4;color:#137b78;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700">SEGURANÇA DA CONTA</div><h1 style="margin:22px 0 12px;font-size:30px;line-height:1.1;letter-spacing:-.04em">Vamos recuperar seu acesso.</h1><p style="font-size:16px;line-height:1.7;color:#52677a">Recebemos uma solicitação para criar uma nova senha para sua conta CardBrazil. Clique no botão abaixo para continuar.</p><div style="margin:30px 0"><a href="${recoveryUrl}" style="display:inline-block;background:#e56b4f;color:#fff;padding:15px 22px;text-decoration:none;border-radius:12px;font-weight:700">Criar nova senha &rarr;</a></div><p style="font-size:13px;line-height:1.7;color:#718496">Este link expira em <strong>30 minutos</strong> e só pode ser usado uma vez. Se você não solicitou esta alteração, ignore este e-mail.</p></div><div style="border-top:1px solid #edf1f5;padding:22px 34px;font-size:12px;line-height:1.6;color:#718496">Por segurança, nunca compartilhe este link. Este é um e-mail automático da CardBrazil.</div></div></div>`,
       },
       { idempotencyKey: `password-reset/${usuario.id}/${tokenHash}` },
     )

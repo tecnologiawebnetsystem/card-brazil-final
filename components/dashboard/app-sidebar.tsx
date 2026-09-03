@@ -221,7 +221,7 @@ const menuItems = [
     title: "Tabelas Gerais",
     items: [
       {
-        title: "Códigos e Classificaç����es",
+        title: "Códigos e Classificaç������es",
         icon: <CogIcon />,
         subItems: [
           {
@@ -634,7 +634,7 @@ export function AppSidebar() {
               <h1 className="text-base font-semibold text-sidebar-foreground">
                 CardBrazil
               </h1>
-              <p className="text-xs text-sidebar-foreground/60">Sistema de Gestao</p>
+              <p className="text-xs text-sidebar-foreground/60">Gestão de pessoas e benefícios</p>
             </div>
           </div>
         </SidebarHeader>
@@ -730,12 +730,6 @@ export function AppSidebar() {
                   onClick={() => (window.location.href = "/dashboard/perfil")}
                 >
                   <span>Perfil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
-                  onClick={() => (window.location.href = "/dashboard/configuracoes")}
-                >
-                  <span>Configuracoes</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-sidebar-border" />
                 <DropdownMenuItem

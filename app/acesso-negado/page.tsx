@@ -28,7 +28,7 @@ export default function AcessoNegadoPage() {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-[#008080] to-[#006666] bg-clip-text text-transparent">
-                Talent Health
+                CardBrazil
               </h1>
               <p className="text-sm text-[#a3a3a3]">Controle de Acesso</p>
             </div>

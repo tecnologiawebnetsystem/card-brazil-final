@@ -49,7 +49,7 @@ export default function ControleAcessoPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">47</div>
-            <p className="text-xs text-muted-foreground">Online agora</p>
+              <p className="text-xs text-muted-foreground">Conforme registros do sistema</p>
           </CardContent>
         </Card>
 

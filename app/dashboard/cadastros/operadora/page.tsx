@@ -147,7 +147,13 @@ export default function OperadoraPage() {
       const data = await response.json()
 
       if (data.success) {
-        setPessoas(data.data)
+        const pessoasNormalizadas = (Array.isArray(data.data) ? data.data : []).map((pessoa: Pessoa) => ({
+          ...pessoa,
+          nome: pessoa.nome || pessoa.razao_social || "Pessoa sem nome",
+          enderecos: Array.isArray(pessoa.enderecos) ? pessoa.enderecos : [],
+          dadosBancarios: Array.isArray(pessoa.dadosBancarios) ? pessoa.dadosBancarios : [],
+        }))
+        setPessoas(pessoasNormalizadas)
       } else {
         toast({
           title: "Erro ao carregar pessoas",
@@ -179,10 +185,10 @@ export default function OperadoraPage() {
     if (operadora?.registro_ans) score += 15
 
     // Endereços (20 pontos)
-    if (pessoa.enderecos.length > 0) score += 20
+    if ((pessoa.enderecos || []).length > 0) score += 20
 
     // Dados bancários (10 pontos)
-    if (pessoa.dadosBancarios.length > 0) score += 10
+    if ((pessoa.dadosBancarios || []).length > 0) score += 10
 
     return Math.round((score / maxScore) * 100)
   }
@@ -410,8 +416,8 @@ export default function OperadoraPage() {
         Natureza: operadora?.natureza_operadora || "N/A",
         "Registro ANS": operadora?.registro_ans || "N/A",
         Situação: operadora?.ativo ? "Ativo" : "Inativo",
-        Endereços: pessoa.enderecos.length,
-        "Contas Bancárias": pessoa.dadosBancarios.length,
+        Endereços: (pessoa.enderecos || []).length,
+        "Contas Bancárias": (pessoa.dadosBancarios || []).length,
       }
     })
 

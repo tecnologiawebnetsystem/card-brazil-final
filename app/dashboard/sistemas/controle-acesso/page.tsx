@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,24 +10,28 @@ import { Lock, Unlock, Shield, Users, Key, Search, Plus, Edit, Trash2, Eye, Cloc
 
 export default function ControleAcessoPage() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [profiles, setProfiles] = useState<any[]>([])
+  const [logs, setLogs] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-  const accessRules = [
-    { id: 1, resource: "Dashboard", action: "Visualizar", role: "Todos", status: "Ativo" },
-    { id: 2, resource: "Cadastros", action: "Criar/Editar", role: "Admin, Manager", status: "Ativo" },
-    { id: 3, resource: "Propostas", action: "Aprovar", role: "Manager", status: "Ativo" },
-    { id: 4, resource: "Financeiro", action: "Visualizar", role: "Admin, Manager, Operator", status: "Ativo" },
-    { id: 5, resource: "Relatórios", action: "Exportar", role: "Admin", status: "Inativo" },
-  ]
+  useEffect(() => {
+    Promise.all([fetch("/api/sistemas/perfis"), fetch("/api/sistemas/logs")])
+      .then(async ([profilesResponse, logsResponse]) => {
+        const profilesData = await profilesResponse.json()
+        const logsData = await logsResponse.json()
+        if (!profilesResponse.ok || !logsResponse.ok) throw new Error(profilesData.error || logsData.error)
+        setProfiles(Array.isArray(profilesData.profiles) ? profilesData.profiles : [])
+        setLogs(Array.isArray(logsData) ? logsData : Array.isArray(logsData.logs) ? logsData.logs : [])
+      })
+      .catch((cause) => setError(cause instanceof Error ? cause.message : "Não foi possível carregar os dados."))
+  }, [])
 
-  const activeUsers = [
-    { id: 1, name: "João Silva", role: "Admin", lastAccess: "2 min atrás", ip: "192.168.1.100" },
-    { id: 2, name: "Maria Santos", role: "Manager", lastAccess: "15 min atrás", ip: "192.168.1.101" },
-    { id: 3, name: "Carlos Oliveira", role: "Operator", lastAccess: "1h atrás", ip: "192.168.1.102" },
-    { id: 4, name: "Ana Costa", role: "Viewer", lastAccess: "2h atrás", ip: "192.168.1.103" },
-  ]
+  const accessRules = useMemo(() => profiles.filter((profile) => String(profile.nome || "").toLowerCase().includes(searchTerm.toLowerCase())).map((profile) => ({ id: profile.nome, resource: "Perfil de usuário", action: `${profile.permissoes || 0} permissões`, role: profile.nome, status: "Ativo" })), [profiles, searchTerm])
+  const activeUsers = profiles.flatMap((profile) => Array.from({ length: Number(profile.usuarios || 0) }, (_, index) => ({ id: `${profile.nome}-${index}`, name: profile.nome, role: profile.nome, lastAccess: "Disponível no log de auditoria", ip: "—" })))
 
   return (
     <div className="flex-1 space-y-6 p-6">
+      {error && <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Controle de Acesso</h1>
@@ -48,7 +52,7 @@ export default function ControleAcessoPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">47</div>
+            <div className="text-2xl font-bold">{activeUsers.length}</div>
               <p className="text-xs text-muted-foreground">Conforme registros do sistema</p>
           </CardContent>
         </Card>
@@ -59,7 +63,7 @@ export default function ControleAcessoPage() {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">124</div>
+            <div className="text-2xl font-bold">{accessRules.length}</div>
             <p className="text-xs text-muted-foreground">Regras configuradas</p>
           </CardContent>
         </Card>
@@ -185,54 +189,18 @@ export default function ControleAcessoPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[
-                  {
-                    time: "14:30:25",
-                    user: "João Silva",
-                    action: "Login realizado",
-                    ip: "192.168.1.100",
-                    status: "Sucesso",
-                  },
-                  {
-                    time: "14:28:15",
-                    user: "Maria Santos",
-                    action: "Acesso a Relatórios",
-                    ip: "192.168.1.101",
-                    status: "Sucesso",
-                  },
-                  {
-                    time: "14:25:10",
-                    user: "Desconhecido",
-                    action: "Tentativa de login",
-                    ip: "192.168.1.200",
-                    status: "Bloqueado",
-                  },
-                  {
-                    time: "14:20:05",
-                    user: "Carlos Oliveira",
-                    action: "Alteração de dados",
-                    ip: "192.168.1.102",
-                    status: "Sucesso",
-                  },
-                  {
-                    time: "14:15:30",
-                    user: "Ana Costa",
-                    action: "Visualização de propostas",
-                    ip: "192.168.1.103",
-                    status: "Sucesso",
-                  },
-                ].map((log, index) => (
+                {logs.map((log, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-4">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-mono">{log.time}</span>
-                      <span className="text-sm">{log.user}</span>
+                      <span className="text-sm font-mono">{log.timestamp ? new Date(log.timestamp).toLocaleTimeString("pt-BR") : "—"}</span>
+                      <span className="text-sm">{log.usuario || "Sistema"}</span>
                       <span className="text-sm text-muted-foreground">{log.action}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-muted-foreground">{log.ip}</span>
                       <Badge
-                        className={log.status === "Sucesso" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+                        className={log.status !== "Falha" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
                       >
                         {log.status}
                       </Badge>

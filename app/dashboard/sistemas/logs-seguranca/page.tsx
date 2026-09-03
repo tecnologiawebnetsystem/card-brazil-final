@@ -211,51 +211,12 @@ export default function LogsSegurancaPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border-l-4 border-red-500 bg-red-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <AlertTriangle className="h-5 w-5 text-red-600" />
-                    <div>
-                      <h4 className="font-medium text-red-800">Múltiplas tentativas de login falharam</h4>
-                      <p className="text-sm text-red-600">IP: 192.168.1.200 - 15 tentativas em 5 minutos</p>
-                    </div>
+                {securityLogs.filter((log) => ["Falha", "Bloqueado"].includes(log.status)).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum alerta ativo encontrado nos registros reais.</p> : securityLogs.filter((log) => ["Falha", "Bloqueado"].includes(log.status)).map((log) => (
+                  <div key={log.id} className="flex items-center justify-between rounded-lg border p-4">
+                    <div><p className="font-medium">{log.action}</p><p className="text-sm text-muted-foreground">{log.usuario || "Sistema"} — {log.ip || "IP não informado"}</p></div><Badge>{log.status}</Badge>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-red-100 text-red-800">Crítico</Badge>
-                    <Button size="sm">Investigar</Button>
-                  </div>
-                </div>
+                ))}
 
-                <div className="flex items-center justify-between p-4 border-l-4 border-yellow-500 bg-yellow-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <h4 className="font-medium text-yellow-800">Acesso fora do horário comercial</h4>
-                      <p className="text-sm text-yellow-600">Usuário: Carlos Oliveira - 02:30 AM</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-yellow-100 text-yellow-800">Médio</Badge>
-                    <Button size="sm" variant="outline">
-                      Revisar
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border-l-4 border-orange-500 bg-orange-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Lock className="h-5 w-5 text-orange-600" />
-                    <div>
-                      <h4 className="font-medium text-orange-800">Falha na autenticação 2FA</h4>
-                      <p className="text-sm text-orange-600">Usuário: Ana Costa - Token inválido</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-orange-100 text-orange-800">Alto</Badge>
-                    <Button size="sm" variant="outline">
-                      Verificar
-                    </Button>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>

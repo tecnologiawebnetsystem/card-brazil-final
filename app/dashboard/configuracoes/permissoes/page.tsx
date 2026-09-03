@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -20,35 +20,20 @@ const SaveIcon = () => (
 
 export default function ConfiguracoesPermissoesPage() {
   const [selectedRole, setSelectedRole] = useState("admin")
-  const [permissions, setPermissions] = useState({
-    admin: {
-      cadastros: { read: true, write: true, delete: true },
-      propostas: { read: true, write: true, delete: true },
-      beneficiarios: { read: true, write: true, delete: true },
-      cobrancas: { read: true, write: true, delete: true },
-      relatorios: { read: true, write: true, delete: true },
-      configuracoes: { read: true, write: true, delete: true },
-      sistema: { read: true, write: true, delete: true },
-    },
-    operador: {
-      cadastros: { read: true, write: true, delete: false },
-      propostas: { read: true, write: true, delete: false },
-      beneficiarios: { read: true, write: true, delete: false },
-      cobrancas: { read: true, write: true, delete: false },
-      relatorios: { read: true, write: false, delete: false },
-      configuracoes: { read: false, write: false, delete: false },
-      sistema: { read: false, write: false, delete: false },
-    },
-    consulta: {
-      cadastros: { read: true, write: false, delete: false },
-      propostas: { read: true, write: false, delete: false },
-      beneficiarios: { read: true, write: false, delete: false },
-      cobrancas: { read: true, write: false, delete: false },
-      relatorios: { read: true, write: false, delete: false },
-      configuracoes: { read: false, write: false, delete: false },
-      sistema: { read: false, write: false, delete: false },
-    },
-  })
+  const [permissions, setPermissions] = useState<Record<string, Record<string, Record<string, boolean>>>>({})
+
+  useEffect(() => {
+    fetch("/api/sistemas/permissoes").then(async (response) => {
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || "Não foi possível carregar permissões.")
+      const grouped: Record<string, Record<string, Record<string, boolean>>> = {}
+      for (const permission of Array.isArray(data) ? data : data.permissions || []) {
+        grouped[permission.perfil] ??= {}
+        grouped[permission.perfil][permission.modulo] = permission.acoes || { read: true, write: false, delete: false }
+      }
+      setPermissions(grouped)
+    }).catch((error) => toast.error(error instanceof Error ? error.message : "Não foi possível carregar permissões."))
+  }, [])
 
   const modules = [
     { key: "cadastros", name: "Cadastros", description: "Gerenciar cadastros de clientes, corretores, etc." },
@@ -72,7 +57,7 @@ export default function ConfiguracoesPermissoesPage() {
       [selectedRole]: {
         ...prev[selectedRole as keyof typeof prev],
         [module]: {
-          ...prev[selectedRole as keyof typeof prev][module as keyof (typeof prev)[typeof selectedRole]],
+          ...(prev[selectedRole]?.[module] || {}),
           [permission]: value,
         },
       },
@@ -144,7 +129,7 @@ export default function ConfiguracoesPermissoesPage() {
                           <p className="text-xs text-muted-foreground">Pode ver os dados</p>
                         </div>
                         <Switch
-                          checked={currentPermissions[module.key as keyof typeof currentPermissions]?.read || false}
+                          checked={currentPermissions?.[module.key]?.read || false}
                           onCheckedChange={(checked) => handlePermissionChange(module.key, "read", checked)}
                         />
                       </div>
@@ -155,7 +140,7 @@ export default function ConfiguracoesPermissoesPage() {
                           <p className="text-xs text-muted-foreground">Pode modificar</p>
                         </div>
                         <Switch
-                          checked={currentPermissions[module.key as keyof typeof currentPermissions]?.write || false}
+                          checked={currentPermissions?.[module.key]?.write || false}
                           onCheckedChange={(checked) => handlePermissionChange(module.key, "write", checked)}
                         />
                       </div>
@@ -166,7 +151,7 @@ export default function ConfiguracoesPermissoesPage() {
                           <p className="text-xs text-muted-foreground">Pode remover</p>
                         </div>
                         <Switch
-                          checked={currentPermissions[module.key as keyof typeof currentPermissions]?.delete || false}
+                          checked={currentPermissions?.[module.key]?.delete || false}
                           onCheckedChange={(checked) => handlePermissionChange(module.key, "delete", checked)}
                         />
                       </div>
@@ -189,8 +174,8 @@ export default function ConfiguracoesPermissoesPage() {
                     <Badge className={role.color + " mb-2"}>{role.name}</Badge>
                     <div className="space-y-2">
                       {modules.map((module) => {
-                        const rolePermissions = permissions[role.value as keyof typeof permissions]
-                        const modulePermissions = rolePermissions[module.key as keyof typeof rolePermissions]
+                        const rolePermissions = permissions[role.value] || {}
+                        const modulePermissions = rolePermissions?.[module.key] || {}
                         const permissionCount = Object.values(modulePermissions || {}).filter(Boolean).length
 
                         return (

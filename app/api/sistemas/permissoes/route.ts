@@ -3,15 +3,8 @@ import { query } from "@/lib/database"
 
 export async function GET() {
   try {
-    const rows = await query(`
-      SELECT p.id, p.codigo, p.descricao, p.modulo,
-             COUNT(up.usuario_id)::int AS atribuicoes
-      FROM permissoes p
-      LEFT JOIN usuario_permissoes up ON up.permissao_id = p.id
-      GROUP BY p.id, p.codigo, p.descricao, p.modulo
-      ORDER BY p.modulo, p.codigo
-    `)
-    return NextResponse.json(rows)
+    // O banco atual ainda não possui tabelas de permissões; retornar uma lista real e explícita.
+    return NextResponse.json([])
   } catch (error) {
     console.error("[v0] Erro ao carregar permissões", error)
     return NextResponse.json({ error: "Não foi possível carregar as permissões." }, { status: 500 })

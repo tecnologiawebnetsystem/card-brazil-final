@@ -17,7 +17,15 @@ export default function PerfisUsuarioPage() {
       .then(async (response) => {
         const data = await response.json()
         if (!response.ok) throw new Error(data.error)
-        setProfileStats(Object.fromEntries(data.profiles.map((profile: any) => [profile.nome, {
+        const nomesPerfis: Record<string, string> = {
+          admin: "Administrador",
+          administrador: "Administrador",
+          operador: "Operador",
+          consulta: "Visualizador",
+          visualizador: "Visualizador",
+          gerente: "Gerente",
+        }
+        setProfileStats(Object.fromEntries(data.profiles.map((profile: any) => [nomesPerfis[String(profile.nome).toLowerCase()] || profile.nome, {
           users: Number(profile.usuarios || 0),
           permissions: Number(profile.permissoes || 0),
         }])))
@@ -162,8 +170,8 @@ export default function PerfisUsuarioPage() {
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Operador</div>
-            <p className="text-xs text-muted-foreground">25 usuários</p>
+            <div className="text-2xl font-bold">{Object.entries(profileStats).sort(([, a], [, b]) => b.users - a.users)[0]?.[0] || "—"}</div>
+            <p className="text-xs text-muted-foreground">{Object.entries(profileStats).sort(([, a], [, b]) => b.users - a.users)[0]?.[1].users || 0} usuários</p>
           </CardContent>
         </Card>
       </div>
@@ -292,60 +300,14 @@ export default function PerfisUsuarioPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {profile.name === "Administrador" && (
-                      <>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">João Silva</span>
-                          <Badge variant="outline">Admin</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Maria Santos</span>
-                          <Badge variant="outline">Admin</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Carlos Oliveira</span>
-                          <Badge variant="outline">Admin</Badge>
-                        </div>
-                      </>
-                    )}
-                    {profile.name === "Gerente" && (
-                      <>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Ana Costa</span>
-                          <Badge variant="outline">Manager</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Pedro Lima</span>
-                          <Badge variant="outline">Manager</Badge>
-                        </div>
-                        <div className="text-sm text-muted-foreground">+6 usuários</div>
-                      </>
-                    )}
-                    {profile.name === "Operador" && (
-                      <>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Lucia Ferreira</span>
-                          <Badge variant="outline">Operator</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Roberto Souza</span>
-                          <Badge variant="outline">Operator</Badge>
-                        </div>
-                        <div className="text-sm text-muted-foreground">+23 usuários</div>
-                      </>
-                    )}
-                    {profile.name === "Visualizador" && (
-                      <>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Fernanda Alves</span>
-                          <Badge variant="outline">Viewer</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Marcos Pereira</span>
-                          <Badge variant="outline">Viewer</Badge>
-                        </div>
-                        <div className="text-sm text-muted-foreground">+10 usuários</div>
-                      </>
+                    {permissionUsers.filter((user) => String(user.tipo_usuario || user.perfil || "") === profile.name).slice(0, 5).map((user) => (
+                      <div key={user.id} className="flex items-center justify-between rounded border p-2">
+                        <span className="text-sm">{user.nome || user.name || user.email}</span>
+                        <Badge variant="outline">{profile.name}</Badge>
+                      </div>
+                    ))}
+                    {permissionUsers.filter((user) => String(user.tipo_usuario || user.perfil || "") === profile.name).length === 0 && (
+                      <p className="text-sm text-muted-foreground">Nenhum usuário deste perfil encontrado.</p>
                     )}
                   </div>
                   <Button variant="outline" size="sm" className="w-full mt-3 bg-transparent">

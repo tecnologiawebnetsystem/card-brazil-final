@@ -30,8 +30,8 @@ export default function PerfisUsuarioPage() {
       id: 1,
       name: "Administrador",
       description: "Acesso total ao sistema",
-      users: 3,
-      permissions: 45,
+      users: profileStats.Administrador?.users ?? 0,
+      permissions: profileStats.Administrador?.permissions ?? 0,
       color: "red",
       icon: <Crown className="h-4 w-4" />,
     },
@@ -39,8 +39,8 @@ export default function PerfisUsuarioPage() {
       id: 2,
       name: "Gerente",
       description: "Acesso a relatórios e aprovações",
-      users: 8,
-      permissions: 32,
+      users: profileStats.Gerente?.users ?? 0,
+      permissions: profileStats.Gerente?.permissions ?? 0,
       color: "blue",
       icon: <Shield className="h-4 w-4" />,
     },
@@ -48,8 +48,8 @@ export default function PerfisUsuarioPage() {
       id: 3,
       name: "Operador",
       description: "Operações do dia a dia",
-      users: 25,
-      permissions: 18,
+      users: profileStats.Operador?.users ?? 0,
+      permissions: profileStats.Operador?.permissions ?? 0,
       color: "green",
       icon: <UserCheck className="h-4 w-4" />,
     },
@@ -57,8 +57,8 @@ export default function PerfisUsuarioPage() {
       id: 4,
       name: "Visualizador",
       description: "Apenas visualização",
-      users: 12,
-      permissions: 8,
+      users: profileStats.Visualizador?.users ?? 0,
+      permissions: profileStats.Visualizador?.permissions ?? 0,
       color: "gray",
       icon: <Eye className="h-4 w-4" />,
     },
@@ -129,7 +129,7 @@ export default function PerfisUsuarioPage() {
             <Users2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
+            <div className="text-2xl font-bold">{userProfiles.length}</div>
             <p className="text-xs text-muted-foreground">Perfis configurados</p>
           </CardContent>
         </Card>
@@ -140,7 +140,7 @@ export default function PerfisUsuarioPage() {
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">48</div>
+            <div className="text-2xl font-bold">{userProfiles.reduce((total, profile) => total + profile.users, 0)}</div>
             <p className="text-xs text-muted-foreground">Distribuídos nos perfis</p>
           </CardContent>
         </Card>
@@ -151,7 +151,7 @@ export default function PerfisUsuarioPage() {
             <Key className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">103</div>
+            <div className="text-2xl font-bold">{userProfiles.reduce((total, profile) => total + profile.permissions, 0)}</div>
             <p className="text-xs text-muted-foreground">Total configuradas</p>
           </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -68,37 +68,31 @@ const pessoasMock: Pessoa[] = [
 ]
 
 export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([
-    {
-      id: 1,
-      pessoaId: 1,
-      nome: "João Silva Santos",
-      email: "joao@email.com",
-      perfil: "administrador",
-      ativo: true,
-      dataUltimoLogin: "2024-01-15 14:30:00",
-      dataCriacao: "2024-01-01",
-    },
-    {
-      id: 2,
-      pessoaId: 2,
-      nome: "Maria Oliveira Costa",
-      email: "maria@email.com",
-      perfil: "operador",
-      ativo: true,
-      dataUltimoLogin: "2024-01-14 09:15:00",
-      dataCriacao: "2024-01-05",
-    },
-    {
-      id: 3,
-      pessoaId: 4,
-      nome: "Carlos Eduardo Lima",
-      email: "carlos@email.com",
-      perfil: "financeiro",
-      ativo: false,
-      dataCriacao: "2024-01-10",
-    },
-  ])
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [pessoas, setPessoas] = useState<Pessoa[]>([])
+
+  useEffect(() => {
+    Promise.all([fetch("/api/configuracoes/usuarios"), fetch("/api/pessoas")])
+      .then(async ([usuariosResponse, pessoasResponse]) => {
+        const usuariosData = await usuariosResponse.json()
+        const pessoasData = await pessoasResponse.json()
+        if (!usuariosResponse.ok) throw new Error(usuariosData.error || "Não foi possível carregar usuários")
+        setUsuarios((Array.isArray(usuariosData) ? usuariosData : []).map((usuario: any) => ({
+          id: Number(usuario.id),
+          pessoaId: Number(usuario.pessoa_id || usuario.pessoaId || usuario.id),
+          nome: usuario.nome || usuario.nome_completo || "Sem nome",
+          email: usuario.email || "",
+          perfil: usuario.perfil || "operador",
+          ativo: usuario.status ? usuario.status === "ativo" : Boolean(usuario.ativo ?? true),
+          dataUltimoLogin: usuario.ultimo_acesso,
+          dataCriacao: usuario.created_at || usuario.data_criacao || "",
+        })))
+        setPessoas((Array.isArray(pessoasData) ? pessoasData : pessoasData.data || []).map((pessoa: any) => ({
+          id: Number(pessoa.id), nome: pessoa.nome || pessoa.nome_completo || "", email: pessoa.email || "", documento: pessoa.cpf_cnpj || pessoa.documento || "", tipo: pessoa.tipo_pessoa === "juridica" ? "juridica" : "fisica",
+        })))
+      })
+      .catch((error) => toast.error(error instanceof Error ? error.message : "Erro ao carregar dados"))
+  }, [])
 
   const [searchTerm, setSearchTerm] = useState("")
   const [filtroAtivo, setFiltroAtivo] = useState<string>("todos")
@@ -130,7 +124,7 @@ export default function UsuariosPage() {
       return
     }
 
-    const pessoaSelecionada = pessoasMock.find((p) => p.id === Number.parseInt(formData.pessoaId))
+    const pessoaSelecionada = pessoas.find((p) => p.id === Number.parseInt(formData.pessoaId))
     if (!pessoaSelecionada) {
       toast.error("Pessoa não encontrada")
       return

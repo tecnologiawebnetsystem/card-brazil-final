@@ -640,7 +640,7 @@ export function AppSidebar() {
             </div>
             <div>
               <h1 className="text-base font-semibold text-sidebar-foreground">
-                Talent Health
+                CardBrazil
               </h1>
               <p className="text-xs text-sidebar-foreground/60">Sistema de Gestao</p>
             </div>

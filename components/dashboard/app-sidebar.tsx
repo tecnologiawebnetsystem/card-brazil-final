@@ -221,7 +221,7 @@ const menuItems = [
     title: "Tabelas Gerais",
     items: [
       {
-        title: "Códigos e Classificações",
+        title: "Códigos e Classificaç��es",
         icon: <CogIcon />,
         subItems: [
           {
@@ -575,11 +575,7 @@ export function AppSidebar() {
     Propostas: true,
     "Tabelas Gerais": true,
     Beneficiários: true,
-    Financeiro: true,
-    Cobrança: true,
-    "Sistema Contábil": true,
     Sistemas: true,
-    Relatórios: true,
     Configurações: true,
   })
 
@@ -598,10 +594,16 @@ export function AppSidebar() {
   }
 
   const filterMenuGroups = (groups: any[]) => {
+    const hiddenGroups = new Set(["Financeiro", "Cobrança", "Sistema Contábil", "Relatórios"])
+    const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
+
     return groups
+      .filter((group) => !hiddenGroups.has(group.title))
       .map((group) => ({
         ...group,
-        items: filterMenuItems(group.items),
+        items: filterMenuItems(group.items).filter(
+          (item) => !(group.title === "Sistemas" && hiddenSystemItems.has(item.title)),
+        ),
       }))
       .filter((group) => group.items.length > 0)
   }

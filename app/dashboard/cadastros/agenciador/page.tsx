@@ -99,6 +99,7 @@ export default function AgenciadorPage() {
 
   useEffect(() => {
     loadAgenciadores()
+    handleSearch()
   }, [])
 
   const loadAgenciadores = async () => {
@@ -119,19 +120,16 @@ export default function AgenciadorPage() {
   }
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      setSearchResults([])
-      setShowResults(false)
-      return
-    }
-
     setIsLoading(true)
     try {
       const response = await fetch(`/api/pessoas?search=${encodeURIComponent(searchTerm)}`)
       const data = await response.json()
 
       if (data.success) {
-        let results = data.data
+        let results = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
+          ...pessoa,
+          nome: pessoa.nome || pessoa.nome_completo || pessoa.razao_social || "",
+        }))
 
         if (searchFilter === "agenciadores") {
           results = results.filter((pessoa: Pessoa) =>
@@ -522,7 +520,7 @@ export default function AgenciadorPage() {
                       disabled={isLoading}
                     />
                   </div>
-                  <Button onClick={handleSearch} className="bg-cyan-500 hover:bg-cyan-600" disabled={isLoading}>
+                  <Button type="button" onClick={handleSearch} className="bg-cyan-500 hover:bg-cyan-600" disabled={isLoading}>
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"

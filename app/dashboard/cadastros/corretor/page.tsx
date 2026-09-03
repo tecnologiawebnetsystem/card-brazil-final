@@ -101,6 +101,7 @@ export default function CorretorPage() {
 
   useEffect(() => {
     loadCorretores()
+    handleSearch()
   }, [])
 
   useEffect(() => {
@@ -167,19 +168,16 @@ export default function CorretorPage() {
   }
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      setSearchResults([])
-      setShowResults(false)
-      return
-    }
-
     try {
       setLoading(true)
       const response = await fetch(`/api/pessoas?search=${encodeURIComponent(searchTerm)}`)
       const data = await response.json()
 
       if (data.success) {
-        let results = data.data
+        let results = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
+          ...pessoa,
+          nome: pessoa.nome || pessoa.nome_completo || pessoa.razao_social || "",
+        }))
 
         if (searchFilter === "corretores") {
           results = results.filter((pessoa: Pessoa) => corretores.some((cor) => cor.pessoa_id === pessoa.id))
@@ -551,7 +549,7 @@ export default function CorretorPage() {
                       onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                     />
                   </div>
-                  <Button onClick={handleSearch} className="bg-cyan-500 hover:bg-cyan-600" disabled={loading}>
+                  <Button type="button" onClick={handleSearch} className="bg-cyan-500 hover:bg-cyan-600" disabled={loading}>
                     {loading ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (

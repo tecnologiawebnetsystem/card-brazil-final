@@ -91,7 +91,8 @@ const planosFaixaMockados: PlanoFaixa[] = [
 ]
 
 export default function PlanosFaixaPage() {
-  const [planosFaixa, setPlanosFaixa] = useState<PlanoFaixa[]>(planosFaixaMockados)
+  const [planosFaixa, setPlanosFaixa] = useState<PlanoFaixa[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const [filteredPlanos, setFilteredPlanos] = useState<PlanoFaixa[]>(planosFaixaMockados)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterPlano, setFilterPlano] = useState("todos")
@@ -107,6 +108,11 @@ export default function PlanosFaixaPage() {
     percentualReajuste: "",
     ativo: true,
   })
+
+  useEffect(() => {
+    setIsLoading(true)
+    fetch("/api/planos-faixas").then((response) => response.json()).then((payload) => setPlanosFaixa((payload.data || []).map((item: any) => ({ id: item.id, plano: item.plano_nome, faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`, idadeMinima: item.idade_minima, idadeMaxima: item.idade_maxima, valor: Number(item.valor), percentualReajuste: 0, ativo: true, dataInclusao: item.created_at })))) .catch((error) => console.error("[v0] Erro ao carregar faixas", error)).finally(() => setIsLoading(false))
+  }, [])
 
   useEffect(() => {
     let filtered = planosFaixa

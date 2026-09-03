@@ -139,12 +139,7 @@ const menuItems = [
         icon: <UsersIcon />,
         requiredPermission: null,
       },
-      {
-        title: "Sobre o Sistema",
-        url: "/dashboard/sobre",
-        icon: <FileTextIcon />,
-        requiredPermission: null,
-      },
+
     ],
   },
   {
@@ -226,7 +221,7 @@ const menuItems = [
     title: "Tabelas Gerais",
     items: [
       {
-        title: "Códigos e Classificações",
+        title: "Códigos e Classificaç����es",
         icon: <CogIcon />,
         subItems: [
           {
@@ -235,7 +230,7 @@ const menuItems = [
             icon: <CogIcon className="h-3 w-3" />,
           },
           {
-            title: "Bancos e Agências",
+            title: "Bancos",
             url: "/dashboard/tabelas/bancos-agencias",
             icon: <CogIcon className="h-3 w-3" />,
           },
@@ -554,11 +549,6 @@ const menuItems = [
             icon: <CogIcon className="h-3 w-3" />,
           },
           {
-            title: "Grupos de Usuários",
-            url: "/dashboard/configuracoes/grupos-usuarios",
-            icon: <CogIcon className="h-3 w-3" />,
-          },
-          {
             title: "Permissões de Acesso",
             url: "/dashboard/configuracoes/permissoes",
             icon: <CogIcon className="h-3 w-3" />,
@@ -580,11 +570,7 @@ export function AppSidebar() {
     Propostas: true,
     "Tabelas Gerais": true,
     Beneficiários: true,
-    Financeiro: true,
-    Cobrança: true,
-    "Sistema Contábil": true,
     Sistemas: true,
-    Relatórios: true,
     Configurações: true,
   })
 
@@ -603,10 +589,16 @@ export function AppSidebar() {
   }
 
   const filterMenuGroups = (groups: any[]) => {
+    const hiddenGroups = new Set(["Financeiro", "Cobrança", "Sistema Contábil", "Relatórios"])
+    const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
+
     return groups
+      .filter((group) => !hiddenGroups.has(group.title))
       .map((group) => ({
         ...group,
-        items: filterMenuItems(group.items),
+        items: filterMenuItems(group.items).filter(
+          (item) => !(group.title === "Sistemas" && hiddenSystemItems.has(item.title)),
+        ),
       }))
       .filter((group) => group.items.length > 0)
   }
@@ -640,7 +632,7 @@ export function AppSidebar() {
             </div>
             <div>
               <h1 className="text-base font-semibold text-sidebar-foreground">
-                Talent Health
+                CardBrazil
               </h1>
               <p className="text-xs text-sidebar-foreground/60">Sistema de Gestao</p>
             </div>

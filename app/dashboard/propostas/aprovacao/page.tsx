@@ -39,7 +39,7 @@ export default function AprovacaoPropostasPage() {
         }
 
         const data = await response.json()
-        setPropostas(data)
+        setPropostas(Array.isArray(data) ? data : data.data || [])
       } catch (error) {
         console.error("[v0] Erro ao carregar propostas:", error)
       } finally {
@@ -101,7 +101,7 @@ export default function AprovacaoPropostasPage() {
       const response = await fetch("/api/propostas?status=pendente")
       if (response.ok) {
         const data = await response.json()
-        setPropostas(data)
+        setPropostas(Array.isArray(data) ? data : data.data || [])
       }
     } catch (error) {
       console.error("[v0] Erro ao aprovar propostas:", error)
@@ -154,7 +154,7 @@ export default function AprovacaoPropostasPage() {
       const response = await fetch("/api/propostas?status=pendente")
       if (response.ok) {
         const data = await response.json()
-        setPropostas(data)
+        setPropostas(Array.isArray(data) ? data : data.data || [])
       }
     } catch (error) {
       console.error("[v0] Erro ao rejeitar propostas:", error)

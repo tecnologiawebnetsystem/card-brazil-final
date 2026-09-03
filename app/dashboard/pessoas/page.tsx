@@ -176,10 +176,20 @@ export default function PessoasPage() {
       })
       const contasData = await contasResponse.json()
 
+      if (!pessoaResponse.ok) throw new Error(pessoaData.error || "Pessoa não encontrada")
+      if (!enderecosResponse.ok) throw new Error(enderecosData.error || "Não foi possível carregar os endereços")
+      if (!contasResponse.ok) throw new Error(contasData.error || "Não foi possível carregar os dados bancários")
+
+      const pessoa = pessoaData.data || pessoaData
       return {
-        pessoa: pessoaData.data,
-        enderecos: enderecosData.data || [],
-        contas: contasData.data || [],
+        pessoa: {
+          ...pessoa,
+          nome: pessoa.nome || pessoa.nome_completo,
+          telefone: pessoa.telefone || pessoa.telefone_principal,
+          id_administradora: pessoa.id_administradora || pessoa.administradora_id,
+        },
+        enderecos: enderecosData.data || enderecosData.enderecos || pessoa.enderecos || [],
+        contas: contasData.data || contasData.dados_bancarios || pessoa.dados_bancarios || [],
       }
     } catch (error) {
       console.error("[v0] Erro ao carregar detalhes:", error)

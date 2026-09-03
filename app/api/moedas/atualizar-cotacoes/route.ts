@@ -32,15 +32,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Nenhuma moeda cadastrada para atualizar" })
     }
 
-    // Buscar cotações da API
-    const codigosMoedas = moedas.map((m) => m.codigo).join(",")
-    const response = await fetch(`https://economia.awesomeapi.com.br/json/last/${codigosMoedas}-BRL`)
+    // Consultar a PTAX oficial do Banco Central para a data de hoje.
+    const hoje = new Date()
+    const dataCotacao = `${String(hoje.getDate()).padStart(2, "0")}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${hoje.getFullYear()}`
+    const cotacoes: Record<string, any> = {}
 
-    if (!response.ok) {
-      throw new Error("Erro ao buscar cotações")
-    }
-
-    const cotacoes = await response.json()
+    await Promise.all(
+      moedas.map(async (moeda) => {
+        const response = await fetch(
+          `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='${encodeURIComponent(moeda.codigo)}'&@dataCotacao='${dataCotacao}'&$format=json`,
+          { next: { revalidate: 900 } },
+        )
+        if (!response.ok) return
+        const payload = await response.json()
+        const cotacao = payload.value?.at(-1)
+        if (cotacao) cotacoes[`${moeda.codigo}BRL`] = { bid: cotacao.cotacaoCompra, ask: cotacao.cotacaoVenda, pctChange: 0 }
+      }),
+    )
 
     // Atualizar cada moeda
     const updates = []

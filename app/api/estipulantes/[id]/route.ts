@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { successResponse, errorResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const rows = await query(`SELECT * FROM estipulantes WHERE id = $1`, [Number.parseInt(params.id, 10)])
+    const rows = await query(`SELECT * FROM estipulantes WHERE id = $1`, [Number.parseInt((await params).id, 10)])
     const estipulante = rows[0]
     if (!estipulante) return NextResponse.json(errorResponse("Estipulante não encontrado"), { status: 404 })
     return NextResponse.json(successResponse(estipulante))
@@ -13,10 +13,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const body = await request.json()
-    const id = Number.parseInt(params.id, 10)
+    const id = Number.parseInt((await params).id, 10)
     const allowed = ["nome", "razao_social", "cnpj", "cpf_cnpj", "email", "telefone", "endereco", "cidade", "uf", "ativo", "observacoes"]
     const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
     if (!entries.length) return NextResponse.json(errorResponse("Nenhum campo válido para atualizar"), { status: 400 })
@@ -31,9 +31,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const rows = await query(`DELETE FROM estipulantes WHERE id = $1 RETURNING id`, [Number.parseInt(params.id, 10)])
+    const rows = await query(`DELETE FROM estipulantes WHERE id = $1 RETURNING id`, [Number.parseInt((await params).id, 10)])
     if (!rows.length) return NextResponse.json(errorResponse("Estipulante não encontrado"), { status: 404 })
     return NextResponse.json(successResponse(null, "Estipulante excluído com sucesso"))
   } catch (error) {

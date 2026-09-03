@@ -15,10 +15,11 @@ export async function GET(request: NextRequest) {
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (tipo_plano) { params.push(tipo_plano); conditions.push(`tipo_plano = $${params.length}`) }
     if (search) { params.push(`%${search}%`); conditions.push(`(nome_proponente ILIKE $${params.length} OR empresa ILIKE $${params.length} OR cpf_cnpj ILIKE $${params.length} OR observacoes ILIKE $${params.length})`) }
-    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    conditions.unshift("deleted_at IS NULL")
+    const where = ` WHERE ${conditions.join(" AND ")}`
     params.push(limit, offset)
     const propostas = await query(`SELECT * FROM propostas${where} ORDER BY created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
-    return NextResponse.json({ data: propostas, pagination: { limit, offset, count: propostas.length } })
+    return NextResponse.json(propostas)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar propostas:", error)
     return NextResponse.json({ error: "Erro ao buscar propostas" }, { status: 500 })

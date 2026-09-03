@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -41,35 +41,27 @@ const TrashIcon = () => (
 
 export default function ConfiguracoesUsuariosPage() {
   const [showAddUser, setShowAddUser] = useState(false)
-  const [users] = useState([
-    {
-      id: 1,
-      name: "Administrador Talent Health",
-      email: "admin@talenthealth.com.br",
-      role: "Administrador",
-      status: "Ativo",
-      lastLogin: "2024-01-15 14:30",
-      avatar: "/professional-avatar.png",
-    },
-    {
-      id: 2,
-      name: "Maria Silva",
-      email: "maria.silva@talenthealth.com.br",
-      role: "Operador",
-      status: "Ativo",
-      lastLogin: "2024-01-15 09:15",
-      avatar: null,
-    },
-    {
-      id: 3,
-      name: "João Santos",
-      email: "joao.santos@talenthealth.com.br",
-      role: "Consulta",
-      status: "Inativo",
-      lastLogin: "2024-01-10 16:45",
-      avatar: null,
-    },
-  ])
+  const [users, setUsers] = useState<any[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/configuracoes/usuarios")
+      .then(async (response) => {
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.error)
+        setUsers(data.map((user: any) => ({
+          id: user.id,
+          name: user.nome,
+          email: user.email,
+          role: user.perfil,
+          status: user.status,
+          lastLogin: user.ultimo_acesso ? new Date(user.ultimo_acesso).toLocaleString("pt-BR") : "Nunca acessou",
+          avatar: user.avatar_url,
+        })))
+      })
+      .catch((error) => toast.error(error.message || "Erro ao carregar usuários"))
+      .finally(() => setLoadingUsers(false))
+  }, [])
 
   const handleAddUser = () => {
     setShowAddUser(true)
@@ -180,6 +172,8 @@ export default function ConfiguracoesUsuariosPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                {loadingUsers ? <p className="text-sm text-muted-foreground">Carregando usuários do banco...</p> : null}
+                {!loadingUsers && users.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum usuário cadastrado.</p> : null}
                 {users.map((user) => (
                   <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-4">
@@ -196,7 +190,7 @@ export default function ConfiguracoesUsuariosPage() {
                         <h4 className="font-medium">{user.name}</h4>
                         <p className="text-sm text-muted-foreground">{user.email}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant={user.role === "Administrador" ? "default" : "secondary"}>{user.role}</Badge>
+                          <Badge variant={user.role === "administrador" ? "default" : "secondary"}>{user.role}</Badge>
                           <Badge variant={user.status === "Ativo" ? "default" : "destructive"}>{user.status}</Badge>
                         </div>
                       </div>

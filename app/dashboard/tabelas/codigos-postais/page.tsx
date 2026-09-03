@@ -135,14 +135,14 @@ export default function CodigosPostaisPage() {
           ...prev,
           logradouro: data.logradouro || "",
           bairro: data.bairro || "",
-          cidade: data.localidade || "",
+          cidade: data.cidade || data.localidade || "",
           estado: data.uf || "",
           complemento: data.complemento || "",
         }))
 
         toast({
           title: "CEP encontrado!",
-          description: `Endereço: ${data.logradouro}, ${data.bairro} - ${data.localidade}/${data.uf}`,
+          description: `Endereço: ${data.logradouro}, ${data.bairro} - ${data.cidade || data.localidade}/${data.uf}`,
         })
       } catch (error) {
         toast({
@@ -178,7 +178,7 @@ export default function CodigosPostaisPage() {
           cep: `${cleanCep.slice(0, 5)}-${cleanCep.slice(5)}`,
           logradouro: data.logradouro || "",
           bairro: data.bairro || "",
-          cidade: data.localidade || "",
+          cidade: data.cidade || data.localidade || "",
           estado: data.uf || "",
           complemento: data.complemento || "",
           status: "ativo",
@@ -191,7 +191,7 @@ export default function CodigosPostaisPage() {
 
         toast({
           title: "CEP consultado com sucesso!",
-          description: `${data.logradouro}, ${data.bairro} - ${data.localidade}/${data.uf}`,
+          description: `${data.logradouro}, ${data.bairro} - ${data.cidade || data.localidade}/${data.uf}`,
         })
       } catch (error) {
         toast({

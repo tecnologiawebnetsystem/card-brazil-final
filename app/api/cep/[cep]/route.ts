@@ -2,9 +2,10 @@ import { type NextRequest, NextResponse } from "next/server"
 
 // API ViaCEP para consulta de CEP
 // https://viacep.com.br/
-export async function GET(request: NextRequest, { params }: { params: { cep: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ cep: string }> }) {
   try {
-    const cep = params.cep.replace(/\D/g, "")
+    const { cep: rawCep } = await params
+    const cep = rawCep.replace(/\D/g, "")
 
     if (cep.length !== 8) {
       return NextResponse.json({ error: "CEP inválido" }, { status: 400 })

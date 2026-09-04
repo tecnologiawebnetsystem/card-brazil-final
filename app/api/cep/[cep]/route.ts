@@ -11,7 +11,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: "CEP inválido" }, { status: 400 })
     }
 
-    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(10000),
+    })
 
     if (!response.ok) {
       throw new Error("Erro ao buscar CEP")

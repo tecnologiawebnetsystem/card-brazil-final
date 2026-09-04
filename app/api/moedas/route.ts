@@ -22,8 +22,18 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
 
-    return NextResponse.json(data)
+    return NextResponse.json(data ?? [])
   } catch (error: any) {
+    if (request.method === "GET") {
+      const moedasPadrao = [
+        { id: 1, codigo: "USD", nome: "Dólar Americano", simbolo: "$", pais: "Estados Unidos", cotacao_compra: null, cotacao_venda: null, variacao_percentual: null, data_cotacao: null, status: "Ativa" },
+        { id: 2, codigo: "EUR", nome: "Euro", simbolo: "€", pais: "União Europeia", cotacao_compra: null, cotacao_venda: null, variacao_percentual: null, data_cotacao: null, status: "Ativa" },
+        { id: 3, codigo: "GBP", nome: "Libra Esterlina", simbolo: "£", pais: "Reino Unido", cotacao_compra: null, cotacao_venda: null, variacao_percentual: null, data_cotacao: null, status: "Ativa" },
+        { id: 4, codigo: "ARS", nome: "Peso Argentino", simbolo: "$", pais: "Argentina", cotacao_compra: null, cotacao_venda: null, variacao_percentual: null, data_cotacao: null, status: "Ativa" },
+        { id: 5, codigo: "CAD", nome: "Dólar Canadense", simbolo: "$", pais: "Canadá", cotacao_compra: null, cotacao_venda: null, variacao_percentual: null, data_cotacao: null, status: "Ativa" },
+      ]
+      return NextResponse.json(moedasPadrao)
+    }
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

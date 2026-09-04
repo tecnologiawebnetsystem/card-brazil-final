@@ -105,9 +105,16 @@ export default function CEPPage() {
     }
   }
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (e.nativeEvent instanceof SubmitEvent && e.nativeEvent.submitter instanceof HTMLButtonElement && e.nativeEvent.submitter.disabled) return
+    void buscarCEP()
+  }
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      buscarCEP()
+    if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) {
+      e.preventDefault()
+      void buscarCEP()
     }
   }
 
@@ -168,7 +175,7 @@ export default function CEPPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="flex gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -238,7 +245,7 @@ export default function CEPPage() {
                 className="flex-1"
               />
             </div>
-          </div>
+          </form>
 
           {resultados.length > 0 && (
             <div className="mt-6">

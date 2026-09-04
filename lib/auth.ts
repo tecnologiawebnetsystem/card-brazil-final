@@ -33,7 +33,7 @@ export function getUserPermissions(profile: UserProfile): UserPermissions {
   }
 
   if (profile.role === "admin") {
-    return Object.fromEntries(Object.keys(restricted).map((key) => [key, true])) as UserPermissions
+    return Object.fromEntries(Object.keys(restricted).map((key) => [key, true])) as unknown as UserPermissions
   }
 
   if (profile.role === "operadora") {

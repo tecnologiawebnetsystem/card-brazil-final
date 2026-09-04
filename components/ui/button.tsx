@@ -41,7 +41,7 @@ function Button({
   size,
   asChild = false,
   ...props
-}: React.ComponentPropsWithoutRef<"button"> &
+}: React.ComponentPropsWithRef<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
   }) {

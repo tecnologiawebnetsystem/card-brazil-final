@@ -6,6 +6,9 @@ export interface Operadora {
   naturezaOperadora: string
   registroANS: string
   situacao: "Ativo" | "Desativo"
+  enderecos?: unknown[]
+  dadosBancarios?: unknown[]
+  razao_social?: string
 }
 
 export const OperadoraService = {

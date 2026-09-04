@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 
 interface PlanoSaude {
@@ -37,6 +38,10 @@ export default function PlanosSaudePage() {
           <h1 className="text-3xl font-bold text-foreground">Planos de Saúde</h1>
           <p className="text-muted-foreground">Cadastro e gestão de planos de saúde</p>
         </div>
+
+        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
+          <CadastroSummaryCard title="Total de Planos de Saúde" value={planos.length} description="planos cadastrados" metrics={[{ label: "Status", value: `${planos.filter((p) => p.ativo).length} ativos`, tone: "positive" }]} />
+        </CadastroSummaryGrid>
 
         <Card>
           <CardHeader>

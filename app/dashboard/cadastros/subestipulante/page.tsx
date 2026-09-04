@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Subestipulante {
   id: number
@@ -94,6 +95,10 @@ export default function SubestipulantePage() {
             Novo Subestipulante
           </Button>
         </div>
+
+        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
+          <CadastroSummaryCard title="Total de Subestipulantes" value={subestipulantes.length} description="cadastros realizados" metrics={[{ label: "Status", value: `${subestipulantes.filter((s) => s.status === "Ativo").length} ativos`, tone: "positive" }]} />
+        </CadastroSummaryGrid>
 
         <Card>
           <CardHeader>

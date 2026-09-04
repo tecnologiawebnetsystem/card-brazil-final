@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Plus } from "lucide-react"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 const ClipboardIcon = () => (
   <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,6 +312,10 @@ export default function PlanosPage() {
             Novo Plano
           </Button>
         </div>
+
+        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
+          <CadastroSummaryCard title="Total de Planos" value={planos.length} description="planos cadastrados" metrics={[{ label: "Status", value: `${planos.filter((p) => p.ativo).length} ativos`, tone: "positive" }]} />
+        </CadastroSummaryGrid>
 
         <Card>
           <CardHeader>

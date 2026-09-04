@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Operadora {
   id: number
@@ -723,7 +724,10 @@ export default function OperadoraPage() {
           <Button onClick={handleCreate}>+ Nova Operadora</Button>
         </div>
 
-        {/* Grid padronizado de resultados */}
+        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
+          <CadastroSummaryCard title="Total de Operadoras" value={analytics.totalOperadoras} description={`${analytics.operadorasAtivas} ativas • ${analytics.operadorasInativas} inativas`} metrics={[{ label: "Completude média", value: `${analytics.avgCompletude}%`, tone: "positive" }]} />
+        </CadastroSummaryGrid>
+
         <Card>
           <CardHeader>
             <CardTitle>Operadoras cadastradas</CardTitle>

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Convenio {
   id: number
@@ -201,7 +202,10 @@ export default function ConveniosPage() {
           </Button>
         </div>
 
-        {/* Grid padronizado de convênios */}
+        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
+          <CadastroSummaryCard title="Total de Convênios" value={convenios.length} description="convênios cadastrados" metrics={[{ label: "Status", value: `${convenios.filter((c) => c.situacao === "Ativo").length} ativos`, tone: "positive" }]} />
+        </CadastroSummaryGrid>
+
         <Card>
           <CardHeader>
             <CardTitle>Convênios cadastrados</CardTitle>

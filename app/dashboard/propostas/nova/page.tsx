@@ -91,7 +91,7 @@ export default function NovaPropostaPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="module-page flex-1 space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => router.push("/dashboard/propostas/lista")}>

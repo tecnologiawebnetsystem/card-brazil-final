@@ -2,12 +2,13 @@ import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const search = searchParams.get("search") || ""
+  const tipo = searchParams.get("tipo") || ""
+  const ano = searchParams.get("ano") || new Date().getFullYear().toString()
+  const uf = searchParams.get("uf") || ""
+
   try {
-    const searchParams = request.nextUrl.searchParams
-    const search = searchParams.get("search") || ""
-    const tipo = searchParams.get("tipo") || ""
-    const ano = searchParams.get("ano") || new Date().getFullYear().toString()
-    const uf = searchParams.get("uf") || ""
     const params: unknown[] = [true, `${ano}-01-01`, `${ano}-12-31`]
     const conditions = ["ativo = $1", "data >= $2", "data <= $3"]
     if (tipo) { params.push(tipo); conditions.push(`tipo = $${params.length}`) }

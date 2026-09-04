@@ -36,68 +36,10 @@ interface PlanoFaixa {
   dataInclusao: string
 }
 
-const planosFaixaMockados: PlanoFaixa[] = [
-  {
-    id: 1,
-    plano: "Plano Básico Individual",
-    faixaEtaria: "0 a 18 anos",
-    idadeMinima: 0,
-    idadeMaxima: 18,
-    valor: 150.0,
-    percentualReajuste: 0,
-    ativo: true,
-    dataInclusao: "2024-01-15",
-  },
-  {
-    id: 2,
-    plano: "Plano Básico Individual",
-    faixaEtaria: "19 a 23 anos",
-    idadeMinima: 19,
-    idadeMaxima: 23,
-    valor: 180.0,
-    percentualReajuste: 20,
-    ativo: true,
-    dataInclusao: "2024-01-15",
-  },
-  {
-    id: 3,
-    plano: "Plano Básico Individual",
-    faixaEtaria: "24 a 28 anos",
-    idadeMinima: 24,
-    idadeMaxima: 28,
-    valor: 220.0,
-    percentualReajuste: 22.22,
-    ativo: true,
-    dataInclusao: "2024-01-15",
-  },
-  {
-    id: 4,
-    plano: "Plano Premium Familiar",
-    faixaEtaria: "0 a 18 anos",
-    idadeMinima: 0,
-    idadeMaxima: 18,
-    valor: 280.0,
-    percentualReajuste: 0,
-    ativo: true,
-    dataInclusao: "2024-01-20",
-  },
-  {
-    id: 5,
-    plano: "Plano Premium Familiar",
-    faixaEtaria: "19 a 23 anos",
-    idadeMinima: 19,
-    idadeMaxima: 23,
-    valor: 350.0,
-    percentualReajuste: 25,
-    ativo: true,
-    dataInclusao: "2024-01-20",
-  },
-]
-
 export default function PlanosFaixaPage() {
   const [planosFaixa, setPlanosFaixa] = useState<PlanoFaixa[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [filteredPlanos, setFilteredPlanos] = useState<PlanoFaixa[]>(planosFaixaMockados)
+  const [filteredPlanos, setFilteredPlanos] = useState<PlanoFaixa[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterPlano, setFilterPlano] = useState("todos")
   const [filterStatus, setFilterStatus] = useState("todos")
@@ -140,44 +82,20 @@ export default function PlanosFaixaPage() {
     setFilteredPlanos(filtered)
   }, [searchTerm, filterPlano, filterStatus, planosFaixa])
 
-  const handleSavePlano = () => {
-    if (!formData.plano || !formData.faixaEtaria || !formData.idadeMinima || !formData.idadeMaxima) {
-      toast.error("Preencha todos os campos obrigatórios")
-      return
-    }
-
-    const planoData = {
-      ...formData,
-      idadeMinima: Number.parseInt(formData.idadeMinima),
-      idadeMaxima: Number.parseInt(formData.idadeMaxima),
-      valor: Number.parseFloat(formData.valor) || 0,
-      percentualReajuste: Number.parseFloat(formData.percentualReajuste) || 0,
-      dataInclusao: new Date().toISOString().split("T")[0],
-    }
-
-    if (editingPlano) {
-      setPlanosFaixa(planosFaixa.map((p) => (p.id === editingPlano.id ? { ...editingPlano, ...planoData } : p)))
-      toast.success("Plano faixa atualizado com sucesso!")
-    } else {
-      const novoPlano = {
-        id: Date.now(),
-        ...planoData,
-      }
-      setPlanosFaixa([...planosFaixa, novoPlano])
-      toast.success("Plano faixa cadastrado com sucesso!")
-    }
-
-    setShowModal(false)
-    setEditingPlano(null)
-    setFormData({
-      plano: "",
-      faixaEtaria: "",
-      idadeMinima: "",
-      idadeMaxima: "",
-      valor: "",
-      percentualReajuste: "",
-      ativo: true,
-    })
+  const handleSavePlano = async () => {
+    if (!formData.plano || !formData.idadeMinima || !formData.idadeMaxima) { toast.error("Preencha os campos obrigatórios"); return }
+    setIsLoading(true)
+    try {
+      const body = { plano_nome: formData.plano, idade_minima: Number(formData.idadeMinima), idade_maxima: Number(formData.idadeMaxima), valor: Number(formData.valor) || 0 }
+      const response = await fetch(editingPlano ? `/api/planos-faixas/${editingPlano.id}` : "/api/planos-faixas", { method: editingPlano ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.message || payload.error || "Não foi possível salvar a faixa")
+      toast.success(editingPlano ? "Faixa atualizada com sucesso!" : "Faixa cadastrada com sucesso!")
+      setShowModal(false); setEditingPlano(null)
+      const refreshed = await fetch("/api/planos-faixas")
+      const next = await refreshed.json()
+      setPlanosFaixa((next.data || []).map((item: any) => ({ id: item.id, plano: item.plano_nome, faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`, idadeMinima: item.idade_minima, idadeMaxima: item.idade_maxima, valor: Number(item.valor), percentualReajuste: 0, ativo: true, dataInclusao: item.created_at })))
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível salvar a faixa") } finally { setIsLoading(false) }
   }
 
   const handleEditPlano = (plano: PlanoFaixa) => {
@@ -194,14 +112,14 @@ export default function PlanosFaixaPage() {
     setShowModal(true)
   }
 
-  const handleDeletePlano = (id: number) => {
-    setPlanosFaixa(planosFaixa.filter((p) => p.id !== id))
-    toast.success("Plano faixa excluído com sucesso!")
+  const handleDeletePlano = async (id: number) => {
+    const response = await fetch(`/api/planos-faixas/${id}`, { method: "DELETE" })
+    if (!response.ok) { toast.error("Não foi possível excluir a faixa"); return }
+    setPlanosFaixa(planosFaixa.filter((p) => p.id !== id)); toast.success("Plano faixa excluído com sucesso!")
   }
 
   const handleToggleStatus = (plano: PlanoFaixa) => {
-    setPlanosFaixa(planosFaixa.map((p) => (p.id === plano.id ? { ...p, ativo: !p.ativo } : p)))
-    toast.success(`Faixa ${plano.ativo ? "desativada" : "ativada"} com sucesso!`)
+    toast.info("O cadastro de faixas etárias não possui coluna de status no banco.")
   }
 
   const planosPorPlano = filterPlano === "todos" ? planosFaixa : planosFaixa.filter((p) => p.plano === filterPlano)

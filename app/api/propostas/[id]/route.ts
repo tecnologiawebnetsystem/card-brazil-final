@@ -145,7 +145,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const { id } = await params
 
     // Soft delete
-    const sql = `UPDATE propostas SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL`
+    const sql = `UPDATE propostas SET deleted_at = NOW(), updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL`
 
     await query(sql, [id])
 

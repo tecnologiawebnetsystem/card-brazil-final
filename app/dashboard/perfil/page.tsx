@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getAvatarOption } from "@/lib/avatar-options"
 
 const fetcher = (url: string) => fetch(url).then((response) => response.json())
 
@@ -28,6 +29,7 @@ export default function PerfilPage() {
   const [senhaMessage, setSenhaMessage] = useState<{ type: "ok" | "erro"; text: string } | null>(null)
 
   const displayName = nome || user?.nome_completo || "Usuário"
+  const avatar = getAvatarOption(user?.avatar_url)
   const initials = displayName
     .split(" ")
     .map((part: string) => part[0])
@@ -106,6 +108,7 @@ export default function PerfilPage() {
           <form onSubmit={saveProfile} className="space-y-5">
             <div className="flex items-center gap-4 border-b border-border pb-5">
               <Avatar className="h-16 w-16">
+                {avatar && <AvatarImage src={avatar.src} alt={avatar.label} />}
                 <AvatarFallback className="bg-primary text-lg text-primary-foreground">{initials}</AvatarFallback>
               </Avatar>
               <div>

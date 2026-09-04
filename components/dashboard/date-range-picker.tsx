@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -11,6 +12,8 @@ import { cn } from "@/lib/utils"
 
 interface DateRangePickerProps {
   onDateChange?: (from: Date | undefined, to: Date | undefined) => void
+  value?: { from: Date; to: Date }
+  onChange?: React.Dispatch<React.SetStateAction<{ from: Date; to: Date }>>
   className?: string
 }
 

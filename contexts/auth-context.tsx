@@ -10,6 +10,9 @@ interface User {
   administradora_id: number
   tipo_usuario: string
   status: string
+  perfil_id?: number
+  permissions?: Record<string, boolean>
+  avatar_url?: string | null
 }
 
 interface AuthContextType {

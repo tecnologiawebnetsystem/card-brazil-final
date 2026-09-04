@@ -6,6 +6,7 @@ import { Menu } from "lucide-react"
 import { useSidebar } from "@/components/ui/sidebar"
 import { NotificationWidget } from "@/components/notifications/notification-widget"
 import { BreadcrumbsNav } from "@/components/navigation/breadcrumbs-nav"
+import { ProfileMenu } from "@/components/dashboard/profile-menu"
 
 export function DashboardHeader() {
   const { toggleSidebar } = useSidebar()
@@ -24,7 +25,7 @@ export function DashboardHeader() {
         {/* Right side - Status and notifications only */}
         <div className="flex items-center gap-4">
           {/* Current Date */}
-          <div className="hidden md:block text-sm text-[#737373]">
+          <div className="hidden md:block text-sm text-muted-foreground">
             {new Date().toLocaleDateString("pt-BR", {
               day: "2-digit",
               month: "short",
@@ -32,8 +33,8 @@ export function DashboardHeader() {
             })}
           </div>
 
-          {/* Notifications */}
           <NotificationWidget />
+          <ProfileMenu />
         </div>
       </div>
 

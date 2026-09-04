@@ -20,10 +20,10 @@ interface BankAccountModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (dadoBancario: Omit<DadoBancario, "id">) => void
-  dadoBancario?: DadoBancario | null
+  dadoBancario?: any
   title?: string
   description?: string
-  initialData?: DadoBancario | null
+  initialData?: any
   className?: string
 }
 
@@ -48,11 +48,11 @@ export function BankAccountModal({
     const currentDadoBancario = dadoBancario || initialData
     if (currentDadoBancario) {
       setFormData({
-        banco: currentDadoBancario.banco,
-        agencia: currentDadoBancario.agencia,
-        tipoConta: currentDadoBancario.tipoConta,
-        conta: currentDadoBancario.conta,
-        digitoConta: currentDadoBancario.digitoConta,
+        banco: String(currentDadoBancario.banco ?? ""),
+        agencia: String(currentDadoBancario.agencia ?? ""),
+        tipoConta: currentDadoBancario.tipoConta === "poupanca" ? "poupanca" : "corrente",
+        conta: String(currentDadoBancario.conta ?? ""),
+        digitoConta: String(currentDadoBancario.digitoConta ?? currentDadoBancario.digito_conta ?? ""),
       })
     } else {
       setFormData({

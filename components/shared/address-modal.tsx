@@ -24,10 +24,10 @@ interface AddressModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (endereco: Omit<Endereco, "id">) => void
-  endereco?: Endereco | null
+  endereco?: any
   title?: string
   description?: string
-  initialData?: Endereco | null
+  initialData?: any
   className?: string
 }
 
@@ -58,15 +58,15 @@ export function AddressModal({
     const currentEndereco = endereco || initialData
     if (currentEndereco) {
       setFormData({
-        tipo: currentEndereco.tipo,
-        cep: currentEndereco.cep,
-        logradouro: currentEndereco.logradouro,
-        numero: currentEndereco.numero,
-        complemento: currentEndereco.complemento || "",
-        bairro: currentEndereco.bairro,
-        cidade: currentEndereco.cidade,
-        estado: currentEndereco.estado,
-        email: currentEndereco.email || "",
+        tipo: currentEndereco.tipo === "comercial" || currentEndereco.tipo === "cobranca" ? currentEndereco.tipo : "residencial",
+        cep: String(currentEndereco.cep ?? ""),
+        logradouro: String(currentEndereco.logradouro ?? ""),
+        numero: String(currentEndereco.numero ?? ""),
+        complemento: String(currentEndereco.complemento ?? ""),
+        bairro: String(currentEndereco.bairro ?? ""),
+        cidade: String(currentEndereco.cidade ?? ""),
+        estado: String(currentEndereco.estado ?? ""),
+        email: String(currentEndereco.email ?? ""),
       })
     } else {
       setFormData({

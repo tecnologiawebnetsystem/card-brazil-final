@@ -25,6 +25,9 @@ interface Proposta {
   cpf_cnpj_proponente: string
   email_proponente: string
   telefone_proponente: string
+  cpf_cnpj?: string
+  email?: string
+  telefone?: string
   nome_empresa: string
   numero_funcionarios: string
   tipo_plano: string

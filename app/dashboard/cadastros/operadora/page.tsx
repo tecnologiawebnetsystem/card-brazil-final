@@ -26,6 +26,8 @@ interface Operadora {
   ativo: boolean
   created_at?: string
   updated_at?: string
+  enderecos?: Endereco[]
+  dadosBancarios?: DadoBancario[]
 }
 
 interface Endereco {

@@ -360,7 +360,7 @@ export default function AdministradoraPage() {
           <p className="text-muted-foreground">Gerencie os dados da administradora do sistema</p>
         </div>
         {!administradora && (
-          <Button onClick={handleCreateNew} style={{ backgroundColor: "#6B8E23" }} className="hover:opacity-90">
+          <Button onClick={handleCreateNew} className="hover:opacity-90">
             + Nova Administradora
           </Button>
         )}
@@ -518,7 +518,7 @@ export default function AdministradoraPage() {
             <p className="text-muted-foreground mb-4">
               Cadastre os dados da administradora para começar a usar o sistema
             </p>
-            <Button onClick={handleCreateNew} style={{ backgroundColor: "#6B8E23" }} className="hover:opacity-90">
+            <Button onClick={handleCreateNew} className="hover:opacity-90">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>

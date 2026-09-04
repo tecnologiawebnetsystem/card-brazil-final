@@ -32,9 +32,8 @@ export default function PlanosSaudePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="container mx-auto space-y-6">
-        <div className="mb-2">
+    <div className="space-y-6">
+      <div className="mb-2">
           <h1 className="text-3xl font-bold text-foreground">Planos de Saúde</h1>
           <p className="text-muted-foreground">Cadastro e gestão de planos de saúde</p>
         </div>
@@ -82,8 +81,7 @@ export default function PlanosSaudePage() {
               )}
             />
           </CardContent>
-        </Card>
-      </div>
+          </Card>
     </div>
   )
 }

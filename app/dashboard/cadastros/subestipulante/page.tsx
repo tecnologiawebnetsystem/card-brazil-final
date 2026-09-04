@@ -83,9 +83,8 @@ export default function SubestipulantePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Subestipulantes</h1>
             <p className="text-muted-foreground">Gerencie os subestipulantes cadastrados</p>
@@ -219,7 +218,6 @@ export default function SubestipulantePage() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   )
 }

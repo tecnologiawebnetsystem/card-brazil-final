@@ -128,7 +128,9 @@ export default function AgenciadorPage() {
       const data = await response.json()
 
       if (data.success) {
-        let results = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
+        let results = (data.data || []).map((pessoa: Pessoa & {   nome_completo?: string
+  razao_social?: string
+}) => ({
           ...pessoa,
           nome: pessoa.nome || pessoa.nome_completo || pessoa.razao_social || "",
         }))
@@ -755,7 +757,7 @@ export default function AgenciadorPage() {
                             key={endereco.id}
                             endereco={endereco}
                             onEdit={(endereco) => {
-                              setEditingEndereco(endereco)
+                              setEditingEndereco(endereco as unknown as Endereco)
                               setShowEditEnderecoModal(true)
                             }}
                             onDelete={(id) => handleDeleteEndereco(id)}
@@ -790,7 +792,7 @@ export default function AgenciadorPage() {
                             key={banco.id}
                             dadoBancario={banco}
                             onEdit={(banco) => {
-                              setEditingBanco(banco)
+                              setEditingBanco(banco as unknown as DadoBancario)
                               setShowEditBancoModal(true)
                             }}
                             onDelete={(id) => handleDeleteBanco(id)}

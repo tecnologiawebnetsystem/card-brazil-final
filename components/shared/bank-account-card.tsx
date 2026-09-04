@@ -4,13 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
-interface DadoBancario {
+export interface DadoBancario {
   id: number
   banco: string
   agencia: string
-  tipoConta: "corrente" | "poupanca"
+  tipoConta?: "corrente" | "poupanca"
+  tipo_conta?: "corrente" | "poupanca"
   conta: string
-  digitoConta: string
+  digitoConta?: string
+  digito_conta?: string
+  pessoa_id?: number
 }
 
 interface BankAccountCardProps {

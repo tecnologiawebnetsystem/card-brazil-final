@@ -867,9 +867,10 @@ export default function PessoasPage() {
 
   const handleSaveNewEndereco = () => {
     if (selectedPerson && newEnderecoData.tipo && newEnderecoData.cep && newEnderecoData.logradouro) {
-      const novoEndereco = {
+      const novoEndereco: Endereco = {
         id: selectedPerson.enderecos.length + 1,
         ...newEnderecoData,
+        tipo: newEnderecoData.tipo as Endereco["tipo"],
       }
       const updatedPerson = {
         ...selectedPerson,
@@ -894,9 +895,11 @@ export default function PessoasPage() {
 
   const handleSaveNewBanco = () => {
     if (selectedPerson && newBancoData.banco && newBancoData.agencia && newBancoData.conta) {
-      const novoBanco = {
+      const novoBanco: DadoBancario = {
         id: selectedPerson.dadosBancarios.length + 1,
         ...newBancoData,
+        tipoConta: newBancoData.tipoConta as DadoBancario["tipoConta"],
+        digitoConta: newBancoData.digito,
       }
       const updatedPerson = {
         ...selectedPerson,
@@ -1628,7 +1631,7 @@ export default function PessoasPage() {
                             key={banco.id}
                             dadoBancario={banco}
                             onEdit={(account) => {
-                              setEditingBanco(account)
+                              setEditingBanco(account as unknown as DadoBancario)
                               setShowEditBancoModal(true)
                             }}
                             onDelete={(accountId) => handleDeleteBanco(accountId)}

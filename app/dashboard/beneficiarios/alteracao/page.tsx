@@ -25,7 +25,7 @@ type Beneficiario = {
 
 export default function AlteracaoBeneficiariosPage() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null)
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState<Beneficiario | null>(null)
 
   const [alteracoesPendentes, setAlteracoesPendentes] = useState([
     {
@@ -52,7 +52,7 @@ export default function AlteracaoBeneficiariosPage() {
     },
   ])
 
-  const beneficiarios = [
+  const beneficiarios: Beneficiario[] = [
     {
       id: 1,
       nome: "Carlos Silva Santos",
@@ -95,7 +95,7 @@ export default function AlteracaoBeneficiariosPage() {
       beneficiario.nome.toLowerCase().includes(searchTerm.toLowerCase()) || beneficiario.cpf.includes(searchTerm),
   )
 
-  const selecionarBeneficiario = (beneficiario) => {
+  const selecionarBeneficiario = (beneficiario: Beneficiario) => {
     setSelectedBeneficiario(beneficiario)
     setDadosEdicao({
       nome: beneficiario.nome,

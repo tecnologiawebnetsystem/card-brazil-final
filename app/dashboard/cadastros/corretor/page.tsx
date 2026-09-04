@@ -845,7 +845,7 @@ export default function CorretorPage() {
                             key={endereco.id}
                             endereco={endereco}
                             onEdit={(endereco) => {
-                              setEditingEndereco(endereco)
+                              setEditingEndereco(endereco as unknown as Endereco)
                               setShowEditEnderecoModal(true)
                             }}
                             onDelete={(id) => handleDeleteEndereco(id)}
@@ -880,7 +880,7 @@ export default function CorretorPage() {
                             key={banco.id}
                             dadoBancario={banco}
                             onEdit={(banco) => {
-                              setEditingBanco(banco)
+                              setEditingBanco(banco as unknown as DadoBancario)
                               setShowEditBancoModal(true)
                             }}
                             onDelete={(id) => handleDeleteBanco(id)}

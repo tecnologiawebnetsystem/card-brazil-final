@@ -418,16 +418,17 @@ export default function OperadoraPage() {
       const pessoa = pessoas.find((p) => p.id === op.pessoa_id)
       let matchesSearchTerm = false
       if (searchTerm.toLowerCase()) {
-        matchesSearchTerm =
+        matchesSearchTerm = !!(
           op.natureza_operadora.toLowerCase().includes(searchTerm.toLowerCase()) ||
           op.registro_ans.includes(searchTerm) ||
           pessoa?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
           pessoa?.cnpj?.includes(searchTerm)
+        )
       }
 
       let matchesFilter = true
       if (searchFilter === "ativas") {
-        matchesFilter = op.ativo
+        matchesFilter = !!op.ativo
       } else if (searchFilter === "inativas") {
         matchesFilter = !op.ativo
       }

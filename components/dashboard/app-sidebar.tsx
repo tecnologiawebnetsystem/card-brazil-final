@@ -123,7 +123,17 @@ const CarteirinhaIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   </svg>
 )
 
-const menuItems = [
+type MenuItem = {
+  title: string
+  url?: string
+  icon?: React.ReactNode
+  requiredPermission?: string | null
+  subItems?: MenuItem[]
+}
+
+type MenuGroup = { title: string; items: MenuItem[] }
+
+const menuItems: MenuGroup[] = [
   {
     title: "Principal",
     items: [
@@ -581,14 +591,14 @@ export function AppSidebar() {
     }))
   }
 
-  const filterMenuItems = (items: any[]) => {
+  const filterMenuItems = (items: MenuItem[]): MenuItem[] => {
     return items.filter((item) => {
       if (!item.requiredPermission) return true
       return user?.permissions?.[item.requiredPermission] === true
     })
   }
 
-  const filterMenuGroups = (groups: any[]) => {
+  const filterMenuGroups = (groups: MenuGroup[]): MenuGroup[] => {
     const hiddenGroups = new Set(["Financeiro", "Cobrança", "Sistema Contábil", "Relatórios"])
     const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
 

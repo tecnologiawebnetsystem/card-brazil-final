@@ -11,6 +11,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EditIcon, SearchIcon, FileTextIcon, SaveIcon } from "lucide-react"
 
+type Beneficiario = {
+  id: number
+  nome: string
+  cpf: string
+  tipo: string
+  plano: string
+  telefone: string
+  email: string
+  endereco: string
+  status: string
+}
+
 export default function AlteracaoBeneficiariosPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedBeneficiario, setSelectedBeneficiario] = useState(null)

@@ -225,7 +225,7 @@ export function PersonModal({
             {allowedTypes.length > 1 && (
               <div>
                 <Label htmlFor="tipoPessoa">Tipo de Pessoa *</Label>
-                <Select value={personType} onValueChange={setPersonType}>
+                <Select value={personType} onValueChange={(value) => setPersonType(value as "fisica" | "juridica")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>

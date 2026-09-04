@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const ativo = searchParams.get("ativo")
-    const tipo_beneficiario = searchParams.get("tipo_beneficiario")
+    const tipo_beneficiario = searchParams.get("tipo_beneficiario") || searchParams.get("tipo")
     const titular_id = searchParams.get("titular_id")
     const limit = Math.min(Math.max(Number.parseInt(searchParams.get("limit") || "50", 10) || 50, 1), 100)
     const offset = Math.max(Number.parseInt(searchParams.get("offset") || "0", 10) || 0, 0)
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (titular_id) { params.push(Number.parseInt(titular_id, 10)); conditions.push(`titular_id = $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
     params.push(limit, offset)
-    const result = await query(`SELECT * FROM beneficiarios${where} ORDER BY created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
+    const result = await query(`SELECT b.*, p.nome_completo AS nome, p.cpf, p.email, p.telefone_principal AS telefone, t.nome_completo AS titular_nome, pl.nome AS plano_nome FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id LEFT JOIN pessoas t ON t.id = b.titular_id LEFT JOIN planos pl ON pl.id = b.plano_id${where.replaceAll("status", "b.status").replaceAll("tipo_beneficiario", "b.tipo_beneficiario").replaceAll("titular_id", "b.titular_id")} ORDER BY b.created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
     return NextResponse.json({ success: true, data: result, count: result.length, pagination: { limit, offset } })
   } catch (error) {
     console.error("[v0] Erro ao buscar beneficiários:", error)

@@ -24,9 +24,11 @@ interface AddressModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (endereco: Omit<Endereco, "id">) => void
-  endereco?: Endereco | null
+  endereco?: any
   title?: string
   description?: string
+  initialData?: any
+  className?: string
 }
 
 export function AddressModal({
@@ -34,6 +36,7 @@ export function AddressModal({
   onClose,
   onSave,
   endereco = null,
+  initialData = null,
   title = "Adicionar Endereço",
   description = "Cadastre um novo endereço",
 }: AddressModalProps) {
@@ -52,17 +55,18 @@ export function AddressModal({
   const [isLoadingCep, setIsLoadingCep] = useState(false)
 
   useEffect(() => {
-    if (endereco) {
+    const currentEndereco = endereco || initialData
+    if (currentEndereco) {
       setFormData({
-        tipo: endereco.tipo,
-        cep: endereco.cep,
-        logradouro: endereco.logradouro,
-        numero: endereco.numero,
-        complemento: endereco.complemento || "",
-        bairro: endereco.bairro,
-        cidade: endereco.cidade,
-        estado: endereco.estado,
-        email: endereco.email || "",
+        tipo: currentEndereco.tipo === "comercial" || currentEndereco.tipo === "cobranca" ? currentEndereco.tipo : "residencial",
+        cep: String(currentEndereco.cep ?? ""),
+        logradouro: String(currentEndereco.logradouro ?? ""),
+        numero: String(currentEndereco.numero ?? ""),
+        complemento: String(currentEndereco.complemento ?? ""),
+        bairro: String(currentEndereco.bairro ?? ""),
+        cidade: String(currentEndereco.cidade ?? ""),
+        estado: String(currentEndereco.estado ?? ""),
+        email: String(currentEndereco.email ?? ""),
       })
     } else {
       setFormData({

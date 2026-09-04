@@ -45,10 +45,36 @@ const routeNames: Record<string, string> = {
   configuracoes: "Configurações",
 }
 
-export function BreadcrumbsNav() {
+interface BreadcrumbItemData {
+  title?: string
+  label?: string
+  link?: string
+  href?: string
+}
+
+interface BreadcrumbsNavProps {
+  items?: BreadcrumbItemData[]
+}
+
+export function BreadcrumbsNav({ items }: BreadcrumbsNavProps = {}) {
   const pathname = usePathname()
 
   const segments = pathname.split("/").filter(Boolean)
+
+  if (items?.length) {
+    return (
+      <Breadcrumb><BreadcrumbList>
+        {items.map((item, index) => {
+          const label = item.title || item.label || ""
+          const href = item.link || item.href
+          return <BreadcrumbItem key={`${label}-${index}`}>
+            {index > 0 && <BreadcrumbSeparator><ChevronRight className="h-3.5 w-3.5" /></BreadcrumbSeparator>}
+            {href ? <BreadcrumbLink asChild><Link href={href}>{label}</Link></BreadcrumbLink> : <BreadcrumbPage>{label}</BreadcrumbPage>}
+          </BreadcrumbItem>
+        })}
+      </BreadcrumbList></Breadcrumb>
+    )
+  }
 
   if (segments.length === 0 || segments[0] !== "dashboard") {
     return null

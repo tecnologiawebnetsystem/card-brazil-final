@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Logradouro deve ter no mínimo 3 caracteres" }, { status: 400 })
     }
 
-    const response = await fetch(`https://viacep.com.br/ws/${uf}/${cidade}/${logradouro}/json/`)
+    const response = await fetch(`https://viacep.com.br/ws/${encodeURIComponent(uf)}/${encodeURIComponent(cidade)}/${encodeURIComponent(logradouro)}/json/`, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(10000),
+    })
 
     if (!response.ok) {
       throw new Error("Erro ao buscar endereços")

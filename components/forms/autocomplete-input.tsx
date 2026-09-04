@@ -13,7 +13,7 @@ interface AutocompleteOption {
   label: string
 }
 
-interface AutocompleteInputProps extends Omit<React.ComponentProps<typeof Input>, "onChange"> {
+interface AutocompleteInputProps extends Omit<React.ComponentProps<typeof Input>, "onChange" | "onSelect"> {
   label?: string
   options: AutocompleteOption[]
   onSelect?: (option: AutocompleteOption) => void

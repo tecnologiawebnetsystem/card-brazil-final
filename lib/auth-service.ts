@@ -151,6 +151,51 @@ export class AuthService {
     return { success: true, message: "Senha atualizada com sucesso." }
   }
 
+  static async changePassword(
+    userId: number,
+    administradoraId: number | undefined,
+    senhaAtual: string,
+    novaSenha: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      if (!novaSenha || novaSenha.length < 8) {
+        return { success: false, message: "A nova senha deve ter pelo menos 8 caracteres." }
+      }
+
+      const usuario = await queryOne<Usuario>(
+        administradoraId === undefined
+          ? "SELECT * FROM usuarios WHERE id = $1 AND status = 'ativo'"
+          : "SELECT * FROM usuarios WHERE id = $1 AND administradora_id = $2 AND status = 'ativo'",
+        administradoraId === undefined ? [userId] : [userId, administradoraId],
+      )
+
+      if (!usuario) {
+        return { success: false, message: "Usuário não encontrado." }
+      }
+
+      const senhaConfere = await bcrypt.compare(senhaAtual, usuario.senha_hash)
+      if (!senhaConfere) {
+        return { success: false, message: "A senha atual está incorreta." }
+      }
+
+      const mesmaSenha = await bcrypt.compare(novaSenha, usuario.senha_hash)
+      if (mesmaSenha) {
+        return { success: false, message: "A nova senha deve ser diferente da senha atual." }
+      }
+
+      const novaSenhaHash = await bcrypt.hash(novaSenha, 12)
+      await query(
+        "UPDATE usuarios SET senha_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+        [novaSenhaHash, usuario.id],
+      )
+
+      return { success: true, message: "Senha alterada com sucesso." }
+    } catch (error) {
+      console.error("[v0] Erro ao alterar senha:", error)
+      return { success: false, message: "Não foi possível alterar a senha." }
+    }
+  }
+
   static async logout(token: string): Promise<{ success: boolean; message: string }> {
     try {
       jwt.verify(token, getJwtSecret())

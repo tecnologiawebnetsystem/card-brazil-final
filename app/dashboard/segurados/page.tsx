@@ -867,9 +867,10 @@ export default function PessoasPage() {
 
   const handleSaveNewEndereco = () => {
     if (selectedPerson && newEnderecoData.tipo && newEnderecoData.cep && newEnderecoData.logradouro) {
-      const novoEndereco = {
+      const novoEndereco: Endereco = {
         id: selectedPerson.enderecos.length + 1,
         ...newEnderecoData,
+        tipo: newEnderecoData.tipo as Endereco["tipo"],
       }
       const updatedPerson = {
         ...selectedPerson,
@@ -894,9 +895,11 @@ export default function PessoasPage() {
 
   const handleSaveNewBanco = () => {
     if (selectedPerson && newBancoData.banco && newBancoData.agencia && newBancoData.conta) {
-      const novoBanco = {
+      const novoBanco: DadoBancario = {
         id: selectedPerson.dadosBancarios.length + 1,
         ...newBancoData,
+        tipoConta: newBancoData.tipoConta as DadoBancario["tipoConta"],
+        digitoConta: newBancoData.digito,
       }
       const updatedPerson = {
         ...selectedPerson,
@@ -1259,7 +1262,7 @@ export default function PessoasPage() {
                   <CardDescription>{getPaginatedPeople().totalItems} pessoas encontradas</CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Select value={filterType} onValueChange={setFilterType}>
+                  <Select value={filterType} onValueChange={(value) => setFilterType(value as "all" | "fisica" | "juridica")}>
                     <SelectTrigger className="w-40">
                       <SelectValue />
                     </SelectTrigger>
@@ -1269,7 +1272,7 @@ export default function PessoasPage() {
                       <SelectItem value="juridica">Pessoa Jurídica</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as "all" | "Ativo" | "Inativo")}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
@@ -1628,7 +1631,7 @@ export default function PessoasPage() {
                             key={banco.id}
                             dadoBancario={banco}
                             onEdit={(account) => {
-                              setEditingBanco(account)
+                              setEditingBanco(account as unknown as DadoBancario)
                               setShowEditBancoModal(true)
                             }}
                             onDelete={(accountId) => handleDeleteBanco(accountId)}

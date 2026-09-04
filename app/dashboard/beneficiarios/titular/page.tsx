@@ -155,17 +155,29 @@ export default function BeneficiarioTitularPage() {
   }
 
   const handleSave = async () => {
-    // Implementar lógica de salvar
-    toast({
-      title: "Sucesso",
-      description: "Beneficiário salvo com sucesso",
-    })
-    setIsDialogOpen(false)
-    loadBeneficiarios()
+    if (!selectedBeneficiario?.id) {
+      toast({ title: "Atenção", description: "Selecione um beneficiário para editar", variant: "destructive" })
+      return
+    }
+    try {
+      const response = await fetch(`/api/beneficiarios/${selectedBeneficiario.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: selectedBeneficiario.status }),
+      })
+      const data = await response.json()
+      if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível salvar")
+      toast({ title: "Sucesso", description: "Beneficiário salvo com sucesso" })
+      setIsDialogOpen(false)
+      loadBeneficiarios()
+    } catch (error) {
+      console.error("[v0] Erro ao salvar beneficiário:", error)
+      toast({ title: "Erro", description: "Não foi possível salvar o beneficiário", variant: "destructive" })
+    }
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="module-page flex-1 space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Beneficiário Titular</h1>

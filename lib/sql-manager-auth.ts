@@ -13,7 +13,7 @@ export async function requireSqlManagerAccess() {
 
 export function accessError(error: unknown) {
   const status = error instanceof Error && error.message === "FORBIDDEN" ? 403 : 401
-  return Response.json({ success: false, error: status === 403 ? "Acesso restrito a administradores." : "Sessão não autenticada." }, { status })
+  return new Response(JSON.stringify({ success: false, error: status === 403 ? "Acesso restrito a administradores." : "Sessão não autenticada." }), { status, headers: { "content-type": "application/json" } })
 }
 
 export function safeIdentifier(value: string) {

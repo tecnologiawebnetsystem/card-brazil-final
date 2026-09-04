@@ -20,9 +20,11 @@ interface BankAccountModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (dadoBancario: Omit<DadoBancario, "id">) => void
-  dadoBancario?: DadoBancario | null
+  dadoBancario?: any
   title?: string
   description?: string
+  initialData?: any
+  className?: string
 }
 
 export function BankAccountModal({
@@ -30,6 +32,7 @@ export function BankAccountModal({
   onClose,
   onSave,
   dadoBancario = null,
+  initialData = null,
   title = "Adicionar Conta Bancária",
   description = "Cadastre uma nova conta bancária",
 }: BankAccountModalProps) {
@@ -42,13 +45,14 @@ export function BankAccountModal({
   })
 
   useEffect(() => {
-    if (dadoBancario) {
+    const currentDadoBancario = dadoBancario || initialData
+    if (currentDadoBancario) {
       setFormData({
-        banco: dadoBancario.banco,
-        agencia: dadoBancario.agencia,
-        tipoConta: dadoBancario.tipoConta,
-        conta: dadoBancario.conta,
-        digitoConta: dadoBancario.digitoConta,
+        banco: String(currentDadoBancario.banco ?? ""),
+        agencia: String(currentDadoBancario.agencia ?? ""),
+        tipoConta: currentDadoBancario.tipoConta === "poupanca" ? "poupanca" : "corrente",
+        conta: String(currentDadoBancario.conta ?? ""),
+        digitoConta: String(currentDadoBancario.digitoConta ?? currentDadoBancario.digito_conta ?? ""),
       })
     } else {
       setFormData({

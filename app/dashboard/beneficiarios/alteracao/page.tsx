@@ -11,9 +11,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EditIcon, SearchIcon, FileTextIcon, SaveIcon } from "lucide-react"
 
+type Beneficiario = {
+  id: number
+  nome: string
+  cpf: string
+  tipo: string
+  plano: string
+  telefone: string
+  email: string
+  endereco: string
+  status: string
+}
+
 export default function AlteracaoBeneficiariosPage() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedBeneficiario, setSelectedBeneficiario] = useState(null)
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState<Beneficiario | null>(null)
 
   const [alteracoesPendentes, setAlteracoesPendentes] = useState([
     {
@@ -40,7 +52,7 @@ export default function AlteracaoBeneficiariosPage() {
     },
   ])
 
-  const beneficiarios = [
+  const beneficiarios: Beneficiario[] = [
     {
       id: 1,
       nome: "Carlos Silva Santos",
@@ -83,7 +95,7 @@ export default function AlteracaoBeneficiariosPage() {
       beneficiario.nome.toLowerCase().includes(searchTerm.toLowerCase()) || beneficiario.cpf.includes(searchTerm),
   )
 
-  const selecionarBeneficiario = (beneficiario) => {
+  const selecionarBeneficiario = (beneficiario: Beneficiario) => {
     setSelectedBeneficiario(beneficiario)
     setDadosEdicao({
       nome: beneficiario.nome,
@@ -104,7 +116,7 @@ export default function AlteracaoBeneficiariosPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="module-page flex-1 space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Alteração de Dados</h1>

@@ -10,9 +10,21 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-export function BreadcrumbNav() {
+interface BreadcrumbNavProps {
+  items?: { label?: string; title?: string; href?: string; link?: string }[]
+}
+
+export function BreadcrumbNav({ items }: BreadcrumbNavProps = {}) {
   const pathname = usePathname()
   const segments = pathname.split("/").filter(Boolean)
+
+  if (items?.length) {
+    return <Breadcrumb className="mb-4"><BreadcrumbList>{items.map((item, index) => {
+      const label = item.label || item.title || ""
+      const href = item.href || item.link
+      return <BreadcrumbItem key={`${label}-${index}`}>{href ? <BreadcrumbLink href={href}>{label}</BreadcrumbLink> : <BreadcrumbPage>{label}</BreadcrumbPage>}</BreadcrumbItem>
+    })}</BreadcrumbList></Breadcrumb>
+  }
 
   const breadcrumbMap: Record<string, string> = {
     dashboard: "Dashboard",

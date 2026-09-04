@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,8 +18,11 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { Search, Plus, Edit, Trash2, Package, TrendingUp, Users, DollarSign } from "lucide-react"
+import { Plus, Package, TrendingUp, Users, DollarSign } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
+import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Produto {
   id: number
@@ -234,9 +237,48 @@ export default function ProdutosPage() {
     }
   }
 
+  const handleToggleStatus = async (produto: Produto) => {
+    try {
+      const response = await fetch(`/api/produtos/${produto.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          codigo: produto.codigo,
+          nome: produto.nome,
+          categoria: produto.categoria,
+          tipo: produto.tipo,
+          descricao: produto.descricao,
+          valor: produto.valor,
+          operadora_id: produto.operadora_id ?? null,
+          ativo: !produto.ativo,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({
+          title: "Sucesso",
+          description: `Produto ${produto.ativo ? "desativado" : "ativado"} com sucesso`,
+        })
+        await loadProdutos()
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível alterar o status do produto",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const produtosPorCategoria =
+    filterCategoria === "todos" ? produtos : produtos.filter((p) => p.categoria === filterCategoria)
+
   const totalProdutos = produtos.length
   const produtosAtivos = produtos.filter((p) => p.ativo).length
-  const valorMedio = produtos.length > 0 ? produtos.reduce((acc, p) => acc + p.valor, 0) / produtos.length : 0
+  const valorMedio =
+    produtos.length > 0 ? produtos.reduce((acc, p) => acc + (p.valor ?? 0), 0) / produtos.length : 0
 
   return (
     <div className="container mx-auto px-6 py-6">
@@ -245,78 +287,36 @@ export default function ProdutosPage() {
           <h1 className="text-3xl font-bold text-foreground">Produtos</h1>
           <p className="text-muted-foreground">Gerencie os produtos do sistema</p>
         </div>
+        <Button onClick={() => handleOpenModal()}>
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Produto
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="bg-emerald-700 text-white border-0">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
-            <Package className="h-4 w-4 bg-emerald-600 p-1 rounded ml-6" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalProdutos}</div>
-            <p className="text-xs text-emerald-100">produtos cadastrados</p>
-          </CardContent>
-        </Card>
+      <CadastroSummaryGrid className="mb-6">
+        <CadastroSummaryCard title="Total de Produtos" value={totalProdutos} description="produtos cadastrados" icon={<Package className="h-5 w-5" />} />
+        <CadastroSummaryCard title="Produtos Ativos" value={produtosAtivos} description={`de ${totalProdutos} produtos`} icon={<TrendingUp className="h-5 w-5" />} metrics={[{ label: "Status", value: "Ativos", tone: "positive" }]} />
+        <CadastroSummaryCard title="Valor Médio" value={`R$ ${valorMedio.toFixed(2)}`} description="valor médio dos produtos" icon={<DollarSign className="h-5 w-5" />} />
+        <CadastroSummaryCard title="Categorias" value={new Set(produtos.map((p) => p.categoria)).size} description="categorias diferentes" icon={<Users className="h-5 w-5" />} />
+      </CadastroSummaryGrid>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produtos Ativos</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{produtosAtivos}</div>
-            <p className="text-xs text-muted-foreground">de {totalProdutos} produtos</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Médio</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {valorMedio.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">valor médio dos produtos</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categorias</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{new Set(produtos.map((p) => p.categoria)).size}</div>
-            <p className="text-xs text-muted-foreground">categorias diferentes</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="mb-6">
+      <Card>
         <CardHeader>
-          <CardTitle>Filtros</CardTitle>
+          <CardTitle>Produtos cadastrados</CardTitle>
+          <CardDescription>Busque, visualize, edite e altere o status dos produtos.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="search">Buscar</Label>
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Nome ou código..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Categoria</Label>
+          <CadastroTable
+            data={produtosPorCategoria}
+            loading={isLoading && produtos.length === 0}
+            getId={(p) => p.id}
+            getSearchText={(p) => `${p.nome} ${p.codigo} ${p.categoria} ${p.tipo}`}
+            isActive={(p) => p.ativo}
+            searchPlaceholder="Buscar por nome, código, categoria ou tipo..."
+            emptyMessage="Nenhum produto encontrado."
+            extraFilters={
               <Select value={filterCategoria} onValueChange={setFilterCategoria}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -326,212 +326,162 @@ export default function ProdutosPage() {
                   <SelectItem value="Vida">Vida</SelectItem>
                 </SelectContent>
               </Select>
+            }
+            columns={
+              [
+                { key: "nome", header: "Produto", sortable: true, className: "font-medium text-foreground" },
+                {
+                  key: "codigo",
+                  header: "Código",
+                  sortable: true,
+                  render: (p) => (
+                    <Badge variant="outline" className="text-xs">
+                      {p.codigo}
+                    </Badge>
+                  ),
+                },
+                { key: "categoria", header: "Categoria", sortable: true },
+                { key: "tipo", header: "Tipo" },
+                {
+                  key: "valor",
+                  header: "Valor",
+                  sortable: true,
+                  sortValue: (p) => p.valor ?? 0,
+                  render: (p) => `R$ ${(p.valor ?? 0).toFixed(2)}`,
+                },
+              ] as CadastroColumn<Produto>[]
+            }
+            onEdit={(p) => handleOpenModal(p)}
+            onToggleStatus={handleToggleStatus}
+            detailsTitle={(p) => p.nome}
+            renderDetails={(p) => (
+              <CadastroDetailsGrid>
+                <CadastroDetailField label="Produto" value={p.nome} />
+                <CadastroDetailField label="Código" value={p.codigo} />
+                <CadastroDetailField label="Categoria" value={p.categoria} />
+                <CadastroDetailField label="Tipo" value={p.tipo} />
+                <CadastroDetailField label="Valor" value={`R$ ${(p.valor ?? 0).toFixed(2)}`} />
+                <CadastroDetailField label="Status" value={p.ativo ? "Ativo" : "Inativo"} />
+                <CadastroDetailField label="Descrição" value={p.descricao} full />
+              </CadastroDetailsGrid>
+            )}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Modal de Criar/Editar Produto */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingProduto ? "Editar Produto" : "Cadastrar Novo Produto"}</DialogTitle>
+            <DialogDescription>Preencha as informações do produto</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="codigo">Código *</Label>
+              <Input
+                id="codigo"
+                value={formData.codigo}
+                onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
+                placeholder="PROD001"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <Label htmlFor="nome">Nome *</Label>
+              <Input
+                id="nome"
+                value={formData.nome}
+                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                placeholder="Nome do produto"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categoria">Categoria *</Label>
+              <Select
+                value={formData.categoria}
+                onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+              >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione a categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="inativo">Inativo</SelectItem>
+                  <SelectItem value="Saúde">Saúde</SelectItem>
+                  <SelectItem value="Odontológico">Odontológico</SelectItem>
+                  <SelectItem value="Vida">Vida</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="flex items-end">
-              <Dialog open={showModal} onOpenChange={setShowModal}>
-                <DialogTrigger asChild>
-                  <Button className="w-full" onClick={() => handleOpenModal()}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Novo Produto
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>{editingProduto ? "Editar Produto" : "Cadastrar Novo Produto"}</DialogTitle>
-                    <DialogDescription>Preencha as informações do produto</DialogDescription>
-                  </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="tipo">Tipo</Label>
+              <Select value={formData.tipo} onValueChange={(value) => setFormData({ ...formData, tipo: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Individual">Individual</SelectItem>
+                  <SelectItem value="Familiar">Familiar</SelectItem>
+                  <SelectItem value="Empresarial">Empresarial</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="codigo">Código *</Label>
-                      <Input
-                        id="codigo"
-                        value={formData.codigo}
-                        onChange={(e) => setFormData({ ...formData, codigo: e.target.value })}
-                        placeholder="PROD001"
-                      />
-                    </div>
+            <div className="space-y-2">
+              <Label htmlFor="valor">Valor</Label>
+              <Input
+                id="valor"
+                type="number"
+                step="0.01"
+                value={formData.valor}
+                onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+                placeholder="0.00"
+              />
+            </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="nome">Nome *</Label>
-                      <Input
-                        id="nome"
-                        value={formData.nome}
-                        onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                        placeholder="Nome do produto"
-                      />
-                    </div>
+            <div className="space-y-2">
+              <Label htmlFor="operadora_id">Operadora ID</Label>
+              <Input
+                id="operadora_id"
+                value={formData.operadora_id}
+                onChange={(e) => setFormData({ ...formData, operadora_id: e.target.value })}
+                placeholder="ID da operadora"
+              />
+            </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="categoria">Categoria *</Label>
-                      <Select
-                        value={formData.categoria}
-                        onValueChange={(value) => setFormData({ ...formData, categoria: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a categoria" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Saúde">Saúde</SelectItem>
-                          <SelectItem value="Odontológico">Odontológico</SelectItem>
-                          <SelectItem value="Vida">Vida</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="descricao">Descrição</Label>
+              <Textarea
+                id="descricao"
+                value={formData.descricao}
+                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                placeholder="Descrição do produto"
+                rows={3}
+              />
+            </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="tipo">Tipo</Label>
-                      <Select
-                        value={formData.tipo}
-                        onValueChange={(value) => setFormData({ ...formData, tipo: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Individual">Individual</SelectItem>
-                          <SelectItem value="Familiar">Familiar</SelectItem>
-                          <SelectItem value="Empresarial">Empresarial</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="valor">Valor</Label>
-                      <Input
-                        id="valor"
-                        type="number"
-                        step="0.01"
-                        value={formData.valor}
-                        onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
-                        placeholder="0.00"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="operadora_id">Operadora ID</Label>
-                      <Input
-                        id="operadora_id"
-                        value={formData.operadora_id}
-                        onChange={(e) => setFormData({ ...formData, operadora_id: e.target.value })}
-                        placeholder="ID da operadora"
-                      />
-                    </div>
-
-                    <div className="col-span-2 space-y-2">
-                      <Label htmlFor="descricao">Descrição</Label>
-                      <Textarea
-                        id="descricao"
-                        value={formData.descricao}
-                        onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                        placeholder="Descrição do produto"
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="col-span-2 flex items-center space-x-2">
-                      <Switch
-                        id="ativo"
-                        checked={formData.ativo}
-                        onCheckedChange={(checked) => setFormData({ ...formData, ativo: checked })}
-                      />
-                      <Label htmlFor="ativo">Produto ativo</Label>
-                    </div>
-                  </div>
-
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowModal(false)} disabled={isLoading}>
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleSaveProduto} disabled={isLoading}>
-                      {isLoading ? "Salvando..." : editingProduto ? "Atualizar" : "Cadastrar"}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+            <div className="col-span-2 flex items-center space-x-2">
+              <Switch
+                id="ativo"
+                checked={formData.ativo}
+                onCheckedChange={(checked) => setFormData({ ...formData, ativo: checked })}
+              />
+              <Label htmlFor="ativo">Produto ativo</Label>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Produtos Cadastrados ({filteredProdutos.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading && produtos.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">Carregando produtos...</div>
-          ) : filteredProdutos.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {searchTerm || filterCategoria !== "todos" || filterStatus !== "todos"
-                ? "Nenhum produto encontrado com os filtros aplicados."
-                : "Nenhum produto cadastrado."}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredProdutos.map((produto) => (
-                <div key={produto.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold">{produto.nome}</h3>
-                      <Badge variant={produto.ativo ? "default" : "secondary"}>
-                        {produto.ativo ? "Ativo" : "Inativo"}
-                      </Badge>
-                      <Badge variant="outline">{produto.categoria}</Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      <p>
-                        <strong>Código:</strong> {produto.codigo}
-                      </p>
-                      <p>
-                        <strong>Tipo:</strong> {produto.tipo}
-                      </p>
-                      <p>
-                        <strong>Valor:</strong> R$ {produto.valor.toFixed(2)}
-                      </p>
-                      {produto.descricao && (
-                        <p>
-                          <strong>Descrição:</strong> {produto.descricao}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleOpenModal(produto)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setProdutoToDelete(produto.id)
-                        setShowDeleteDialog(true)
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={isLoading}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveProduto} disabled={isLoading}>
+              {isLoading ? "Salvando..." : editingProduto ? "Atualizar" : "Cadastrar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>

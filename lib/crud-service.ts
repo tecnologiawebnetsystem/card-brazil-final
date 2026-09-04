@@ -68,7 +68,7 @@ export class CrudService<T> {
   }
 
   async softDelete(id: number): Promise<boolean> {
-    return this.update(id, { ativo: false } as Partial<T>)
+    return this.update(id, { ativo: false } as unknown as Partial<T>)
   }
 
   async count(filters?: Record<string, any>): Promise<number> {

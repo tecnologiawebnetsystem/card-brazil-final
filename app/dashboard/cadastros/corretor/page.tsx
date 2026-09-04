@@ -16,7 +16,8 @@ import { BankAccountCard } from "@/components/shared/bank-account-card"
 import { AddressModal } from "@/components/shared/address-modal"
 import { BankAccountModal } from "@/components/shared/bank-account-modal"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2 } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 
 interface Corretor {
   id: number
@@ -74,7 +75,7 @@ export default function CorretorPage() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [searchFilter, setSearchFilter] = useState("todas")
+  const [searchFilter, setSearchFilter] = useState("corretores")
   const [searchResults, setSearchResults] = useState<Pessoa[]>([])
   const [showResults, setShowResults] = useState(false)
   const [selectedPerson, setSelectedPerson] = useState<Pessoa | null>(null)
@@ -203,6 +204,42 @@ export default function CorretorPage() {
   const handleSelectPerson = (pessoa: Pessoa) => {
     setSelectedPerson(pessoa)
     setShowResults(false)
+  }
+
+  const handleToggleStatus = async (pessoa: Pessoa) => {
+    const corretor = corretores.find((c) => c.pessoa_id === pessoa.id)
+    if (!corretor) {
+      handleSelectPerson(pessoa)
+      toast({
+        title: "Cadastro necessário",
+        description: "Cadastre o corretor antes de alterar a situação.",
+      })
+      return
+    }
+    const novaSituacao = corretor.situacao === "ativo" ? "inativo" : "ativo"
+    try {
+      const response = await fetch(`/api/corretores/${corretor.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ situacao: novaSituacao }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({
+          title: "Sucesso",
+          description: `Corretor ${novaSituacao === "ativo" ? "ativado" : "desativado"} com sucesso`,
+        })
+        await loadCorretores()
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível alterar a situação do corretor",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleBackToSearch = () => {
@@ -484,96 +521,99 @@ export default function CorretorPage() {
             <h1 className="text-2xl font-bold text-foreground">Corretores</h1>
             <p className="text-muted-foreground">Gerencie os corretores do sistema</p>
           </div>
-          {selectedPerson && (
+          {selectedPerson ? (
             <Button variant="outline" onClick={handleBackToSearch}>
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Voltar à Pesquisa
             </Button>
+          ) : (
+            <Button onClick={() => setShowNewPersonModal(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Pessoa
+            </Button>
           )}
         </div>
 
         {!selectedPerson && (
-          <div className="mb-6">
-            <Card className="bg-emerald-700 text-white border-emerald-600">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-emerald-100 text-sm font-medium">Total de Corretores</p>
-                    <p className="text-3xl font-bold">{corretores.length}</p>
-                    <p className="text-emerald-200 text-sm">Cadastrados no sistema</p>
-                  </div>
-                  <div className="h-12 w-12 bg-emerald-600 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {!selectedPerson && (
-          <Card className="mb-6">
+          <Card>
             <CardHeader>
-              <CardTitle>Pesquisar Corretor</CardTitle>
-              <CardDescription>Digite o nome, CPF ou CNPJ para pesquisar</CardDescription>
+              <CardTitle>Corretores cadastrados</CardTitle>
+              <CardDescription>Busque, visualize, edite e altere a situação dos corretores.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label>Filtro de Pesquisa</Label>
+              <CadastroTable
+                data={
+                  searchFilter === "corretores"
+                    ? searchResults.filter((p) => corretores.some((cor) => cor.pessoa_id === p.id))
+                    : searchResults
+                }
+                loading={loading}
+                getId={(p) => p.id}
+                getSearchText={(p) => `${p.razao_social ?? ""} ${p.nome ?? ""} ${p.cpf ?? ""} ${p.cnpj ?? ""}`}
+                isActive={(p) =>
+                  corretores.some((cor) => cor.pessoa_id === p.id && cor.situacao === "ativo")
+                }
+                searchPlaceholder="Buscar por nome, CPF ou CNPJ..."
+                emptyMessage="Nenhum corretor encontrado."
+                extraFilters={
                   <Select value={searchFilter} onValueChange={setSearchFilter}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full sm:w-52">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todas">Todas as Pessoas</SelectItem>
-                      <SelectItem value="corretores">Apenas Corretores</SelectItem>
+                      <SelectItem value="corretores">Apenas corretores</SelectItem>
+                      <SelectItem value="todas">Todas as pessoas</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Digite aqui..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    />
-                  </div>
-
-                </div>
-              </div>
+                }
+                columns={
+                  [
+                    {
+                      key: "nome",
+                      header: "Nome",
+                      sortable: true,
+                      sortValue: (p) => p.razao_social || p.nome || "",
+                      render: (p) => (
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9">
+                            <AvatarFallback className="text-xs">
+                              {(p.razao_social || p.nome || "").substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium text-foreground">{p.razao_social || p.nome}</span>
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "documento",
+                      header: "Documento",
+                      render: (p) => (p.tipo_pessoa === "juridica" ? p.cnpj : p.cpf) || "—",
+                    },
+                    {
+                      key: "tipo",
+                      header: "Tipo",
+                      sortable: true,
+                      sortValue: (p) => p.tipo_pessoa,
+                      render: (p) => (
+                        <Badge variant="outline" className="text-xs">
+                          {p.tipo_pessoa === "juridica" ? "Pessoa Jurídica" : "Pessoa Física"}
+                        </Badge>
+                      ),
+                    },
+                  ] as CadastroColumn<Pessoa>[]
+                }
+                onView={(p) => handleSelectPerson(p)}
+                onEdit={(p) => handleSelectPerson(p)}
+                onToggleStatus={handleToggleStatus}
+              />
             </CardContent>
           </Card>
         )}
 
-        {showResults && !selectedPerson && (
+        {false && showResults && !selectedPerson && (
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Resultados da Pesquisa</CardTitle>
-                  <CardDescription>{searchResults.length} pessoa(s) encontrada(s)</CardDescription>
-                </div>
-                {searchResults.length === 0 && (
-                  <Button onClick={() => setShowNewPersonModal(true)}>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Nova Pessoa
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
             <CardContent>
               {searchResults.length === 0 ? (
                 <div className="text-center py-8">
@@ -805,7 +845,7 @@ export default function CorretorPage() {
                             key={endereco.id}
                             endereco={endereco}
                             onEdit={(endereco) => {
-                              setEditingEndereco(endereco)
+                              setEditingEndereco(endereco as unknown as Endereco)
                               setShowEditEnderecoModal(true)
                             }}
                             onDelete={(id) => handleDeleteEndereco(id)}
@@ -840,7 +880,7 @@ export default function CorretorPage() {
                             key={banco.id}
                             dadoBancario={banco}
                             onEdit={(banco) => {
-                              setEditingBanco(banco)
+                              setEditingBanco(banco as unknown as DadoBancario)
                               setShowEditBancoModal(true)
                             }}
                             onDelete={(id) => handleDeleteBanco(id)}

@@ -14,6 +14,9 @@ import { AddressModal } from "@/components/shared/address-modal"
 import { BankAccountModal } from "@/components/shared/bank-account-modal"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
+import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Operadora {
   id: number
@@ -23,6 +26,8 @@ interface Operadora {
   ativo: boolean
   created_at?: string
   updated_at?: string
+  enderecos?: Endereco[]
+  dadosBancarios?: DadoBancario[]
 }
 
 interface Endereco {
@@ -362,6 +367,37 @@ export default function OperadoraPage() {
     }
   }
 
+  const handleToggleStatus = async (operadora: Operadora) => {
+    try {
+      const response = await fetch(`/api/operadoras/${operadora.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pessoa_id: operadora.pessoa_id,
+          natureza_operadora: operadora.natureza_operadora,
+          registro_ans: operadora.registro_ans,
+          ativo: !operadora.ativo,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({
+          title: "Sucesso",
+          description: `Operadora ${operadora.ativo ? "desativada" : "ativada"} com sucesso`,
+        })
+        loadOperadoras()
+      } else {
+        throw new Error(data.message)
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao alterar status da operadora",
+        variant: "destructive",
+      })
+    }
+  }
+
   const getPessoaNome = (pessoaId: number) => {
     const pessoa = pessoas.find((p) => p.id === pessoaId)
     return pessoa?.nome || "N/A"
@@ -382,16 +418,17 @@ export default function OperadoraPage() {
       const pessoa = pessoas.find((p) => p.id === op.pessoa_id)
       let matchesSearchTerm = false
       if (searchTerm.toLowerCase()) {
-        matchesSearchTerm =
+        matchesSearchTerm = !!(
           op.natureza_operadora.toLowerCase().includes(searchTerm.toLowerCase()) ||
           op.registro_ans.includes(searchTerm) ||
           pessoa?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
           pessoa?.cnpj?.includes(searchTerm)
+        )
       }
 
       let matchesFilter = true
       if (searchFilter === "ativas") {
-        matchesFilter = op.ativo
+        matchesFilter = !!op.ativo
       } else if (searchFilter === "inativas") {
         matchesFilter = !op.ativo
       }
@@ -687,140 +724,82 @@ export default function OperadoraPage() {
             <h1 className="text-2xl font-bold text-foreground">Operadoras</h1>
             <p className="text-muted-foreground">Gerencie as operadoras de saúde do sistema</p>
           </div>
-          {/* Botão de Nova Operadora do novo código */}
-          <Button onClick={handleCreate} style={{ backgroundColor: "#6B8E23" }} className="hover:opacity-90">
-            + Nova Operadora
-          </Button>
-          {/* Botão antigo "Voltar à Pesquisa" removido pois a navegação mudou */}
+          <Button onClick={handleCreate}>+ Nova Operadora</Button>
         </div>
 
-        {/* Card de Estatísticas */}
-        <div className="mb-6">
-          <Card className="bg-emerald-700 text-white border-emerald-700">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">Total de Operadoras</CardTitle>
-              <div className="h-8 w-8 bg-emerald-800 rounded-full flex items-center justify-center">
-                <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{operadoras.length}</div>
-              <p className="text-sm text-emerald-100">
-                {operadoras.filter((op) => op.ativo).length} ativas • {operadoras.filter((op) => !op.ativo).length}{" "}
-                inativas
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
+          <CadastroSummaryCard title="Total de Operadoras" value={analytics.totalOperadoras} description={`${analytics.operadorasAtivas} ativas • ${analytics.operadorasInativas} inativas`} metrics={[{ label: "Completude média", value: `${analytics.avgCompletude}%`, tone: "positive" }]} />
+        </CadastroSummaryGrid>
 
-        {/* Card de Pesquisa */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Pesquisar Operadora</CardTitle>
-            <CardDescription>Digite o nome, CNPJ ou registro ANS para pesquisar</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {" "}
-              {/* Adicionado para organizar os filtros */}
-              <div>
-                <Label>Filtro de Status</Label>
-                <Select value={searchFilter} onValueChange={setSearchFilter}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todas">Todas as Operadoras</SelectItem>
-                    <SelectItem value="ativas">Apenas Ativas</SelectItem>
-                    <SelectItem value="inativas">Apenas Inativas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Digite aqui..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSearchByFilter()} // Mudado para handleSearchByFilter
-                  />
-                </div>
-
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tabela de Resultados */}
         <Card>
           <CardHeader>
-            <CardTitle>Todas as Operadoras Cadastradas</CardTitle>
-            <CardDescription>{filteredOperadoras.length} operadora(s) encontrada(s)</CardDescription>
+            <CardTitle>Operadoras cadastradas</CardTitle>
+            <CardDescription>Busque, visualize, edite e altere o status das operadoras.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="flex justify-center items-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : filteredOperadoras.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Nenhuma operadora encontrada.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredOperadoras.map((operadora) => (
-                  <div
-                    key={operadora.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback>
-                          {getPessoaNome(operadora.pessoa_id).substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{getPessoaNome(operadora.pessoa_id)}</p>
-                          <Badge variant="outline" className="text-xs">
-                            {operadora.registro_ans}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{operadora.natureza_operadora}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Documento: {getPessoaDocumento(operadora.pessoa_id)}
-                        </p>
+            <CadastroTable
+              data={operadoras}
+              loading={loading}
+              getId={(op) => op.id}
+              getSearchText={(op) =>
+                `${getPessoaNome(op.pessoa_id)} ${op.registro_ans} ${op.natureza_operadora} ${getPessoaDocumento(op.pessoa_id)}`
+              }
+              isActive={(op) => op.ativo}
+              searchPlaceholder="Buscar por nome, CNPJ, registro ANS ou natureza..."
+              emptyMessage="Nenhuma operadora encontrada."
+              columns={
+                [
+                  {
+                    key: "nome",
+                    header: "Operadora",
+                    sortable: true,
+                    sortValue: (op) => getPessoaNome(op.pessoa_id),
+                    render: (op) => (
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarFallback className="text-xs">
+                            {getPessoaNome(op.pessoa_id).substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium text-foreground">{getPessoaNome(op.pessoa_id)}</span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={operadora.ativo ? "default" : "secondary"}>
-                        {operadora.ativo ? "Ativo" : "Inativo"}
+                    ),
+                  },
+                  {
+                    key: "registro_ans",
+                    header: "Registro ANS",
+                    sortable: true,
+                    render: (op) => (
+                      <Badge variant="outline" className="text-xs">
+                        {op.registro_ans}
                       </Badge>
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(operadora)}>
-                        Editar
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          setOperadoraToDelete(operadora.id)
-                          setShowDeleteDialog(true)
-                        }}
-                      >
-                        Excluir
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                    ),
+                  },
+                  {
+                    key: "natureza_operadora",
+                    header: "Natureza",
+                    sortable: true,
+                  },
+                  {
+                    key: "documento",
+                    header: "Documento",
+                    render: (op) => getPessoaDocumento(op.pessoa_id),
+                  },
+                ] as CadastroColumn<Operadora>[]
+              }
+              onEdit={handleEdit}
+              onToggleStatus={handleToggleStatus}
+              detailsTitle={(op) => getPessoaNome(op.pessoa_id)}
+              renderDetails={(op) => (
+                <CadastroDetailsGrid>
+                  <CadastroDetailField label="Operadora" value={getPessoaNome(op.pessoa_id)} />
+                  <CadastroDetailField label="Documento" value={getPessoaDocumento(op.pessoa_id)} />
+                  <CadastroDetailField label="Registro ANS" value={op.registro_ans} />
+                  <CadastroDetailField label="Natureza" value={op.natureza_operadora} />
+                  <CadastroDetailField label="Status" value={op.ativo ? "Ativo" : "Inativo"} />
+                </CadastroDetailsGrid>
+              )}
+            />
           </CardContent>
         </Card>
 

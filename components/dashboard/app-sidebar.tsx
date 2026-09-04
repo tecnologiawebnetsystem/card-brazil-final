@@ -26,8 +26,8 @@ import { useAuth } from "@/contexts/auth-context"
 import { useState } from "react"
 import { ChevronDown, ChevronRight, ChevronUp, Menu, X } from "lucide-react"
 
-const LayoutDashboardIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const LayoutDashboardIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <rect x="3" y="3" width="7" height="7" />
     <rect x="14" y="3" width="7" height="7" />
     <rect x="14" y="14" width="7" height="7" />
@@ -35,8 +35,8 @@ const LayoutDashboardIcon = () => (
   </svg>
 )
 
-const UsersIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const UsersIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -46,8 +46,8 @@ const UsersIcon = () => (
   </svg>
 )
 
-const BuildingIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const BuildingIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -57,8 +57,8 @@ const BuildingIcon = () => (
   </svg>
 )
 
-const ShieldIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const ShieldIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -68,8 +68,8 @@ const ShieldIcon = () => (
   </svg>
 )
 
-const BriefcaseIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const BriefcaseIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -79,15 +79,15 @@ const BriefcaseIcon = () => (
   </svg>
 )
 
-const DollarSignIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const DollarSignIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <line x1="12" y1="1" x2="12" y2="23" />
     <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
   </svg>
 )
 
-const FileTextIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const FileTextIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -97,16 +97,16 @@ const FileTextIcon = () => (
   </svg>
 )
 
-const BarChartIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const BarChartIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <line x1="12" y1="20" x2="12" y2="10" />
     <line x1="18" y1="20" x2="18" y2="4" />
     <line x1="6" y1="20" x2="6" y2="16" />
   </svg>
 )
 
-const CogIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const CogIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -117,13 +117,23 @@ const CogIcon = () => (
   </svg>
 )
 
-const CarteirinhaIcon = () => (
-  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+const CarteirinhaIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 2v20M14 2v20M4 7h16M4 17h16" />
   </svg>
 )
 
-const menuItems = [
+type MenuItem = {
+  title: string
+  url?: string
+  icon?: React.ReactNode
+  requiredPermission?: string | null
+  subItems?: MenuItem[]
+}
+
+type MenuGroup = { title: string; items: MenuItem[] }
+
+const menuItems: MenuGroup[] = [
   {
     title: "Principal",
     items: [
@@ -221,7 +231,7 @@ const menuItems = [
     title: "Tabelas Gerais",
     items: [
       {
-        title: "Códigos e Classificaç������es",
+        title: "Códigos e Classificaç��������es",
         icon: <CogIcon />,
         subItems: [
           {
@@ -581,14 +591,14 @@ export function AppSidebar() {
     }))
   }
 
-  const filterMenuItems = (items: any[]) => {
+  const filterMenuItems = (items: MenuItem[]): MenuItem[] => {
     return items.filter((item) => {
       if (!item.requiredPermission) return true
       return user?.permissions?.[item.requiredPermission] === true
     })
   }
 
-  const filterMenuGroups = (groups: any[]) => {
+  const filterMenuGroups = (groups: MenuGroup[]): MenuGroup[] => {
     const hiddenGroups = new Set(["Financeiro", "Cobrança", "Sistema Contábil", "Relatórios"])
     const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
 
@@ -704,20 +714,23 @@ export function AppSidebar() {
                   className="w-full justify-start gap-3 rounded-lg hover:bg-sidebar-primary transition-colors h-auto py-2"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/images/user-avatar.jpg" alt={user.nome} />
+                    <AvatarImage src="/images/user-avatar.jpg" alt={user.nome_completo} />
                     <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs font-semibold">
-                      {user.nome
-                        ? user.nome
+                      {user.nome_completo
+                        ? user.nome_completo
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
+                            .slice(0, 2)
                             .toUpperCase()
                         : "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium text-sidebar-foreground">{user.nome}</span>
-                    <span className="text-xs text-sidebar-foreground/60">{getProfileDisplayName(user.role_nome)}</span>
+                    <span className="text-sm font-medium text-sidebar-foreground">{user.nome_completo || "Usuário"}</span>
+                    <span className="text-xs capitalize text-sidebar-foreground/60">
+                      {getProfileDisplayName(user.tipo_usuario)}
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto h-4 w-4 text-sidebar-foreground/60" />
                 </Button>
@@ -730,6 +743,12 @@ export function AppSidebar() {
                   onClick={() => (window.location.href = "/dashboard/perfil")}
                 >
                   <span>Perfil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
+                  onClick={() => (window.location.href = "/dashboard/perfil#seguranca")}
+                >
+                  <span>Alterar senha</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-sidebar-border" />
                 <DropdownMenuItem

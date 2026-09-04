@@ -22,6 +22,7 @@ import { toast } from "sonner"
 import { CardDescription } from "@/components/ui/card"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface PlanoFaixa {
   id: number
@@ -237,52 +238,12 @@ export default function PlanosFaixaPage() {
         </Button>
       </div>
 
-      {/* Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Faixas</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalPlanos}</div>
-            <p className="text-xs text-muted-foreground">faixas cadastradas</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Faixas Ativas</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{planosAtivos}</div>
-            <p className="text-xs text-muted-foreground">de {totalPlanos} faixas</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Médio</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {valorMedio.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">valor médio por faixa</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Reajuste Médio</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{reajusteMedio.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">reajuste médio</p>
-          </CardContent>
-        </Card>
-      </div>
+      <CadastroSummaryGrid className="mb-6">
+        <CadastroSummaryCard title="Total de Faixas" value={totalPlanos} description="faixas cadastradas" icon={<BarChart3 className="h-5 w-5" />} />
+        <CadastroSummaryCard title="Faixas Ativas" value={planosAtivos} description={`de ${totalPlanos} faixas`} icon={<TrendingUp className="h-5 w-5" />} metrics={[{ label: "Status", value: "Ativas", tone: "positive" }]} />
+        <CadastroSummaryCard title="Valor Médio" value={`R$ ${valorMedio.toFixed(2)}`} description="valor médio por faixa" icon={<DollarSign className="h-5 w-5" />} />
+        <CadastroSummaryCard title="Reajuste Médio" value={`${reajusteMedio.toFixed(1)}%`} description="reajuste médio" icon={<Users className="h-5 w-5" />} />
+      </CadastroSummaryGrid>
 
       {/* Grid padronizado */}
       <Card>

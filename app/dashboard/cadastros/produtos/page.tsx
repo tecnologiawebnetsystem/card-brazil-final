@@ -22,6 +22,7 @@ import { Plus, Package, TrendingUp, Users, DollarSign } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
+import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Produto {
   id: number
@@ -292,51 +293,12 @@ export default function ProdutosPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalProdutos}</div>
-            <p className="text-xs text-muted-foreground">produtos cadastrados</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produtos Ativos</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{produtosAtivos}</div>
-            <p className="text-xs text-muted-foreground">de {totalProdutos} produtos</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Médio</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$ {valorMedio.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">valor médio dos produtos</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categorias</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{new Set(produtos.map((p) => p.categoria)).size}</div>
-            <p className="text-xs text-muted-foreground">categorias diferentes</p>
-          </CardContent>
-        </Card>
-      </div>
+      <CadastroSummaryGrid className="mb-6">
+        <CadastroSummaryCard title="Total de Produtos" value={totalProdutos} description="produtos cadastrados" icon={<Package className="h-5 w-5" />} />
+        <CadastroSummaryCard title="Produtos Ativos" value={produtosAtivos} description={`de ${totalProdutos} produtos`} icon={<TrendingUp className="h-5 w-5" />} metrics={[{ label: "Status", value: "Ativos", tone: "positive" }]} />
+        <CadastroSummaryCard title="Valor Médio" value={`R$ ${valorMedio.toFixed(2)}`} description="valor médio dos produtos" icon={<DollarSign className="h-5 w-5" />} />
+        <CadastroSummaryCard title="Categorias" value={new Set(produtos.map((p) => p.categoria)).size} description="categorias diferentes" icon={<Users className="h-5 w-5" />} />
+      </CadastroSummaryGrid>
 
       <Card>
         <CardHeader>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,10 +30,27 @@ interface Feriado {
 export default function FeriadosPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterTipo, setFilterTipo] = useState("todos")
-  const [filterAno, setFilterAno] = useState("2024")
+  const [filterAno, setFilterAno] = useState(String(new Date().getFullYear()))
   const [showModal, setShowModal] = useState(false)
+  const [feriados, setFeriados] = useState<Feriado[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const [feriados] = useState<Feriado[]>([
+  useEffect(() => {
+    let ativo = true
+    setLoading(true)
+    fetch(`/api/feriados?ano=${filterAno}`)
+      .then(async (response) => {
+        const payload = await response.json()
+        if (!response.ok) throw new Error(payload.error || "Não foi possível carregar os feriados")
+        if (ativo) setFeriados(Array.isArray(payload) ? payload.map((item) => ({ ...item, tipo: String(item.tipo || "nacional").toLowerCase(), descricao: item.descricao || item.nome || "" })) : [])
+      })
+      .catch(() => { if (ativo) setFeriados([]) })
+      .finally(() => { if (ativo) setLoading(false) })
+    return () => { ativo = false }
+  }, [filterAno])
+
+  /* Dados locais mantidos apenas como fallback visual durante a migração. */
+  const dadosIniciais = [
     {
       id: 1,
       nome: "Confraternização Universal",
@@ -142,7 +159,7 @@ export default function FeriadosPage() {
       fixo: true,
       ativo: true,
     },
-  ])
+  ]
 
   const filteredFeriados = useMemo(() => {
     return feriados.filter((feriado) => {
@@ -393,7 +410,11 @@ export default function FeriadosPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredFeriados.map((feriado) => (
+                {loading ? (
+                  <TableRow><TableCell colSpan={6} className="h-32 text-center text-muted-foreground">Carregando feriados...</TableCell></TableRow>
+                ) : filteredFeriados.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="h-32 text-center text-muted-foreground">Nenhum feriado encontrado.</TableCell></TableRow>
+                ) : filteredFeriados.map((feriado) => (
                   <TableRow key={feriado.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">

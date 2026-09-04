@@ -2,7 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,53 +35,41 @@ interface Subestipulante {
 }
 
 export default function SubestipulantePage() {
+  const { toast } = useToast()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [subestipulantes, setSubestipulantes] = useState<Subestipulante[]>([
-    {
-      id: 1,
-      nome: "Departamento RH - ABC",
-      estipulante: "Empresa ABC Ltda",
-      contrato: "SUB-2024-001",
-      status: "Ativo",
-      segurados: 45,
-      responsavel: "Ana Costa",
-      telefone: "(11) 2345-6789",
-    },
-    {
-      id: 2,
-      nome: "Filial São Paulo - XYZ",
-      estipulante: "Corporação XYZ S.A.",
-      contrato: "SUB-2024-002",
-      status: "Ativo",
-      segurados: 120,
-      responsavel: "Carlos Oliveira",
-      telefone: "(11) 9876-5432",
-    },
-  ])
+  const [subestipulantes, setSubestipulantes] = useState<Subestipulante[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleAddSubestipulante = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-
-    const novoSubestipulante = {
-      id: subestipulantes.length + 1,
-      nome: formData.get("nome") as string,
-      estipulante: formData.get("estipulante") as string,
-      contrato: `SUB-2024-${String(subestipulantes.length + 1).padStart(3, "0")}`,
-      status: formData.get("status") as string,
-      segurados: 0,
-      responsavel: formData.get("responsavel") as string,
-      telefone: formData.get("telefone") as string,
-    }
-
-    setSubestipulantes([...subestipulantes, novoSubestipulante])
-    setIsModalOpen(false)
+  const carregarSubestipulantes = async () => {
+    try {
+      const response = await fetch("/api/subestipulantes")
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || "Não foi possível carregar os subestipulantes")
+      setSubestipulantes(payload.data || [])
+    } catch (error) {
+      toast({ title: "Erro", description: error instanceof Error ? error.message : "Falha ao carregar dados", variant: "destructive" })
+    } finally { setLoading(false) }
   }
 
-  const handleToggleStatus = (sub: Subestipulante) => {
-    setSubestipulantes(
-      subestipulantes.map((s) => (s.id === sub.id ? { ...s, status: s.status === "Ativo" ? "Inativo" : "Ativo" } : s)),
-    )
+  useEffect(() => { carregarSubestipulantes() }, [])
+
+  const handleAddSubestipulante = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const body = Object.fromEntries(formData.entries())
+    const response = await fetch("/api/subestipulantes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    const payload = await response.json()
+    if (!response.ok) { toast({ title: "Erro", description: payload.error || "Não foi possível cadastrar", variant: "destructive" }); return }
+    setIsModalOpen(false)
+    event.currentTarget.reset()
+    await carregarSubestipulantes()
+    toast({ title: "Cadastro realizado", description: "Subestipulante cadastrado com sucesso." })
+  }
+
+  const handleToggleStatus = async (sub: Subestipulante) => {
+    const response = await fetch(`/api/subestipulantes/${sub.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: sub.status === "Ativo" ? "Inativo" : "Ativo" }) })
+    if (!response.ok) { toast({ title: "Erro", description: "Não foi possível alterar o status", variant: "destructive" }); return }
+    await carregarSubestipulantes()
   }
 
   return (

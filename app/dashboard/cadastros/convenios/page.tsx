@@ -16,6 +16,8 @@ import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/ca
 
 interface Convenio {
   id: number
+  operadora_id?: number
+  pessoa_id?: number
   nome: string
   tipo: "Médico" | "Odontológico" | "Hospitalar" | "Laboratorial" | "Farmácia"
   cnpj?: string
@@ -33,56 +35,7 @@ interface Convenio {
 }
 
 export default function ConveniosPage() {
-  const [convenios, setConvenios] = useState<Convenio[]>([
-    {
-      id: 1,
-      nome: "Hospital São Lucas",
-      tipo: "Hospitalar",
-      cnpj: "12.345.678/0001-90",
-      contato: "Dr. João Silva",
-      telefone: "(11) 3456-7890",
-      email: "contato@saolucas.com.br",
-      percentualCobertura: 80,
-      valorConsulta: 150,
-      valorExame: 200,
-      prazoAutorizacao: 24,
-      situacao: "Ativo",
-      dataContrato: "2023-01-15",
-      dataVencimento: "2024-01-15",
-      observacoes: "Convênio com desconto especial para emergências",
-    },
-    {
-      id: 2,
-      nome: "Clínica Odonto Vida",
-      tipo: "Odontológico",
-      cnpj: "98.765.432/0001-10",
-      contato: "Dra. Maria Santos",
-      telefone: "(11) 9876-5432",
-      email: "contato@odontovida.com.br",
-      percentualCobertura: 70,
-      valorConsulta: 80,
-      prazoAutorizacao: 12,
-      situacao: "Ativo",
-      dataContrato: "2023-03-10",
-      dataVencimento: "2024-03-10",
-    },
-    {
-      id: 3,
-      nome: "Laboratório Exames+",
-      tipo: "Laboratorial",
-      cnpj: "11.222.333/0001-44",
-      contato: "Carlos Eduardo",
-      telefone: "(11) 1111-2222",
-      email: "contato@examesmais.com.br",
-      percentualCobertura: 90,
-      valorExame: 50,
-      prazoAutorizacao: 6,
-      situacao: "Desativo",
-      dataContrato: "2022-06-20",
-      dataVencimento: "2023-06-20",
-      observacoes: "Convênio suspenso por inadimplência",
-    },
-  ])
+  const [convenios, setConvenios] = useState<Convenio[]>([])
 
   const [filtroTipo, setFiltroTipo] = useState<string>("Todos")
   const [filtroSituacao, setFiltroSituacao] = useState<string>("Todos")
@@ -145,30 +98,14 @@ export default function ConveniosPage() {
 
   const handleSave = async () => {
     if (formData.nome && formData.contato && formData.telefone && formData.email) {
-      if (editingConvenio) {
-        // Editar existente
-        setConvenios(convenios.map((c) => (c.id === editingConvenio.id ? { ...editingConvenio, ...formData } : c)))
-      } else {
-        // Adicionar novo
-        const newConvenio: Convenio = {
-          id: Date.now(),
-          nome: formData.nome || "",
-          tipo: formData.tipo || "Médico",
-          cnpj: formData.cnpj,
-          contato: formData.contato || "",
-          telefone: formData.telefone || "",
-          email: formData.email || "",
-          percentualCobertura: formData.percentualCobertura || 80,
-          valorConsulta: formData.valorConsulta,
-          valorExame: formData.valorExame,
-          prazoAutorizacao: formData.prazoAutorizacao || 24,
-          situacao: formData.situacao || "Ativo",
-          dataContrato: formData.dataContrato || new Date().toISOString().split("T")[0],
-          dataVencimento: formData.dataVencimento,
-          observacoes: formData.observacoes,
-        }
-        setConvenios([...convenios, newConvenio])
-      }
+      const response = await fetch(editingConvenio ? `/api/convenios/${editingConvenio.id}` : "/api/convenios", {
+        method: editingConvenio ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ operadora_id: formData.operadora_id || 1, pessoa_id: formData.pessoa_id || 1, codigo_convenio: formData.cnpj, tipo_prestador: formData.tipo, especialidades: formData.observacoes, data_inicio: formData.dataContrato, data_fim: formData.dataVencimento, ativo: formData.situacao === "Ativo" }),
+      })
+      const payload = await response.json()
+      if (!response.ok) { alert(payload.message || "Não foi possível salvar o convênio"); return }
+      await loadConvenios()
       setShowModal(false)
       setFormData({})
       setEditingConvenio(null)
@@ -182,10 +119,11 @@ export default function ConveniosPage() {
     setConvenios(convenios.filter((c) => c.id !== id))
   }
 
-  const toggleSituacao = (id: number) => {
-    setConvenios(
-      convenios.map((c) => (c.id === id ? { ...c, situacao: c.situacao === "Ativo" ? "Desativo" : "Ativo" } : c)),
-    )
+  const toggleSituacao = async (id: number) => {
+    const convenio = convenios.find((item) => item.id === id)
+    if (!convenio) return
+    const response = await fetch(`/api/convenios/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ codigo_convenio: convenio.cnpj, tipo_prestador: convenio.tipo, especialidades: convenio.observacoes, data_inicio: convenio.dataContrato, data_fim: convenio.dataVencimento, ativo: convenio.situacao !== "Ativo" }) })
+    if (response.ok) await loadConvenios()
   }
 
   return (

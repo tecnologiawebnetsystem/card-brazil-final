@@ -38,15 +38,36 @@ export default function FeriadosPage() {
   useEffect(() => {
     let ativo = true
     setLoading(true)
-    fetch(`/api/feriados?ano=${filterAno}`)
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 8000)
+    fetch(`/api/feriados?ano=${encodeURIComponent(filterAno)}`, { signal: controller.signal })
       .then(async (response) => {
         const payload = await response.json()
         if (!response.ok) throw new Error(payload.error || "Não foi possível carregar os feriados")
-        if (ativo) setFeriados(Array.isArray(payload) ? payload.map((item) => ({ ...item, tipo: String(item.tipo || "nacional").toLowerCase(), descricao: item.descricao || item.nome || "" })) : [])
+        if (!ativo) return
+        const registros = Array.isArray(payload) ? payload : []
+        setFeriados(
+          registros.map((item: Partial<Feriado>) => ({
+            id: Number(item.id),
+            nome: String(item.nome || "Feriado"),
+            data: String(item.data || ""),
+            tipo: String(item.tipo || "nacional").toLowerCase() as Feriado["tipo"],
+            descricao: String(item.descricao || item.nome || ""),
+            fixo: Boolean(item.fixo),
+            ativo: item.ativo !== false,
+          })),
+        )
       })
       .catch(() => { if (ativo) setFeriados([]) })
-      .finally(() => { if (ativo) setLoading(false) })
-    return () => { ativo = false }
+      .finally(() => {
+        window.clearTimeout(timeout)
+        if (ativo) setLoading(false)
+      })
+    return () => {
+      ativo = false
+      controller.abort()
+      window.clearTimeout(timeout)
+    }
   }, [filterAno])
 
   /* Dados locais mantidos apenas como fallback visual durante a migração. */

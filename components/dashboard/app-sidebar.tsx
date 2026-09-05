@@ -1,4 +1,6 @@
 "use client"
+import Link from "next/link"
+import { useTheme } from "next-themes"
 import {
   Sidebar,
   SidebarContent,
@@ -24,7 +26,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, ChevronUp, Menu, X } from "lucide-react"
+import { ChevronDown, ChevronRight, ChevronUp, Menu, Moon, Sun, X } from "lucide-react"
 
 const LayoutDashboardIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -574,6 +576,7 @@ type AppSidebarProps = {}
 export function AppSidebar() {
   const { state, isMobile, toggleSidebar } = useSidebar()
   const { user, logout } = useAuth()
+  const { resolvedTheme, setTheme } = useTheme()
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     Principal: true,
     Cadastros: true,
@@ -735,25 +738,34 @@ export function AppSidebar() {
                   <ChevronUp className="ml-auto h-4 w-4 text-sidebar-foreground/60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-lg bg-sidebar border-sidebar-border">
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                sideOffset={10}
+                className="z-[100] w-64 rounded-lg border-sidebar-border bg-sidebar shadow-xl"
+              >
                 <DropdownMenuLabel className="text-sidebar-foreground">Minha Conta</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-sidebar-border" />
-                <DropdownMenuItem
-                  className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
-                  onClick={() => (window.location.href = "/dashboard/perfil")}
-                >
-                  <span>Perfil</span>
+                <DropdownMenuItem asChild className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary">
+                  <Link href="/dashboard/perfil">Perfil</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary">
+                  <Link href="/dashboard/perfil#seguranca">Alterar senha</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary">
+                  <Link href="/dashboard/configuracoes">Configurações</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-md hover:bg-sidebar-primary transition-colors cursor-pointer text-sidebar-foreground/80"
-                  onClick={() => (window.location.href = "/dashboard/perfil#seguranca")}
+                  className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary"
+                  onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
                 >
-                  <span>Alterar senha</span>
+                  {resolvedTheme === "dark" ? <Sun /> : <Moon />}
+                  <span>{resolvedTheme === "dark" ? "Modo claro" : "Modo escuro"}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-sidebar-border" />
                 <DropdownMenuItem
-                  className="rounded-md hover:bg-sidebar-primary text-sidebar-accent transition-colors cursor-pointer"
-                  onClick={logout}
+                  className="rounded-md text-sidebar-accent hover:bg-sidebar-primary"
+                  onClick={() => void logout()}
                 >
                   <span>Sair</span>
                 </DropdownMenuItem>

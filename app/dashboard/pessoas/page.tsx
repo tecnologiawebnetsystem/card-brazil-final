@@ -143,9 +143,10 @@ export default function PessoasPage() {
       if (!response.ok) throw new Error("Erro ao carregar pessoas")
 
       const data = await response.json()
-      const pessoasCarregadas = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
+      const pessoasCarregadas = (Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : []).map((pessoa: Pessoa & { nome_completo?: string; situacao?: string; ativo?: boolean }) => ({
         ...pessoa,
         nome: pessoa.nome || pessoa.nome_completo || "",
+        status: (pessoa.status || pessoa.situacao || (pessoa.ativo === false ? "inativo" : "ativo")) as Pessoa["status"],
       }))
       setPessoas(pessoasCarregadas)
     } catch (error) {
@@ -498,17 +499,18 @@ export default function PessoasPage() {
   }
 
   const filteredPessoas = pessoas.filter((pessoa) => {
+    const termo = searchTerm.trim().toLowerCase()
     const matchesSearch =
-      searchTerm === "" ||
-      (pessoa.nome && pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (pessoa.razao_social && pessoa.razao_social.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (pessoa.cpf && pessoa.cpf.includes(searchTerm)) ||
-      (pessoa.cnpj && pessoa.cnpj.includes(searchTerm))
+      termo === "" ||
+      [pessoa.nome, pessoa.razao_social, pessoa.cpf, pessoa.cnpj, pessoa.email]
+        .filter(Boolean)
+        .some((valor) => String(valor).toLowerCase().includes(termo))
     const matchesTipo =
       tipoFilter === "todos" ||
       (tipoFilter === "Pessoa Física" && pessoa.tipo_pessoa === "fisica") ||
       (tipoFilter === "Pessoa Jurídica" && pessoa.tipo_pessoa === "juridica")
-    const matchesStatus = statusFilter === "todos" || pessoa.status === statusFilter.toLowerCase()
+    const status = String(pessoa.status || "ativo").toLowerCase()
+  const matchesStatus = statusFilter === "todos" || status === statusFilter.toLowerCase()
     return matchesSearch && matchesTipo && matchesStatus
   })
 

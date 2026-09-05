@@ -4,13 +4,7 @@ import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const ativo = searchParams.get("ativo")
-
-    const params: unknown[] = []
-    const where = ativo !== null ? " WHERE status = $1" : ""
-    if (ativo !== null) params.push(ativo === "true" ? "ativo" : "inativo")
-    const corretores = await query(`SELECT * FROM corretores${where} ORDER BY created_at DESC NULLS LAST`, params)
+    const corretores = await query("SELECT * FROM corretores ORDER BY created_at DESC NULLS LAST")
     return NextResponse.json(successResponse(corretores))
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })

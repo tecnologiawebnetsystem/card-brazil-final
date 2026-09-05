@@ -101,8 +101,11 @@ export default function CorretorPage() {
   })
 
   useEffect(() => {
-    loadCorretores()
-    handleSearch()
+    const carregarDadosIniciais = async () => {
+      await loadCorretores()
+      await handleSearch()
+    }
+    void carregarDadosIniciais()
   }, [])
 
   useEffect(() => {
@@ -117,9 +120,8 @@ export default function CorretorPage() {
     try {
       const response = await fetch("/api/corretores")
       const data = await response.json()
-      if (data.success) {
-        setCorretores(data.data)
-      }
+      if (!response.ok || data.success === false) throw new Error(data.error || data.message || "Erro ao carregar corretores")
+      setCorretores(Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Erro ao carregar corretores:", error)
     }

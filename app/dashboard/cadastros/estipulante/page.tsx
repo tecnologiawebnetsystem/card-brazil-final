@@ -160,8 +160,11 @@ export default function EstipulantePage() {
   })
 
   useEffect(() => {
-    loadEstipulantes()
-    handleSearch()
+    const carregarDadosIniciais = async () => {
+      await loadEstipulantes()
+      await handleSearch()
+    }
+    void carregarDadosIniciais()
   }, [])
 
   useEffect(() => {
@@ -176,9 +179,8 @@ export default function EstipulantePage() {
     try {
       const response = await fetch("/api/estipulantes")
       const data = await response.json()
-      if (data.success) {
-        setEstipulantes(data.data)
-      }
+      if (!response.ok || data.success === false) throw new Error(data.error || data.message || "Erro ao carregar estipulantes")
+      setEstipulantes(Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Erro ao carregar estipulantes:", error)
     }
@@ -230,7 +232,7 @@ export default function EstipulantePage() {
   const handleSearch = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/pessoas?tipo_pessoa=juridica&search=${encodeURIComponent(searchTerm)}`)
+      const response = await fetch(`/api/pessoas?search=${encodeURIComponent(searchTerm)}`)
       const data = await response.json()
 
       if (data.success) {

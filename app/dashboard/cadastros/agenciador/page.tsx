@@ -100,17 +100,19 @@ export default function AgenciadorPage() {
   })
 
   useEffect(() => {
-    loadAgenciadores()
-    handleSearch()
+    const carregarDadosIniciais = async () => {
+      await loadAgenciadores()
+      await handleSearch()
+    }
+    void carregarDadosIniciais()
   }, [])
 
   const loadAgenciadores = async () => {
     try {
       const response = await fetch("/api/agenciadores")
       const data = await response.json()
-      if (data.success) {
-        setAgenciadores(data.data)
-      }
+      if (!response.ok || data.success === false) throw new Error(data.error || data.message || "Erro ao carregar agenciadores")
+      setAgenciadores(Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Erro ao carregar agenciadores:", error)
       toast({

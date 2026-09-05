@@ -15,7 +15,12 @@ export async function GET(request: NextRequest) {
     if (uf) { params.push(uf); conditions.push(`(uf = $${params.length} OR tipo = 'Nacional')`) }
     if (search) { params.push(`%${search}%`); conditions.push(`nome ILIKE $${params.length}`) }
     const data = await query(`SELECT * FROM feriados WHERE ${conditions.join(" AND ")} ORDER BY data ASC`, params)
-    return NextResponse.json(data)
+    return NextResponse.json(data.map((feriado: any) => ({
+      ...feriado,
+      tipo: String(feriado.tipo || "Nacional").toLowerCase(),
+      descricao: feriado.descricao || feriado.nome || "",
+      ativo: feriado.ativo !== false,
+    })))
   } catch (error: any) {
     const anoSeguro = Number(ano)
     if (Number.isInteger(anoSeguro) && anoSeguro >= 2000 && anoSeguro <= 2100) {
@@ -24,8 +29,8 @@ export async function GET(request: NextRequest) {
         ["09-07", "Independência do Brasil"], ["10-12", "Nossa Senhora Aparecida"], ["11-02", "Finados"],
         ["11-15", "Proclamação da República"], ["11-20", "Dia da Consciência Negra"], ["12-25", "Natal"],
       ]
-      const data = feriadosNacionais.map(([mesDia, nome], index) => ({ id: -(index + 1), data: `${ano}-${mesDia}`, nome, descricao: nome, tipo: "Nacional", uf: null, cidade: null, fixo: true, status: "Ativo", ativo: true }))
-      return NextResponse.json(tipo ? data.filter((feriado) => feriado.tipo === tipo) : data)
+      const data = feriadosNacionais.map(([mesDia, nome], index) => ({ id: -(index + 1), data: `${ano}-${mesDia}`, nome, descricao: nome, tipo: "nacional", uf: null, cidade: null, fixo: true, status: "Ativo", ativo: true }))
+      return NextResponse.json(tipo ? data.filter((feriado) => feriado.tipo === tipo.toLowerCase()) : data)
     }
     return NextResponse.json({ error: "Não foi possível carregar os feriados" }, { status: 503 })
   }

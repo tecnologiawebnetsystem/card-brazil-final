@@ -64,11 +64,23 @@ export default function FeriadosPage() {
       if (selectedTipo) params.append("tipo", selectedTipo)
       if (selectedAno) params.append("ano", selectedAno)
 
-      const response = await fetch(`/api/feriados?${params}`)
+      const controller = new AbortController()
+      const timeout = window.setTimeout(() => controller.abort(), 8000)
+      const response = await fetch(`/api/feriados?${params}`, { signal: controller.signal })
+      window.clearTimeout(timeout)
       const data = await response.json()
 
       if (response.ok) {
-        setFeriados(data)
+        setFeriados(
+          (Array.isArray(data) ? data : []).map((item: Feriado) => ({
+            ...item,
+            tipo: String(item.tipo || "Nacional").toLowerCase().replace(/^./, (letra) => letra.toUpperCase()),
+            descricao: item.descricao || item.nome,
+            status: item.status || (item.ativo === false ? "Inativo" : "Ativo"),
+          })),
+        )
+      } else {
+        setFeriados([])
       }
     } catch (error) {
       toast({
@@ -170,7 +182,9 @@ export default function FeriadosPage() {
     }
   }
 
-  const filteredFeriados = feriados.filter((feriado) => feriado.nome.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredFeriados = feriados.filter((feriado) =>
+    String(feriado.nome || "").toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   const totalFeriados = feriados.length
   const feriadosFixos = feriados.filter((f) => f.fixo).length

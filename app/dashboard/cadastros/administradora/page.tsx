@@ -7,23 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { AddressCard } from "@/components/shared/address-card"
-import { AddressModal } from "@/components/shared/address-modal"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
-
-interface Endereco {
-  id: number
-  tipo: "residencial" | "comercial" | "cobranca"
-  cep: string
-  logradouro: string
-  numero: string
-  complemento?: string
-  bairro: string
-  cidade: string
-  estado: string
-  email?: string
-}
 
 interface Administradora {
   id: number
@@ -49,10 +34,6 @@ export default function AdministradoraPage() {
   const [administradora, setAdministradora] = useState<Administradora | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showAddEnderecoModal, setShowAddEnderecoModal] = useState(false)
-  const [showEditEnderecoModal, setShowEditEnderecoModal] = useState(false)
-  const [editingEndereco, setEditingEndereco] = useState<Endereco | null>(null)
-  const [enderecos, setEnderecos] = useState<Endereco[]>([])
 
   const [formData, setFormData] = useState({
     razao_social: "",
@@ -82,10 +63,6 @@ export default function AdministradoraPage() {
       if (data.success && data.data.length > 0) {
         // Pega a primeira administradora (sistema single-tenant por administradora)
         setAdministradora(data.data[0])
-        // Carregar endereços se houver
-        if (data.data[0].id) {
-          loadEnderecos(data.data[0].id)
-        }
       }
     } catch (error) {
       toast({
@@ -95,20 +72,6 @@ export default function AdministradoraPage() {
       })
     } finally {
       setLoading(false)
-    }
-  }
-
-  const loadEnderecos = async (administradoraId: number) => {
-    try {
-      // Assumindo que existe uma API de endereços filtrada por administradora
-      const response = await fetch(`/api/enderecos?administradora_id=${administradoraId}`)
-      const data = await response.json()
-
-      if (data.success) {
-        setEnderecos(data.data)
-      }
-    } catch (error) {
-      console.error("Erro ao carregar endereços:", error)
     }
   }
 
@@ -248,102 +211,6 @@ export default function AdministradoraPage() {
     setShowEditModal(true)
   }
 
-  const handleAddEndereco = async (enderecoData: any) => {
-    if (!administradora) return
-
-    try {
-      const response = await fetch("/api/enderecos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...enderecoData,
-          administradora_id: administradora.id,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        toast({
-          title: "Sucesso",
-          description: "Endereço adicionado com sucesso",
-        })
-        loadEnderecos(administradora.id)
-        setShowAddEnderecoModal(false)
-      } else {
-        throw new Error(data.message)
-      }
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao adicionar endereço",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleEditEndereco = async (enderecoData: any) => {
-    if (!editingEndereco) return
-
-    try {
-      const response = await fetch(`/api/enderecos/${editingEndereco.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(enderecoData),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        toast({
-          title: "Sucesso",
-          description: "Endereço atualizado com sucesso",
-        })
-        if (administradora) {
-          loadEnderecos(administradora.id)
-        }
-        setShowEditEnderecoModal(false)
-        setEditingEndereco(null)
-      } else {
-        throw new Error(data.message)
-      }
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao atualizar endereço",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleDeleteEndereco = async (enderecoId: number) => {
-    try {
-      const response = await fetch(`/api/enderecos/${enderecoId}`, {
-        method: "DELETE",
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        toast({
-          title: "Sucesso",
-          description: "Endereço excluído com sucesso",
-        })
-        if (administradora) {
-          loadEnderecos(administradora.id)
-        }
-      } else {
-        throw new Error(data.message)
-      }
-    } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Erro ao excluir endereço",
-        variant: "destructive",
-      })
-    }
-  }
-
   if (loading && !administradora) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -447,61 +314,7 @@ export default function AdministradoraPage() {
             </CardContent>
           </Card>
 
-          {/* Endereços */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Endereços ({enderecos.length})</CardTitle>
-              <Button onClick={() => setShowAddEnderecoModal(true)} size="sm">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Adicionar Endereço
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {enderecos.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <svg
-                    className="w-12 h-12 mx-auto mb-4 text-muted"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  <p>Nenhum endereço cadastrado</p>
-                  <Button onClick={() => setShowAddEnderecoModal(true)} variant="outline" size="sm" className="mt-2">
-                    Cadastrar Primeiro Endereço
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {enderecos.map((endereco) => (
-                    <AddressCard
-                      key={endereco.id}
-                      endereco={endereco}
-                      onEdit={(endereco) => {
-                        setEditingEndereco(endereco)
-                        setShowEditEnderecoModal(true)
-                      }}
-                      onDelete={handleDeleteEndereco}
-                    />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+
         </div>
       ) : (
         <Card>
@@ -664,25 +477,6 @@ export default function AdministradoraPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Adicionar Endereço */}
-      <AddressModal
-        isOpen={showAddEnderecoModal}
-        onClose={() => setShowAddEnderecoModal(false)}
-        onSave={handleAddEndereco}
-        title="Adicionar Endereço"
-      />
-
-      {/* Modal de Editar Endereço */}
-      <AddressModal
-        isOpen={showEditEnderecoModal}
-        onClose={() => {
-          setShowEditEnderecoModal(false)
-          setEditingEndereco(null)
-        }}
-        onSave={handleEditEndereco}
-        endereco={editingEndereco}
-        title="Editar Endereço"
-      />
     </div>
   )
 }

@@ -31,7 +31,33 @@ export async function GET(request: NextRequest) {
   try {
     const table = safeIdentifier(request.nextUrl.searchParams.get("table") || "")
     if (!table) return NextResponse.json({ success: false, error: "Tabela inválida." }, { status: 400 })
-    const columns = await query(`SELECT column_name, data_type, is_nullable, column_default, character_maximum_length FROM information_schema.columns WHERE table_schema='public' AND table_name=$1 ORDER BY ordinal_position`, [table])
+    const columns = await query(`
+      SELECT c.ordinal_position, c.column_name, c.data_type, c.udt_name,
+             c.is_nullable, c.column_default, c.character_maximum_length,
+             CASE WHEN pk.column_name IS NOT NULL THEN true ELSE false END AS is_primary_key,
+             CASE WHEN fk.column_name IS NOT NULL THEN true ELSE false END AS is_foreign_key,
+             fk.foreign_table_name AS references_table,
+             fk.foreign_column_name AS references_column
+      FROM information_schema.columns c
+      LEFT JOIN (
+        SELECT kcu.table_name, kcu.column_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+          ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+        WHERE tc.table_schema = 'public' AND tc.constraint_type = 'PRIMARY KEY'
+      ) pk ON pk.table_name = c.table_name AND pk.column_name = c.column_name
+      LEFT JOIN (
+        SELECT kcu.table_name, kcu.column_name,
+               ccu.table_name AS foreign_table_name, ccu.column_name AS foreign_column_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+          ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+        JOIN information_schema.constraint_column_usage ccu
+          ON ccu.constraint_name = tc.constraint_name AND ccu.table_schema = tc.table_schema
+        WHERE tc.table_schema = 'public' AND tc.constraint_type = 'FOREIGN KEY'
+      ) fk ON fk.table_name = c.table_name AND fk.column_name = c.column_name
+      WHERE c.table_schema='public' AND c.table_name=$1
+      ORDER BY c.ordinal_position`, [table])
     const rows = await query(`SELECT * FROM "${table}" LIMIT 100`)
     return NextResponse.json({ success: true, table, columns, rows })
   } catch (error) { return accessError(error) }

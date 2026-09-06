@@ -747,7 +747,7 @@ export function AppSidebar() {
                 side="top"
                 align="start"
                 sideOffset={10}
-                className="z-[100] w-64 rounded-lg border-sidebar-border bg-sidebar shadow-xl"
+                className="w-64 rounded-lg border-sidebar-border bg-sidebar shadow-xl"
               >
                 <DropdownMenuLabel className="text-sidebar-foreground">Minha Conta</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-sidebar-border" />

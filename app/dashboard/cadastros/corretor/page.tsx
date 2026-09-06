@@ -187,11 +187,7 @@ export default function CorretorPage() {
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
-        if (searchFilter === "corretores") {
-          results = results.filter((pessoa: Pessoa) => corretores.some((cor) => cor.pessoa_id === pessoa.id))
-        }
-
-        setSearchResults(results)
+  setSearchResults(results)
         setShowResults(true)
         setSelectedPerson(null)
       } else {
@@ -551,11 +547,7 @@ export default function CorretorPage() {
             </CardHeader>
             <CardContent>
               <CadastroTable
-                data={
-                  searchFilter === "corretores"
-                    ? searchResults.filter((p) => corretores.some((cor) => cor.pessoa_id === p.id))
-                    : searchResults
-                }
+  data={searchResults}
                 loading={loading}
                 getId={(p) => p.id}
                 getSearchText={(p) => `${p.razao_social ?? ""} ${p.nome ?? ""} ${p.cpf ?? ""} ${p.cnpj ?? ""}`}

@@ -246,12 +246,7 @@ export default function EstipulantePage() {
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
-        // Filtrar apenas estipulantes se necessário
-        if (searchFilter === "estipulantes") {
-          results = results.filter((pessoa: Pessoa) => estipulantes.some((est) => est.pessoa_id === pessoa.id))
-        }
-
-        setSearchResults(results)
+  setSearchResults(results)
         setShowResults(true)
         setSelectedPerson(null)
       } else {
@@ -658,11 +653,7 @@ export default function EstipulantePage() {
             </CardHeader>
             <CardContent>
               <CadastroTable
-                data={
-                  searchFilter === "estipulantes"
-                    ? searchResults.filter((p) => estipulantes.some((est) => est.pessoa_id === p.id))
-                    : searchResults
-                }
+  data={searchResults}
                 loading={loading}
                 getId={(p) => p.id}
                 getSearchText={(p) => `${p.razao_social ?? ""} ${p.nome ?? ""} ${p.cnpj ?? ""} ${p.cpf ?? ""}`}

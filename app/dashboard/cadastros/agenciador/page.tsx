@@ -140,13 +140,7 @@ export default function AgenciadorPage() {
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
-        if (searchFilter === "agenciadores") {
-          results = results.filter((pessoa: Pessoa) =>
-            agenciadores.some((ag) => ag.pessoa_id === pessoa.id && !ag.deleted_at),
-          )
-        }
-
-        setSearchResults(results)
+  setSearchResults(results)
         setShowResults(true)
         setSelectedPerson(null)
       }
@@ -522,11 +516,7 @@ export default function AgenciadorPage() {
             </CardHeader>
             <CardContent>
               <CadastroTable
-                data={
-                  searchFilter === "agenciadores"
-                    ? searchResults.filter((p) => agenciadores.some((ag) => ag.pessoa_id === p.id && !ag.deleted_at))
-                    : searchResults
-                }
+  data={searchResults}
                 loading={isLoading}
                 getId={(p) => p.id}
                 getSearchText={(p) => `${p.nome} ${p.cpf ?? ""} ${p.cnpj ?? ""}`}

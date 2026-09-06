@@ -17,9 +17,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const body = await request.json()
     const id = Number.parseInt((await params).id)
-    const allowed = ["nome", "cpf_cnpj", "email", "telefone", "celular", "percentual_comissao", "ativo", "observacoes"]
+    const allowed = ["codigo_interno", "comissao_percentual", "status", "observacoes"]
     const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
-    if (!entries.length) return NextResponse.json(errorResponse("Nenhum campo válido para atualizar"), { status: 400 })
+    const pessoaFields = ["nome_completo", "cpf", "cnpj", "email", "telefone_principal", "telefone_secundario"]
+    const pessoaEntries = Object.entries(body).filter(([key]) => pessoaFields.includes(key))
+    if (!entries.length && !pessoaEntries.length) return NextResponse.json(errorResponse("Nenhum campo válido para atualizar"), { status: 400 })
+    const current = await query(`SELECT pessoa_id FROM agenciadores WHERE id = $1`, [id])
+    if (!current.length) return NextResponse.json(errorResponse("Agenciador não encontrado"), { status: 404 })
+    if (pessoaEntries.length && current[0].pessoa_id) {
+      const pessoaValues = pessoaEntries.map(([, value]) => value)
+      const pessoaUpdates = pessoaEntries.map(([key], index) => `${key} = $${index + 1}`)
+      await query(`UPDATE pessoas SET ${pessoaUpdates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${pessoaValues.length + 1}`, [...pessoaValues, current[0].pessoa_id])
+    }
     const values = entries.map(([, value]) => value)
     const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
     values.push(id)

@@ -173,13 +173,18 @@ export default function CorretorPage() {
   const handleSearch = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/pessoas?search=${encodeURIComponent(searchTerm)}`)
+      const response = await fetch(`/api/corretores`)
       const data = await response.json()
 
       if (data.success) {
-        let results = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
-          ...pessoa,
-          nome: pessoa.nome || pessoa.nome_completo || pessoa.razao_social || "",
+        let results = (data.data || []).map((registro: any) => ({
+          ...registro,
+          id: registro.pessoa_id || registro.id,
+          nome: registro.nome_exibicao || registro.nome || "",
+          tipo_pessoa: registro.tipo_pessoa === "Jurídica" ? "juridica" : "fisica",
+          cpf: registro.pessoa_cpf,
+          cnpj: registro.pessoa_cnpj,
+          status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
         if (searchFilter === "corretores") {

@@ -594,7 +594,7 @@ export default function PessoasPage() {
             }}
           >
             <DialogTrigger asChild>
-              <Button className="bg-[#00d084] hover:bg-[#00f5a0] text-black">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Pessoa
               </Button>
@@ -746,7 +746,7 @@ export default function PessoasPage() {
                     <Button
                       onClick={adicionarEndereco}
                       size="sm"
-                      className="bg-[#00d084] hover:bg-[#00f5a0] text-black"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Adicionar Endereço
@@ -918,7 +918,7 @@ export default function PessoasPage() {
                 <TabsContent value="dados-bancarios" className="space-y-4 mt-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">Dados Bancários</h3>
-                    <Button onClick={adicionarConta} size="sm" className="bg-[#00d084] hover:bg-[#00f5a0] text-black">
+                    <Button onClick={adicionarConta} size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                       <Plus className="w-4 h-4 mr-2" />
                       Adicionar Conta
                     </Button>
@@ -1033,7 +1033,7 @@ export default function PessoasPage() {
                 <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={saving}>
                   Cancelar
                 </Button>
-                <Button className="bg-[#00d084] hover:bg-[#00f5a0] text-black" onClick={salvarPessoa} disabled={saving}>
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" onClick={salvarPessoa} disabled={saving}>
                   {saving ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1061,7 +1061,7 @@ export default function PessoasPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1"
               />
-              <Button className="bg-[#00d084] hover:bg-[#00f5a0] text-black">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Search className="w-4 h-4 mr-2" />
                 Pesquisar
               </Button>
@@ -1129,7 +1129,7 @@ export default function PessoasPage() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10 bg-[#1a1a1a]">
-                              <AvatarFallback className="text-sm font-medium bg-[#00d084] text-black">
+                              <AvatarFallback className="text-sm font-medium bg-primary text-primary-foreground">
                                 {getIniciais(pessoa)}
                               </AvatarFallback>
                             </Avatar>
@@ -1156,7 +1156,7 @@ export default function PessoasPage() {
                             variant="outline"
                             className={
                               pessoa.status === "ativo"
-                                ? "bg-[#00d084] text-black border-[#00d084]"
+                                ? "bg-primary text-primary-foreground border-[#00d084]"
                                 : "bg-[#737373] text-white border-[#737373]"
                             }
                           >

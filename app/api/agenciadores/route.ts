@@ -4,7 +4,7 @@ import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    const agenciadores = await query("SELECT a.*, COALESCE(a.nome, p.nome_completo, p.razao_social, p.nome_fantasia, '') AS nome_exibicao, p.cpf AS pessoa_cpf, p.cnpj AS pessoa_cnpj FROM agenciadores a LEFT JOIN pessoas p ON p.id = a.pessoa_id ORDER BY a.created_at DESC NULLS LAST")
+    const agenciadores = await query("SELECT a.*, a.id AS pessoa_id, a.nome AS nome_exibicao, CASE WHEN a.tipo_pessoa = 'Física' THEN a.cpf_cnpj ELSE NULL END AS pessoa_cpf, CASE WHEN a.tipo_pessoa = 'Jurídica' THEN a.cpf_cnpj ELSE NULL END AS pessoa_cnpj FROM agenciadores a ORDER BY a.created_at DESC NULLS LAST")
     return NextResponse.json(successResponse(agenciadores))
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })

@@ -5,20 +5,20 @@
 
 :root {
   /* Portal CardBrazil — sistema visual profissional */
-  --background: #f4f8fb;
+  --background: #f3f6f9;
   --foreground: #16324f;
   --card: #ffffff;
   --card-foreground: #16324f;
   --popover: #ffffff;
   --popover-foreground: #16324f;
-  --primary: #0878be;
+  --primary: #0b6fae;
   --primary-foreground: #ffffff;
-  --secondary: #e7f4fb;
+  --secondary: #e8f1f6;
   --secondary-foreground: #164c70;
-  --muted: #eef5f8;
+  --muted: #edf3f7;
   --muted-foreground: #657b8d;
-  --accent: #d9f2f3;
-  --accent-foreground: #15515a;
+  --accent: #fbe4dc;
+  --accent-foreground: #8f3e2a;
   --destructive: #c9405b;
   --destructive-foreground: #ffffff;
   --border: #d4e4ec;
@@ -155,6 +155,10 @@
   --color-health-neutral: var(--health-neutral);
 }
 
+.module-page {
+  color: var(--foreground);
+}
+
 .module-page h1,
 .module-page h2,
 .module-page h3,
@@ -204,9 +208,24 @@
 }
 
 .module-page [data-slot="card"] {
-  border-color: var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 5%, transparent);
+  border-color: color-mix(in srgb, var(--border) 86%, transparent);
+  border-radius: 0.875rem;
+  box-shadow: 0 8px 24px -20px color-mix(in srgb, var(--foreground) 32%, transparent);
+}
+
+.module-page [data-slot="card-header"] {
+  gap: 0.35rem;
+}
+
+.module-page [data-slot="input"],
+.module-page [data-slot="select-trigger"],
+.module-page textarea {
+  min-height: 2.625rem;
+  background: color-mix(in srgb, var(--input) 92%, var(--muted));
+}
+
+.module-page table tbody tr {
+  transition: background-color 160ms ease;
 }
 
 .module-page [data-slot="button"] {

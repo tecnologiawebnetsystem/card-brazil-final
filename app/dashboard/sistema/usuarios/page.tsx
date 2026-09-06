@@ -40,31 +40,9 @@ interface Perfil {
 const perfisDisponiveis: Perfil[] = [
   { id: "administrador", nome: "Administrador", descricao: "Acesso total ao sistema" },
   { id: "operador", nome: "Operador", descricao: "Operações gerais do sistema" },
-  { id: "estipulante", nome: "Estipulante", descricao: "Gestão de estipulantes" },
-  { id: "agenciador", nome: "Agenciador", descricao: "Gestão de agenciadores" },
-  { id: "corretor", nome: "Corretor", descricao: "Gestão de corretores" },
+  { id: "vendedor", nome: "Vendedor", descricao: "Gestão comercial e vendas" },
   { id: "financeiro", nome: "Financeiro", descricao: "Operações financeiras" },
-  { id: "atendente", nome: "Atendente", descricao: "Atendimento ao cliente" },
-]
-
-const pessoasMock: Pessoa[] = [
-  { id: 1, nome: "João Silva Santos", email: "joao@email.com", documento: "123.456.789-00", tipo: "fisica" },
-  { id: 2, nome: "Maria Oliveira Costa", email: "maria@email.com", documento: "987.654.321-00", tipo: "fisica" },
-  {
-    id: 3,
-    nome: "Tech Solutions LTDA",
-    email: "contato@techsolutions.com",
-    documento: "12.345.678/0001-90",
-    tipo: "juridica",
-  },
-  { id: 4, nome: "Carlos Eduardo Lima", email: "carlos@email.com", documento: "456.789.123-00", tipo: "fisica" },
-  {
-    id: 5,
-    nome: "Inovação Digital S.A.",
-    email: "admin@inovacao.com",
-    documento: "98.765.432/0001-10",
-    tipo: "juridica",
-  },
+  { id: "suporte", nome: "Suporte", descricao: "Atendimento e suporte" },
 ]
 
 export default function UsuariosPage() {
@@ -99,11 +77,7 @@ export default function UsuariosPage() {
   const [filtroPerfil, setFiltroPerfil] = useState<string>("todos")
   const [showModal, setShowModal] = useState(false)
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null)
-  const [formData, setFormData] = useState({
-    pessoaId: "",
-    perfil: "",
-    ativo: true,
-  })
+  const [formData, setFormData] = useState({ pessoaId: "", perfil: "", senha: "", ativo: true })
 
   const usuariosFiltrados = usuarios.filter((usuario) => {
     const matchesSearch =
@@ -118,7 +92,7 @@ export default function UsuariosPage() {
     return matchesSearch && matchesAtivo && matchesPerfil
   })
 
-  const handleSaveUsuario = () => {
+  const handleSaveUsuario = async () => {
     if (!formData.pessoaId || !formData.perfil) {
       toast.error("Preencha todos os campos obrigatórios")
       return
@@ -130,6 +104,10 @@ export default function UsuariosPage() {
       return
     }
 
+    const payload = { id: editingUsuario?.id, nome_completo: pessoaSelecionada.nome, email: pessoaSelecionada.email, tipo_usuario: formData.perfil, status: formData.ativo ? "ativo" : "inativo", senha: formData.senha || undefined }
+    const response = await fetch("/api/configuracoes/usuarios", { method: editingUsuario ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+    const result = await response.json()
+    if (!response.ok) { toast.error(result.error || "Não foi possível salvar o usuário"); return }
     if (editingUsuario) {
       setUsuarios((prev) =>
         prev.map((usuario) =>
@@ -162,10 +140,12 @@ export default function UsuariosPage() {
 
     setShowModal(false)
     setEditingUsuario(null)
-    setFormData({ pessoaId: "", perfil: "", ativo: true })
+    setFormData({ pessoaId: "", perfil: "", senha: "", ativo: true })
   }
 
-  const handleDeleteUsuario = (id: number) => {
+  const handleDeleteUsuario = async (id: number) => {
+    const response = await fetch(`/api/configuracoes/usuarios?id=${id}`, { method: "DELETE" })
+    if (!response.ok) { toast.error("Não foi possível excluir o usuário"); return }
     setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id))
     toast.success("Usuário excluído com sucesso!")
   }
@@ -180,8 +160,12 @@ export default function UsuariosPage() {
     setShowModal(true)
   }
 
-  const toggleUsuarioAtivo = (id: number) => {
-    setUsuarios((prev) => prev.map((usuario) => (usuario.id === id ? { ...usuario, ativo: !usuario.ativo } : usuario)))
+  const toggleUsuarioAtivo = async (id: number) => {
+    const usuario = usuarios.find((item) => item.id === id)
+    if (!usuario) return
+    const response = await fetch("/api/configuracoes/usuarios", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, nome_completo: usuario.nome, email: usuario.email, tipo_usuario: usuario.perfil, status: usuario.ativo ? "inativo" : "ativo" }) })
+    if (!response.ok) { toast.error("Não foi possível atualizar o status"); return }
+    setUsuarios((prev) => prev.map((item) => (item.id === id ? { ...item, ativo: !item.ativo } : item)))
     toast.success("Status do usuário atualizado!")
   }
 
@@ -364,7 +348,7 @@ export default function UsuariosPage() {
                     <SelectValue placeholder="Selecione uma pessoa" />
                   </SelectTrigger>
                   <SelectContent>
-                    {pessoasMock.map((pessoa) => (
+                    {pessoas.map((pessoa) => (
                       <SelectItem key={pessoa.id} value={pessoa.id.toString()}>
                         {pessoa.nome} - {pessoa.documento}
                       </SelectItem>
@@ -388,6 +372,11 @@ export default function UsuariosPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {!editingUsuario && <div>
+                <Label htmlFor="senha">Senha *</Label>
+                <Input id="senha" type="password" minLength={12} placeholder="Mínimo de 12 caracteres" value={formData.senha} onChange={(e) => setFormData({ ...formData, senha: e.target.value })} />
+              </div>}
 
               <div className="flex items-center space-x-2">
                 <Switch

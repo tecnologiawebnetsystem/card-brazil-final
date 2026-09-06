@@ -4,7 +4,7 @@ import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    const estipulantes = await query("SELECT * FROM estipulantes ORDER BY created_at DESC NULLS LAST")
+    const estipulantes = await query("SELECT e.*, e.id AS pessoa_id, COALESCE(e.razao_social, e.nome_fantasia, '') AS nome_exibicao, e.cnpj AS pessoa_cnpj, e.ativo AS ativo FROM estipulantes e ORDER BY e.created_at DESC NULLS LAST")
     return NextResponse.json(successResponse(estipulantes))
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })

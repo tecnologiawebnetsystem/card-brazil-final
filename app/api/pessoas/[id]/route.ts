@@ -25,12 +25,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const pessoaId = Number.parseInt(id, 10)
-    const allowed = ["tipo_pessoa", "nome_completo", "cpf", "rg", "email", "telefone_principal", "razao_social", "nome_fantasia", "cnpj", "status"]
+    const allowed = ["tipo_pessoa", "nome_completo", "cpf", "rg", "email", "telefone_principal", "telefone_secundario", "telefone_comercial", "data_nascimento", "sexo", "estado_civil", "nome_mae", "nome_pai", "profissao", "renda_mensal", "razao_social", "nome_fantasia", "cnpj", "observacoes", "status"]
     const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
     if (!entries.length) return apiError("Nenhum campo válido para atualizar", 400)
     const values = entries.map(([, value]) => value)

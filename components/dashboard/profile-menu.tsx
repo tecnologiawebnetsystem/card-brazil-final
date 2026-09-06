@@ -29,7 +29,6 @@ export function ProfileMenu() {
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">{initials}</AvatarFallback>
           </Avatar>
-          <span className="hidden max-w-32 truncate text-left text-sm font-medium md:block">{name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">

@@ -57,7 +57,7 @@ export class CrudService<T> {
     const values = Object.values(data)
     const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(", ")
 
-    const rows = await query(`UPDATE ${this.tableName} SET ${setClause} WHERE id = $${keys.length + 1}`, [...values, id])
+    const rows = await query(`UPDATE ${this.tableName} SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = $${keys.length + 1} RETURNING id`, [...values, id])
 
     return rows.length > 0
   }

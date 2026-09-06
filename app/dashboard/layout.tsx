@@ -5,7 +5,6 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardFooter } from "@/components/dashboard/dashboard-footer"
-import { ChatbotWidget } from "@/components/chatbot/chatbot-widget"
 import { KeyboardShortcuts } from "@/components/navigation/keyboard-shortcuts"
 import { SkipToContent } from "@/components/accessibility/skip-to-content"
 
@@ -29,7 +28,6 @@ export default function DashboardLayout({
           <DashboardFooter />
         </div>
       </div>
-      <ChatbotWidget />
     </SidebarProvider>
   )
 }

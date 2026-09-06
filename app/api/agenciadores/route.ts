@@ -4,7 +4,7 @@ import { query } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   try {
-    const agenciadores = await query("SELECT * FROM agenciadores ORDER BY created_at DESC NULLS LAST")
+    const agenciadores = await query("SELECT a.*, a.id AS pessoa_id, a.nome AS nome_exibicao, CASE WHEN a.tipo_pessoa = 'Física' THEN a.cpf_cnpj ELSE NULL END AS pessoa_cpf, CASE WHEN a.tipo_pessoa = 'Jurídica' THEN a.cpf_cnpj ELSE NULL END AS pessoa_cnpj FROM agenciadores a ORDER BY a.created_at DESC NULLS LAST")
     return NextResponse.json(successResponse(agenciadores))
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })

@@ -232,13 +232,18 @@ export default function EstipulantePage() {
   const handleSearch = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/pessoas?search=${encodeURIComponent(searchTerm)}`)
+      const response = await fetch(`/api/estipulantes`)
       const data = await response.json()
 
       if (data.success) {
-        let results = (data.data || []).map((pessoa: Pessoa & { nome_completo?: string }) => ({
-          ...pessoa,
-          nome: pessoa.nome || pessoa.nome_completo || pessoa.razao_social || "",
+        let results = (data.data || []).map((registro: any) => ({
+          ...registro,
+          id: registro.pessoa_id || registro.id,
+          nome: registro.nome_exibicao || registro.nome || registro.razao_social || registro.nome_fantasia || "",
+          tipo_pessoa: registro.tipo_pessoa || "juridica",
+          cpf: registro.pessoa_cpf || registro.cpf,
+          cnpj: registro.pessoa_cnpj || registro.cnpj,
+          status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
         // Filtrar apenas estipulantes se necessário

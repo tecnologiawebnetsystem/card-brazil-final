@@ -13,13 +13,14 @@ import { SearchIcon, FilterIcon, EyeIcon, EditIcon, PlusIcon, Trash2Icon } from 
 interface Proposta {
   id: number
   nome_proponente: string
-  cpf_cnpj_proponente: string
-  nome_empresa: string
+  cpf_cnpj: string
+  empresa: string
   numero_funcionarios: string
   tipo_plano: string
-  valor_proposto: number
+  valor_proposto: number | null
   status: string
-  data_submissao: string
+  created_at: string
+  total_registros?: number
 }
 
 const getStatusBadge = (status: string) => {
@@ -109,7 +110,7 @@ export default function ListaPropostasPage() {
           <CardDescription>Use os filtros para encontrar propostas específicas</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4 items-end">
+          <div className="grid gap-4 items-end md:grid-cols-[1fr_12rem_auto]">
             <div className="flex-1">
               <div className="relative">
                 <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
@@ -169,15 +170,15 @@ export default function ListaPropostasPage() {
                 {filteredPropostas.map((proposta) => (
                   <TableRow key={proposta.id}>
                     <TableCell className="font-medium">PROP-{String(proposta.id).padStart(3, "0")}</TableCell>
-                    <TableCell>{proposta.nome_empresa || "-"}</TableCell>
+                    <TableCell>{proposta.empresa || "-"}</TableCell>
                     <TableCell>{proposta.nome_proponente}</TableCell>
                     <TableCell>{proposta.tipo_plano}</TableCell>
                     <TableCell>{proposta.numero_funcionarios || "-"}</TableCell>
                     <TableCell className="font-medium">
-                      R$ {proposta.valor_proposto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      {proposta.valor_proposto != null ? `R$ ${Number(proposta.valor_proposto).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "-"}
                     </TableCell>
                     <TableCell>{getStatusBadge(proposta.status)}</TableCell>
-                    <TableCell>{new Date(proposta.data_submissao).toLocaleDateString("pt-BR")}</TableCell>
+                    <TableCell>{proposta.created_at ? new Date(proposta.created_at).toLocaleDateString("pt-BR") : "-"}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button variant="ghost" size="sm" onClick={() => handleViewProposta(String(proposta.id))}>

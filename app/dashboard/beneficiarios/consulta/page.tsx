@@ -111,10 +111,17 @@ export default function ConsultaBeneficiariosPage() {
   }
 
   const handleExport = () => {
-    toast({
-      title: "Exportando",
-      description: "Gerando arquivo de exportação...",
-    })
+    const headers = ["ID", "Nome", "CPF", "Tipo", "Titular", "Plano", "Status"]
+    const rows = filteredBeneficiarios.map((b) => [b.id, b.nome || "", b.cpf || "", b.tipo_beneficiario, b.titular_nome || "", b.plano_nome || "", b.ativo ? "Ativo" : "Inativo"])
+    const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(";")).join("\\n")
+    const blob = new Blob([`\\ufeff${csv}`], { type: "text/csv;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `beneficiarios-${new Date().toISOString().slice(0, 10)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast({ title: "Exportação concluída", description: `${rows.length} registros exportados.` })
   }
 
   return (

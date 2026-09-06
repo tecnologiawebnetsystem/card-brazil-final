@@ -13,7 +13,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
     }
 
-    return NextResponse.json(proposta)
+    const historico = await query(`SELECT id, acao, dados_anteriores, dados_novos, created_at FROM auditoria WHERE tabela = 'propostas' AND registro_id = $1 ORDER BY created_at DESC`, [propostaId])
+    return NextResponse.json({ ...proposta, historico })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar proposta:", error)
     return NextResponse.json({ error: "Erro ao buscar proposta", details: error.message }, { status: 500 })
@@ -131,9 +132,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     sql += ` WHERE id = $${updateParams.length + 1} AND deleted_at IS NULL`
     updateParams.push(id)
 
-    await query(sql, updateParams)
-
-    return NextResponse.json({ message: "Proposta atualizada com sucesso" })
+    const updatedRows = await query(`${sql}, updated_at = CURRENT_TIMESTAMP RETURNING *`, updateParams)
+    if (!updatedRows[0]) return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
+    return NextResponse.json({ data: updatedRows[0], message: "Proposta atualizada com sucesso" })
   } catch (error: any) {
     console.error("[v0] Erro ao atualizar proposta:", error)
     return NextResponse.json({ error: "Erro ao atualizar proposta", details: error.message }, { status: 500 })

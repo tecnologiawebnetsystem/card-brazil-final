@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     const beneficiarioId = Number.parseInt(id)
 
     const rows = await query(`SELECT b.*, p.nome_completo AS nome, p.cpf, p.email, p.telefone_principal AS telefone FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id WHERE b.id = $1`, [beneficiarioId])
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
-    const { id } = params
+    const { id } = await params
     const beneficiarioId = Number.parseInt(id)
 
     const allowed = ["plano_id", "contrato_id", "numero_carteirinha", "parentesco", "data_inclusao", "data_exclusao", "valor_mensalidade", "status"]

@@ -14,11 +14,11 @@ export async function GET(request: NextRequest) {
     const conditions: string[] = []
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (tipo_plano) { params.push(tipo_plano); conditions.push(`tipo_plano = $${params.length}`) }
-    if (search) { params.push(`%${search}%`); conditions.push(`(nome_proponente ILIKE $${params.length} OR empresa ILIKE $${params.length} OR cpf_cnpj ILIKE $${params.length} OR observacoes ILIKE $${params.length})`) }
+    if (search) { params.push(`%${search}%`); conditions.push(`(p.nome_proponente ILIKE $${params.length} OR p.empresa ILIKE $${params.length} OR p.cpf_cnpj ILIKE $${params.length} OR p.email ILIKE $${params.length} OR p.telefone ILIKE $${params.length} OR p.tipo_plano ILIKE $${params.length} OR p.numero_contrato ILIKE $${params.length} OR p.observacoes ILIKE $${params.length})`) }
     conditions.unshift("deleted_at IS NULL")
     const where = ` WHERE ${conditions.join(" AND ")}`
     params.push(limit, offset)
-    const propostas = await query(`SELECT * FROM propostas${where} ORDER BY created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
+    const propostas = await query(`SELECT p.*, COUNT(*) OVER() AS total_registros FROM propostas p${where.replaceAll("status", "p.status").replaceAll("tipo_plano", "p.tipo_plano").replaceAll("deleted_at", "p.deleted_at")} ORDER BY p.created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
     return NextResponse.json(propostas)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar propostas:", error)

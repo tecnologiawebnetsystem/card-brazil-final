@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       conditions.push(`(nome_completo ILIKE $${params.length} OR razao_social ILIKE $${params.length} OR cpf ILIKE $${params.length} OR cnpj ILIKE $${params.length} OR email ILIKE $${params.length})`)
     }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
-    const resultado = await query(`SELECT * FROM pessoas${where} ORDER BY created_at DESC NULLS LAST`, params)
+    const resultado = await query(`SELECT p.*, COALESCE(p.nome_completo, p.razao_social, p.nome_fantasia, '') AS nome_exibicao FROM pessoas p${where ? where.replace(/\b(nome_completo|razao_social|cpf|cnpj|email)\b/g, 'p.$1') : ''} ORDER BY p.created_at DESC NULLS LAST`, params)
     return apiResponse(resultado, "Pessoas listadas com sucesso")
   } catch (error: any) {
     console.error("[v0] Erro ao listar pessoas:", error)

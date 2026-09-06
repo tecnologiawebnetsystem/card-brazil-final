@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { GlobalSearch } from "@/components/navigation/global-search"
 import { Menu } from "lucide-react"
 import { useSidebar } from "@/components/ui/sidebar"
-import { NotificationWidget } from "@/components/notifications/notification-widget"
 import { BreadcrumbsNav } from "@/components/navigation/breadcrumbs-nav"
 import { ProfileMenu } from "@/components/dashboard/profile-menu"
 
@@ -33,7 +32,6 @@ export function DashboardHeader() {
             })}
           </div>
 
-          <NotificationWidget />
           <ProfileMenu />
         </div>
       </div>

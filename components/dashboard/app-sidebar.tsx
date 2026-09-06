@@ -251,7 +251,6 @@ const menuItems: MenuGroup[] = [
             url: "/dashboard/tabelas/cotacao-moedas",
             icon: <CogIcon className="h-3 w-3" />,
           },
-          { title: "Feriados", url: "/dashboard/tabelas/feriados", icon: <CogIcon className="h-3 w-3" /> },
         ],
       },
       {

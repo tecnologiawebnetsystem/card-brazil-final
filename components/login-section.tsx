@@ -22,7 +22,7 @@ export function LoginSection() {
     setError(null)
     setLoading(true)
     try {
-      const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim(), senha: password.trim() }) })
+      const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim(), senha: password }) })
       const data = await response.json()
       if (!response.ok || !data.success) { setError(data.message || "Confira seus dados de acesso."); return }
       router.push("/dashboard")

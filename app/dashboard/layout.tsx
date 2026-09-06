@@ -20,9 +20,9 @@ export default function DashboardLayout({
 
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
-        <div className="flex-1 flex flex-col overflow-hidden bg-background">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-background">
           <DashboardHeader />
-          <main id="main-content" className="module-page flex-1 overflow-auto p-4 md:p-6 bg-background">
+          <main id="main-content" className="module-page flex-1 overflow-auto bg-background px-4 py-5 md:px-8 md:py-7">
             {children}
           </main>
           <DashboardFooter />

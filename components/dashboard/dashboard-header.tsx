@@ -11,10 +11,10 @@ export function DashboardHeader() {
   const { toggleSidebar } = useSidebar()
 
   return (
-    <header className="bg-card/95 border-b border-border backdrop-blur sticky top-0 z-50">
-      <div className="flex items-center justify-between h-14 px-6">
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-card/95 shadow-sm backdrop-blur">
+      <div className="flex min-h-16 items-center justify-between gap-4 px-4 md:px-8">
         <div className="flex items-center gap-4 flex-1 max-w-md">
-          <Button variant="ghost" size="sm" onClick={toggleSidebar} className="hover:bg-secondary text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="sm" onClick={toggleSidebar} className="rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground">
             <Menu className="w-5 h-5" />
           </Button>
 
@@ -24,7 +24,7 @@ export function DashboardHeader() {
         {/* Right side - Status and notifications only */}
         <div className="flex items-center gap-4">
           {/* Current Date */}
-          <div className="hidden md:block text-sm text-muted-foreground">
+          <div className="hidden rounded-lg bg-muted/70 px-3 py-1.5 text-sm font-medium text-muted-foreground md:block">
             {new Date().toLocaleDateString("pt-BR", {
               day: "2-digit",
               month: "short",
@@ -36,7 +36,7 @@ export function DashboardHeader() {
         </div>
       </div>
 
-      <div className="px-6 pb-2">
+      <div className="border-t border-border/50 px-4 pb-3 pt-2 md:px-8">
         <BreadcrumbsNav />
       </div>
     </header>

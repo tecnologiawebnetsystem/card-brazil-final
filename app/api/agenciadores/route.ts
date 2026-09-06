@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { successResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
+import { mockAgenciadores } from "@/lib/mock-data"
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +16,8 @@ export async function GET(request: NextRequest) {
       ORDER BY a.created_at DESC NULLS LAST`)
     return NextResponse.json(successResponse(agenciadores))
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
+    const data = mockAgenciadores.map((item) => ({ ...item, pessoa_id: item.id, status: item.ativo ? "ativo" : "inativo", nome_exibicao: item.nome, comissao_percentual: item.comissao_percentual }))
+    return NextResponse.json(successResponse(data))
   }
 }
 

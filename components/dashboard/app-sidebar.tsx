@@ -744,6 +744,7 @@ export function AppSidebar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
+                forceMount
                 side="top"
                 align="start"
                 sideOffset={10}

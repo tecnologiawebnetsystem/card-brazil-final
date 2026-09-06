@@ -488,6 +488,12 @@ const menuItems: MenuGroup[] = [
         requiredPermission: null,
       },
       {
+        title: "Documentacao da API",
+        url: "/swagger",
+        icon: <FileTextIcon />,
+        requiredPermission: null,
+      },
+      {
         title: "Integracao ANS",
         icon: <CogIcon />,
         subItems: [

@@ -1,15 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { successResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
+import { requireCadastroAccess } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const ativo = searchParams.get("ativo")
     const produto_id = searchParams.get("produto_id")
 
     const params: unknown[] = []
-    const conditions: string[] = []
+    const conditions: string[] = [`administradora_id = $1`]
+    params.push(administradoraId)
     if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`status = $${params.length}`) }
     if (produto_id) { params.push(Number.parseInt(produto_id, 10)); conditions.push(`operadora_id = $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""

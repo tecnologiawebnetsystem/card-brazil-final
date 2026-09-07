@@ -1,16 +1,19 @@
 import type { NextRequest } from "next/server"
 import { apiResponse, apiError } from "@/lib/api-response"
 import { query } from "@/lib/database"
+import { authErrorStatus, requireCadastroAccess } from "@/lib/api-auth"
+import { pessoaSchema, zodFieldErrors } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const tipo_pessoa = searchParams.get("tipo_pessoa")
     const status = searchParams.get("status")
     const search = searchParams.get("search")
 
-    const conditions: string[] = []
-    const params: unknown[] = []
+    const conditions: string[] = [`p.administradora_id = $1`]
+    const params: unknown[] = [administradoraId]
     if (tipo_pessoa) { params.push(tipo_pessoa); conditions.push(`tipo_pessoa = $${params.length}`) }
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (search) {
@@ -22,13 +25,17 @@ export async function GET(request: NextRequest) {
     return apiResponse(resultado, "Pessoas listadas com sucesso")
   } catch (error: any) {
     console.error("[v0] Erro ao listar pessoas:", error)
-    return apiError(error.message, 500)
+    return apiError(error instanceof Error && (error.message === "UNAUTHENTICATED" || error.message === "FORBIDDEN") ? (error.message === "UNAUTHENTICATED" ? "Não autenticado" : "Sem permissão para este cadastro") : "Não foi possível processar a pessoa", authErrorStatus(error))
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("create")
     const body = await request.json()
+    const parsed = pessoaSchema.safeParse(body)
+    if (!parsed.success) return apiError("Dados da pessoa inválidos", 400, zodFieldErrors(parsed.error))
+    const pessoa = parsed.data
 
     if (!body.tipo_pessoa) {
       return apiError("Campo obrigatório: tipo_pessoa", 400)
@@ -45,10 +52,10 @@ export async function POST(request: NextRequest) {
     const novaPessoa = await query(`
       INSERT INTO pessoas (administradora_id, tipo_pessoa, nome_completo, cpf, rg, data_nascimento, sexo, estado_civil, nome_mae, nome_pai, razao_social, nome_fantasia, cnpj, email, telefone_principal, telefone_secundario, profissao, observacoes, status)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
-      RETURNING *`, [body.administradora_id || 1, body.tipo_pessoa, body.nome_completo || null, body.cpf || null, body.rg || null, body.data_nascimento || null, body.sexo || null, body.estado_civil || null, body.nome_mae || null, body.nome_pai || null, body.razao_social || null, body.nome_fantasia || null, body.cnpj || null, body.email || null, body.telefone_principal || null, body.telefone_secundario || null, body.profissao || null, body.observacoes || null, body.status || "ativo"])
+      RETURNING *`, [administradoraId, pessoa.tipo_pessoa, pessoa.nome_completo || null, pessoa.cpf || null, pessoa.rg || null, pessoa.data_nascimento || null, pessoa.sexo || null, pessoa.estado_civil || null, pessoa.nome_mae || null, pessoa.nome_pai || null, pessoa.razao_social || null, pessoa.nome_fantasia || null, pessoa.cnpj || null, pessoa.email || null, pessoa.telefone_principal || null, pessoa.telefone_secundario || null, pessoa.profissao || null, pessoa.observacoes || null, pessoa.status || "ativo"])
     return apiResponse(novaPessoa[0], "Pessoa criada com sucesso", 201)
   } catch (error: any) {
     console.error("[v0] Erro ao criar pessoa:", error)
-    return apiError(error.message, 500)
+    return apiError(error instanceof Error && (error.message === "UNAUTHENTICATED" || error.message === "FORBIDDEN") ? (error.message === "UNAUTHENTICATED" ? "Não autenticado" : "Sem permissão para este cadastro") : "Não foi possível processar a pessoa", authErrorStatus(error))
   }
 }

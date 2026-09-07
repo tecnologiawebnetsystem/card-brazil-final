@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   message?: string
   error?: string
+  code?: string
   errors?: Record<string, string[]>
 }
 
@@ -49,11 +50,13 @@ export function apiResponse<T>(data: T, message?: string, status = 200): NextRes
   )
 }
 
-export function apiError(error: string, status = 500, errors?: Record<string, string[]>): NextResponse {
+export function apiError(error: string, status = 500, errors?: Record<string, string[]>, code?: string): NextResponse {
   return NextResponse.json(
     {
       success: false,
       error,
+      message: error,
+      code: code ?? (status === 400 ? "VALIDATION_ERROR" : status === 401 ? "UNAUTHENTICATED" : status === 403 ? "FORBIDDEN" : status === 404 ? "NOT_FOUND" : status === 409 ? "CONFLICT" : "INTERNAL_ERROR"),
       errors,
     },
     { status },

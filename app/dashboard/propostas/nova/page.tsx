@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,8 +14,32 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function NovaPropostaPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const propostaId = searchParams.get("editar")
+
+  useEffect(() => {
+    if (!propostaId) return
+    fetch(`/api/propostas/${propostaId}`)
+      .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.error || "Não foi possível carregar a proposta")
+        const proposta = data.data || data
+        setFormData({
+          tipoPlano: proposta.tipo_plano || "",
+          nomeProponente: proposta.nome_proponente || "",
+          cpfCnpj: proposta.cpf_cnpj || proposta.cpf_cnpj_proponente || "",
+          email: proposta.email || proposta.email_proponente || "",
+          telefone: proposta.telefone || proposta.telefone_proponente || "",
+          empresa: proposta.empresa || proposta.nome_empresa || "",
+          numeroFuncionarios: proposta.numero_funcionarios || "",
+          valorProposto: proposta.valor_proposto != null ? String(proposta.valor_proposto) : "",
+          observacoes: proposta.observacoes || "",
+        })
+      })
+      .catch((error) => toast({ title: "Erro ao carregar proposta", description: error.message, variant: "destructive" }))
+  }, [propostaId, toast])
 
   const [formData, setFormData] = useState({
     tipoPlano: "",
@@ -46,8 +70,8 @@ export default function NovaPropostaPage() {
 
     setIsLoading(true)
     try {
-      const response = await fetch("/api/propostas", {
-        method: "POST",
+      const response = await fetch(propostaId ? `/api/propostas/${propostaId}` : "/api/propostas", {
+        method: propostaId ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -99,8 +123,8 @@ export default function NovaPropostaPage() {
             Voltar
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Nova Proposta</h1>
-            <p className="text-slate-600">Criar uma nova proposta de plano de saúde</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">{propostaId ? "Editar Proposta" : "Nova Proposta"}</h1>
+            <p className="text-slate-600">{propostaId ? "Atualize os dados da proposta" : "Criar uma nova proposta de plano de saúde"}</p>
           </div>
         </div>
         <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">

@@ -245,6 +245,11 @@ export default function CorretorPage() {
     }
   }
 
+  const handleEditPerson = async (pessoa: Pessoa) => {
+    await handleSelectPerson(pessoa)
+    setShowEditCorretorModal(true)
+  }
+
   const handleBackToSearch = () => {
     setSelectedPerson(null)
     setEnderecos([])
@@ -604,7 +609,7 @@ export default function CorretorPage() {
                   ] as CadastroColumn<Pessoa>[]
                 }
                 onView={(p) => handleSelectPerson(p)}
-                onEdit={(p) => handleSelectPerson(p)}
+                onEdit={handleEditPerson}
                 onToggleStatus={handleToggleStatus}
               />
             </CardContent>

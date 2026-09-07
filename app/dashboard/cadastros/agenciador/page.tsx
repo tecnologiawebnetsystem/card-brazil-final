@@ -204,6 +204,11 @@ export default function AgenciadorPage() {
     }
   }
 
+  const handleEditPerson = async (pessoa: Pessoa) => {
+    await handleSelectPerson(pessoa)
+    setShowEditAgenciadorModal(true)
+  }
+
   const handleBackToSearch = () => {
     setSelectedPerson(null)
     setCurrentAgenciador(null)
@@ -571,7 +576,7 @@ export default function AgenciadorPage() {
                   ] as CadastroColumn<Pessoa>[]
                 }
                 onView={(p) => handleSelectPerson(p)}
-                onEdit={(p) => handleSelectPerson(p)}
+                onEdit={handleEditPerson}
                 onToggleStatus={handleToggleStatus}
               />
             </CardContent>
@@ -674,7 +679,7 @@ export default function AgenciadorPage() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <Label className="text-sm font-medium text-muted-foreground">Situação</Label>
-                          <Badge variant={agenciadorData.situacao === "Ativo" ? "default" : "secondary"}>
+                          <Badge variant={agenciadorData.situacao === "ativo" ? "default" : "secondary"}>
                             {agenciadorData.situacao}
                           </Badge>
                         </div>

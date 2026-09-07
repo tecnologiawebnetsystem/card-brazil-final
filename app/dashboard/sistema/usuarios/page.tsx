@@ -155,6 +155,7 @@ export default function UsuariosPage() {
     setFormData({
       pessoaId: usuario.pessoaId.toString(),
       perfil: usuario.perfil,
+      senha: "",
       ativo: usuario.ativo,
     })
     setShowModal(true)

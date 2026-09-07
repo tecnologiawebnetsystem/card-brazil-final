@@ -84,6 +84,10 @@ export default function ListaPropostasPage() {
     router.push(`/dashboard/propostas/analise?id=${id}`)
   }
 
+  const handleEditProposta = (id: string) => {
+    router.push(`/dashboard/propostas/nova?editar=${id}`)
+  }
+
   const handleDeleteProposta = async (id: number) => {
     if (!window.confirm("Deseja excluir esta proposta?")) return
     const response = await fetch(`/api/propostas/${id}`, { method: "DELETE" })
@@ -184,7 +188,7 @@ export default function ListaPropostasPage() {
                         <Button variant="ghost" size="sm" onClick={() => handleViewProposta(String(proposta.id))}>
                           <EyeIcon className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleViewProposta(String(proposta.id))} aria-label="Editar proposta">
+                        <Button variant="ghost" size="sm" onClick={() => handleEditProposta(String(proposta.id))} aria-label="Editar proposta">
                           <EditIcon className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleDeleteProposta(proposta.id)} aria-label="Excluir proposta">

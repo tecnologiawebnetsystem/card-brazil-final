@@ -199,6 +199,7 @@ export default function ConveniosPage() {
               }
               onEdit={handleEdit}
               onToggleStatus={(c) => toggleSituacao(c.id)}
+              onDelete={(c) => handleDelete(c.id)}
               detailsTitle={(c) => c.nome}
               renderDetails={(c) => (
                 <CadastroDetailsGrid>

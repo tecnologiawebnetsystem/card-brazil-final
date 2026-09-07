@@ -353,6 +353,10 @@ export default function ProdutosPage() {
             }
             onEdit={(p) => handleOpenModal(p)}
             onToggleStatus={handleToggleStatus}
+            onDelete={(p) => {
+              setProdutoToDelete(p.id)
+              setShowDeleteDialog(true)
+            }}
             detailsTitle={(p) => p.nome}
             renderDetails={(p) => (
               <CadastroDetailsGrid>

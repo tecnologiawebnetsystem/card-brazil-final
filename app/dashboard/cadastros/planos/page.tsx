@@ -360,6 +360,10 @@ export default function PlanosPage() {
               }
               onEdit={(p) => handleOpenModal(p)}
               onToggleStatus={handleToggleStatus}
+              onDelete={(p) => {
+                setPlanoToDelete(p.id)
+                setShowDeleteDialog(true)
+              }}
               detailsTitle={(p) => p.nome}
               renderDetails={(p) => (
                 <CadastroDetailsGrid>

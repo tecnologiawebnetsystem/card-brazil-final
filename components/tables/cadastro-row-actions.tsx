@@ -2,13 +2,14 @@
 
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Eye, Pencil, Power } from "lucide-react"
+import { Eye, Pencil, Power, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CadastroRowActionsProps {
   onView?: () => void
   onEdit?: () => void
   onToggleStatus?: () => void
+  onDelete?: () => void
   /** Quando informado, controla o rótulo/estilo do botão de status */
   isActive?: boolean
   disabled?: boolean
@@ -22,6 +23,7 @@ export function CadastroRowActions({
   onView,
   onEdit,
   onToggleStatus,
+  onDelete,
   isActive,
   disabled,
 }: CadastroRowActionsProps) {
@@ -89,6 +91,25 @@ export function CadastroRowActions({
               </Button>
             </TooltipTrigger>
             <TooltipContent>{toggleLabel}</TooltipContent>
+          </Tooltip>
+        )}
+
+        {onDelete && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                onClick={onDelete}
+                disabled={disabled}
+                aria-label="Excluir"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Excluir</TooltipContent>
           </Tooltip>
         )}
       </div>

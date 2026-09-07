@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SearchIcon, EyeIcon, DownloadIcon, FilterIcon } from "lucide-react"
+import { SearchIcon, EyeIcon, DownloadIcon, FilterIcon, PowerIcon, Trash2Icon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Beneficiario {
@@ -108,6 +108,35 @@ export default function ConsultaBeneficiariosPage() {
   const handleView = (beneficiario: Beneficiario) => {
     setSelectedBeneficiario(beneficiario)
     setIsDialogOpen(true)
+  }
+
+  const handleToggleStatus = async (beneficiario: Beneficiario) => {
+    try {
+      const response = await fetch(`/api/beneficiarios/${beneficiario.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: beneficiario.ativo ? "inativo" : "ativo" }),
+      })
+      const data = await response.json()
+      if (!response.ok || data.success === false) throw new Error(data.message || "Não foi possível alterar o status")
+      toast({ title: "Status atualizado", description: `Beneficiário ${beneficiario.ativo ? "desativado" : "ativado"}.` })
+      await loadBeneficiarios()
+    } catch (error) {
+      toast({ title: "Erro", description: error instanceof Error ? error.message : "Não foi possível alterar o status", variant: "destructive" })
+    }
+  }
+
+  const handleDelete = async (beneficiario: Beneficiario) => {
+    if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario.id}?`)) return
+    try {
+      const response = await fetch(`/api/beneficiarios/${beneficiario.id}`, { method: "DELETE" })
+      const data = await response.json()
+      if (!response.ok || data.success === false) throw new Error(data.message || "Não foi possível excluir")
+      setBeneficiarios((current) => current.filter((item) => item.id !== beneficiario.id))
+      toast({ title: "Beneficiário excluído", description: "O registro foi removido com sucesso." })
+    } catch (error) {
+      toast({ title: "Erro", description: error instanceof Error ? error.message : "Não foi possível excluir", variant: "destructive" })
+    }
   }
 
   const handleExport = () => {
@@ -251,9 +280,17 @@ export default function ConsultaBeneficiariosPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => handleView(beneficiario)}>
-                          <EyeIcon className="h-4 w-4" />
-                        </Button>
+                        <div className="flex justify-end gap-1">
+                          <Button variant="outline" size="sm" onClick={() => handleView(beneficiario)} aria-label="Visualizar beneficiário">
+                            <EyeIcon className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleToggleStatus(beneficiario)} aria-label={beneficiario.ativo ? "Desativar beneficiário" : "Ativar beneficiário"}>
+                            <PowerIcon className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDelete(beneficiario)} aria-label="Excluir beneficiário">
+                            <Trash2Icon className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

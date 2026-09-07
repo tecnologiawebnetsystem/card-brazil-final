@@ -160,7 +160,7 @@ export function CadastroTable<T>({
               setSearch(e.target.value)
               resetToFirstPage()
             }}
-            className="pl-9"
+            className="border-primary/20 bg-card pl-9 shadow-sm focus-visible:ring-primary/30"
           />
         </div>
 
@@ -187,15 +187,15 @@ export function CadastroTable<T>({
       </div>
 
       {/* Grid de resultados */}
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="overflow-hidden rounded-xl border border-primary/15 bg-card shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
+            <TableRow className="border-b border-primary/15 bg-secondary/65 hover:bg-secondary/65">
               {columns.map((column) => (
                 <TableHead
                   key={column.key}
                   className={cn(
-                    "text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+                    "text-xs font-bold uppercase tracking-[0.06em] text-secondary-foreground",
                     column.sortable && "cursor-pointer select-none",
                     column.headerClassName,
                   )}

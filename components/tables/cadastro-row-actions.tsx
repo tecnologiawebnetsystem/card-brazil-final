@@ -39,7 +39,7 @@ export function CadastroRowActions({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-info hover:bg-info/10 hover:text-info transition-colors"
+                className="h-8 w-8 rounded-lg text-info hover:bg-info/10 hover:text-info transition-colors"
                 onClick={onView}
                 disabled={disabled}
                 aria-label="Visualizar"
@@ -58,7 +58,7 @@ export function CadastroRowActions({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-primary hover:bg-primary/10 hover:text-primary transition-colors"
+                className="h-8 w-8 rounded-lg text-primary hover:bg-primary/10 hover:text-primary transition-colors"
                 onClick={onEdit}
                 disabled={disabled}
                 aria-label="Editar"
@@ -78,7 +78,7 @@ export function CadastroRowActions({
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "h-8 w-8 transition-colors",
+                  "h-8 w-8 rounded-lg transition-colors",
                   isActive
                     ? "text-warning hover:bg-warning/10 hover:text-warning"
                     : "text-success hover:bg-success/10 hover:text-success",
@@ -101,7 +101,7 @@ export function CadastroRowActions({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
+                className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
                 onClick={onDelete}
                 disabled={disabled}
                 aria-label="Excluir"

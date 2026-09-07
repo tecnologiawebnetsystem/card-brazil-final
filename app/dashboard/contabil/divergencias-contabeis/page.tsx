@@ -131,7 +131,7 @@ export default function DivergenciasContabeisPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem> // Updated value prop to "all"
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="pendente">Pendente</SelectItem>
                   <SelectItem value="analise">Em Análise</SelectItem>
                   <SelectItem value="corrigida">Corrigida</SelectItem>
@@ -149,7 +149,7 @@ export default function DivergenciasContabeisPage() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem> // Updated value prop to "all"
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="joao">João Silva</SelectItem>
                   <SelectItem value="maria">Maria Santos</SelectItem>
                   <SelectItem value="carlos">Carlos Lima</SelectItem>

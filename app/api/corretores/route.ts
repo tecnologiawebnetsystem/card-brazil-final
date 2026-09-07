@@ -1,20 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { successResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const corretores = await query("SELECT c.*, c.id AS pessoa_id, c.nome AS nome_exibicao, CASE WHEN c.tipo_pessoa = 'Física' THEN c.cpf_cnpj ELSE NULL END AS pessoa_cpf, CASE WHEN c.tipo_pessoa = 'Jurídica' THEN c.cpf_cnpj ELSE NULL END AS pessoa_cnpj FROM corretores c ORDER BY c.created_at DESC NULLS LAST")
+    const corretores = await query(`
+      SELECT c.*, p.tipo_pessoa, p.nome_completo, p.razao_social, p.nome_fantasia,
+        p.cpf AS pessoa_cpf, p.cnpj AS pessoa_cnpj, p.email, p.telefone_principal,
+        COALESCE(p.nome_completo, p.razao_social, p.nome_fantasia, '') AS nome_exibicao
+      FROM corretores c
+      INNER JOIN pessoas p ON p.id = c.pessoa_id
+      WHERE c.deleted_at IS NULL AND p.deleted_at IS NULL
+      ORDER BY c.created_at DESC NULLS LAST`)
     return NextResponse.json(successResponse(corretores))
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
+    return NextResponse.json({ success: false, message: "Não foi possível consultar os corretores no Neon" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const rows = await query(`INSERT INTO corretores (administradora_id, nome, cpf_cnpj, email, telefone, celular, percentual_comissao, ativo, observacoes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`, [body.administradora_id || 1, body.nome, body.cpf_cnpj || null, body.email || null, body.telefone || null, body.celular || null, body.percentual_comissao || 0, body.ativo !== false, body.observacoes || null])
+    if (!body.administradora_id || !body.pessoa_id || !body.registro_susep) {
+      return NextResponse.json({ success: false, message: "Administradora, pessoa e registro SUSEP são obrigatórios" }, { status: 400 })
+    }
+    const rows = await query(`INSERT INTO corretores (administradora_id, pessoa_id, registro_susep, codigo_interno, comissao_percentual, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`, [body.administradora_id, body.pessoa_id, body.registro_susep, body.codigo_interno || null, body.comissao_percentual || 0, body.observacoes || null, body.status || "Ativo"])
     return NextResponse.json(successResponse(rows[0], "Corretor criado com sucesso"), { status: 201 })
   } catch (error) {
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })

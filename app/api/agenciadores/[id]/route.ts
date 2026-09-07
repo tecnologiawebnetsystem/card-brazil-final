@@ -17,7 +17,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const body = await request.json()
     const id = Number.parseInt((await params).id)
-    const allowed = ["codigo_interno", "comissao_percentual", "status", "observacoes"]
+    const allowed = ["corretor_id", "comissao_percentual", "situacao"]
     const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
     const pessoaFields = ["nome_completo", "cpf", "cnpj", "email", "telefone_principal", "telefone_secundario"]
     const pessoaEntries = Object.entries(body).filter(([key]) => pessoaFields.includes(key))

@@ -32,31 +32,56 @@ export async function GET(request: NextRequest) {
     const table = safeIdentifier(request.nextUrl.searchParams.get("table") || "")
     if (!table) return NextResponse.json({ success: false, error: "Tabela inválida." }, { status: 400 })
     const columns = await query(`
-      SELECT c.ordinal_position, c.column_name, c.data_type, c.udt_name,
-             c.is_nullable, c.column_default, c.character_maximum_length,
-             CASE WHEN pk.column_name IS NOT NULL THEN true ELSE false END AS is_primary_key,
-             CASE WHEN fk.column_name IS NOT NULL THEN true ELSE false END AS is_foreign_key,
-             fk.foreign_table_name AS references_table,
-             fk.foreign_column_name AS references_column
+      SELECT
+        c.ordinal_position,
+        c.column_name,
+        c.data_type,
+        c.udt_name,
+        c.is_nullable,
+        c.column_default,
+        c.character_maximum_length,
+        EXISTS (
+          SELECT 1
+          FROM pg_constraint pc
+          JOIN pg_attribute pa ON pa.attrelid = pc.conrelid AND pa.attnum = ANY(pc.conkey)
+          WHERE pc.contype = 'p'
+            AND pc.conrelid = to_regclass(format('%I.%I', c.table_schema, c.table_name))
+            AND pa.attname = c.column_name
+        ) AS is_primary_key,
+        EXISTS (
+          SELECT 1
+          FROM pg_constraint pc
+          JOIN pg_attribute pa ON pa.attrelid = pc.conrelid AND pa.attnum = ANY(pc.conkey)
+          WHERE pc.contype = 'f'
+            AND pc.conrelid = to_regclass(format('%I.%I', c.table_schema, c.table_name))
+            AND pa.attname = c.column_name
+        ) AS is_foreign_key,
+        (
+          SELECT cl.relname
+          FROM pg_constraint pc
+          JOIN pg_class cl ON cl.oid = pc.confrelid
+          JOIN pg_attribute pa ON pa.attrelid = pc.conrelid AND pa.attnum = ANY(pc.conkey)
+          WHERE pc.contype = 'f'
+            AND pc.conrelid = to_regclass(format('%I.%I', c.table_schema, c.table_name))
+            AND pa.attname = c.column_name
+          LIMIT 1
+        ) AS references_table,
+        (
+          SELECT array_to_string(ARRAY(
+            SELECT att.attname
+            FROM pg_attribute att
+            WHERE att.attrelid = pc.confrelid AND att.attnum = ANY(pc.confkey)
+            ORDER BY array_position(pc.confkey, att.attnum)
+          ), ', ')
+          FROM pg_constraint pc
+          JOIN pg_attribute pa ON pa.attrelid = pc.conrelid AND pa.attnum = ANY(pc.conkey)
+          WHERE pc.contype = 'f'
+            AND pc.conrelid = to_regclass(format('%I.%I', c.table_schema, c.table_name))
+            AND pa.attname = c.column_name
+          LIMIT 1
+        ) AS references_column
       FROM information_schema.columns c
-      LEFT JOIN (
-        SELECT kcu.table_name, kcu.column_name
-        FROM information_schema.table_constraints tc
-        JOIN information_schema.key_column_usage kcu
-          ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
-        WHERE tc.table_schema = 'public' AND tc.constraint_type = 'PRIMARY KEY'
-      ) pk ON pk.table_name = c.table_name AND pk.column_name = c.column_name
-      LEFT JOIN (
-        SELECT kcu.table_name, kcu.column_name,
-               ccu.table_name AS foreign_table_name, ccu.column_name AS foreign_column_name
-        FROM information_schema.table_constraints tc
-        JOIN information_schema.key_column_usage kcu
-          ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
-        JOIN information_schema.constraint_column_usage ccu
-          ON ccu.constraint_name = tc.constraint_name AND ccu.table_schema = tc.table_schema
-        WHERE tc.table_schema = 'public' AND tc.constraint_type = 'FOREIGN KEY'
-      ) fk ON fk.table_name = c.table_name AND fk.column_name = c.column_name
-      WHERE c.table_schema='public' AND c.table_name=$1
+      WHERE c.table_schema = 'public' AND c.table_name = $1
       ORDER BY c.ordinal_position`, [table])
     const rows = await query(`SELECT * FROM "${table}" LIMIT 100`)
     return NextResponse.json({ success: true, table, columns, rows })

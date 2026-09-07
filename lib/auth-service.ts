@@ -105,7 +105,7 @@ export class AuthService {
     if ((recent?.total || 0) >= 5) return generic
 
     const usuario = await queryOne<{ id: number }>(
-      "SELECT id FROM usuarios WHERE LOWER(email) = $1 AND ativo = TRUE",
+      "SELECT id FROM usuarios WHERE LOWER(email) = $1 AND status = 'ativo'",
       [normalizedEmail],
     )
     if (!usuario) return generic
@@ -146,7 +146,7 @@ export class AuthService {
       [tokenHash],
     )
     if (!token) return { success: false, message: "Link inválido ou expirado." }
-    await query("UPDATE usuarios SET senha_hash = $1, updated_at = CURRENT_TIMESTAMP, tentativas_login = 0, bloqueado_ate = NULL WHERE id = $2 AND ativo = TRUE", [senhaHash, token.usuario_id])
+    await query("UPDATE usuarios SET senha_hash = $1, updated_at = CURRENT_TIMESTAMP, tentativas_login = 0, bloqueado_ate = NULL WHERE id = $2 AND status = 'ativo'", [senhaHash, token.usuario_id])
     await query("DELETE FROM sessoes_usuario WHERE usuario_id = $1", [token.usuario_id])
     return { success: true, message: "Senha atualizada com sucesso." }
   }

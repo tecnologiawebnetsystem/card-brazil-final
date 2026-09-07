@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 export default function EsqueciSenhaPage() {
   const router = useRouter()

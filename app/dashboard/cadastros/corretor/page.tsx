@@ -181,7 +181,7 @@ export default function CorretorPage() {
           ...registro,
           id: registro.pessoa_id || registro.id,
           nome: registro.nome_exibicao || registro.nome || "",
-          tipo_pessoa: registro.tipo_pessoa === "Jurídica" ? "juridica" : "fisica",
+          tipo_pessoa: String(registro.tipo_pessoa || "").toLowerCase().startsWith("jur") ? "juridica" : "fisica",
           cpf: registro.pessoa_cpf,
           cnpj: registro.pessoa_cnpj,
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),

@@ -29,7 +29,7 @@ import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro
 interface Agenciador {
   id: number
   pessoa_id: number
-  situacao: "Ativo" | "Inativo"
+  situacao: "ativo" | "inativo"
   created_at?: string
   updated_at?: string
   deleted_at?: string | null
@@ -96,7 +96,7 @@ export default function AgenciadorPage() {
   const [agenciadores, setAgenciadores] = useState<Agenciador[]>([])
   const [currentAgenciador, setCurrentAgenciador] = useState<Agenciador | null>(null)
   const [agenciadorData, setAgenciadorData] = useState({
-    situacao: "Ativo" as "Ativo" | "Inativo",
+    situacao: "ativo" as "ativo" | "inativo",
   })
 
   useEffect(() => {
@@ -134,7 +134,7 @@ export default function AgenciadorPage() {
           ...registro,
           id: registro.pessoa_id || registro.id,
           nome: registro.nome_exibicao || registro.nome || "",
-          tipo_pessoa: registro.tipo_pessoa === "Jurídica" ? "juridica" : "fisica",
+          tipo_pessoa: String(registro.tipo_pessoa || "").toLowerCase().startsWith("jur") ? "juridica" : "fisica",
           cpf: registro.pessoa_cpf,
           cnpj: registro.pessoa_cnpj,
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
@@ -188,7 +188,7 @@ export default function AgenciadorPage() {
         } else {
           setCurrentAgenciador(null)
           setAgenciadorData({
-            situacao: "Ativo",
+            situacao: "ativo",
           })
         }
       }
@@ -317,7 +317,7 @@ export default function AgenciadorPage() {
       })
       return
     }
-    const novaSituacao = agenciador.situacao === "Ativo" ? "Inativo" : "Ativo"
+    const novaSituacao = agenciador.situacao === "ativo" ? "inativo" : "ativo"
     try {
       const response = await fetch(`/api/agenciadores/${agenciador.id}`, {
         method: "PUT",
@@ -328,7 +328,7 @@ export default function AgenciadorPage() {
       if (data.success) {
         toast({
           title: "Sucesso",
-          description: `Agenciador ${novaSituacao === "Ativo" ? "ativado" : "desativado"} com sucesso`,
+          description: `Agenciador ${novaSituacao === "ativo" ? "ativado" : "desativado"} com sucesso`,
         })
         await loadAgenciadores()
       } else {
@@ -521,7 +521,7 @@ export default function AgenciadorPage() {
                 getId={(p) => p.id}
                 getSearchText={(p) => `${p.nome} ${p.cpf ?? ""} ${p.cnpj ?? ""}`}
                 isActive={(p) =>
-                  agenciadores.some((ag) => ag.pessoa_id === p.id && !ag.deleted_at && ag.situacao === "Ativo")
+                  agenciadores.some((ag) => ag.pessoa_id === p.id && !ag.deleted_at && ag.situacao === "ativo")
                 }
                 searchPlaceholder="Buscar por nome, CPF ou CNPJ..."
                 emptyMessage="Nenhum agenciador encontrado."
@@ -825,7 +825,7 @@ export default function AgenciadorPage() {
                 <Label>Situação</Label>
                 <Select
                   value={agenciadorData.situacao}
-                  onValueChange={(value: "Ativo" | "Inativo") =>
+                  onValueChange={(value: "ativo" | "inativo") =>
                     setAgenciadorData({ ...agenciadorData, situacao: value })
                   }
                 >
@@ -833,8 +833,8 @@ export default function AgenciadorPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Ativo">Ativo</SelectItem>
-                    <SelectItem value="Inativo">Inativo</SelectItem>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="inativo">Inativo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -861,7 +861,7 @@ export default function AgenciadorPage() {
                 <Label>Situação</Label>
                 <Select
                   value={agenciadorData.situacao}
-                  onValueChange={(value: "Ativo" | "Inativo") =>
+                  onValueChange={(value: "ativo" | "inativo") =>
                     setAgenciadorData({ ...agenciadorData, situacao: value })
                   }
                 >
@@ -869,8 +869,8 @@ export default function AgenciadorPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Ativo">Ativo</SelectItem>
-                    <SelectItem value="Inativo">Inativo</SelectItem>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="inativo">Inativo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

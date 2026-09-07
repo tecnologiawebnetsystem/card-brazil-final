@@ -2,9 +2,10 @@ import { type NextRequest, NextResponse } from "next/server"
 import { successResponse, errorResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const rows = await query(`SELECT * FROM produtos WHERE id = $1`, [Number.parseInt(params.id, 10)])
+    const { id: rawId } = await params
+    const rows = await query(`SELECT * FROM produtos WHERE id = $1`, [Number.parseInt(rawId, 10)])
     const produto = rows[0]
     if (!produto) return NextResponse.json(errorResponse("Produto não encontrado"), { status: 404 })
     return NextResponse.json(successResponse(produto))
@@ -13,12 +14,21 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const body = await request.json()
-    const id = Number.parseInt(params.id)
+    const { id: rawId } = await params
+    const normalized = {
+      nome: body.nome,
+      codigo_produto: body.codigo_produto ?? body.codigo,
+      valor_mensalidade: body.valor_mensalidade ?? body.valor,
+      idade_minima: body.idade_minima,
+      idade_maxima: body.idade_maxima,
+      status: body.status ?? (body.ativo === false ? "inativo" : "ativo"),
+    }
+    const id = Number.parseInt(rawId, 10)
     const allowed = ["nome", "codigo_produto", "valor_mensalidade", "idade_minima", "idade_maxima", "status"]
-    const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
+    const entries = Object.entries(normalized).filter(([key, value]) => allowed.includes(key) && value !== undefined)
     if (!entries.length) return NextResponse.json(errorResponse("Nenhum campo válido para atualizar"), { status: 400 })
     const values = entries.map(([, value]) => value)
     const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
@@ -31,9 +41,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const rows = await query(`DELETE FROM produtos WHERE id = $1 RETURNING id`, [Number.parseInt(params.id, 10)])
+    const { id: rawId } = await params
+    const rows = await query(`DELETE FROM produtos WHERE id = $1 RETURNING id`, [Number.parseInt(rawId, 10)])
     if (!rows.length) return NextResponse.json(errorResponse("Produto não encontrado"), { status: 404 })
     return NextResponse.json(successResponse(null, "Produto excluído com sucesso"))
   } catch (error) {

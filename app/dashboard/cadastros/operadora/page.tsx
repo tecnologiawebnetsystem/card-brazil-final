@@ -367,6 +367,11 @@ export default function OperadoraPage() {
     }
   }
 
+  const handleRequestDelete = (operadora: Operadora) => {
+    setOperadoraToDelete(operadora.id)
+    setShowDeleteDialog(true)
+  }
+
   const handleToggleStatus = async (operadora: Operadora) => {
     try {
       const response = await fetch(`/api/operadoras/${operadora.id}`, {
@@ -787,8 +792,9 @@ export default function OperadoraPage() {
                   },
                 ] as CadastroColumn<Operadora>[]
               }
-              onEdit={handleEdit}
-              onToggleStatus={handleToggleStatus}
+  onEdit={handleEdit}
+  onToggleStatus={handleToggleStatus}
+  onDelete={handleRequestDelete}
               detailsTitle={(op) => getPessoaNome(op.pessoa_id)}
               renderDetails={(op) => (
                 <CadastroDetailsGrid>

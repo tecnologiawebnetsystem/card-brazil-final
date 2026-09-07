@@ -56,6 +56,7 @@ interface CadastroTableProps<T> {
   onView?: (item: T) => void
   onEdit?: (item: T) => void
   onToggleStatus?: (item: T) => void
+  onDelete?: (item: T) => void
   /** conteúdo do modal de visualização padrão (usado quando onView não é informado) */
   renderDetails?: (item: T) => React.ReactNode
   detailsTitle?: (item: T) => string
@@ -77,6 +78,7 @@ export function CadastroTable<T>({
   onView,
   onEdit,
   onToggleStatus,
+  onDelete,
   renderDetails,
   detailsTitle,
 }: CadastroTableProps<T>) {
@@ -270,6 +272,7 @@ export function CadastroTable<T>({
                         onView={showViewAction ? () => handleView(item) : undefined}
                         onEdit={onEdit ? () => onEdit(item) : undefined}
                         onToggleStatus={onToggleStatus ? () => onToggleStatus(item) : undefined}
+                        onDelete={onDelete ? () => onDelete(item) : undefined}
                         isActive={ativo}
                       />
                     </TableCell>

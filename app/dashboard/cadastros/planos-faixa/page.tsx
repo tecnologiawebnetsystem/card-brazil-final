@@ -220,6 +220,7 @@ export default function PlanosFaixaPage() {
             }
             onEdit={handleEditPlano}
             onToggleStatus={handleToggleStatus}
+            onDelete={(p) => handleDeletePlano(p.id)}
             detailsTitle={(p) => `${p.plano} — ${p.faixaEtaria}`}
             renderDetails={(p) => (
               <CadastroDetailsGrid>

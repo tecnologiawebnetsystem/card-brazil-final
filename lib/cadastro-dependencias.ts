@@ -21,28 +21,6 @@ export async function validarDependenciasCadastro(pessoaId: DependenciaCadastro[
     return { ok: false as const, message: "A pessoa selecionada está inativa. Ative-a antes de continuar." }
   }
 
-  const [endereco, conta] = await Promise.all([
-    query<{ id: number }>(
-      "SELECT id FROM enderecos WHERE pessoa_id = $1 LIMIT 1",
-      [id],
-    ),
-    query<{ id: number }>(
-      "SELECT id FROM dados_bancarios WHERE pessoa_id = $1 LIMIT 1",
-      [id],
-    ),
-  ])
-
-  if (!endereco[0] || !conta[0]) {
-    const faltantes = [
-      !endereco[0] ? "endereço" : null,
-      !conta[0] ? "conta bancária" : null,
-    ].filter(Boolean)
-    return {
-      ok: false as const,
-      message: `Cadastre ${faltantes.join(" e ")} para esta pessoa antes de cadastrar este registro.`,
-    }
-  }
-
   return { ok: true as const, pessoaId: id }
 }
 

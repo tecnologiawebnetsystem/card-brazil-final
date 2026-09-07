@@ -28,6 +28,8 @@ export async function POST(request: NextRequest) {
     const rows = await query(`INSERT INTO administradoras (pessoa_id, razao_social, nome_fantasia, cnpj, status) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [pessoaId, body.razao_social || body.nome_fantasia, body.nome_fantasia || null, body.cnpj || null, body.status || "ativo"])
     return NextResponse.json(successResponse(rows[0], "Administradora criada com sucesso"), { status: 201 })
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
+    const message = error instanceof Error ? error.message : "Erro interno"
+    const status = message.startsWith("Cadastre") || message.startsWith("A pessoa") ? 400 : 500
+    return NextResponse.json({ success: false, message }, { status })
   }
 }

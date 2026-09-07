@@ -374,7 +374,7 @@ export default function AdministradoraPage() {
   <div>
     <Label>Pessoa vinculada *</Label>
     <Select value={formData.pessoa_id ? String(formData.pessoa_id) : ""} onValueChange={(value) => setFormData({ ...formData, pessoa_id: Number(value) })}>
-      <SelectTrigger><SelectValue placeholder="Selecione uma pessoa com endereço e conta" /></SelectTrigger>
+      <SelectTrigger><SelectValue placeholder="Selecione a pessoa que exercerá o papel de administradora" /></SelectTrigger>
       <SelectContent>
         {pessoas.map((pessoa) => (
           <SelectItem key={pessoa.id} value={String(pessoa.id)}>
@@ -383,7 +383,7 @@ export default function AdministradoraPage() {
         ))}
       </SelectContent>
     </Select>
-    <p className="mt-1 text-xs text-muted-foreground">A pessoa deve estar cadastrada com endereço e conta bancária.</p>
+    <p className="mt-1 text-xs text-muted-foreground">A pessoa deve estar cadastrada previamente. Endereço e conta bancária são dados complementares da pessoa.</p>
   </div>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

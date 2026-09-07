@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { LogOut, Moon, Settings, Sun, UserRound, KeyRound } from "lucide-react"
+import { ChevronDown, LogOut, Moon, Settings, Sun, UserRound, KeyRound } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useAuth } from "@/contexts/auth-context"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -25,14 +25,15 @@ export function ProfileMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-10 gap-2 px-2 hover:bg-accent" aria-label="Abrir menu do perfil">
+        <Button variant="ghost" className="h-11 gap-2 rounded-xl border border-border/70 bg-background/60 px-2.5 shadow-sm transition-colors hover:bg-accent" aria-label="Abrir menu do perfil">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">{initials}</AvatarFallback>
           </Avatar>
+          <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel className="flex items-center gap-3 py-3">
+      <DropdownMenuContent align="end" sideOffset={10} className="w-72 rounded-2xl border-border/80 bg-popover/95 p-2 shadow-xl backdrop-blur">
+        <DropdownMenuLabel className="flex items-center gap-3 rounded-xl bg-muted/60 px-3 py-3">
           <Avatar className="h-10 w-10"><AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback></Avatar>
           <span className="min-w-0">
             <span className="block truncate font-semibold">{name}</span>
@@ -40,15 +41,15 @@ export function ProfileMenu() {
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild><Link href="/dashboard/perfil"><UserRound className="mr-2 h-4 w-4" />Meu perfil</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild><Link href="/dashboard/perfil#seguranca"><KeyRound className="mr-2 h-4 w-4" />Alterar senha</Link></DropdownMenuItem>
-        <DropdownMenuItem asChild><Link href="/dashboard/configuracoes"><Settings className="mr-2 h-4 w-4" />Configurações</Link></DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
+        <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5"><Link href="/dashboard/perfil"><UserRound className="mr-2 h-4 w-4" />Meu perfil</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5"><Link href="/dashboard/perfil#seguranca"><KeyRound className="mr-2 h-4 w-4" />Alterar senha</Link></DropdownMenuItem>
+        <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5"><Link href="/dashboard/configuracoes"><Settings className="mr-2 h-4 w-4" />Configurações</Link></DropdownMenuItem>
+        <DropdownMenuItem className="rounded-xl px-3 py-2.5" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
           {resolvedTheme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
           {resolvedTheme === "dark" ? "Modo claro" : "Modo escuro"}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => void logout()} className="text-destructive focus:text-destructive"><LogOut className="mr-2 h-4 w-4" />Sair</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => void logout()} className="rounded-xl px-3 py-2.5 text-destructive focus:text-destructive"><LogOut className="mr-2 h-4 w-4" />Sair</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

@@ -1,6 +1,5 @@
 "use client"
 import Link from "next/link"
-import { useTheme } from "next-themes"
 import {
   Sidebar,
   SidebarContent,
@@ -14,19 +13,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, ChevronUp, Menu, Moon, Sun, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Menu, X } from "lucide-react"
 
 const LayoutDashboardIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -580,8 +570,7 @@ type AppSidebarProps = {}
 
 export function AppSidebar() {
   const { state, isMobile, toggleSidebar } = useSidebar()
-  const { user, logout } = useAuth()
-  const { resolvedTheme, setTheme } = useTheme()
+  const { user } = useAuth()
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     Principal: true,
     Cadastros: true,
@@ -713,72 +702,7 @@ export function AppSidebar() {
             </SidebarGroup>
           ))}
         </SidebarContent>
-        <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-3">
-          {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-3 rounded-lg hover:bg-sidebar-primary transition-colors h-auto py-2"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/images/user-avatar.jpg" alt={user.nome_completo} />
-                    <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs font-semibold">
-                      {user.nome_completo
-                        ? user.nome_completo
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .slice(0, 2)
-                            .toUpperCase()
-                        : "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col items-start text-left">
-                    <span className="text-sm font-medium text-sidebar-foreground">{user.nome_completo || "Usuário"}</span>
-                    <span className="text-xs capitalize text-sidebar-foreground/60">
-                      {getProfileDisplayName(user.tipo_usuario)}
-                    </span>
-                  </div>
-                  <ChevronUp className="ml-auto h-4 w-4 text-sidebar-foreground/60" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                forceMount
-                side="top"
-                align="start"
-                sideOffset={10}
-                className="w-64 rounded-lg border-sidebar-border bg-sidebar shadow-xl"
-              >
-                <DropdownMenuLabel className="text-sidebar-foreground">Minha Conta</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-sidebar-border" />
-                <DropdownMenuItem asChild className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary">
-                  <Link href="/dashboard/perfil">Perfil</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary">
-                  <Link href="/dashboard/perfil#seguranca">Alterar senha</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary">
-                  <Link href="/dashboard/configuracoes">Configurações</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="rounded-md text-sidebar-foreground/80 hover:bg-sidebar-primary"
-                  onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-                >
-                  {resolvedTheme === "dark" ? <Sun /> : <Moon />}
-                  <span>{resolvedTheme === "dark" ? "Modo claro" : "Modo escuro"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-sidebar-border" />
-                <DropdownMenuItem
-                  className="rounded-md text-sidebar-accent hover:bg-sidebar-primary"
-                  onClick={() => void logout()}
-                >
-                  <span>Sair</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </SidebarFooter>
+        <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-3" />
       </Sidebar>
 
       {isMobile && state === "expanded" && (

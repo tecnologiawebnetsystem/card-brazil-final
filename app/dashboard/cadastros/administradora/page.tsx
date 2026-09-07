@@ -4,14 +4,24 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 
+interface PessoaOption {
+  id: number
+  nome_exibicao?: string
+  nome_completo?: string
+  razao_social?: string
+  nome_fantasia?: string
+}
+
 interface Administradora {
   id: number
+  pessoa_id: number
   razao_social: string
   nome_fantasia: string
   cnpj: string
@@ -32,10 +42,12 @@ export default function AdministradoraPage() {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [administradora, setAdministradora] = useState<Administradora | null>(null)
+  const [pessoas, setPessoas] = useState<PessoaOption[]>([])
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const [formData, setFormData] = useState({
+    pessoa_id: 0,
     razao_social: "",
     nome_fantasia: "",
     cnpj: "",
@@ -52,6 +64,10 @@ export default function AdministradoraPage() {
 
   useEffect(() => {
     loadAdministradora()
+    fetch("/api/pessoas?status=ativo")
+      .then((response) => response.json())
+      .then((data) => setPessoas(Array.isArray(data.data) ? data.data : []))
+      .catch(() => setPessoas([]))
   }, [])
 
   const loadAdministradora = async () => {
@@ -78,6 +94,7 @@ export default function AdministradoraPage() {
   const handleEdit = () => {
     if (administradora) {
       setFormData({
+        pessoa_id: administradora.pessoa_id || 0,
         razao_social: administradora.razao_social,
         nome_fantasia: administradora.nome_fantasia,
         cnpj: administradora.cnpj,
@@ -97,7 +114,7 @@ export default function AdministradoraPage() {
 
   const handleSave = async () => {
     try {
-      if (!formData.razao_social || !formData.cnpj) {
+      if (!formData.pessoa_id || !formData.razao_social || !formData.cnpj) {
         toast({
           title: "Erro",
           description: "Preencha todos os campos obrigatórios",
@@ -195,6 +212,7 @@ export default function AdministradoraPage() {
 
   const handleCreateNew = () => {
     setFormData({
+      pessoa_id: 0,
       razao_social: "",
       nome_fantasia: "",
       cnpj: "",
@@ -352,8 +370,22 @@ export default function AdministradoraPage() {
                 : "Preencha os dados para cadastrar a administradora"}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+  <div>
+    <Label>Pessoa vinculada *</Label>
+    <Select value={formData.pessoa_id ? String(formData.pessoa_id) : ""} onValueChange={(value) => setFormData({ ...formData, pessoa_id: Number(value) })}>
+      <SelectTrigger><SelectValue placeholder="Selecione a pessoa que exercerá o papel de administradora" /></SelectTrigger>
+      <SelectContent>
+        {pessoas.map((pessoa) => (
+          <SelectItem key={pessoa.id} value={String(pessoa.id)}>
+            {pessoa.nome_exibicao || pessoa.nome_completo || pessoa.razao_social || pessoa.nome_fantasia || `Pessoa #${pessoa.id}`}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <p className="mt-1 text-xs text-muted-foreground">A pessoa deve estar cadastrada previamente. Endereço e conta bancária são dados complementares da pessoa.</p>
+  </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="razao_social">Razão Social *</Label>
                 <Input

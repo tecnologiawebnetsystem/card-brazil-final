@@ -63,7 +63,7 @@ export class CrudService<T> {
   }
 
   async delete(id: number): Promise<boolean> {
-    const rows = await query(`DELETE FROM ${this.tableName} WHERE id = $1`, [id])
+    const rows = await query(`DELETE FROM ${this.tableName} WHERE id = $1 RETURNING id`, [id])
     return rows.length > 0
   }
 

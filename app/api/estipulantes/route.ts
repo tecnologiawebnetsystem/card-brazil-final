@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { successResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
+import { exigirDependenciasCadastro } from "@/lib/cadastro-dependencias"
 export async function GET() {
   try {
     const estipulantes = await query(`
@@ -20,12 +21,15 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    if (!body.administradora_id || !body.pessoa_id) {
-      return NextResponse.json({ success: false, message: "Administradora e pessoa são obrigatórias" }, { status: 400 })
+    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id)
+    if (!body.administradora_id) {
+      return NextResponse.json({ success: false, message: "Administradora é obrigatória" }, { status: 400 })
     }
-    const rows = await query(`INSERT INTO estipulantes (administradora_id, pessoa_id, codigo_interno, observacoes, status) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [body.administradora_id, body.pessoa_id, body.codigo_interno || null, body.observacoes || null, body.status || "Ativo"])
+    const rows = await query(`INSERT INTO estipulantes (administradora_id, pessoa_id, codigo_interno, observacoes, status) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [body.administradora_id, pessoaId, body.codigo_interno || null, body.observacoes || null, body.status || "Ativo"])
     return NextResponse.json(successResponse(rows[0], "Estipulante criado com sucesso"), { status: 201 })
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
+    const message = error instanceof Error ? error.message : "Erro interno"
+    const status = message.startsWith("Cadastre") || message.startsWith("A pessoa") ? 400 : 500
+    return NextResponse.json({ success: false, message }, { status })
   }
 }

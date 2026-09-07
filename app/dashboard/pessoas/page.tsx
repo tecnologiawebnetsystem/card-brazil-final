@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Search, X, Loader2, Pencil, Trash2, Eye } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
@@ -128,6 +129,8 @@ export default function PessoasPage() {
   const [contasBancarias, setContasBancarias] = useState<ContaBancaria[]>([
     { banco: "", agencia: "", tipo_conta: "", conta: "", digito: "", principal: true },
   ])
+
+  const ordemCadastro = "Cadastre a pessoa com pelo menos um endereço e uma conta bancária. Depois, use essa pessoa nos cadastros de Operadora, Administradora, Estipulante, Agenciador ou Corretor."
 
   useEffect(() => {
     carregarPessoas()
@@ -583,8 +586,11 @@ export default function PessoasPage() {
         <div className="mb-6 flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Pessoas</h1>
-            <p className="text-muted-foreground mt-1">Gerencie todas as pessoas do sistema</p>
-          </div>
+  <p className="text-muted-foreground mt-1">Gerencie todas as pessoas do sistema</p>
+  <Alert className="mt-4 max-w-3xl">
+    <AlertDescription>{ordemCadastro}</AlertDescription>
+  </Alert>
+  </div>
 
           <Dialog
             open={isModalOpen}

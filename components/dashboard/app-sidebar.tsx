@@ -686,7 +686,7 @@ export function AppSidebar() {
                             asChild
                             className="rounded-md hover:bg-sidebar-primary transition-colors h-8"
                           >
-                            <a href={item.url} className="flex items-center gap-3 px-3 py-1.5">
+                            <a href={item.url} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} className="flex items-center gap-3 px-3 py-1.5">
                               <span className="text-sidebar-foreground/60">{item.icon}</span>
                               <span className="text-sm text-sidebar-foreground/80 hover:text-sidebar-foreground transition-colors">
                                 {item.title}

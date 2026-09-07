@@ -32,7 +32,7 @@ export function ProfileMenu() {
           <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={10} className="w-72 rounded-2xl border-border/80 bg-popover/95 p-2 shadow-xl backdrop-blur">
+      <DropdownMenuContent align="end" sideOffset={10} style={{ left: "calc(100vw - 19rem)", right: "auto", top: "4rem" }} className="fixed w-72 rounded-2xl border-border/80 bg-popover/95 p-2 shadow-xl backdrop-blur">
         <DropdownMenuLabel className="flex items-center gap-3 rounded-xl bg-muted/60 px-3 py-3">
           <Avatar className="h-10 w-10"><AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback></Avatar>
           <span className="min-w-0">

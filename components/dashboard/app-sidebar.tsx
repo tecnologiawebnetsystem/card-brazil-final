@@ -473,7 +473,7 @@ const menuItems: MenuGroup[] = [
     items: [
       {
         title: "SQL Manager",
-        url: "/sql-manager",
+        url: "/dashboard/sql-manager",
         icon: <LayoutDashboardIcon />,
         requiredPermission: null,
       },

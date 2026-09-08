@@ -29,8 +29,8 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Search, X, Loader2, Pencil, Trash2, Eye } from "lucide-react"
-import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
+import { apiFetch, apiMutation } from "@/lib/api-client"
 
 interface Pessoa {
   id: number
@@ -76,7 +76,6 @@ interface ContaBancaria {
 }
 
 export default function PessoasPage() {
-  const { user } = useAuth()
   const { toast } = useToast()
 
   const [pessoas, setPessoas] = useState<Pessoa[]>([])
@@ -139,14 +138,8 @@ export default function PessoasPage() {
   const carregarPessoas = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/pessoas?id_administradora=${user?.perfil_id || 1}`, {
-        credentials: "include",
-      })
-
-      if (!response.ok) throw new Error("Erro ao carregar pessoas")
-
-      const data = await response.json()
-      const pessoasCarregadas = (Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : []).map((pessoa: Pessoa & { nome_completo?: string; situacao?: string; ativo?: boolean }) => ({
+      const data = await apiFetch<Pessoa[]>("/api/pessoas")
+      const pessoasCarregadas = (Array.isArray(data) ? data : []).map((pessoa: Pessoa & { nome_completo?: string; situacao?: string; ativo?: boolean }) => ({
         ...pessoa,
         nome: pessoa.nome || pessoa.nome_completo || "",
         status: (pessoa.status || pessoa.situacao || (pessoa.ativo === false ? "inativo" : "ativo")) as Pessoa["status"],
@@ -350,38 +343,16 @@ export default function PessoasPage() {
         telefone: formData.telefone || null,
         celular: formData.celular || null,
         status: "ativo",
-        id_administradora: user?.perfil_id || 1,
       }
 
       let pessoaId: number
 
       if (isEditMode && pessoaEditando) {
-        // Atualizar pessoa existente
-        const response = await fetch(`/api/pessoas/${pessoaEditando.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            credentials: "include",
-          },
-          body: JSON.stringify(pessoaPayload),
-        })
-
-        if (!response.ok) throw new Error("Erro ao atualizar pessoa")
-        pessoaId = pessoaEditando.id
+        const updated = await apiMutation<Pessoa>(`/api/pessoas/${pessoaEditando.id}`, "PUT", pessoaPayload)
+        pessoaId = updated.id
       } else {
-        // Criar nova pessoa
-        const response = await fetch("/api/pessoas", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            credentials: "include",
-          },
-          body: JSON.stringify(pessoaPayload),
-        })
-
-        if (!response.ok) throw new Error("Erro ao criar pessoa")
-        const data = await response.json()
-        pessoaId = data.data.id
+        const created = await apiMutation<Pessoa>("/api/pessoas", "POST", pessoaPayload)
+        pessoaId = created.id
       }
 
       // Atualizar endereços
@@ -396,7 +367,6 @@ export default function PessoasPage() {
               body: JSON.stringify({
                 ...endereco,
                 pessoa_id: pessoaId,
-                id_administradora: user?.perfil_id || 1,
               }),
             })
           } else {
@@ -408,7 +378,6 @@ export default function PessoasPage() {
               body: JSON.stringify({
                 ...endereco,
                 pessoa_id: pessoaId,
-                id_administradora: user?.perfil_id || 1,
               }),
             })
           }
@@ -427,7 +396,6 @@ export default function PessoasPage() {
               body: JSON.stringify({
                 ...conta,
                 pessoa_id: pessoaId,
-                id_administradora: user?.perfil_id || 1,
               }),
             })
           } else {
@@ -439,7 +407,6 @@ export default function PessoasPage() {
               body: JSON.stringify({
                 ...conta,
                 pessoa_id: pessoaId,
-                id_administradora: user?.perfil_id || 1,
               }),
             })
           }

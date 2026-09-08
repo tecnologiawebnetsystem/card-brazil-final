@@ -1,45 +1,60 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
+export type ApiFieldErrors = Record<string, string[]>
+
+export class ApiClientError extends Error {
+  status: number
+  code?: string
+  fieldErrors?: ApiFieldErrors
+
+  constructor(message: string, options: { status: number; code?: string; fieldErrors?: ApiFieldErrors }) {
+    super(message)
+    this.name = "ApiClientError"
+    this.status = options.status
+    this.code = options.code
+    this.fieldErrors = options.fieldErrors
+  }
+}
+
+export async function apiFetch<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
+  const response = await fetch(input, {
+    credentials: "include",
+    ...init,
+    headers: {
+      Accept: "application/json",
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
+  })
+
+  const payload = (await response.json().catch(() => ({}))) as {
+    success?: boolean
+    data?: T
+    message?: string
+    error?: string
+    code?: string
+    errors?: ApiFieldErrors
+  }
+
+  if (!response.ok || payload.success === false) {
+    throw new ApiClientError(payload.message || payload.error || "Não foi possível concluir a operação.", {
+      status: response.status,
+      code: payload.code,
+      fieldErrors: payload.errors,
+    })
+  }
+
+  return ("data" in payload ? payload.data : payload) as T
+}
+
+export async function apiMutation<T>(url: string, method: "POST" | "PUT" | "PATCH" | "DELETE", body?: unknown) {
+  return apiFetch<T>(url, {
+    method,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+}
 
 export class ApiClient {
-  private static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    }
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      credentials: "include",
-      headers,
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Erro desconhecido" }))
-      throw new Error(error.message || `HTTP ${response.status}`)
-    }
-
-    return response.json()
-  }
-
-  static get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "GET" })
-  }
-
-  static post<T>(endpoint: string, data: any): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "POST",
-      body: JSON.stringify(data),
-    })
-  }
-
-  static put<T>(endpoint: string, data: any): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    })
-  }
-
-  static delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "DELETE" })
-  }
+  static get<T>(endpoint: string) { return apiFetch<T>(endpoint) }
+  static post<T>(endpoint: string, data: unknown) { return apiMutation<T>(endpoint, "POST", data) }
+  static put<T>(endpoint: string, data: unknown) { return apiMutation<T>(endpoint, "PUT", data) }
+  static delete<T>(endpoint: string) { return apiMutation<T>(endpoint, "DELETE") }
 }

@@ -31,6 +31,12 @@ export async function requireCadastroAccess(permission: CadastroPermission = "vi
   return context
 }
 
+export function apiAuthError(error: unknown) {
+  if (error instanceof Error && error.message === "UNAUTHENTICATED") return { message: "Não autenticado", status: 401 }
+  if (error instanceof Error && error.message === "FORBIDDEN") return { message: "Sem permissão para este cadastro", status: 403 }
+  return null
+}
+
 export function authErrorStatus(error: unknown) {
   if (error instanceof Error && error.message === "UNAUTHENTICATED") return 401
   if (error instanceof Error && error.message === "FORBIDDEN") return 403

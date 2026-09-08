@@ -25,18 +25,12 @@ export function errorResponse(error: string, errors?: Record<string, string[]>):
   }
 }
 
-export function handleApiError(error: any): ApiResponse {
+export function handleApiError(error: unknown): ApiResponse {
   console.error("[API Error]", error)
-
-  if (error.code === "ER_DUP_ENTRY") {
-    return errorResponse("Registro duplicado. Verifique os dados únicos como CPF, CNPJ ou código.")
-  }
-
-  if (error.code === "ER_NO_REFERENCED_ROW_2") {
-    return errorResponse("Referência inválida. Verifique se os dados relacionados existem.")
-  }
-
-  return errorResponse(error.message || "Erro interno do servidor")
+  const code = typeof error === "object" && error !== null && "code" in error ? String(error.code) : ""
+  if (["23505", "ER_DUP_ENTRY"].includes(code)) return { success: false, error: "Registro duplicado. Verifique CPF, CNPJ ou código.", message: "Registro duplicado.", code: "CONFLICT" }
+  if (["23503", "ER_NO_REFERENCED_ROW_2"].includes(code)) return { success: false, error: "Referência inválida. Verifique os dados relacionados.", message: "Referência inválida.", code: "REFERENCE_ERROR" }
+  return { success: false, error: "Erro interno do servidor", message: "Não foi possível concluir a operação.", code: "INTERNAL_ERROR" }
 }
 
 export function apiResponse<T>(data: T, message?: string, status = 200): NextResponse {

@@ -1,7 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { successResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
-import { requireCadastroAccess } from "@/lib/api-auth"
+import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
+import { apiError } from "@/lib/api-response"
+import { planoSchema, zodFieldErrors } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,11 +27,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    if (!body.operadora_id || !body.nome || !body.tipo_plano) return NextResponse.json({ success: false, message: "operadora_id, nome e tipo_plano são obrigatórios" }, { status: 400 })
-    const rows = await query(`INSERT INTO planos (administradora_id, operadora_id, nome, codigo_ans, tipo_plano, valor_base, descricao, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`, [body.administradora_id || 1, body.operadora_id, body.nome, body.codigo_ans || null, body.tipo_plano, body.valor_base || null, body.descricao || null, body.status || "ativo"])
+    const { administradoraId } = await requireCadastroAccess("create")
+    const parsed = planoSchema.safeParse(await request.json())
+    if (!parsed.success) return apiError("Dados do plano inválidos", 400, zodFieldErrors(parsed.error))
+    const data = parsed.data
+    const rows = await query(`INSERT INTO planos (administradora_id, operadora_id, nome, codigo_ans, tipo_plano, valor_base, descricao, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`, [administradoraId, data.operadora_id, data.nome, data.codigo_ans || null, data.tipo_plano, data.valor_base || null, data.descricao || null, data.status])
     return NextResponse.json(successResponse(rows[0], "Plano criado com sucesso"), { status: 201 })
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
+    const auth = apiAuthError(error)
+    return auth ? apiError(auth.message, auth.status) : apiError("Não foi possível criar o plano", 500)
   }
 }

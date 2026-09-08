@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server"
 import { apiResponse, apiError } from "@/lib/api-response"
 import { query } from "@/lib/database"
 import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { idSchema, pessoaSchema, zodFieldErrors } from "@/lib/validation"
+import { idSchema, pessoaUpdateSchema, zodFieldErrors } from "@/lib/validation"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -35,13 +35,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params
     const body = await request.json()
     const pessoaId = idSchema.parse(id)
-    const parsed = pessoaSchema.partial().safeParse(body)
+    const parsed = pessoaUpdateSchema.safeParse(body)
     if (!parsed.success) return apiError("Dados da pessoa inválidos", 400, zodFieldErrors(parsed.error))
     const safeBody = parsed.data
     const allowed = ["tipo_pessoa", "nome_completo", "cpf", "rg", "email", "telefone_principal", "telefone_secundario", "telefone_comercial", "data_nascimento", "sexo", "estado_civil", "nome_mae", "nome_pai", "profissao", "renda_mensal", "razao_social", "nome_fantasia", "cnpj", "observacoes", "status"]
     const entries = Object.entries(safeBody).filter(([key]) => allowed.includes(key))
     if (!entries.length) return apiError("Nenhum campo válido para atualizar", 400)
-    const values = entries.map(([, value]) => value)
+    const values: unknown[] = entries.map(([, value]) => value)
     const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
     values.push(pessoaId, administradoraId)
     const rows = await query(`UPDATE pessoas SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length - 1} AND administradora_id = $${values.length} AND deleted_at IS NULL RETURNING *`, values)

@@ -35,6 +35,12 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
   }
 }
 
+export async function transaction<T = any>(statements: Array<{ text: string; params?: any[] }>): Promise<T[][]> {
+  const connection = getSql()
+  const queries = statements.map(({ text, params }) => connection.query(normalizePostgresQuery(text), params || []))
+  return (await connection.transaction(queries)) as T[][]
+}
+
 export async function queryOne<T = any>(text: string, params?: any[]): Promise<T | null> {
   try {
     const result = await getSql().query(normalizePostgresQuery(text), params || [])

@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { usePathname } from "next/navigation"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
@@ -13,6 +14,12 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
+
+  if (pathname === "/dashboard/sql-manager") {
+    return <main className="min-h-screen w-full overflow-auto bg-background">{children}</main>
+  }
+
   return (
     <SidebarProvider>
       <SkipToContent />

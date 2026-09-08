@@ -1,8 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireCadastroAccess } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get("status")
     const search = searchParams.get("search")
@@ -10,8 +12,8 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(Math.max(Number.parseInt(searchParams.get("limit") || "50", 10) || 50, 1), 100)
     const offset = Math.max(Number.parseInt(searchParams.get("offset") || "0", 10) || 0, 0)
 
-    const params: unknown[] = []
-    const conditions: string[] = []
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["p.administradora_id = $1"]
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (tipo_plano) { params.push(tipo_plano); conditions.push(`tipo_plano = $${params.length}`) }
     if (search) { params.push(`%${search}%`); conditions.push(`(p.nome_proponente ILIKE $${params.length} OR p.empresa ILIKE $${params.length} OR p.cpf_cnpj ILIKE $${params.length} OR p.email ILIKE $${params.length} OR p.telefone ILIKE $${params.length} OR p.tipo_plano ILIKE $${params.length} OR p.numero_contrato ILIKE $${params.length} OR p.observacoes ILIKE $${params.length})`) }
@@ -28,12 +30,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("create")
     const body = await request.json()
 
     if (!body.nome_proponente || !body.cpf_cnpj || !body.tipo_plano) {
       return NextResponse.json({ error: "nome_proponente, cpf_cnpj e tipo_plano são obrigatórios" }, { status: 400 })
     }
-    const rows = await query(`INSERT INTO propostas (administradora_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pendente') RETURNING id`, [body.administradora_id || 1, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, body.empresa || null, body.numero_funcionarios || null, body.tipo_plano, body.valor_proposto || null, body.observacoes || null])
+    const rows = await query(`INSERT INTO propostas (administradora_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pendente') RETURNING id`, [administradoraId, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, body.empresa || null, body.numero_funcionarios || null, body.tipo_plano, body.valor_proposto || null, body.observacoes || null])
     return NextResponse.json({ message: "Proposta criada com sucesso", id: rows[0].id }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar proposta:", error)

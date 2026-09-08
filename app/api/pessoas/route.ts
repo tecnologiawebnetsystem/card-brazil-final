@@ -3,6 +3,7 @@ import { apiResponse, apiError } from "@/lib/api-response"
 import { query } from "@/lib/database"
 import { authErrorStatus, requireCadastroAccess } from "@/lib/api-auth"
 import { pessoaSchema, zodFieldErrors } from "@/lib/validation"
+import { recordCadastroAudit } from "@/lib/cadastro-audit"
 
 export async function GET(request: NextRequest) {
   try {
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
       INSERT INTO pessoas (administradora_id, tipo_pessoa, nome_completo, cpf, rg, data_nascimento, sexo, estado_civil, nome_mae, nome_pai, razao_social, nome_fantasia, cnpj, email, telefone_principal, telefone_secundario, profissao, observacoes, status)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
       RETURNING *`, [administradoraId, pessoa.tipo_pessoa, pessoa.nome_completo || null, pessoa.cpf || null, pessoa.rg || null, pessoa.data_nascimento || null, pessoa.sexo || null, pessoa.estado_civil || null, pessoa.nome_mae || null, pessoa.nome_pai || null, pessoa.razao_social || null, pessoa.nome_fantasia || null, pessoa.cnpj || null, pessoa.email || null, pessoa.telefone_principal || null, pessoa.telefone_secundario || null, pessoa.profissao || null, pessoa.observacoes || null, pessoa.status || "ativo"])
+    await recordCadastroAudit({ administradoraId, userId: (await requireCadastroAccess("create")).userId, action: "create", tableName: "pessoas", recordId: novaPessoa[0].id, after: novaPessoa[0] })
     return apiResponse(novaPessoa[0], "Pessoa criada com sucesso", 201)
   } catch (error: any) {
     console.error("[v0] Erro ao criar pessoa:", error)

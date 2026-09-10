@@ -355,12 +355,13 @@ const menuItems: MenuGroup[] = [
             subItems: [
               { title: "Multas e Juros", url: "/dashboard/cobranca/multas-juros", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Configurações Gerais", url: "/dashboard/cobranca/configuracoes-gerais", icon: <CogIcon className="h-3 w-3" /> },
-              { title: "Relatórios de Cobrança", url: "/dashboard/cobranca/relatorios", icon: <CogIcon className="h-3 w-3" /> },
+              /* Relatórios desativados para homologação. */
             ],
           },
         ],
       },
-  {
+  /* Sistema Contábil desativado para homologação. */
+  { hidden: true,
     title: "Sistema Contábil",
     items: [
       {
@@ -521,7 +522,8 @@ const menuItems: MenuGroup[] = [
       },
     ],
   },
-  {
+  /* Relatórios desativados para homologação. */
+  { hidden: true,
     title: "Relatórios",
     items: [
       {
@@ -593,7 +595,7 @@ export function AppSidebar() {
   }
 
   const filterMenuGroups = (groups: MenuGroup[]): MenuGroup[] => {
-    const hiddenGroups = new Set<string>([])
+    const hiddenGroups = new Set<string>(["Sistema Contábil", "Relatórios"])
     const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
 
     return groups

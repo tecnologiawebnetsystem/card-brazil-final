@@ -654,6 +654,7 @@ export function AppSidebar() {
               <PanelLeft className="size-4" />
             </Button>
           </div>
+          </div>
           <div className="relative mt-3">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sidebar-foreground/45" />
             <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Buscar no menu" aria-label="Buscar no menu" className="h-9 w-full rounded-xl border border-sidebar-border/70 bg-sidebar/60 pl-9 pr-3 text-xs text-sidebar-foreground outline-none placeholder:text-sidebar-foreground/45 focus:border-sidebar-ring focus:ring-2 focus:ring-sidebar-ring/20" />

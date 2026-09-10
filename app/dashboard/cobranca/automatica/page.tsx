@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,45 +14,23 @@ import { Bot, Plus, Search, CheckCircle, Clock, Settings, DollarSign } from "luc
 
 export default function CobrancaAutomaticaPage() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("todos")
+  const [cobrancasAutomaticas, setCobrancasAutomaticas] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const cobrancasAutomaticas = [
-    {
-      id: "CA001",
-      beneficiario: "João Silva Santos",
-      cpf: "123.456.789-00",
-      tipoCobranca: "Boleto",
-      frequencia: "Mensal",
-      status: "Ativo",
-      proximaCobranca: "15/02/2024",
-      valor: "R$ 450,00",
-    },
-    {
-      id: "CA002",
-      beneficiario: "Maria Oliveira Costa",
-      cpf: "987.654.321-00",
-      tipoCobranca: "PIX",
-      frequencia: "Mensal",
-      status: "Pausado",
-      proximaCobranca: "20/02/2024",
-      valor: "R$ 320,00",
-    },
-    {
-      id: "CA003",
-      beneficiario: "Carlos Eduardo Lima",
-      cpf: "456.789.123-00",
-      tipoCobranca: "Débito Automático",
-      frequencia: "Mensal",
-      status: "Ativo",
-      proximaCobranca: "10/02/2024",
-      valor: "R$ 280,00",
-    },
-  ]
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch(`/api/cobranca/automatica${statusFilter === "todos" ? "" : `?status=${statusFilter}`}`, { signal: controller.signal })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Falha ao carregar cobranças")))
+      .then((payload) => setCobrancasAutomaticas(payload.data ?? []))
+      .catch((requestError) => { if (requestError.name !== "AbortError") setError(requestError.message) })
+      .finally(() => setLoading(false))
+    return () => controller.abort()
+  }, [statusFilter])
 
-  const filteredCobrancas = cobrancasAutomaticas.filter(
-    (cobranca) =>
-      cobranca.beneficiario.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cobranca.cpf.includes(searchTerm) ||
-      cobranca.tipoCobranca.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredCobrancas = cobrancasAutomaticas.filter((cobranca) =>
+    JSON.stringify(cobranca).toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   return (
@@ -67,6 +45,9 @@ export default function CobrancaAutomaticaPage() {
           Nova Cobrança Automática
         </Button>
       </div>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      {loading && <p className="text-sm text-muted-foreground">Carregando cobranças programadas...</p>}
 
       <Tabs defaultValue="cobrancas" className="space-y-6">
         <TabsList>
@@ -138,7 +119,7 @@ export default function CobrancaAutomaticaPage() {
                     className="pl-8"
                   />
                 </div>
-                <Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
@@ -169,25 +150,25 @@ export default function CobrancaAutomaticaPage() {
                   {filteredCobrancas.map((cobranca) => (
                     <TableRow key={cobranca.id}>
                       <TableCell className="font-medium">{cobranca.id}</TableCell>
-                      <TableCell>{cobranca.beneficiario}</TableCell>
-                      <TableCell>{cobranca.cpf}</TableCell>
-                      <TableCell>{cobranca.tipoCobranca}</TableCell>
-                      <TableCell>{cobranca.frequencia}</TableCell>
+                      <TableCell>#{cobranca.cobranca_id}</TableCell>
+                      <TableCell>Parcela {cobranca.numero_parcela}</TableCell>
+                      <TableCell>{cobranca.forma_pagamento ?? "Não definida"}</TableCell>
+                      <TableCell>Programada</TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            cobranca.status === "Ativo"
+                            cobranca.status === "paga"
                               ? "default"
-                              : cobranca.status === "Pausado"
-                                ? "secondary"
-                                : "destructive"
+                              : cobranca.status === "vencida"
+                                ? "destructive"
+                                : "secondary"
                           }
                         >
                           {cobranca.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{cobranca.proximaCobranca}</TableCell>
-                      <TableCell>{cobranca.valor}</TableCell>
+                      <TableCell>{new Date(cobranca.data_vencimento).toLocaleDateString("pt-BR")}</TableCell>
+                      <TableCell>R$ {Number(cobranca.valor_total).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" size="sm">

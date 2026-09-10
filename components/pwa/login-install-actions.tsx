@@ -33,7 +33,7 @@ export function LoginInstallActions() {
   if (isInstalled) return null
 
   return (
-    <section className="mt-6 rounded-2xl border border-border/80 bg-background/70 p-4" aria-label="Instalar CardBrazil no celular">
+    <section className="mt-7 border-t border-border/70 pt-6" aria-label="Instalar CardBrazil no celular">
       <div className="flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Smartphone /></span>
         <div className="min-w-0">
@@ -41,11 +41,11 @@ export function LoginInstallActions() {
           <p className="mt-1 text-sm leading-5 text-muted-foreground">Instale o CardBrazil pelo navegador para usar como aplicativo.</p>
         </div>
       </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <Button type="button" variant="outline" className="min-h-11 justify-start" onClick={installAndroid} disabled={!installEvent}>
+      <div className="mt-4 grid min-w-0 gap-2 sm:grid-cols-2">
+        <Button type="button" variant="outline" className="min-h-11 min-w-0 justify-start px-3 text-left text-xs sm:text-sm" onClick={installAndroid} disabled={!installEvent}>
           <Download data-icon="inline-start" />Android: instalar app
         </Button>
-        <Button type="button" variant="outline" className="min-h-11 justify-start" onClick={() => window.alert("No iPhone: abra esta página no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início.")}>
+        <Button type="button" variant="outline" className="min-h-11 min-w-0 justify-start px-3 text-left text-xs sm:text-sm" onClick={() => window.alert("No iPhone: abra esta página no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início.")}>
           <Download data-icon="inline-start" />iPhone: adicionar à tela
         </Button>
       </div>

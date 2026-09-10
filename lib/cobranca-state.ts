@@ -1,6 +1,7 @@
 export const COBRANCA_STATUSES = [
   "pendente",
   "em_cobranca",
+  "em_andamento",
   "paga",
   "encerrada",
 ] as const
@@ -10,6 +11,7 @@ export type CobrancaStatus = (typeof COBRANCA_STATUSES)[number]
 const transitions: Record<CobrancaStatus, readonly CobrancaStatus[]> = {
   pendente: ["em_cobranca", "encerrada"],
   em_cobranca: ["paga", "encerrada"],
+  em_andamento: ["em_cobranca", "paga", "encerrada"],
   paga: ["encerrada"],
   encerrada: [],
 }
@@ -30,6 +32,7 @@ export function statusLabel(status: CobrancaStatus) {
   return {
     pendente: "Pendente",
     em_cobranca: "Em cobrança",
+    em_andamento: "Em andamento",
     paga: "Paga",
     encerrada: "Encerrada",
   }[status]

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Download, Smartphone } from "lucide-react"
+import { Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface BeforeInstallPromptEvent extends Event {
@@ -43,10 +43,10 @@ export function LoginInstallActions() {
       </div>
       <div className="mt-4 grid min-w-0 gap-2 sm:grid-cols-2">
         <Button type="button" variant="outline" className="min-h-11 min-w-0 justify-start px-3 text-left text-xs sm:text-sm" onClick={installAndroid} disabled={!installEvent}>
-          <Download data-icon="inline-start" />Android: instalar app
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/android/default.svg" alt="" aria-hidden="true" className="size-5 shrink-0" />Android: instalar app
         </Button>
         <Button type="button" variant="outline" className="min-h-11 min-w-0 justify-start px-3 text-left text-xs sm:text-sm" onClick={() => window.alert("No iPhone: abra esta página no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início.")}>
-          <Download data-icon="inline-start" />iPhone: adicionar à tela
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/apple/default.svg" alt="" aria-hidden="true" className="size-5 shrink-0" />iPhone: adicionar à tela
         </Button>
       </div>
       {!installEvent && <p className="mt-2 text-xs leading-4 text-muted-foreground">No Android, use Chrome. Se o botão estiver desativado, abra o menu do navegador e escolha Instalar aplicativo.</p>}

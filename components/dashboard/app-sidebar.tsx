@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, Menu, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Menu, PanelLeft, Search, X } from "lucide-react"
 
 const LayoutDashboardIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,12 +356,13 @@ const menuItems: MenuGroup[] = [
             subItems: [
               { title: "Multas e Juros", url: "/dashboard/cobranca/multas-juros", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Configurações Gerais", url: "/dashboard/cobranca/configuracoes-gerais", icon: <CogIcon className="h-3 w-3" /> },
-              { title: "Relatórios de Cobrança", url: "/dashboard/cobranca/relatorios", icon: <CogIcon className="h-3 w-3" /> },
+              /* Relatórios desativados para homologação. */
             ],
           },
         ],
       },
-  {
+  /* Sistema Contábil desativado para homologação. */
+  { hidden: true,
     title: "Sistema Contábil",
     items: [
       {
@@ -521,7 +523,8 @@ const menuItems: MenuGroup[] = [
       },
     ],
   },
-  {
+  /* Relatórios desativados para homologação. */
+  { hidden: true,
     title: "Relatórios",
     items: [
       {
@@ -563,7 +566,9 @@ type AppSidebarProps = {}
 
 export function AppSidebar() {
   const { state, isMobile, toggleSidebar } = useSidebar()
+  const pathname = usePathname()
   const { user } = useAuth()
+  const [searchTerm, setSearchTerm] = useState("")
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     Principal: true,
     Cadastros: true,
@@ -593,7 +598,8 @@ export function AppSidebar() {
   }
 
   const filterMenuGroups = (groups: MenuGroup[]): MenuGroup[] => {
-    const hiddenGroups = new Set<string>([])
+    const normalizedSearch = searchTerm.trim().toLowerCase()
+    const hiddenGroups = new Set<string>(["Sistema Contábil", "Relatórios"])
     const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
 
     return groups
@@ -602,7 +608,10 @@ export function AppSidebar() {
         ...group,
         items: filterMenuItems(group.items).filter(
           (item) => !(group.title === "Sistemas" && hiddenSystemItems.has(item.title)),
-        ),
+        ).filter((item) => {
+          if (!normalizedSearch) return true
+          return item.title.toLowerCase().includes(normalizedSearch) || item.subItems?.some((subItem) => subItem.title.toLowerCase().includes(normalizedSearch))
+        }),
       }))
       .filter((group) => group.items.length > 0)
   }
@@ -622,9 +631,10 @@ export function AppSidebar() {
       )}
 
 <Sidebar variant="inset" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="border-b border-sidebar-border bg-sidebar-primary/30 p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-accent">
+      <SidebarHeader className="border-b border-sidebar-border/70 bg-sidebar-primary/20 p-3">
+          <div className="flex items-center justify-between gap-3 rounded-2xl bg-sidebar-accent/20 p-2">
+            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-accent shadow-sm">
               <svg className="h-5 w-5 text-sidebar-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -635,18 +645,25 @@ export function AppSidebar() {
               </svg>
             </div>
             <div>
-              <h1 className="text-base font-semibold text-sidebar-foreground">
+              <h1 className="truncate text-base font-semibold tracking-tight text-sidebar-foreground">
                 CardBrazil
               </h1>
-              <p className="text-xs text-sidebar-foreground/60">Gestão de pessoas e benefícios</p>
+              <p className="truncate text-[11px] text-sidebar-foreground/60">Gestão de pessoas e benefícios</p>
             </div>
+            <Button variant="ghost" size="icon" className="hidden size-8 shrink-0 text-sidebar-foreground/70 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground md:flex" onClick={toggleSidebar} aria-label="Recolher menu">
+              <PanelLeft className="size-4" />
+            </Button>
+          </div>
+          <div className="relative mt-3">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sidebar-foreground/45" />
+            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Buscar no menu" aria-label="Buscar no menu" className="h-9 w-full rounded-xl border border-sidebar-border/70 bg-sidebar/60 pl-9 pr-3 text-xs text-sidebar-foreground outline-none placeholder:text-sidebar-foreground/45 focus:border-sidebar-ring focus:ring-2 focus:ring-sidebar-ring/20" />
           </div>
         </SidebarHeader>
         <SidebarContent className="px-2 py-2">
           {filteredMenuItems.map((group) => (
             <SidebarGroup key={group.title} className="mb-2">
               <SidebarGroupLabel
-                className="mb-1 flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-sidebar-foreground/60 hover:text-sidebar-foreground/80 transition-colors"
+                className="mb-1 flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/80"
                 onClick={() => toggleGroupExpansion(group.title)}
               >
                 <span>{group.title}</span>
@@ -667,11 +684,11 @@ export function AppSidebar() {
                               <SidebarMenuButton
                                 key={subItem.title}
                                 asChild
-                                className="rounded-md hover:bg-sidebar-primary transition-colors h-8"
+className={`h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-primary/70 ${pathname === subItem.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-sm" : ""}`}
                               >
                                 <a href={subItem.url} className="flex items-center gap-3 px-3 py-1.5">
-                                  <span className="text-sidebar-foreground/60">{subItem.icon || item.icon}</span>
-                                  <span className="text-sm text-sidebar-foreground/80 hover:text-sidebar-foreground transition-colors">
+                                  <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent/20 text-sidebar-foreground/65">{subItem.icon || item.icon}</span>
+                                  <span className="truncate text-sm text-sidebar-foreground/80 transition-colors">
                                     {subItem.title}
                                   </span>
                                 </a>
@@ -681,11 +698,11 @@ export function AppSidebar() {
                         ) : (
                           <SidebarMenuButton
                             asChild
-                            className="rounded-md hover:bg-sidebar-primary transition-colors h-8"
+                            className={`h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-primary/70 ${pathname === item.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-sm" : ""}`}
                           >
                             <a href={item.url} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} className="flex items-center gap-3 px-3 py-1.5">
-                              <span className="text-sidebar-foreground/60">{item.icon}</span>
-                              <span className="text-sm text-sidebar-foreground/80 hover:text-sidebar-foreground transition-colors">
+                              <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent/20 text-sidebar-foreground/65">{item.icon}</span>
+                              <span className="truncate text-sm text-sidebar-foreground/80 transition-colors">
                                 {item.title}
                               </span>
                             </a>
@@ -699,7 +716,12 @@ export function AppSidebar() {
             </SidebarGroup>
           ))}
         </SidebarContent>
-        <SidebarFooter className="border-t border-sidebar-border bg-sidebar p-3" />
+        <SidebarFooter className="border-t border-sidebar-border/70 bg-sidebar-primary/10 p-3">
+          <div className="flex items-center gap-2 rounded-xl border border-sidebar-border/60 bg-sidebar-accent/15 px-3 py-2">
+            <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(52,211,153,0.12)]" />
+            <span className="text-[11px] font-medium text-sidebar-foreground/70">Sistema operacional</span>
+          </div>
+        </SidebarFooter>
       </Sidebar>
 
       {isMobile && state === "expanded" && (

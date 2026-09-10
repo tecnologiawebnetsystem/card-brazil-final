@@ -1,0 +1,16 @@
+{
+  "name": "CardBrazil",
+  "short_name": "CardBrazil",
+  "description": "Gestão financeira e operacional CardBrazil",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b253e",
+  "theme_color": "#ed472f",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

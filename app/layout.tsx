@@ -1,6 +1,8 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Space_Grotesk } from "next/font/google"
+import { PwaRegister } from "@/components/pwa/pwa-register"
+import { InstallPwaPrompt } from "@/components/pwa/install-pwa-prompt"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -19,15 +21,24 @@ export const metadata: Metadata = {
   title: "CardBrazil | Gestão de pessoas e benefícios",
   description: "Plataforma CardBrazil para gestão inteligente de pessoas, propostas e benefícios.",
   generator: "v0.app",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/cardbrazil-icon.svg",
     shortcut: "/cardbrazil-icon.svg",
-    apple: "/cardbrazil-icon.svg",
+    apple: "/icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CardBrazil",
   },
 }
 
 export const viewport: Viewport = {
-  themeColor: "#f5f7fa",
+  themeColor: "#ed472f",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
@@ -40,6 +51,8 @@ export default function RootLayout({
       <body className="font-sans bg-background text-foreground">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>{children}</AuthProvider>
+          <PwaRegister />
+          <InstallPwaPrompt />
         </ThemeProvider>
       </body>
     </html>

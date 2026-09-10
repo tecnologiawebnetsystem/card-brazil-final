@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getAuthContext, authErrorStatus } from "@/lib/api-auth"
 import { query, transaction } from "@/lib/database"
+import { canTransitionCobranca, isCobrancaStatus, parseMoney, COBRANCA_STATUSES } from "@/lib/cobranca-state"
 
-const STATUSES = ["pendente", "em_cobranca", "paga", "encerrada"] as const
+const STATUSES = COBRANCA_STATUSES
 const TYPES = ["amigavel", "administrativa", "extrajudicial", "judicial"] as const
 
 function errorResponse(error: unknown, fallback: string) {
@@ -34,9 +35,9 @@ export async function POST(request: NextRequest) {
     const auth = await getAuthContext()
     if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
     const body = await request.json()
-    const valorOriginal = Number(body.valor_original)
+    const valorOriginal = parseMoney(body.valor_original)
     const tipo = String(body.tipo_cobranca || "amigavel")
-    if (!Number.isFinite(valorOriginal) || valorOriginal <= 0) return NextResponse.json({ error: "valor_original deve ser maior que zero" }, { status: 422 })
+    if (valorOriginal === null || valorOriginal <= 0) return NextResponse.json({ error: "valor_original deve ser maior que zero" }, { status: 422 })
     if (!TYPES.includes(tipo as (typeof TYPES)[number])) return NextResponse.json({ error: "tipo_cobranca inválido" }, { status: 422 })
     const rows = await transaction([{ text: `INSERT INTO cobrancas (administradora_id, beneficiario_id, conta_receber_id, tipo_cobranca, status, valor_original, valor_atual, responsavel_id, canal_contato, observacoes, historico, data_inicio) VALUES ($1,$2,$3,$4,'pendente',$5,$5,$6,$7,$8,$9::jsonb,CURRENT_DATE) RETURNING id`, params: [auth.administradoraId, body.beneficiario_id || null, body.conta_receber_id || null, tipo, valorOriginal, auth.userId, body.canal_contato || "email", body.observacoes || null, JSON.stringify([{ data: new Date().toISOString(), acao: "Início da cobrança", responsavel_id: auth.userId }])] }])
     return NextResponse.json({ message: "Cobrança criada com sucesso", id: rows[0]?.[0]?.id }, { status: 201 })
@@ -49,10 +50,27 @@ export async function PATCH(request: NextRequest) {
     if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
     const body = await request.json()
     const id = Number(body.id)
-    const status = String(body.status)
-    if (!Number.isInteger(id) || id <= 0 || !STATUSES.includes(status as (typeof STATUSES)[number])) return NextResponse.json({ error: "id ou status inválido" }, { status: 422 })
-    const rows = await query(`UPDATE cobrancas SET status = $1, updated_at = NOW(), historico = COALESCE(historico, '[]'::jsonb) || $2::jsonb WHERE id = $3 AND administradora_id = $4 AND deleted_at IS NULL RETURNING id, status`, [status, JSON.stringify([{ data: new Date().toISOString(), acao: `Status alterado para ${status}`, responsavel_id: auth.userId }]), id, auth.administradoraId])
-    if (!rows.length) return NextResponse.json({ error: "Cobrança não encontrada" }, { status: 404 })
+    const status = body.status
+    if (!Number.isInteger(id) || id <= 0 || !isCobrancaStatus(status)) return NextResponse.json({ error: "id ou status inválido" }, { status: 422 })
+
+    const currentRows = await query<{ id: number; status: string }>(
+      `SELECT id, status FROM cobrancas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`,
+      [id, auth.administradoraId],
+    )
+    const current = currentRows[0]
+    if (!current) return NextResponse.json({ error: "Cobrança não encontrada" }, { status: 404 })
+    if (!isCobrancaStatus(current.status)) return NextResponse.json({ error: "Cobrança possui status inconsistente" }, { status: 409 })
+    if (!canTransitionCobranca(current.status, status)) {
+      return NextResponse.json({ error: `Transição inválida: ${current.status} para ${status}` }, { status: 409 })
+    }
+    if (current.status === status) return NextResponse.json({ message: "Status já está atualizado", data: current })
+
+    const evento = JSON.stringify([{ data: new Date().toISOString(), acao: `Status alterado de ${current.status} para ${status}`, responsavel_id: auth.userId }])
+    const rows = await query(
+      `UPDATE cobrancas SET status = $1, updated_at = NOW(), historico = COALESCE(historico, '[]'::jsonb) || $2::jsonb WHERE id = $3 AND administradora_id = $4 AND deleted_at IS NULL AND status = $5 RETURNING id, status`,
+      [status, evento, id, auth.administradoraId, current.status],
+    )
+    if (!rows.length) return NextResponse.json({ error: "Cobrança foi alterada por outra operação" }, { status: 409 })
     return NextResponse.json({ message: "Status atualizado", data: rows[0] })
   } catch (error) { console.error("[v0] Erro ao atualizar cobrança:", error); return errorResponse(error, "Erro ao atualizar cobrança") }
 }

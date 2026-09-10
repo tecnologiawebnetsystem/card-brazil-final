@@ -648,7 +648,6 @@ export function AppSidebar() {
               <h1 className="truncate text-base font-semibold tracking-tight text-sidebar-foreground">
                 CardBrazil
               </h1>
-              <p className="truncate text-[11px] text-sidebar-foreground/60">Gestão de pessoas e benefícios</p>
             </div>
             <Button variant="ghost" size="icon" className="hidden size-8 shrink-0 text-sidebar-foreground/70 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground md:flex" onClick={toggleSidebar} aria-label="Recolher menu">
               <PanelLeft className="size-4" />

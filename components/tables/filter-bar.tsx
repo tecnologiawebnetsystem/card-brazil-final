@@ -51,7 +51,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm">
@@ -64,7 +64,7 @@ export function FilterBar({ filters, onFilterChange }: FilterBarProps) {
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80" align="start">
+          <PopoverContent className="w-[min(20rem,calc(100vw-2rem))]" align="start">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium">Filtros</h4>

@@ -42,15 +42,15 @@ export function TableActions({ data, filename = "export", onExport, onPrint }: T
 
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm" onClick={handleExportExcel}>
+      <Button variant="outline" size="sm" onClick={handleExportExcel} aria-label="Exportar dados para Excel">
         <FileSpreadsheet className="h-4 w-4 mr-2" />
         Excel
       </Button>
-      <Button variant="outline" size="sm" onClick={handleExportPDF}>
+      <Button variant="outline" size="sm" onClick={handleExportPDF} aria-label="Exportar dados para PDF">
         <Download className="h-4 w-4 mr-2" />
         PDF
       </Button>
-      <Button variant="outline" size="sm" onClick={handlePrint}>
+      <Button variant="outline" size="sm" onClick={handlePrint} aria-label="Imprimir dados">
         <Printer className="h-4 w-4 mr-2" />
         Imprimir
       </Button>

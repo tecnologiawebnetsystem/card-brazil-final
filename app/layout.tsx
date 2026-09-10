@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   generator: "v0.app",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/cardbrazil-icon.svg",
-    shortcut: "/cardbrazil-icon.svg",
-    apple: "/icon.png",
+    icon: "/cardbrazil-health-icon.png",
+    shortcut: "/cardbrazil-health-icon.png",
+    apple: "/cardbrazil-health-icon.png",
   },
   appleWebApp: {
     capable: true,
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#ed472f",
+  themeColor: "#0b253e",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

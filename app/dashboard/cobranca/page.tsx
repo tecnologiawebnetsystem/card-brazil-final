@@ -48,7 +48,7 @@ export default function CobrancaPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="container mx-auto flex flex-col gap-6 px-4 py-6 md:px-6">
+      <div className="container mx-auto flex min-w-0 flex-col gap-5 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm text-muted-foreground"><ShieldCheck className="size-4" /> Operação financeira</div>

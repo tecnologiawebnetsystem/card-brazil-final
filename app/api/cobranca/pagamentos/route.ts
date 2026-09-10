@@ -6,6 +6,9 @@ import { parseMoney } from "@/lib/cobranca-state"
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  const permissions = (auth.profile.permissions ?? {}) as Record<string, boolean>
+  const isAdmin = auth.profile.tipo_usuario === "admin" || auth.profile.tipo_usuario === "administrador"
+  if (!isAdmin && permissions["cobranca.create"] === false) return NextResponse.json({ error: "Sem permissão para registrar pagamentos" }, { status: 403 })
 
   try {
     const body = await request.json()

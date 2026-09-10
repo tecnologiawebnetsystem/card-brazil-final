@@ -21,6 +21,16 @@ export async function getAuthContext(): Promise<AuthContext | null> {
   return { userId, administradoraId, profile: profile as unknown as Record<string, unknown> }
 }
 
+export async function requireCobrancaAccess(permission: CadastroPermission = "view") {
+  const context = await getAuthContext()
+  if (!context) throw new Error("UNAUTHENTICATED")
+  const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
+  const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
+  const key = `cobranca.${permission}`
+  if (!isAdmin && permissions[key] === false) throw new Error("FORBIDDEN")
+  return context
+}
+
 export async function requireCadastroAccess(permission: CadastroPermission = "view") {
   const context = await getAuthContext()
   if (!context) throw new Error("UNAUTHENTICATED")

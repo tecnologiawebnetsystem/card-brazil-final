@@ -30,7 +30,16 @@ export async function listPessoas(administradoraId: number, filters: { tipo?: st
     params.push(`%${filters.search}%`)
     conditions.push(`(p.nome_completo ILIKE $${params.length} OR pj.razao_social ILIKE $${params.length} OR pj.nome_fantasia ILIKE $${params.length} OR pf.cpf ILIKE $${params.length} OR pj.cnpj ILIKE $${params.length} OR p.email ILIKE $${params.length} OR p.telefone_principal ILIKE $${params.length} OR p.telefone_secundario ILIKE $${params.length})`)
   }
-  return query(`SELECT ${pessoaProjection} FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE ${conditions.join(" AND ")} ORDER BY p.created_at DESC NULLS LAST`, params)
+  return query(`SELECT ${pessoaProjection},
+    ARRAY_REMOVE(ARRAY[
+      CASE WHEN EXISTS (SELECT 1 FROM administradoras a WHERE a.pessoa_id = p.id) THEN 'Administradora' END,
+      CASE WHEN EXISTS (SELECT 1 FROM operadoras o WHERE o.pessoa_id = p.id) THEN 'Operadora' END,
+      CASE WHEN EXISTS (SELECT 1 FROM estipulantes e WHERE e.pessoa_id = p.id) THEN 'Estipulante' END,
+      CASE WHEN EXISTS (SELECT 1 FROM agenciadores ag WHERE ag.pessoa_id = p.id) THEN 'Agenciador' END,
+      CASE WHEN EXISTS (SELECT 1 FROM corretores c WHERE c.pessoa_id = p.id) THEN 'Corretor' END,
+      CASE WHEN EXISTS (SELECT 1 FROM beneficiarios b WHERE b.pessoa_id = p.id) THEN 'Beneficiário' END
+    ], NULL) AS papeis
+    FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE ${conditions.join(" AND ")} ORDER BY p.created_at DESC NULLS LAST`, params)
 }
 
 export async function getPessoa(id: number, administradoraId: number) {

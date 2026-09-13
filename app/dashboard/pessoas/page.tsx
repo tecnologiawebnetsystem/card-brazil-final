@@ -46,6 +46,7 @@ interface Pessoa {
   celular?: string
   status: "ativo" | "inativo"
   id_administradora: number
+  papeis?: string[]
 }
 
 interface Endereco {
@@ -256,14 +257,17 @@ export default function PessoasPage() {
   }
 
   const abrirDetalhes = async (pessoa: Pessoa) => {
+    setPessoaDetalhes(pessoa)
+    setEnderecosDetalhes([])
+    setContasDetalhes([])
+    setIsDetalhesOpen(true)
     try {
       setLoading(true)
       const detalhes = await carregarDetalhesPessoa(pessoa.id)
 
-      setPessoaDetalhes(detalhes.pessoa)
+      setPessoaDetalhes({ ...pessoa, ...detalhes.pessoa })
       setEnderecosDetalhes(detalhes.enderecos)
       setContasDetalhes(detalhes.contas)
-      setIsDetalhesOpen(true)
     } catch (error) {
       toast({
         title: "Erro",
@@ -1083,8 +1087,9 @@ export default function PessoasPage() {
                     <TableHead>Nome</TableHead>
                     <TableHead>Documento</TableHead>
                     <TableHead>Tipo</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Vínculos</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1134,9 +1139,18 @@ export default function PessoasPage() {
                             {pessoa.status === "ativo" ? "Ativo" : "Inativo"}
                           </Badge>
                         </TableCell>
+                        <TableCell>
+                          <div className="flex max-w-[280px] flex-wrap gap-1">
+                            {(pessoa.papeis?.length ? pessoa.papeis : ["Sem vínculo"]).map((papel) => (
+                              <Badge key={papel} variant={papel === "Sem vínculo" ? "outline" : "secondary"} className="text-xs">
+                                {papel}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => abrirDetalhes(pessoa)}>
+                            <Button type="button" variant="ghost" size="sm" onClick={() => abrirDetalhes(pessoa)}>
                               <Eye className="w-4 h-4 mr-1" />
                               Ver Detalhes
                             </Button>

@@ -19,7 +19,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { administradoraId } = await requireCadastroAccess("update")
+    const { administradoraId } = await requireCadastroAccess("edit")
     const id = Number.parseInt((await params).id, 10)
     const body = await request.json()
     const numeroContrato = String(body.numero_contrato || body.numero || "").trim()

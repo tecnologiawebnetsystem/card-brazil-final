@@ -16,7 +16,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { administradoraId } = await requireCadastroAccess("update")
+    const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
     const naturezaOperadora = String(body.natureza_operadora || "").trim()

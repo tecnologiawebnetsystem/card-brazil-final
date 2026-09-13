@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -26,7 +27,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, X, Loader2, Eye } from "lucide-react"
+import { Search, X, Loader2, Eye, Plus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiFetch, apiMutation } from "@/lib/api-client"
 

@@ -47,7 +47,7 @@ export function CadastroRowActions({
                 <Eye className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Visualizar</TooltipContent>
+            <TooltipContent>Visualizar detalhes</TooltipContent>
           </Tooltip>
         )}
 
@@ -66,7 +66,7 @@ export function CadastroRowActions({
                 <Pencil className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Editar</TooltipContent>
+            <TooltipContent>Editar cadastro</TooltipContent>
           </Tooltip>
         )}
 
@@ -90,7 +90,7 @@ export function CadastroRowActions({
                 <Power className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{toggleLabel}</TooltipContent>
+            <TooltipContent>{isActive ? "Desativar cadastro" : "Ativar cadastro"}</TooltipContent>
           </Tooltip>
         )}
 
@@ -109,7 +109,7 @@ export function CadastroRowActions({
                 <Trash2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Excluir</TooltipContent>
+            <TooltipContent>Excluir cadastro</TooltipContent>
           </Tooltip>
         )}
       </div>

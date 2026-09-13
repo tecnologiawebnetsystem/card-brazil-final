@@ -153,7 +153,8 @@ export default function CorretorPage() {
 
   const loadCorretorData = async (pessoaId: number) => {
     try {
-      const corretor = corretores.find((c) => c.pessoa_id === pessoaId)
+      const corretor = corretores.find((c) => c.pessoa_id === pessoaId) ||
+        (searchResults.find((p) => p.id === pessoaId) as Corretor | undefined)
       if (corretor) {
         setCurrentCorretor(corretor)
         setCorretorData({

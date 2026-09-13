@@ -179,7 +179,8 @@ export default function AgenciadorPage() {
         setSelectedPerson(pessoaCompleta)
         setShowResults(false)
 
-        const agenciadorExistente = agenciadores.find((ag) => ag.pessoa_id === pessoa.id && !ag.deleted_at)
+        const agenciadorExistente = agenciadores.find((ag) => ag.pessoa_id === pessoa.id && !ag.deleted_at) ||
+          (searchResults.find((p) => p.id === pessoa.id) as Agenciador | undefined)
         if (agenciadorExistente) {
           setCurrentAgenciador(agenciadorExistente)
           setAgenciadorData({

@@ -212,7 +212,8 @@ export default function EstipulantePage() {
 
   const loadEstipulanteData = async (pessoaId: number) => {
     try {
-      const estipulante = estipulantes.find((e) => e.pessoa_id === pessoaId)
+      const estipulante = estipulantes.find((e) => e.pessoa_id === pessoaId) ||
+        (searchResults.find((p) => p.id === pessoaId) as Estipulante | undefined)
       if (estipulante) {
         setCurrentEstipulante(estipulante)
         setEstipulanteData({

@@ -21,5 +21,5 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  try { const { administradoraId } = await requireCobrancaAccess("delete"); const { id } = await params; const rows = await query("DELETE FROM cobrancas WHERE id = $1 AND administradora_id = $2 RETURNING id", [Number(id), administradoraId]); return rows[0] ? apiResponse(null, "Cobrança excluída com sucesso") : apiError("Cobrança não encontrada", 404) } catch (error) { return failure(error) }
+  try { const { administradoraId } = await requireCobrancaAccess("delete"); const { id } = await params; const rows = await query("UPDATE cobrancas SET updated_at = CURRENT_TIMESTAMP, status = 'cancelada' WHERE id = $1 AND administradora_id = $2 AND status NOT IN ('paga', 'encerrada') RETURNING id", [Number(id), administradoraId]); return rows[0] ? apiResponse(null, "Cobrança excluída com sucesso") : apiError("Cobrança não encontrada", 404) } catch (error) { return failure(error) }
 }

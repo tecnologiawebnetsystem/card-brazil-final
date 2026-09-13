@@ -125,7 +125,7 @@ export const propostaSchema = z.object({
 })
 
 export const produtoSchema = papelCadastroSchema.extend({
-  plano_id: idSchema,
+  plano_id: idSchema.optional().nullable(),
   nome: z.string().trim().min(2).max(180),
 })
 

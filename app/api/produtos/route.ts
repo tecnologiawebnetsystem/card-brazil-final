@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const operadora_id = searchParams.get("operadora_id")
 
     const params: unknown[] = []
-    const conditions: string[] = [`p.administradora_id = $1`]
+    const conditions: string[] = [`p.administradora_id = $1`, `p.deleted_at IS NULL`]
     params.push(administradoraId)
     if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`status = $${params.length}`) }
     if (operadora_id) { params.push(Number.parseInt(operadora_id, 10)); conditions.push(`p.plano_id IN (SELECT id FROM planos WHERE operadora_id = $${params.length})`) }
@@ -28,10 +28,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { administradoraId } = await requireCadastroAccess("create")
-    const parsed = produtoSchema.safeParse(await request.json())
+    const rawBody = await request.json()
+    const parsed = produtoSchema.safeParse(rawBody)
     if (!parsed.success) return apiError("Dados do produto inválidos", 400, zodFieldErrors(parsed.error))
     const data = parsed.data
-    const rows = await query(`INSERT INTO produtos (administradora_id, plano_id, nome, codigo_produto, valor_mensalidade, idade_minima, idade_maxima, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`, [administradoraId, data.plano_id, data.nome, data.codigo || null, data.valor_mensalidade || null, data.idade_minima || null, data.idade_maxima || null, data.status])
+    const rows = await query(`INSERT INTO produtos (administradora_id, plano_id, nome, codigo_produto, valor_mensalidade, idade_minima, idade_maxima, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`, [administradoraId, data.plano_id ?? rawBody.operadora_id ?? null, data.nome, rawBody.codigo ?? rawBody.codigo_produto ?? null, rawBody.valor_mensalidade ?? rawBody.valor ?? null, data.idade_minima ?? null, data.idade_maxima ?? null, data.status ?? (rawBody.ativo === false ? "inativo" : "ativo")])
     return NextResponse.json(successResponse(rows[0], "Produto criado com sucesso"), { status: 201 })
   } catch (error) {
     const auth = apiAuthError(error)

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const where = ` WHERE ${conditions.join(" AND ")}`
     params.push(limit, offset)
     const propostas = await query(`SELECT p.*, COUNT(*) OVER() AS total_registros FROM propostas p${where.replaceAll("status", "p.status").replaceAll("tipo_plano", "p.tipo_plano").replaceAll("deleted_at", "p.deleted_at")} ORDER BY p.created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
-    return NextResponse.json(propostas)
+    return NextResponse.json({ success: true, data: propostas, pagination: { total: propostas[0]?.total_registros ? Number(propostas[0].total_registros) : propostas.length, limit, offset } })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar propostas:", error)
     return NextResponse.json({ error: "Erro ao buscar propostas" }, { status: 500 })
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) return NextResponse.json({ error: "Dados da proposta inválidos", fields: zodFieldErrors(parsed.error) }, { status: 400 })
     const body = parsed.data
     const rows = await query(`INSERT INTO propostas (administradora_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pendente') RETURNING id`, [administradoraId, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, body.empresa || null, body.numero_funcionarios ?? null, body.tipo_plano, body.valor_proposto ?? null, body.observacoes || null])
-    return NextResponse.json({ message: "Proposta criada com sucesso", id: rows[0].id }, { status: 201 })
+    return NextResponse.json({ success: true, data: rows[0], message: "Proposta criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar proposta:", error)
     return NextResponse.json({ error: "Erro ao criar proposta" }, { status: 500 })

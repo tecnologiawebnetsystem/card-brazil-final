@@ -39,7 +39,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   try {
     const id = Number.parseInt(params.id)
 
-    const rows = await query(`DELETE FROM processos_judiciais WHERE id = $1 RETURNING id`, [id])
+    const rows = await query(`UPDATE processos_judiciais SET deleted_at = CURRENT_TIMESTAMP, status = 'cancelado', updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL RETURNING id`, [id])
     if (!rows.length) return NextResponse.json({ error: "Processo não encontrado" }, { status: 404 })
     return NextResponse.json({ message: "Processo excluído com sucesso" })
   } catch (error: any) {

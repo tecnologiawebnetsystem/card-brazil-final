@@ -1,29 +1,23 @@
 import type { NextRequest } from "next/server"
 import { apiResponse, apiError } from "@/lib/api-response"
-import { query } from "@/lib/database"
 import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
 import { idSchema, pessoaUpdateSchema, zodFieldErrors } from "@/lib/validation"
+import { getPessoa, savePessoaDetalhe } from "@/lib/pessoas-repository"
+import { query } from "@/lib/database"
+
+function normalizePayload(body: Record<string, any>) {
+  return { ...body, nome_completo: body.nome_completo ?? body.nome ?? null, telefone_principal: body.telefone_principal ?? body.telefone ?? null, telefone_secundario: body.telefone_secundario ?? body.celular ?? null, nome_fantasia: body.nome_fantasia ?? body.razao_abreviada ?? null, data_fundacao: body.data_fundacao ?? body.data_abertura ?? null }
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { administradoraId } = await requireCadastroAccess("view")
-    const { id } = await params
-    const pessoaId = idSchema.parse(id)
-    const pessoaRows = await query(`SELECT * FROM pessoas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [pessoaId, administradoraId])
-    const pessoa = pessoaRows[0]
-
-    if (!pessoa) {
-      return apiError("Pessoa não encontrada", 404)
-    }
-
-    const [enderecos, dados_bancarios] = await Promise.all([
-      query(`SELECT * FROM enderecos WHERE pessoa_id = $1 ORDER BY id`, [pessoaId]),
-      query(`SELECT id, pessoa_id, banco_id, agencia, conta, tipo_conta, pix, status FROM dados_bancarios WHERE pessoa_id = $1 ORDER BY id`, [pessoaId]),
-    ])
-
+    const pessoaId = idSchema.parse((await params).id)
+    const pessoa = await getPessoa(pessoaId, administradoraId)
+    if (!pessoa) return apiError("Pessoa não encontrada", 404)
+    const [enderecos, dados_bancarios] = await Promise.all([query(`SELECT * FROM enderecos WHERE pessoa_id = $1 ORDER BY id`, [pessoaId]), query(`SELECT id, pessoa_id, banco_id, agencia, conta, tipo_conta, pix, status FROM dados_bancarios WHERE pessoa_id = $1 ORDER BY id`, [pessoaId])])
     return apiResponse({ ...pessoa, enderecos, dados_bancarios }, "Pessoa encontrada com sucesso")
   } catch (error: any) {
-    console.error("[v0] Erro ao buscar pessoa:", error)
     const authError = apiAuthError(error)
     return authError ? apiError(authError.message, authError.status) : apiError("Não foi possível processar a pessoa", 500)
   }
@@ -32,23 +26,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { administradoraId } = await requireCadastroAccess("edit")
-    const { id } = await params
-    const body = await request.json()
-    const pessoaId = idSchema.parse(id)
-    const parsed = pessoaUpdateSchema.safeParse(body)
+    const pessoaId = idSchema.parse((await params).id)
+    const parsed = pessoaUpdateSchema.safeParse(normalizePayload(await request.json()))
     if (!parsed.success) return apiError("Dados da pessoa inválidos", 400, zodFieldErrors(parsed.error))
-    const safeBody = parsed.data
-    const allowed = ["tipo_pessoa", "nome_completo", "cpf", "rg", "email", "telefone_principal", "telefone_secundario", "telefone_comercial", "data_nascimento", "sexo", "estado_civil", "nome_mae", "nome_pai", "profissao", "renda_mensal", "razao_social", "nome_fantasia", "cnpj", "observacoes", "status"]
+    const safeBody = parsed.data as Record<string, any>
+    const allowed = ["tipo_pessoa", "nome_completo", "email", "telefone_principal", "telefone_secundario", "observacoes", "status", "cpf", "rg", "data_nascimento", "sexo", "estado_civil", "nome_mae", "nome_pai", "profissao", "renda_mensal", "razao_social", "nome_fantasia", "cnpj", "inscricao_estadual", "inscricao_municipal", "data_fundacao"]
     const entries = Object.entries(safeBody).filter(([key]) => allowed.includes(key))
     if (!entries.length) return apiError("Nenhum campo válido para atualizar", 400)
-    const values: unknown[] = entries.map(([, value]) => value)
-    const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
+    const values = entries.map(([, value]) => value)
     values.push(pessoaId, administradoraId)
-    const rows = await query(`UPDATE pessoas SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length - 1} AND administradora_id = $${values.length} AND deleted_at IS NULL RETURNING *`, values)
+    const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
+    const rows = await query(`UPDATE pessoas SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${values.length - 1} AND administradora_id = $${values.length} AND deleted_at IS NULL RETURNING id`, values)
     if (!rows.length) return apiError("Pessoa não encontrada", 404)
-    return apiResponse(rows[0], "Pessoa atualizada com sucesso")
+    await savePessoaDetalhe(pessoaId, safeBody)
+    return apiResponse(await getPessoa(pessoaId, administradoraId), "Pessoa atualizada com sucesso")
   } catch (error: any) {
-    console.error("[v0] Erro ao atualizar pessoa:", error)
     const authError = apiAuthError(error)
     return authError ? apiError(authError.message, authError.status) : apiError("Não foi possível processar a pessoa", 500)
   }
@@ -57,13 +49,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { administradoraId } = await requireCadastroAccess("delete")
-    const { id } = await params
-    const pessoaId = idSchema.parse(id)
+    const pessoaId = idSchema.parse((await params).id)
     const rows = await query(`UPDATE pessoas SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL RETURNING id`, [pessoaId, administradoraId])
     if (!rows.length) return apiError("Pessoa não encontrada", 404)
     return apiResponse(null, "Pessoa excluída com sucesso")
   } catch (error: any) {
-    console.error("[v0] Erro ao excluir pessoa:", error)
     const authError = apiAuthError(error)
     return authError ? apiError(authError.message, authError.status) : apiError("Não foi possível processar a pessoa", 500)
   }

@@ -30,7 +30,7 @@ export function InstallPwaPrompt() {
     <Card className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-50 shadow-lg md:inset-x-auto md:right-6 md:w-96">
       <CardContent className="flex items-center gap-3 p-4">
         <Download className="size-5 shrink-0 text-primary" aria-hidden="true" />
-        <p className="flex-1 text-sm leading-6">Instale o CardBrazil para acessar mais rápido pelo celular.</p>
+        <p className="flex-1 text-sm leading-6">Instale o CAI de Brasil para acessar mais rápido pelo celular.</p>
         <Button size="sm" onClick={async () => { await event.prompt(); setVisible(false) }}>Instalar</Button>
         <Button variant="ghost" size="icon" aria-label="Fechar aviso de instalação" onClick={() => setVisible(false)}>
           <X data-icon="inline-start" aria-hidden="true" />

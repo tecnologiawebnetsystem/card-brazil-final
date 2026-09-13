@@ -18,8 +18,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: "CardBrazil | Gestão de pessoas e benefícios",
-  description: "Plataforma CardBrazil para gestão inteligente de pessoas, propostas e benefícios.",
+  title: "CAI de Brasil | Gestão de planos de saúde",
+  description: "Plataforma CAI de Brasil para administração inteligente de planos e seguros de saúde.",
   generator: "v0.app",
   manifest: "/manifest.webmanifest",
   icons: {

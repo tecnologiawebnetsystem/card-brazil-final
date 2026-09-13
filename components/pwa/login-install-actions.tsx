@@ -33,12 +33,12 @@ export function LoginInstallActions() {
   if (isInstalled) return null
 
   return (
-    <section className="mt-7 border-t border-border/70 pt-6" aria-label="Instalar CardBrazil no celular">
+    <section className="mt-7 border-t border-border/70 pt-6" aria-label="Instalar CAI de Brasil no celular">
       <div className="flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Smartphone /></span>
         <div className="min-w-0">
           <h3 className="font-semibold">Acesse pelo celular</h3>
-          <p className="mt-1 text-sm leading-5 text-muted-foreground">Instale o CardBrazil pelo navegador para usar como aplicativo.</p>
+          <p className="mt-1 text-sm leading-5 text-muted-foreground">Instale o CAI de Brasil pelo navegador para usar como aplicativo.</p>
         </div>
       </div>
       <div className="mt-4 grid min-w-0 gap-2 sm:grid-cols-2">

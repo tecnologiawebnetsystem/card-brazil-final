@@ -124,7 +124,7 @@ type MenuItem = {
   subItems?: MenuItem[]
 }
 
-type MenuGroup = { title: string; items: MenuItem[] }
+type MenuGroup = { title: string; items: MenuItem[]; hidden?: boolean }
 
 const menuItems: MenuGroup[] = [
   {

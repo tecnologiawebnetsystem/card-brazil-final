@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 import { requireCadastroAccess } from "@/lib/api-auth"
+import { propostaSchema, zodFieldErrors } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,12 +32,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { administradoraId } = await requireCadastroAccess("create")
-    const body = await request.json()
-
-    if (!body.nome_proponente || !body.cpf_cnpj || !body.tipo_plano) {
-      return NextResponse.json({ error: "nome_proponente, cpf_cnpj e tipo_plano são obrigatórios" }, { status: 400 })
-    }
-    const rows = await query(`INSERT INTO propostas (administradora_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pendente') RETURNING id`, [administradoraId, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, body.empresa || null, body.numero_funcionarios || null, body.tipo_plano, body.valor_proposto || null, body.observacoes || null])
+    const parsed = propostaSchema.safeParse(await request.json())
+    if (!parsed.success) return NextResponse.json({ error: "Dados da proposta inválidos", fields: zodFieldErrors(parsed.error) }, { status: 400 })
+    const body = parsed.data
+    const rows = await query(`INSERT INTO propostas (administradora_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pendente') RETURNING id`, [administradoraId, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, body.empresa || null, body.numero_funcionarios ?? null, body.tipo_plano, body.valor_proposto ?? null, body.observacoes || null])
     return NextResponse.json({ message: "Proposta criada com sucesso", id: rows[0].id }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar proposta:", error)

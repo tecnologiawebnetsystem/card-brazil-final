@@ -30,7 +30,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const parsed = pessoaUpdateSchema.safeParse(normalizePayload(await request.json()))
     if (!parsed.success) return apiError("Dados da pessoa inválidos", 400, zodFieldErrors(parsed.error))
     const safeBody = parsed.data as Record<string, any>
-    const allowed = ["tipo_pessoa", "nome_completo", "email", "telefone_principal", "telefone_secundario", "observacoes", "status", "cpf", "rg", "data_nascimento", "sexo", "estado_civil", "nome_mae", "nome_pai", "profissao", "renda_mensal", "razao_social", "nome_fantasia", "cnpj", "inscricao_estadual", "inscricao_municipal", "data_fundacao"]
+    const allowed = ["tipo_pessoa", "nome_completo", "email", "telefone_principal", "telefone_secundario", "telefone_comercial", "foto_url", "observacoes", "status"]
     const entries = Object.entries(safeBody).filter(([key]) => allowed.includes(key))
     if (!entries.length) return apiError("Nenhum campo válido para atualizar", 400)
     const values = entries.map(([, value]) => value)

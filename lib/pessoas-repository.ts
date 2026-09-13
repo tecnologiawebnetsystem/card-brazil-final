@@ -62,7 +62,3 @@ export async function savePessoaDetalhe(id: number, pessoa: Record<string, any>)
   }
 }
 
-export async function backfillPessoaDetalhe() {
-  await query(`INSERT INTO pessoas_fisicas (pessoa_id, cpf, rg, data_nascimento, sexo, estado_civil, nome_mae, nome_pai, profissao, renda_mensal) SELECT id, cpf, rg, data_nascimento, sexo, estado_civil, nome_mae, nome_pai, profissao, renda_mensal FROM pessoas WHERE tipo_pessoa = 'fisica' ON CONFLICT (pessoa_id) DO NOTHING`)
-  await query(`INSERT INTO pessoas_juridicas (pessoa_id, cnpj, razao_social, nome_fantasia, inscricao_estadual, inscricao_municipal, data_fundacao) SELECT id, cnpj, razao_social, nome_fantasia, inscricao_estadual, inscricao_municipal, data_fundacao FROM pessoas WHERE tipo_pessoa = 'juridica' ON CONFLICT (pessoa_id) DO NOTHING`)
-}

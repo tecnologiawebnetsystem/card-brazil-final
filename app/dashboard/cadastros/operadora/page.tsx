@@ -247,14 +247,14 @@ export default function OperadoraPage() {
   }
 
   const handleCreate = () => {
-    setSelectedOperadora(null)
-    setFormData({
+  setSelectedOperadora(null)
+  setShowNewPersonModal(true)
+  setFormData({
       pessoa_id: 0,
       natureza_operadora: "",
       registro_ans: "",
       ativo: true,
     })
-    setShowModal(true)
   }
 
   const handleEdit = (operadora: Operadora) => {

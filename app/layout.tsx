@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Space_Grotesk } from "next/font/google"
 import { PwaRegister } from "@/components/pwa/pwa-register"
-import { InstallPwaPrompt } from "@/components/pwa/install-pwa-prompt"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -52,7 +51,6 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>{children}</AuthProvider>
           <PwaRegister />
-          <InstallPwaPrompt />
         </ThemeProvider>
       </body>
     </html>

@@ -8,12 +8,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
-  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   AlertDialog,
@@ -28,7 +26,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, X, Loader2, Pencil, Trash2, Eye } from "lucide-react"
+import { Search, X, Loader2, Eye } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiFetch, apiMutation } from "@/lib/api-client"
 
@@ -129,7 +127,7 @@ export default function PessoasPage() {
     { banco: "", agencia: "", tipo_conta: "", conta: "", digito: "", principal: true },
   ])
 
-  const ordemCadastro = "Cadastre a pessoa com pelo menos um endereço e uma conta bancária. Depois, use essa pessoa nos cadastros de Operadora, Administradora, Estipulante, Agenciador ou Corretor."
+  const ordemCadastro = "Consulte pessoas por nome, CPF ou CNPJ. O mesmo registro pode estar vinculado a uma ou mais entidades, como Operadora, Administradora, Estipulante, Agenciador, Corretor ou Beneficiário."
 
   useEffect(() => {
     carregarPessoas()
@@ -559,6 +557,11 @@ export default function PessoasPage() {
   </Alert>
   </div>
 
+          <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-right">
+            <p className="text-sm font-medium text-foreground">Consulta centralizada</p>
+            <p className="text-xs text-muted-foreground">Novos registros são criados dentro do cadastro da entidade.</p>
+          </div>
+
           <Dialog
             open={isModalOpen}
             onOpenChange={(open) => {
@@ -566,12 +569,6 @@ export default function PessoasPage() {
               if (!open) limparFormulario()
             }}
           >
-            <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Plus className="w-4 h-4 mr-2" />
-                Nova Pessoa
-              </Button>
-            </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{isEditMode ? "Editar Pessoa" : "Cadastrar Nova Pessoa"}</DialogTitle>
@@ -1142,12 +1139,7 @@ export default function PessoasPage() {
                               <Eye className="w-4 h-4 mr-1" />
                               Ver Detalhes
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={() => abrirEdicao(pessoa)}>
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => confirmarExclusao(pessoa)}>
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
+
                           </div>
                         </TableCell>
                       </TableRow>

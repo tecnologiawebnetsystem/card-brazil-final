@@ -124,7 +124,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="border-t border-[#262626] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[#a3a3a3] font-medium">{"© 2024 CAI de Brasil. Todos os direitos reservados."}</p>
+          <p className="text-[#a3a3a3] font-medium">{"© 2024 CardBrazil. Todos os direitos reservados."}</p>
           <div className="flex gap-8 font-medium text-[#a3a3a3]">
             <span className="hover:text-[#008080] transition-colors cursor-pointer">ANS: 12345</span>
           </div>

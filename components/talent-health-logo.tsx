@@ -24,7 +24,7 @@ function LogoIcon({ size = 40, glow = false }: { size?: number; glow?: boolean }
       xmlns="http://www.w3.org/2000/svg"
       className={cn(glow && "drop-shadow-[0_0_12px_rgba(13,91,145,0.45)]")}
       role="img"
-      aria-label="Símbolo CAI de Brasil"
+      aria-label="Símbolo CardBrazil"
     >
       <defs>
         <linearGradient id="cai-logo-gradient" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
@@ -60,7 +60,7 @@ export function TalentHealthLogo({
     return (
       <div className={cn("inline-flex flex-col", className)}>
         <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#0878be] via-[#006666] to-[#0878be] bg-clip-text text-transparent")}>
-          CAI de Brasil
+          CardBrazil
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium")}>
           Administradora de Saúde
@@ -86,7 +86,7 @@ export function TalentHealthLogo({
       <LogoIcon size={s.icon} glow={glow} />
       <div className="flex flex-col">
         <span className={cn(s.text, "font-bold tracking-tight bg-gradient-to-r from-[#0878be] via-[#006666] to-[#0878be] bg-clip-text text-transparent leading-none")}>
-          CAI de Brasil
+          CardBrazil
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium mt-0.5")}>
           Administradora de Saúde

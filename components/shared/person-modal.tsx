@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Search, Loader2, CheckCircle2 } from "lucide-react"
 
 interface Endereco {
   id: number
@@ -57,6 +58,10 @@ export function PersonModal({
   const [formData, setFormData] = useState<any>({})
   const [enderecos, setEnderecos] = useState<Endereco[]>([])
   const [dadosBancarios, setDadosBancarios] = useState<DadoBancario[]>([])
+  const [documento, setDocumento] = useState("")
+  const [consultandoDocumento, setConsultandoDocumento] = useState(false)
+  const [documentoConsultado, setDocumentoConsultado] = useState(false)
+  const [pessoaEncontrada, setPessoaEncontrada] = useState(false)
 
   // Estados para formulários de endereço
   const [showEnderecoForm, setShowEnderecoForm] = useState(false)
@@ -169,6 +174,44 @@ export function PersonModal({
     setDadosBancarios((prev) => prev.filter((b) => b.id !== id))
   }
 
+  const consultarDocumento = async () => {
+    const normalizado = documento.replace(/\\D/g, "")
+    if (normalizado.length !== 11 && normalizado.length !== 14) return
+    setConsultandoDocumento(true)
+    try {
+      const response = await fetch(`/api/pessoas/lookup?documento=${normalizado}`)
+      const result = await response.json()
+      if (result.found && result.data) {
+        const pessoa = result.data
+        const tipo = pessoa.tipo_pessoa === "juridica" ? "juridica" : "fisica"
+        setPersonType(tipo)
+        setPessoaEncontrada(true)
+        setFormData((prev: any) => ({
+          ...prev,
+          nome: pessoa.nome_completo || pessoa.nome || "",
+          cpf: pessoa.cpf || "",
+          rg: pessoa.rg || "",
+          dataNascimento: pessoa.data_nascimento || "",
+          razaoSocial: pessoa.razao_social || "",
+          razaoAbreviada: pessoa.nome_fantasia || "",
+          cnpj: pessoa.cnpj || "",
+          dataAbertura: pessoa.data_fundacao || "",
+          inscricaoEstadual: pessoa.inscricao_estadual || "",
+          inscricaoMunicipal: pessoa.inscricao_municipal || "",
+        }))
+        setEnderecos(Array.isArray(pessoa.enderecos) ? pessoa.enderecos : [])
+        setDadosBancarios(Array.isArray(pessoa.dados_bancarios) ? pessoa.dados_bancarios : [])
+      } else {
+        setPessoaEncontrada(false)
+        setPersonType(normalizado.length === 14 ? "juridica" : "fisica")
+        setFormData((prev: any) => ({ ...prev, cpf: normalizado.length === 11 ? documento : prev.cpf, cnpj: normalizado.length === 14 ? documento : prev.cnpj }))
+      }
+      setDocumentoConsultado(true)
+    } finally {
+      setConsultandoDocumento(false)
+    }
+  }
+
   const handleSave = () => {
     const newPerson = {
       id: Date.now(),
@@ -212,6 +255,25 @@ export function PersonModal({
           <DialogDescription className="text-base">{description}</DialogDescription>{" "}
           {/* Aumentando tamanho da descrição */}
         </DialogHeader>
+        {!documentoConsultado && (
+          <Card className="mb-6 border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base"><Search className="h-4 w-4" />Identifique a pessoa antes do cadastro</CardTitle>
+              <CardContent className="px-0 pb-0">
+                <p className="mb-4 text-sm text-muted-foreground">Informe o CPF ou CNPJ para reaproveitar os dados existentes de endereço e conta bancária.</p>
+                <div className="flex gap-2">
+                  <Input value={documento} onChange={(event) => setDocumento(event.target.value)} placeholder="CPF ou CNPJ" inputMode="numeric" />
+                  <Button type="button" onClick={consultarDocumento} disabled={consultandoDocumento}>
+                    {consultandoDocumento ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Consultar
+                  </Button>
+                </div>
+              </CardContent>
+            </CardHeader>
+          </Card>
+        )}
+        {documentoConsultado && (
+        <>
+          {pessoaEncontrada && <div className="mb-4 flex items-center gap-2 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700"><CheckCircle2 className="h-4 w-4" />Pessoa encontrada. Os dados compartilhados foram carregados.</div>}
         <Tabs defaultValue="dados" className="w-full">
           <TabsList className={`grid w-full grid-cols-${tabsConfig.length} mb-6`}>
             {" "}
@@ -620,13 +682,10 @@ export function PersonModal({
             </TabsContent>
           )}
         </Tabs>
-        <div className="flex justify-end gap-2 mt-6">
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSave}>Salvar Pessoa</Button>
-        </div>
+        </>
+        )}
       </DialogContent>
+
     </Dialog>
   )
 }

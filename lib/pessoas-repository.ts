@@ -38,6 +38,11 @@ export async function getPessoa(id: number, administradoraId: number) {
   return rows[0] || null
 }
 
+export async function getPessoaByDocumento(documento: string) {
+  const rows = await query(`SELECT ${pessoaProjection}, COALESCE((SELECT json_agg(e ORDER BY e.id) FROM enderecos e WHERE e.pessoa_id = p.id), '[]'::json) AS enderecos, COALESCE((SELECT json_agg(b ORDER BY b.id) FROM dados_bancarios b WHERE b.pessoa_id = p.id), '[]'::json) AS dados_bancarios FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE p.deleted_at IS NULL AND (regexp_replace(COALESCE(pf.cpf, ''), '\\D', '', 'g') = $1 OR regexp_replace(COALESCE(pj.cnpj, ''), '\\D', '', 'g') = $1) LIMIT 1`, [documento])
+  return rows[0] || null
+}
+
 export async function createPessoa(administradoraId: number, pessoa: Record<string, any>) {
   const rows = await transaction([
     { text: `INSERT INTO pessoas (administradora_id, tipo_pessoa, nome_completo, email, telefone_principal, telefone_secundario, telefone_comercial, foto_url, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id`, params: [administradoraId, pessoa.tipo_pessoa, pessoa.nome_completo || null, pessoa.email || null, pessoa.telefone_principal || null, pessoa.telefone_secundario || null, pessoa.telefone_comercial || null, pessoa.foto_url || null, pessoa.observacoes || null, pessoa.status || "ativo"] },

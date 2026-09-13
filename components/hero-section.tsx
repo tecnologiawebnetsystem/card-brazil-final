@@ -10,7 +10,7 @@ export function HeroSection() {
         <TalentHealthLogo variant="full" size="lg" glow />
         <Link
           href="/sobre"
-          className="flex items-center gap-2 px-4 py-2 bg-[#141414] border border-[#262626] rounded-xl text-sm font-medium text-[#a3a3a3] hover:text-[#008080] hover:border-[#008080]/30 transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 bg-slate-950 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 hover:text-sky-300 hover:border-sky-500/50 transition-all duration-200"
         >
           <Info className="w-4 h-4" />
           Sobre Nos
@@ -19,40 +19,40 @@ export function HeroSection() {
 
       {/* Main heading */}
       <div className="space-y-6 mb-10">
-        <h2 className="text-4xl lg:text-5xl font-bold text-[#f5f5f5] leading-tight text-balance">
+        <h2 className="text-4xl lg:text-5xl font-bold text-slate-100 leading-tight text-balance">
           Cuidando da sua saude com{" "}
           <span className="text-gradient">seguranca</span> e{" "}
           <span className="text-gradient">confianca</span>
         </h2>
 
-        <p className="text-lg text-[#a3a3a3] leading-relaxed max-w-xl">
+        <p className="text-lg text-slate-300 leading-relaxed max-w-xl">
           Oferecemos solucoes completas em seguro de saude, garantindo o melhor atendimento e
           cobertura para voce e sua familia. Nossa plataforma digital facilita o acesso aos seus beneficios.
         </p>
       </div>
 
       {/* Stats bar */}
-      <div className="bg-[#141414] border border-[#262626] rounded-2xl p-6 mb-10 glow-red">
-        <h3 className="text-lg font-bold text-[#f5f5f5] mb-4">Por que escolher a CardBrazil?</h3>
+      <div className="bg-slate-950 border border-slate-700 rounded-2xl p-6 mb-10 glow-red">
+        <h3 className="text-lg font-bold text-slate-100 mb-4">Por que escolher a CardBrazil?</h3>
         <div className="grid grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-[#008080] mb-1">500K+</div>
-            <p className="text-sm text-[#a3a3a3]">Beneficiarios ativos</p>
+            <div className="text-3xl font-bold text-[#0284c7] mb-1">500K+</div>
+            <p className="text-sm text-slate-300">Beneficiarios ativos</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-[#006666] mb-1">15K+</div>
-            <p className="text-sm text-[#a3a3a3]">Medicos credenciados</p>
+            <div className="text-3xl font-bold text-[#0369a1] mb-1">15K+</div>
+            <p className="text-sm text-slate-300">Medicos credenciados</p>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-[#1e3a5f] mb-1">98%</div>
-            <p className="text-sm text-[#a3a3a3]">Satisfacao dos clientes</p>
+            <p className="text-sm text-slate-300">Satisfacao dos clientes</p>
           </div>
         </div>
       </div>
 
       {/* Benefits */}
       <div className="space-y-4 mb-10">
-        <h3 className="text-lg font-semibold text-[#f5f5f5]">Principais beneficios:</h3>
+        <h3 className="text-lg font-semibold text-slate-100">Principais beneficios:</h3>
         <div className="grid grid-cols-1 gap-2.5">
           {[
             "Consultas medicas sem carencia",
@@ -62,8 +62,8 @@ export function HeroSection() {
             "Telemedicina e consultas online",
           ].map((benefit) => (
             <div key={benefit} className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-[#008080] rounded-full shrink-0" />
-              <span className="text-[#a3a3a3] text-sm">{benefit}</span>
+              <div className="w-2 h-2 bg-[#0284c7] rounded-full shrink-0" />
+              <span className="text-slate-300 text-sm">{benefit}</span>
             </div>
           ))}
         </div>
@@ -72,14 +72,14 @@ export function HeroSection() {
       {/* Feature cards */}
       <div className="grid grid-cols-2 gap-4">
         {[
-          { icon: Heart, title: "Cobertura Completa", desc: "Atendimento medico", color: "#008080" },
-          { icon: Users, title: "Rede Credenciada", desc: "Milhares de medicos", color: "#006666" },
+          { icon: Heart, title: "Cobertura Completa", desc: "Atendimento medico", color: "#0284c7" },
+          { icon: Users, title: "Rede Credenciada", desc: "Milhares de medicos", color: "#0369a1" },
           { icon: Shield, title: "Seguranca Total", desc: "Dados protegidos", color: "#1e3a5f" },
-          { icon: Stethoscope, title: "Qualidade", desc: "Certificacao ANS", color: "#008080" },
+          { icon: Stethoscope, title: "Qualidade", desc: "Certificacao ANS", color: "#0284c7" },
         ].map((feature) => (
           <div
             key={feature.title}
-            className="flex items-center gap-3 p-4 bg-[#141414] border border-[#262626] rounded-xl hover:border-[#008080]/30 transition-all duration-300"
+            className="flex items-center gap-3 p-4 bg-slate-950 border border-slate-700 rounded-xl hover:border-[#0284c7]/30 transition-all duration-300"
           >
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
@@ -88,8 +88,8 @@ export function HeroSection() {
               <feature.icon className="w-5 h-5" style={{ color: feature.color }} />
             </div>
             <div>
-              <h4 className="font-semibold text-[#f5f5f5] text-sm">{feature.title}</h4>
-              <p className="text-xs text-[#a3a3a3]">{feature.desc}</p>
+              <h4 className="font-semibold text-slate-100 text-sm">{feature.title}</h4>
+              <p className="text-xs text-slate-300">{feature.desc}</p>
             </div>
           </div>
         ))}

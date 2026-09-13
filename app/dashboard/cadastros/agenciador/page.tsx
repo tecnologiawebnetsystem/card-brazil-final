@@ -509,7 +509,7 @@ export default function AgenciadorPage() {
           ) : (
             <Button onClick={() => setShowNewPersonModal(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Pessoa
+              Novo Agenciador
             </Button>
           )}
         </div>
@@ -812,7 +812,7 @@ export default function AgenciadorPage() {
           isOpen={showNewPersonModal}
           onClose={() => setShowNewPersonModal(false)}
           onSave={handleNewPersonSave}
-          title="Cadastrar Nova Pessoa"
+          title="Cadastrar Novo Agenciador"
           description="Cadastre uma nova pessoa no sistema"
           allowedTypes={["fisica", "juridica"]}
           showAddressTabs={true}

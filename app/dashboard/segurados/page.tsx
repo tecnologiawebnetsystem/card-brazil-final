@@ -941,12 +941,12 @@ export default function PessoasPage() {
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Nova Pessoa
+Novo Beneficiário
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Cadastrar Nova Pessoa</DialogTitle>
+                  <DialogTitle>Cadastrar Novo Beneficiário</DialogTitle>
                   <DialogDescription>Preencha os dados completos da nova pessoa</DialogDescription>
                 </DialogHeader>
 

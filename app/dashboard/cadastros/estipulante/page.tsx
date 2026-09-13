@@ -646,7 +646,7 @@ export default function EstipulantePage() {
           ) : (
             <Button onClick={() => setShowNewPersonModal(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Pessoa
+              Novo Estipulante
             </Button>
           )}
         </div>
@@ -1070,7 +1070,7 @@ export default function EstipulantePage() {
           isOpen={showNewPersonModal}
           onClose={() => setShowNewPersonModal(false)}
           onSave={handleNewPersonSave}
-          title="Cadastrar Nova Pessoa Jurídica"
+          title="Cadastrar Novo Estipulante"
           description="Cadastre uma nova pessoa jurídica no sistema"
           allowedTypes={["juridica"]}
           showAddressTabs={true}

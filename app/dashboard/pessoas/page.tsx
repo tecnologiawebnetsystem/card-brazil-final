@@ -27,7 +27,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, X, Loader2, Eye, Plus } from "lucide-react"
+import { Search, X, Loader2, Eye, Plus, Pencil } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiFetch, apiMutation } from "@/lib/api-client"
 
@@ -139,7 +139,7 @@ export default function PessoasPage() {
     try {
       setLoading(true)
       const data = await apiFetch<Pessoa[]>("/api/pessoas")
-      const pessoasCarregadas = (Array.isArray(data) ? data : []).map((pessoa: Pessoa & { nome_completo?: string; situacao?: string; ativo?: boolean }) => ({
+      const pessoasCarregadas = (Array.isArray(data) ? data : Array.isArray((data as any)?.data) ? (data as any).data : []).map((pessoa: Pessoa & { nome_completo?: string; situacao?: string; ativo?: boolean }) => ({
         ...pessoa,
         nome: pessoa.nome || pessoa.nome_completo || "",
         status: (pessoa.status || pessoa.situacao || (pessoa.ativo === false ? "inativo" : "ativo")) as Pessoa["status"],
@@ -1150,10 +1150,14 @@ export default function PessoasPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button type="button" variant="ghost" size="sm" onClick={() => abrirDetalhes(pessoa)}>
-                              <Eye className="w-4 h-4 mr-1" />
-                              Ver Detalhes
-                            </Button>
+  <Button type="button" variant="ghost" size="sm" onClick={() => abrirDetalhes(pessoa)}>
+  <Eye className="w-4 h-4 mr-1" />
+  Ver Detalhes
+  </Button>
+  <Button type="button" variant="ghost" size="sm" onClick={() => abrirEdicao(pessoa)}>
+  <Pencil className="w-4 h-4 mr-1" />
+  Editar
+  </Button>
 
                           </div>
                         </TableCell>

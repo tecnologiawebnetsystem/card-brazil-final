@@ -22,7 +22,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
-  const rows = await query("DELETE FROM contas_pagar WHERE id = $1 RETURNING id", [Number.parseInt(params.id, 10)])
+  const rows = await query("UPDATE contas_pagar SET deleted_at = CURRENT_TIMESTAMP, status = 'cancelada', updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL RETURNING id", [Number.parseInt(params.id, 10)])
   if (!rows.length) return NextResponse.json({ error: "Conta a pagar não encontrada" }, { status: 404 })
   return NextResponse.json({ message: "Conta a pagar excluída com sucesso" })
 }

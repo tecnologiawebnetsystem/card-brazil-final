@@ -5,7 +5,7 @@ import { query } from "@/lib/database"
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: rawId } = await params
-    const rows = await query(`SELECT * FROM produtos WHERE id = $1`, [Number.parseInt(rawId, 10)])
+    const rows = await query(`SELECT * FROM produtos WHERE id = $1 AND deleted_at IS NULL`, [Number.parseInt(rawId, 10)])
     const produto = rows[0]
     if (!produto) return NextResponse.json(errorResponse("Produto não encontrado"), { status: 404 })
     return NextResponse.json(successResponse(produto))
@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: rawId } = await params
-    const rows = await query(`DELETE FROM produtos WHERE id = $1 RETURNING id`, [Number.parseInt(rawId, 10)])
+    const rows = await query(`UPDATE produtos SET deleted_at = CURRENT_TIMESTAMP, status = 'inativo', updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL RETURNING id`, [Number.parseInt(rawId, 10)])
     if (!rows.length) return NextResponse.json(errorResponse("Produto não encontrado"), { status: 404 })
     return NextResponse.json(successResponse(null, "Produto excluído com sucesso"))
   } catch (error) {

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const historico = await query(`SELECT id, acao, dados_anteriores, dados_novos, created_at FROM auditoria WHERE tabela = 'propostas' AND registro_id = $1 ORDER BY created_at DESC`, [propostaId])
-    return NextResponse.json({ ...proposta, historico })
+    return NextResponse.json({ success: true, data: { ...proposta, historico } })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar proposta:", error)
     return NextResponse.json({ error: "Erro ao buscar proposta", details: error.message }, { status: 500 })
@@ -134,7 +134,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const updatedRows = await query(`${sql}, updated_at = CURRENT_TIMESTAMP RETURNING *`, updateParams)
     if (!updatedRows[0]) return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
-    return NextResponse.json({ data: updatedRows[0], message: "Proposta atualizada com sucesso" })
+    return NextResponse.json({ success: true, data: updatedRows[0], message: "Proposta atualizada com sucesso" })
   } catch (error: any) {
     console.error("[v0] Erro ao atualizar proposta:", error)
     return NextResponse.json({ error: "Erro ao atualizar proposta", details: error.message }, { status: 500 })
@@ -148,9 +148,9 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     // Soft delete
     const sql = `UPDATE propostas SET deleted_at = NOW(), updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL`
 
-    await query(sql, [id])
-
-    return NextResponse.json({ message: "Proposta excluída com sucesso" })
+    const rows = await query(`${sql} RETURNING id`, [id])
+    if (!rows.length) return NextResponse.json({ success: false, message: "Proposta não encontrada" }, { status: 404 })
+    return NextResponse.json({ success: true, data: null, message: "Proposta excluída com sucesso" })
   } catch (error: any) {
     console.error("[v0] Erro ao excluir proposta:", error)
     return NextResponse.json({ error: "Erro ao excluir proposta", details: error.message }, { status: 500 })

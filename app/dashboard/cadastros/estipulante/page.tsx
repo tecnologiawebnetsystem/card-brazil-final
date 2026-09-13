@@ -247,7 +247,12 @@ export default function EstipulantePage() {
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
-  setSearchResults(results)
+  if (results.length === 0 && data.success !== true) {
+          const pessoasResponse = await fetch("/api/pessoas")
+          const pessoasData = await pessoasResponse.json()
+          results = (pessoasData.data || []).filter((p: any) => p.papeis?.includes("Estipulante")).map((p: any) => ({ ...p, id: p.id, nome: p.nome || p.nome_completo || p.razao_social || "", status: p.status || "ativo" }))
+        }
+        setSearchResults(results)
         setShowResults(true)
         setSelectedPerson(null)
       } else {
@@ -721,7 +726,12 @@ export default function EstipulantePage() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Dados do Estipulante Selecionado</CardTitle>
+                <div className="flex items-center gap-2">
+                    <CardTitle>Dados do Estipulante Selecionado</CardTitle>
+                    <Button variant="outline" size="sm" onClick={() => selectedPerson && handleEditPerson(selectedPerson)}>
+                      Editar
+                    </Button>
+                  </div>
                 <Button variant="outline" onClick={() => setSelectedPerson(null)}>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

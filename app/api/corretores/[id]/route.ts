@@ -12,7 +12,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   try {
     const { administradoraId } = await requireCadastroAccess("view")
     const { id } = await params
-    const rows = await query("SELECT * FROM corretores WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [Number(id), administradoraId])
+    const rows = await query("SELECT *, status AS situacao FROM corretores WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [Number(id), administradoraId])
     return rows[0] ? NextResponse.json(successResponse(rows[0])) : NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 })
   } catch (error) { const result = responseError(error); return NextResponse.json(result.body, { status: result.status }) }
 }
@@ -22,8 +22,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
-    const allowedFields = ["registro_susep", "comissao_percentual", "situacao"]
-    const entries = Object.entries(body).filter(([key]) => allowedFields.includes(key))
+    const normalizedBody = { ...body, status: body.status ?? body.situacao }
+    const allowedFields = ["registro_susep", "comissao_percentual", "status"]
+    const entries = Object.entries(normalizedBody).filter(([key]) => allowedFields.includes(key))
     if (!entries.length) return NextResponse.json(errorResponse("Nenhum campo válido para atualizar"), { status: 400 })
     const values = entries.map(([, value]) => value)
     const updates = entries.map(([key], index) => `${key} = $${index + 1}`)

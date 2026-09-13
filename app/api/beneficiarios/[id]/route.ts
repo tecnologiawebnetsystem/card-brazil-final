@@ -28,7 +28,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { administradoraId } = await requireCadastroAccess("update")
+    const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
     const allowed = ["plano_id", "contrato_id", "numero_carteirinha", "parentesco", "data_inclusao", "data_exclusao", "valor_mensalidade", "status"]

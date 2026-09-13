@@ -4,7 +4,7 @@ import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { administradoraId } = await requireCadastroAccess("update")
+    const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
     const rows = await query(

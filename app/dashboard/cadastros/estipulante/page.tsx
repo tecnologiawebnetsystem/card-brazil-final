@@ -247,7 +247,12 @@ export default function EstipulantePage() {
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
-  setSearchResults(results)
+  if (results.length === 0 && data.success !== true) {
+          const pessoasResponse = await fetch("/api/pessoas")
+          const pessoasData = await pessoasResponse.json()
+          results = (pessoasData.data || []).filter((p: any) => p.papeis?.includes("Estipulante")).map((p: any) => ({ ...p, id: p.id, nome: p.nome || p.nome_completo || p.razao_social || "", status: p.status || "ativo" }))
+        }
+        setSearchResults(results)
         setShowResults(true)
         setSelectedPerson(null)
       } else {

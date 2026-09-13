@@ -139,7 +139,7 @@ export default function PessoasPage() {
     try {
       setLoading(true)
       const data = await apiFetch<Pessoa[]>("/api/pessoas")
-      const pessoasCarregadas = (Array.isArray(data) ? data : []).map((pessoa: Pessoa & { nome_completo?: string; situacao?: string; ativo?: boolean }) => ({
+      const pessoasCarregadas = (Array.isArray(data) ? data : Array.isArray((data as any)?.data) ? (data as any).data : []).map((pessoa: Pessoa & { nome_completo?: string; situacao?: string; ativo?: boolean }) => ({
         ...pessoa,
         nome: pessoa.nome || pessoa.nome_completo || "",
         status: (pessoa.status || pessoa.situacao || (pessoa.ativo === false ? "inativo" : "ativo")) as Pessoa["status"],

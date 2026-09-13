@@ -177,7 +177,7 @@ export default function CorretorPage() {
       const response = await fetch(`/api/corretores`)
       const data = await response.json()
 
-      if (data.success) {
+      if (data.success || Array.isArray(data.data)) {
         let results = (data.data || []).map((registro: any) => ({
           ...registro,
           id: registro.pessoa_id || registro.id,
@@ -188,7 +188,12 @@ export default function CorretorPage() {
           status: registro.situacao || (registro.ativo === false ? "inativo" : "ativo"),
         }))
 
-  setSearchResults(results)
+        if (results.length === 0) {
+          const pessoasResponse = await fetch("/api/pessoas")
+          const pessoasData = await pessoasResponse.json()
+          results = (pessoasData.data || []).filter((p: any) => p.papeis?.includes("Corretor")).map((p: any) => ({ ...p, id: p.id, nome: p.nome || p.nome_completo || p.razao_social || "", status: p.status || "ativo" }))
+        }
+        setSearchResults(results)
         setShowResults(true)
         setSelectedPerson(null)
       } else {

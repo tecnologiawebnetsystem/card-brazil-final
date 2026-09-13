@@ -153,7 +153,8 @@ export default function CorretorPage() {
 
   const loadCorretorData = async (pessoaId: number) => {
     try {
-      const corretor = corretores.find((c) => c.pessoa_id === pessoaId)
+      const corretor = corretores.find((c) => c.pessoa_id === pessoaId) ||
+        (searchResults.find((p) => p.id === pessoaId) as Corretor | undefined)
       if (corretor) {
         setCurrentCorretor(corretor)
         setCorretorData({
@@ -539,7 +540,7 @@ export default function CorretorPage() {
           ) : (
             <Button onClick={() => setShowNewPersonModal(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Pessoa
+              Novo Corretor
             </Button>
           )}
         </div>
@@ -903,7 +904,7 @@ export default function CorretorPage() {
           isOpen={showNewPersonModal}
           onClose={() => setShowNewPersonModal(false)}
           onSave={handleNewPersonSave}
-          title="Cadastrar Nova Pessoa"
+          title="Cadastrar Novo Corretor"
           description="Cadastre uma nova pessoa no sistema"
           allowedTypes={["fisica", "juridica"]}
           showAddressTabs={true}

@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { PersonModal } from "@/components/shared/person-modal"
 
 interface PessoaOption {
   id: number
@@ -44,6 +45,7 @@ export default function AdministradoraPage() {
   const [administradora, setAdministradora] = useState<Administradora | null>(null)
   const [pessoas, setPessoas] = useState<PessoaOption[]>([])
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showNewPersonModal, setShowNewPersonModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -210,8 +212,19 @@ export default function AdministradoraPage() {
     }
   }
 
-  const handleCreateNew = () => {
-    setFormData({
+const handleCreateNew = () => {
+  setShowNewPersonModal(true)
+}
+
+const handleNewPersonSave = (personData: any) => {
+  setPessoas((prev) => [...prev, personData])
+  setShowNewPersonModal(false)
+  setShowEditModal(true)
+  setFormData((prev) => ({ ...prev, pessoa_id: Number(personData.id) }))
+}
+
+const handleCreateNewLegacy = () => {
+  setFormData({
       pessoa_id: 0,
       razao_social: "",
       nome_fantasia: "",
@@ -358,6 +371,18 @@ export default function AdministradoraPage() {
           </CardContent>
         </Card>
       )}
+
+      <PersonModal
+        isOpen={showNewPersonModal}
+        onClose={() => setShowNewPersonModal(false)}
+        onSave={handleNewPersonSave}
+        title="Cadastrar Nova Pessoa Jurídica"
+        description="Informe o CNPJ e os dados da pessoa que exercerá o papel de administradora"
+        allowedTypes={["juridica"]}
+        showAddressTabs={true}
+        showBankTabs={true}
+        className="max-w-6xl w-full"
+      />
 
       {/* Modal de Edição/Cadastro */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>

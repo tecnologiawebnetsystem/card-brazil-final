@@ -179,7 +179,8 @@ export default function AgenciadorPage() {
         setSelectedPerson(pessoaCompleta)
         setShowResults(false)
 
-        const agenciadorExistente = agenciadores.find((ag) => ag.pessoa_id === pessoa.id && !ag.deleted_at)
+        const agenciadorExistente = agenciadores.find((ag) => ag.pessoa_id === pessoa.id && !ag.deleted_at) ||
+          (searchResults.find((p) => p.id === pessoa.id) as Agenciador | undefined)
         if (agenciadorExistente) {
           setCurrentAgenciador(agenciadorExistente)
           setAgenciadorData({
@@ -508,7 +509,7 @@ export default function AgenciadorPage() {
           ) : (
             <Button onClick={() => setShowNewPersonModal(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Pessoa
+              Novo Agenciador
             </Button>
           )}
         </div>
@@ -811,7 +812,7 @@ export default function AgenciadorPage() {
           isOpen={showNewPersonModal}
           onClose={() => setShowNewPersonModal(false)}
           onSave={handleNewPersonSave}
-          title="Cadastrar Nova Pessoa"
+          title="Cadastrar Novo Agenciador"
           description="Cadastre uma nova pessoa no sistema"
           allowedTypes={["fisica", "juridica"]}
           showAddressTabs={true}

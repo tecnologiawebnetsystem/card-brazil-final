@@ -212,7 +212,8 @@ export default function EstipulantePage() {
 
   const loadEstipulanteData = async (pessoaId: number) => {
     try {
-      const estipulante = estipulantes.find((e) => e.pessoa_id === pessoaId)
+      const estipulante = estipulantes.find((e) => e.pessoa_id === pessoaId) ||
+        (searchResults.find((p) => p.id === pessoaId) as Estipulante | undefined)
       if (estipulante) {
         setCurrentEstipulante(estipulante)
         setEstipulanteData({
@@ -645,7 +646,7 @@ export default function EstipulantePage() {
           ) : (
             <Button onClick={() => setShowNewPersonModal(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Pessoa
+              Novo Estipulante
             </Button>
           )}
         </div>
@@ -1069,7 +1070,7 @@ export default function EstipulantePage() {
           isOpen={showNewPersonModal}
           onClose={() => setShowNewPersonModal(false)}
           onSave={handleNewPersonSave}
-          title="Cadastrar Nova Pessoa Jurídica"
+          title="Cadastrar Novo Estipulante"
           description="Cadastre uma nova pessoa jurídica no sistema"
           allowedTypes={["juridica"]}
           showAddressTabs={true}

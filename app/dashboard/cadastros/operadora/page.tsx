@@ -247,14 +247,14 @@ export default function OperadoraPage() {
   }
 
   const handleCreate = () => {
-    setSelectedOperadora(null)
-    setFormData({
+  setSelectedOperadora(null)
+  setShowNewPersonModal(true)
+  setFormData({
       pessoa_id: 0,
       natureza_operadora: "",
       registro_ans: "",
       ativo: true,
     })
-    setShowModal(true)
   }
 
   const handleEdit = (operadora: Operadora) => {
@@ -616,10 +616,9 @@ export default function OperadoraPage() {
   }
 
   const handleNewPersonSave = (personData: any) => {
-    console.log("Nova pessoa cadastrada:", personData)
-    // Aqui você precisaria chamar uma API para salvar a nova pessoa e depois recarregar a lista de pessoas
-    // setPessoas([...pessoas, { id: Date.now(), ...personData }]); // Exemplo de atualização local
-    setShowNewPersonModal(false)
+  setShowNewPersonModal(false)
+  setFormData((prev) => ({ ...prev, pessoa_id: Number(personData.id) }))
+  setShowModal(true)
   }
 
   const handleSaveEndereco = (enderecoData: any) => {
@@ -911,17 +910,19 @@ export default function OperadoraPage() {
         {/* Módulos de Pessoa, Endereço e Banco que parecem ter sido removidos da lógica principal */}
         {/* Mantidos para referência, mas a lógica de interação foi alterada */}
 
-        <PersonModal
-          isOpen={showNewPersonModal}
-          onClose={() => setShowNewPersonModal(false)}
+        {showNewPersonModal && (
+          <PersonModal
+            isOpen={true}
+            onClose={() => setShowNewPersonModal(false)}
           onSave={handleNewPersonSave}
-          title="Cadastrar Nova Pessoa Jurídica"
+          title="Cadastrar Nova Operadora"
           description="Cadastre uma nova pessoa jurídica no sistema"
           allowedTypes={["juridica"]}
           showAddressTabs={true}
           showBankTabs={true}
-          className="max-w-6xl w-full"
-        />
+            className="max-w-6xl w-full"
+          />
+        )}
 
         {/* Diálogo de cadastro/edição de operadora que foi substituído pelo `showModal` */}
         {/* Dialog open={showOperadoraModal} onOpenChange={setShowOperadoraModal}>

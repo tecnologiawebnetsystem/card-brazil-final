@@ -89,7 +89,6 @@ export function ChatBot() {
     "/dashboard/cadastros/produtos": "Produtos - Gestão de produtos de saúde",
     "/dashboard/cadastros/planos": "Planos - Cadastro de planos de saúde",
     "/dashboard/cadastros/planos-faixa": "Planos Faixa - Gestão de faixas etárias",
-    "/dashboard/cadastros/convenios": "Convênios - Cadastro de convênios médicos",
     "/dashboard/cobranca": "Cobrança - Gestão de boletos e cobranças",
     "/dashboard/financeiro": "Financeiro - Controle financeiro e fluxo de caixa",
     "/dashboard/sistema/usuarios": "Usuários - Gestão de usuários do sistema",

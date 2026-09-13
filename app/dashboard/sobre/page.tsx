@@ -111,7 +111,6 @@ export default function SobrePage() {
                 <li>• Estipulantes</li>
                 <li>• Corretores e agenciadores</li>
                 <li>• Planos e produtos</li>
-                <li>• Convênios</li>
               </ul>
             </div>
 

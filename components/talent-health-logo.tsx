@@ -22,46 +22,20 @@ function LogoIcon({ size = 40, glow = false }: { size?: number; glow?: boolean }
       viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn(glow && "drop-shadow-[0_0_12px_rgba(0,128,128,0.5)]")}
-      aria-hidden="true"
+      className={cn(glow && "drop-shadow-[0_0_12px_rgba(13,91,145,0.45)]")}
+      role="img"
+      aria-label="Símbolo CardBrazil"
     >
       <defs>
-        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0878be" />
-          <stop offset="100%" stopColor="#006666" />
-        </linearGradient>
-        <linearGradient id="logo-accent" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#1e3a5f" />
-          <stop offset="100%" stopColor="#2563eb" />
+        <linearGradient id="cai-logo-gradient" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#1C8AC4" />
+          <stop offset="1" stopColor="#0B4D83" />
         </linearGradient>
       </defs>
-      {/* Hexagon shape */}
-      <path
-        d="M32 4L56 18V46L32 60L8 46V18L32 4Z"
-        fill="url(#logo-gradient)"
-        stroke="#006666"
-        strokeWidth="1.5"
-      />
-      {/* Inner hexagon border */}
-      <path
-        d="M32 10L50 21V43L32 54L14 43V21L32 10Z"
-        fill="none"
-        stroke="rgba(255,255,255,0.15)"
-        strokeWidth="1"
-      />
-      {/* Stylized "T" for Tecnologia */}
-      <path
-        d="M20 24H44V29H35V46H29V29H20V24Z"
-        fill="#ffffff"
-      />
-      {/* Connection dots - blue accent (CardBrazil concept) */}
-      <circle cx="12" cy="18" r="2.5" fill="url(#logo-accent)" />
-      <circle cx="52" cy="18" r="2.5" fill="url(#logo-accent)" />
-      <circle cx="12" cy="46" r="2.5" fill="url(#logo-accent)" />
-      <circle cx="52" cy="46" r="2.5" fill="url(#logo-accent)" />
-      {/* Connection lines */}
-      <line x1="14" y1="18" x2="20" y2="24" stroke="url(#logo-accent)" strokeWidth="1" opacity="0.5" />
-      <line x1="50" y1="18" x2="44" y2="24" stroke="url(#logo-accent)" strokeWidth="1" opacity="0.5" />
+      <path d="M32 4 54 16.5v25L32 54 10 41.5v-25L32 4Z" fill="url(#cai-logo-gradient)" />
+      <path d="M32 10 48 19v20L32 48l-16-9V19l16-9Z" stroke="#D9F2FF" strokeOpacity=".4" strokeWidth="1.5" />
+      <path d="M17 32h8l3.2-6.5L33 39l3.8-8H47" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
+      <path d="M32 18v4M32 42v4M18 24l3 1.7M43 38.3l3 1.7" stroke="#BCEBFF" strokeLinecap="round" strokeWidth="2" />
     </svg>
   )
 }
@@ -89,7 +63,7 @@ export function TalentHealthLogo({
           CardBrazil
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium")}>
-          Sistema de Saude
+          Administradora de Saúde
         </span>
       </div>
     )
@@ -115,7 +89,7 @@ export function TalentHealthLogo({
           CardBrazil
         </span>
         <span className={cn(s.sub, "text-[#a3a3a3] tracking-widest uppercase font-medium mt-0.5")}>
-          Sistema de Saude
+          Administradora de Saúde
         </span>
       </div>
     </div>

@@ -1930,7 +1930,7 @@ const swaggerSpec = {
 // Rotas descobertas no projeto e ainda sem bloco específico recebem uma descrição
 // operacional explícita, mantendo o inventário OpenAPI completo e navegável.
 const additionalApiRoutes: Record<string, string[]> = {
-  "/api/configuracoes/usuarios": ["get"], "/api/convenios": ["get", "post"], "/api/convenios/{id}": ["put", "delete"],
+  "/api/configuracoes/usuarios": ["get"],
   "/api/financeiro/multas-juros/configuracoes": ["get", "post"], "/api/financeiro/multas-juros/configuracoes/{id}": ["get", "put", "delete"],
   "/api/planos-faixas": ["get", "post"], "/api/planos-faixas/{id}": ["put", "delete"],
   "/api/propostas/analise": ["get", "post"], "/api/propostas/aprovar": ["post"], "/api/propostas/pendentes": ["get"], "/api/propostas/rejeitar": ["post"], "/api/propostas/relatorio": ["get"],

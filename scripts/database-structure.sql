@@ -260,26 +260,6 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   CONSTRAINT `fk_produtos_operadora` FOREIGN KEY (`operadora_id`) REFERENCES `operadoras` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tabela de Convenios
-CREATE TABLE IF NOT EXISTS `convenios` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `operadora_id` INT UNSIGNED NOT NULL,
-  `pessoa_id` INT UNSIGNED NOT NULL COMMENT 'Prestador/Hospital/Clinica',
-  `codigo_convenio` VARCHAR(30) NULL,
-  `tipo_prestador` ENUM('hospital', 'clinica', 'laboratorio', 'consultorio', 'outros') NOT NULL,
-  `especialidades` TEXT NULL,
-  `data_inicio` DATE NULL,
-  `data_fim` DATE NULL,
-  `ativo` TINYINT(1) DEFAULT 1,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  INDEX `idx_operadora_id` (`operadora_id`),
-  INDEX `idx_pessoa_id` (`pessoa_id`),
-  CONSTRAINT `fk_convenios_operadora` FOREIGN KEY (`operadora_id`) REFERENCES `operadoras` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_convenios_pessoa` FOREIGN KEY (`pessoa_id`) REFERENCES `pessoas` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- =============================================================================
 -- 4. TABELAS DE BENEFICIARIOS
 -- =============================================================================

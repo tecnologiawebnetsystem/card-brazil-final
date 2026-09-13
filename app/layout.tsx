@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Space_Grotesk } from "next/font/google"
 import { PwaRegister } from "@/components/pwa/pwa-register"
-import { InstallPwaPrompt } from "@/components/pwa/install-pwa-prompt"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -18,8 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: "CardBrazil | Gestão de pessoas e benefícios",
-  description: "Plataforma CardBrazil para gestão inteligente de pessoas, propostas e benefícios.",
+  title: "CardBrazil | Gestão de planos de saúde",
+  description: "Plataforma CardBrazil para administração inteligente de planos e seguros de saúde.",
   generator: "v0.app",
   manifest: "/manifest.webmanifest",
   icons: {
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0b253e",
+  themeColor: "#061a2e",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -52,7 +51,6 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>{children}</AuthProvider>
           <PwaRegister />
-          <InstallPwaPrompt />
         </ThemeProvider>
       </body>
     </html>

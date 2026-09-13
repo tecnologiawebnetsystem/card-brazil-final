@@ -1,7 +1,7 @@
 {
-  "name": "CardBrazil",
-  "short_name": "CardBrazil",
-  "description": "Gestão financeira e operacional CardBrazil",
+  "name": "CAI de Brasil",
+  "short_name": "CAI Brasil",
+  "description": "Gestão de planos e seguros de saúde CAI de Brasil",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",

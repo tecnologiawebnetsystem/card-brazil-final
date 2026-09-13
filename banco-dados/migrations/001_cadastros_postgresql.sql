@@ -8,7 +8,6 @@ CREATE INDEX IF NOT EXISTS idx_corretores_administradora_status ON corretores (a
 CREATE INDEX IF NOT EXISTS idx_agenciadores_administradora_status ON agenciadores (administradora_id, status) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_planos_administradora_status ON planos (administradora_id, status) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_produtos_administradora_status ON produtos (administradora_id, status) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_convenios_administradora_status ON convenios (administradora_id, status) WHERE deleted_at IS NULL;
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_pessoas_cpf_administradora_ativo ON pessoas (administradora_id, cpf) WHERE cpf IS NOT NULL AND deleted_at IS NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_pessoas_cnpj_administradora_ativo ON pessoas (administradora_id, cnpj) WHERE cnpj IS NOT NULL AND deleted_at IS NULL;

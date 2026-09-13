@@ -10,7 +10,7 @@ export function Footer() {
           <div className="space-y-6">
             <TalentHealthLogo variant="full" size="md" />
             <p className="text-[#a3a3a3] leading-relaxed">
-              Administradora de Seguro de Saude comprometida com o seu bem-estar e tranquilidade.
+              Administradora de planos e seguros de saúde comprometida com proteção, cuidado e tranquilidade.
             </p>
             <div className="flex gap-3">
               {[

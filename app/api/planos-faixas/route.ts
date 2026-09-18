@@ -4,12 +4,17 @@ import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
 import { apiError } from "@/lib/api-response"
 
 export async function GET(request: NextRequest) {
-  const { administradoraId } = await requireCadastroAccess("view")
-  const planoId = request.nextUrl.searchParams.get("plano_id")
-  const params = planoId ? [administradoraId, Number(planoId)] : [administradoraId]
-  const where = planoId ? " WHERE p.administradora_id = $1 AND f.plano_id = $2" : " WHERE p.administradora_id = $1"
-  const rows = await query(`SELECT f.*, p.nome AS plano_nome FROM planos_faixas_etarias f JOIN planos p ON p.id = f.plano_id${where} ORDER BY f.plano_id, f.id`, params)
-  return NextResponse.json({ success: true, data: rows })
+  try {
+    const { administradoraId } = await requireCadastroAccess("view")
+    const planoId = request.nextUrl.searchParams.get("plano_id")
+    const params = planoId ? [administradoraId, Number(planoId)] : [administradoraId]
+    const where = planoId ? " WHERE p.administradora_id = $1 AND p.deleted_at IS NULL AND f.plano_id = $2" : " WHERE p.administradora_id = $1 AND p.deleted_at IS NULL"
+    const rows = await query(`SELECT f.*, p.nome AS plano_nome FROM planos_faixas_etarias f JOIN planos p ON p.id = f.plano_id${where} ORDER BY f.plano_id, f.id`, params)
+    return NextResponse.json({ success: true, data: rows })
+  } catch (error) {
+    const auth = apiAuthError(error)
+    return auth ? apiError(auth.message, auth.status) : apiError("Não foi possível carregar as faixas etárias", 500)
+  }
 }
 
 export async function POST(request: NextRequest) {

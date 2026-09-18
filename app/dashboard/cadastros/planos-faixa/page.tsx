@@ -126,8 +126,8 @@ export default function PlanosFaixaPage() {
 
   const totalPlanos = planosFaixa.length
   const planosAtivos = planosFaixa.filter((p) => p.ativo).length
-  const valorMedio = planosFaixa.reduce((acc, p) => acc + p.valor, 0) / planosFaixa.length
-  const reajusteMedio = planosFaixa.reduce((acc, p) => acc + p.percentualReajuste, 0) / planosFaixa.length
+  const valorMedio = planosFaixa.length > 0 ? planosFaixa.reduce((acc, p) => acc + p.valor, 0) / planosFaixa.length : 0
+  const reajusteMedio = planosFaixa.length > 0 ? planosFaixa.reduce((acc, p) => acc + p.percentualReajuste, 0) / planosFaixa.length : 0
 
   return (
     <div className="container mx-auto px-6 py-6">

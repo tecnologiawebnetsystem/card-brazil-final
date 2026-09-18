@@ -7,7 +7,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     const { administradoraId } = await requireCadastroAccess("view")
     const { id } = await params
     const rows = await query(
-      `SELECT op.*, (op.status = 'ativo') AS ativo,
+      `SELECT op.*, op.tipo_operadora AS natureza_operadora, (op.status = 'ativo') AS ativo,
               COALESCE(p.nome_completo, pj.nome_fantasia, pj.razao_social) AS pessoa_nome,
               pf.cpf AS pessoa_cpf,
               pj.cnpj AS pessoa_cnpj
@@ -30,11 +30,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
-    const naturezaOperadora = String(body.natureza_operadora || "").trim()
+    const naturezaOperadora = String(body.natureza_operadora || body.tipo_operadora || "").trim()
     const registroANS = String(body.registro_ans || "").trim()
     if (!naturezaOperadora || !registroANS) return apiError("Natureza e registro ANS são obrigatórios", 400)
     const rows = await query(
-      `UPDATE operadoras SET natureza_operadora = $1, registro_ans = $2, status = $3, updated_at = NOW()
+      `UPDATE operadoras SET tipo_operadora = $1, registro_ans = $2, status = $3, updated_at = NOW()
        WHERE id = $4 AND administradora_id = $5 AND deleted_at IS NULL
        RETURNING *, (status = 'ativo') AS ativo`,
       [naturezaOperadora, registroANS, body.ativo === false ? "inativo" : "ativo", Number(id), administradoraId],

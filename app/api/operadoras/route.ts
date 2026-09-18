@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       conditions.push(`status = $${params.length}`)
     }
     const operadoras = await query(
-      `SELECT op.*, (op.status = 'ativo') AS ativo,
+      `SELECT op.*, op.tipo_operadora AS natureza_operadora, (op.status = 'ativo') AS ativo,
               COALESCE(p.nome_completo, pj.nome_fantasia, pj.razao_social) AS pessoa_nome,
               pf.cpf AS pessoa_cpf,
               pj.cnpj AS pessoa_cnpj
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     if (!pessoaId || !naturezaOperadora || !registroANS) return apiError("Pessoa, natureza e registro ANS são obrigatórios", 400)
     await exigirDependenciasCadastro(pessoaId)
     const rows = await query(
-      `INSERT INTO operadoras (pessoa_id, administradora_id, natureza_operadora, registro_ans, status)
+      `INSERT INTO operadoras (pessoa_id, administradora_id, tipo_operadora, registro_ans, status)
        VALUES ($1, $2, $3, $4, $5) RETURNING *, (status = 'ativo') AS ativo`,
       [pessoaId, administradoraId, naturezaOperadora, registroANS, status],
     )

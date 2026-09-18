@@ -499,10 +499,10 @@ export default function AgenciadorPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-4 flex items-end justify-between border-b border-border/70 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Agenciadores</h1>
-            <p className="text-muted-foreground">Gerencie os agenciadores do sistema</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Agenciadores</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Gerencie os agenciadores do sistema</p>
           </div>
           {selectedPerson ? (
             <Button variant="outline" onClick={handleBackToSearch}>
@@ -521,9 +521,8 @@ export default function AgenciadorPage() {
 
         {!selectedPerson && (
           <Card>
-            <CardHeader>
-              <CardTitle>Agenciadores cadastrados</CardTitle>
-              <CardDescription>Busque, visualize, edite e altere a situação dos agenciadores.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 px-5 py-4 sm:px-6">
+              <CardTitle className="text-base">Agenciadores cadastrados</CardTitle>
             </CardHeader>
             <CardContent>
               <CadastroTable

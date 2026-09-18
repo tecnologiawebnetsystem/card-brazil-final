@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -51,6 +51,7 @@ export default function ProdutosPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [produtoToDelete, setProdutoToDelete] = useState<number | null>(null)
+  const hasLoadedProdutos = useRef(false)
   const [formData, setFormData] = useState({
     codigo: "",
     nome: "",
@@ -63,7 +64,9 @@ export default function ProdutosPage() {
   })
 
   useEffect(() => {
-    loadProdutos()
+    if (hasLoadedProdutos.current) return
+    hasLoadedProdutos.current = true
+    void loadProdutos()
   }, [])
 
   useEffect(() => {
@@ -91,7 +94,7 @@ export default function ProdutosPage() {
   const loadProdutos = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch("/api/produtos")
+      const response = await fetch("/api/produtos", { credentials: "include", cache: "no-store" })
       const data = await response.json()
 
       if (data.success) {

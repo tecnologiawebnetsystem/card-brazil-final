@@ -128,7 +128,6 @@ export default function PessoasPage() {
     { banco: "", agencia: "", tipo_conta: "", conta: "", digito: "", principal: true },
   ])
 
-  const ordemCadastro = "Consulte pessoas por nome, CPF ou CNPJ. O mesmo registro pode estar vinculado a uma ou mais entidades, como Operadora, Administradora, Estipulante, Agenciador, Corretor ou Beneficiário."
 
   useEffect(() => {
     carregarPessoas()
@@ -552,16 +551,9 @@ export default function PessoasPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 lg:px-8">
-        <header className="mb-5 flex flex-col gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0">
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Cadastros</p>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">Pessoas</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Gerencie todas as pessoas do sistema</p>
-          </div>
-          <div className="flex max-w-xl items-center gap-2 text-xs leading-5 text-muted-foreground sm:justify-end sm:text-right">
-            <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 font-medium text-primary">Consulta centralizada</span>
-            <span>{ordemCadastro}</span>
-          </div>
+        <header className="mb-4 border-b border-border/70 pb-4">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">Pessoas</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Gerencie todas as pessoas do sistema</p>
         </header>
 
           <Dialog
@@ -1019,21 +1011,20 @@ export default function PessoasPage() {
             </DialogContent>
           </Dialog>
 
-        <Card className="mb-5 overflow-hidden shadow-sm">
-          <CardHeader className="px-5 pb-3 pt-4 sm:px-6">
-            <CardTitle className="text-base">Pesquisar Pessoa</CardTitle>
-            <CardDescription className="text-sm">Digite o nome, CPF ou CNPJ para pesquisar</CardDescription>
-          </CardHeader>
-          <CardContent className="px-5 pb-5 sm:px-6">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Input
-                placeholder="Digite aqui..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1"
-              />
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Search className="w-4 h-4 mr-2" />
+        <Card className="mb-4 overflow-hidden shadow-sm">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, CPF ou CNPJ..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-9 pl-9"
+                  aria-label="Buscar pessoas por nome, CPF ou CNPJ"
+                />
+              </div>
+              <Button className="h-9 bg-primary px-4 text-primary-foreground hover:bg-primary/90">
                 Pesquisar
               </Button>
             </div>

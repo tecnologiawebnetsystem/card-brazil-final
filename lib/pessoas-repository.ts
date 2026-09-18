@@ -32,12 +32,11 @@ export async function listPessoas(administradoraId: number, filters: { tipo?: st
   }
   return query(`SELECT ${pessoaProjection},
     ARRAY_REMOVE(ARRAY[
-      CASE WHEN EXISTS (SELECT 1 FROM administradoras a WHERE a.pessoa_id = p.id) THEN 'Administradora' END,
-      CASE WHEN EXISTS (SELECT 1 FROM operadoras o WHERE o.pessoa_id = p.id) THEN 'Operadora' END,
-      CASE WHEN EXISTS (SELECT 1 FROM estipulantes e WHERE e.pessoa_id = p.id) THEN 'Estipulante' END,
-      CASE WHEN EXISTS (SELECT 1 FROM agenciadores ag WHERE ag.pessoa_id = p.id) THEN 'Agenciador' END,
-      CASE WHEN EXISTS (SELECT 1 FROM corretores c WHERE c.pessoa_id = p.id) THEN 'Corretor' END,
-      CASE WHEN EXISTS (SELECT 1 FROM beneficiarios b WHERE b.pessoa_id = p.id) THEN 'Beneficiário' END
+      CASE WHEN EXISTS (SELECT 1 FROM operadoras o WHERE o.pessoa_id = p.id AND o.administradora_id = p.administradora_id) THEN 'Operadora' END,
+      CASE WHEN EXISTS (SELECT 1 FROM estipulantes e WHERE e.pessoa_id = p.id AND e.administradora_id = p.administradora_id) THEN 'Estipulante' END,
+      CASE WHEN EXISTS (SELECT 1 FROM agenciadores ag WHERE ag.pessoa_id = p.id AND ag.administradora_id = p.administradora_id) THEN 'Agenciador' END,
+      CASE WHEN EXISTS (SELECT 1 FROM corretores c WHERE c.pessoa_id = p.id AND c.administradora_id = p.administradora_id) THEN 'Corretor' END,
+      CASE WHEN EXISTS (SELECT 1 FROM beneficiarios b WHERE b.pessoa_id = p.id AND b.administradora_id = p.administradora_id) THEN 'Beneficiário' END
     ], NULL) AS papeis
     FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE ${conditions.join(" AND ")} ORDER BY p.created_at DESC NULLS LAST`, params)
 }

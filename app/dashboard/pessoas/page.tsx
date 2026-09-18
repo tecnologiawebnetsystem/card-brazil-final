@@ -25,7 +25,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, X, Loader2, Eye, Plus, Pencil } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -129,7 +128,6 @@ export default function PessoasPage() {
     { banco: "", agencia: "", tipo_conta: "", conta: "", digito: "", principal: true },
   ])
 
-  const ordemCadastro = "Consulte pessoas por nome, CPF ou CNPJ. O mesmo registro pode estar vinculado a uma ou mais entidades, como Operadora, Administradora, Estipulante, Agenciador, Corretor ou Beneficiário."
 
   useEffect(() => {
     carregarPessoas()
@@ -552,20 +550,11 @@ export default function PessoasPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-6">
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Pessoas</h1>
-  <p className="text-muted-foreground mt-1">Gerencie todas as pessoas do sistema</p>
-  <Alert className="mt-4 max-w-3xl">
-    <AlertDescription>{ordemCadastro}</AlertDescription>
-  </Alert>
-  </div>
-
-          <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-right">
-            <p className="text-sm font-medium text-foreground">Consulta centralizada</p>
-            <p className="text-xs text-muted-foreground">Novos registros são criados dentro do cadastro da entidade.</p>
-          </div>
+      <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 lg:px-8">
+        <header className="mb-4 border-b border-border/70 pb-4">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">Pessoas</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Gerencie todas as pessoas do sistema</p>
+        </header>
 
           <Dialog
             open={isModalOpen}
@@ -1021,32 +1010,30 @@ export default function PessoasPage() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Pesquisar Pessoa</CardTitle>
-            <CardDescription>Digite o nome, CPF ou CNPJ para pesquisar</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
-              <Input
-                placeholder="Digite aqui..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1"
-              />
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Search className="w-4 h-4 mr-2" />
+        <Card className="mb-4 overflow-hidden shadow-sm">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, CPF ou CNPJ..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-9 pl-9"
+                  aria-label="Buscar pessoas por nome, CPF ou CNPJ"
+                />
+              </div>
+              <Button className="h-9 bg-primary px-4 text-primary-foreground hover:bg-primary/90">
                 Pesquisar
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        <Card className="overflow-hidden shadow-sm">
+          <CardHeader className="px-5 pb-3 pt-4 sm:px-6">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <CardTitle>Todas as Pessoas Cadastradas</CardTitle>
                 <CardDescription>{filteredPessoas.length} pessoas encontradas</CardDescription>
@@ -1095,7 +1082,7 @@ export default function PessoasPage() {
                 <TableBody>
                   {filteredPessoas.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
                         Nenhuma pessoa encontrada
                       </TableCell>
                     </TableRow>

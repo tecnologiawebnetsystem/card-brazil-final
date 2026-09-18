@@ -6,7 +6,18 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   try {
     const { administradoraId } = await requireCadastroAccess("view")
     const { id } = await params
-    const rows = await query("SELECT *, (status = 'ativo') AS ativo FROM operadoras WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [Number(id), administradoraId])
+    const rows = await query(
+      `SELECT op.*, op.tipo_operadora AS natureza_operadora, (op.status = 'ativo') AS ativo,
+              COALESCE(p.nome_completo, pj.nome_fantasia, pj.razao_social) AS pessoa_nome,
+              pf.cpf AS pessoa_cpf,
+              pj.cnpj AS pessoa_cnpj
+         FROM operadoras op
+         JOIN pessoas p ON p.id = op.pessoa_id AND p.administradora_id = op.administradora_id
+         LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id
+         LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id
+        WHERE op.id = $1 AND op.administradora_id = $2 AND op.deleted_at IS NULL`,
+      [Number(id), administradoraId],
+    )
     return rows[0] ? NextResponse.json(successResponse(rows[0])) : NextResponse.json(errorResponse("Operadora não encontrada"), { status: 404 })
   } catch (error) {
     const auth = apiAuthError(error)
@@ -19,15 +30,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
-    const naturezaOperadora = String(body.natureza_operadora || "").trim()
+    const naturezaOperadora = String(body.natureza_operadora || body.tipo_operadora || "").trim()
     const registroANS = String(body.registro_ans || "").trim()
-    const pessoaId = Number(body.pessoa_id)
-    if (!pessoaId || !naturezaOperadora || !registroANS) return apiError("Pessoa, natureza e registro ANS são obrigatórios", 400)
+    if (!naturezaOperadora || !registroANS) return apiError("Natureza e registro ANS são obrigatórios", 400)
     const rows = await query(
-      `UPDATE operadoras SET pessoa_id = $1, natureza_operadora = $2, registro_ans = $3, status = $4, updated_at = NOW()
-       WHERE id = $5 AND administradora_id = $6 AND deleted_at IS NULL
+      `UPDATE operadoras SET tipo_operadora = $1, registro_ans = $2, status = $3, updated_at = NOW()
+       WHERE id = $4 AND administradora_id = $5 AND deleted_at IS NULL
        RETURNING *, (status = 'ativo') AS ativo`,
-      [pessoaId, naturezaOperadora, registroANS, body.ativo === false ? "inativo" : "ativo", Number(id), administradoraId],
+      [naturezaOperadora, registroANS, body.ativo === false ? "inativo" : "ativo", Number(id), administradoraId],
     )
     return rows[0] ? NextResponse.json(successResponse(rows[0], "Operadora atualizada com sucesso")) : NextResponse.json(errorResponse("Operadora não encontrada"), { status: 404 })
   } catch (error) {

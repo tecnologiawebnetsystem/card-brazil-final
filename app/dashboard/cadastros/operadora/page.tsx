@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
-import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Operadora {
   id: number
@@ -26,6 +25,9 @@ interface Operadora {
   ativo: boolean
   created_at?: string
   updated_at?: string
+  pessoa_nome?: string
+  pessoa_cpf?: string
+  pessoa_cnpj?: string
   enderecos?: Endereco[]
   dadosBancarios?: DadoBancario[]
 }
@@ -174,58 +176,6 @@ export default function OperadoraPage() {
       })
     }
   }
-
-  const calculateCompletudeScore = (pessoa: Pessoa, operadora?: Operadora) => {
-    let score = 0
-    const maxScore = 100
-
-    // Dados básicos (40 pontos)
-    if (pessoa.razao_social) score += 10
-    if (pessoa.cnpj) score += 10
-    if (pessoa.inscricaoEstadual) score += 10
-    if (pessoa.inscricaoMunicipal) score += 10
-
-    // Dados da operadora (30 pontos)
-    if (operadora?.natureza_operadora) score += 15
-    if (operadora?.registro_ans) score += 15
-
-    // Endereços (20 pontos)
-    if ((pessoa.enderecos || []).length > 0) score += 20
-
-    // Dados bancários (10 pontos)
-    if ((pessoa.dadosBancarios || []).length > 0) score += 10
-
-    return Math.round((score / maxScore) * 100)
-  }
-
-  const analytics = useMemo(() => {
-    const totalOperadoras = operadoras.length
-    const operadorasAtivas = operadoras.filter((op) => op.ativo).length
-    const operadorasInativas = totalOperadoras - operadorasAtivas
-
-    const naturezaDistribution = operadoras.reduce(
-      (acc, op) => {
-        acc[op.natureza_operadora] = (acc[op.natureza_operadora] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    const avgCompletude =
-      operadoras.reduce((acc, op) => {
-        const pessoa = pessoas.find((p) => p.id === op.pessoa_id)
-        // @ts-ignore
-        return acc + (pessoa ? calculateCompletudeScore(pessoa, op) : 0)
-      }, 0) / totalOperadoras || 0
-
-    return {
-      totalOperadoras,
-      operadorasAtivas,
-      operadorasInativas,
-      naturezaDistribution,
-      avgCompletude: Math.round(avgCompletude),
-    }
-  }, [operadoras, pessoas])
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
@@ -403,12 +353,14 @@ export default function OperadoraPage() {
     }
   }
 
-  const getPessoaNome = (pessoaId: number) => {
+  const getPessoaNome = (pessoaId: number, operadora?: Operadora) => {
+    if (operadora?.pessoa_nome) return operadora.pessoa_nome
     const pessoa = pessoas.find((p) => p.id === pessoaId)
-    return pessoa?.nome || "N/A"
+    return pessoa?.nome || pessoa?.razao_social || "N/A"
   }
 
-  const getPessoaDocumento = (pessoaId: number) => {
+  const getPessoaDocumento = (pessoaId: number, operadora?: Operadora) => {
+    if (operadora?.pessoa_cnpj || operadora?.pessoa_cpf) return operadora.pessoa_cnpj || operadora.pessoa_cpf || "N/A"
     const pessoa = pessoas.find((p) => p.id === pessoaId)
     return pessoa?.cnpj || pessoa?.cpf || "N/A"
   }
@@ -723,30 +675,23 @@ export default function OperadoraPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Operadoras</h1>
-            <p className="text-muted-foreground">Gerencie as operadoras de saúde do sistema</p>
-          </div>
-          <Button onClick={handleCreate}>+ Nova Operadora</Button>
+        <div className="mb-4 border-b border-border/70 pb-4">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Operadoras</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Gerencie as operadoras de saúde do sistema</p>
         </div>
 
-        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
-          <CadastroSummaryCard title="Total de Operadoras" value={analytics.totalOperadoras} description={`${analytics.operadorasAtivas} ativas • ${analytics.operadorasInativas} inativas`} metrics={[{ label: "Completude média", value: `${analytics.avgCompletude}%`, tone: "positive" }]} />
-        </CadastroSummaryGrid>
-
         <Card>
-          <CardHeader>
-            <CardTitle>Operadoras cadastradas</CardTitle>
-            <CardDescription>Busque, visualize, edite e altere o status das operadoras.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 px-5 py-4 sm:px-6">
+            <CardTitle className="text-base">Operadoras cadastradas</CardTitle>
+            <Button onClick={handleCreate} size="sm">+ Nova operadora</Button>
           </CardHeader>
           <CardContent>
             <CadastroTable
-              data={operadoras}
+              data={filteredOperadoras}
               loading={loading}
               getId={(op) => op.id}
               getSearchText={(op) =>
-                `${getPessoaNome(op.pessoa_id)} ${op.registro_ans} ${op.natureza_operadora} ${getPessoaDocumento(op.pessoa_id)}`
+                `${getPessoaNome(op.pessoa_id, op)} ${op.registro_ans} ${op.natureza_operadora} ${getPessoaDocumento(op.pessoa_id, op)}`
               }
               isActive={(op) => op.ativo}
               searchPlaceholder="Buscar por nome, CNPJ, registro ANS ou natureza..."
@@ -757,15 +702,15 @@ export default function OperadoraPage() {
                     key: "nome",
                     header: "Operadora",
                     sortable: true,
-                    sortValue: (op) => getPessoaNome(op.pessoa_id),
+                    sortValue: (op) => getPessoaNome(op.pessoa_id, op),
                     render: (op) => (
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
                           <AvatarFallback className="text-xs">
-                            {getPessoaNome(op.pessoa_id).substring(0, 2).toUpperCase()}
+                            {getPessoaNome(op.pessoa_id, op).substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium text-foreground">{getPessoaNome(op.pessoa_id)}</span>
+                        <span className="font-medium text-foreground">{getPessoaNome(op.pessoa_id, op)}</span>
                       </div>
                     ),
                   },
@@ -787,18 +732,18 @@ export default function OperadoraPage() {
                   {
                     key: "documento",
                     header: "Documento",
-                    render: (op) => getPessoaDocumento(op.pessoa_id),
+                    render: (op) => getPessoaDocumento(op.pessoa_id, op),
                   },
                 ] as CadastroColumn<Operadora>[]
               }
   onEdit={handleEdit}
   onToggleStatus={handleToggleStatus}
   onDelete={handleRequestDelete}
-              detailsTitle={(op) => getPessoaNome(op.pessoa_id)}
+              detailsTitle={(op) => getPessoaNome(op.pessoa_id, op)}
               renderDetails={(op) => (
                 <CadastroDetailsGrid>
-                  <CadastroDetailField label="Operadora" value={getPessoaNome(op.pessoa_id)} />
-                  <CadastroDetailField label="Documento" value={getPessoaDocumento(op.pessoa_id)} />
+                  <CadastroDetailField label="Operadora" value={getPessoaNome(op.pessoa_id, op)} />
+                  <CadastroDetailField label="Documento" value={getPessoaDocumento(op.pessoa_id, op)} />
                   <CadastroDetailField label="Registro ANS" value={op.registro_ans} />
                   <CadastroDetailField label="Natureza" value={op.natureza_operadora} />
                   <CadastroDetailField label="Status" value={op.ativo ? "Ativo" : "Inativo"} />

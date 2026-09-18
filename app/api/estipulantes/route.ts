@@ -7,11 +7,13 @@ export async function GET() {
   try {
     const { administradoraId } = await requireCadastroAccess("view")
     const estipulantes = await query(`
-      SELECT e.*, e.status AS situacao, p.tipo_pessoa, p.nome_completo, p.razao_social, p.nome_fantasia,
-        p.cpf AS pessoa_cpf, p.cnpj AS pessoa_cnpj, p.email, p.telefone_principal,
-        COALESCE(p.nome_completo, p.razao_social, p.nome_fantasia, '') AS nome_exibicao
+      SELECT e.*, e.status AS situacao, p.tipo_pessoa, p.nome_completo, pj.razao_social, pj.nome_fantasia,
+        pf.cpf AS pessoa_cpf, pj.cnpj AS pessoa_cnpj, p.email, p.telefone_principal,
+        COALESCE(p.nome_completo, pj.nome_fantasia, pj.razao_social, '') AS nome_exibicao
       FROM estipulantes e
       INNER JOIN pessoas p ON p.id = e.pessoa_id
+      LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id
+      LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id
       WHERE e.deleted_at IS NULL AND p.deleted_at IS NULL AND e.administradora_id = $1
       ORDER BY e.created_at DESC NULLS LAST`, [administradoraId])
     return NextResponse.json(successResponse(estipulantes))

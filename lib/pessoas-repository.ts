@@ -32,12 +32,11 @@ export async function listPessoas(administradoraId: number, filters: { tipo?: st
   }
   return query(`SELECT ${pessoaProjection},
     ARRAY_REMOVE(ARRAY[
-      CASE WHEN EXISTS (SELECT 1 FROM administradoras a WHERE a.pessoa_id = p.id) THEN 'Administradora' END,
-      CASE WHEN EXISTS (SELECT 1 FROM operadoras o WHERE o.pessoa_id = p.id) THEN 'Operadora' END,
-      CASE WHEN EXISTS (SELECT 1 FROM estipulantes e WHERE e.pessoa_id = p.id) THEN 'Estipulante' END,
-      CASE WHEN EXISTS (SELECT 1 FROM agenciadores ag WHERE ag.pessoa_id = p.id) THEN 'Agenciador' END,
-      CASE WHEN EXISTS (SELECT 1 FROM corretores c WHERE c.pessoa_id = p.id) THEN 'Corretor' END,
-      CASE WHEN EXISTS (SELECT 1 FROM beneficiarios b WHERE b.pessoa_id = p.id) THEN 'Beneficiário' END
+      CASE WHEN EXISTS (SELECT 1 FROM operadoras o WHERE o.pessoa_id = p.id AND o.administradora_id = p.administradora_id) THEN 'Operadora' END,
+      CASE WHEN EXISTS (SELECT 1 FROM estipulantes e WHERE e.pessoa_id = p.id AND e.administradora_id = p.administradora_id) THEN 'Estipulante' END,
+      CASE WHEN EXISTS (SELECT 1 FROM agenciadores ag WHERE ag.pessoa_id = p.id AND ag.administradora_id = p.administradora_id) THEN 'Agenciador' END,
+      CASE WHEN EXISTS (SELECT 1 FROM corretores c WHERE c.pessoa_id = p.id AND c.administradora_id = p.administradora_id) THEN 'Corretor' END,
+      CASE WHEN EXISTS (SELECT 1 FROM beneficiarios b WHERE b.pessoa_id = p.id AND b.administradora_id = p.administradora_id) THEN 'Beneficiário' END
     ], NULL) AS papeis
     FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE ${conditions.join(" AND ")} ORDER BY p.created_at DESC NULLS LAST`, params)
 }
@@ -47,8 +46,8 @@ export async function getPessoa(id: number, administradoraId: number) {
   return rows[0] || null
 }
 
-export async function getPessoaByDocumento(documento: string) {
-  const rows = await query(`SELECT ${pessoaProjection}, COALESCE((SELECT json_agg(e ORDER BY e.id) FROM enderecos e WHERE e.pessoa_id = p.id), '[]'::json) AS enderecos, COALESCE((SELECT json_agg(b ORDER BY b.id) FROM dados_bancarios b WHERE b.pessoa_id = p.id), '[]'::json) AS dados_bancarios FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE p.deleted_at IS NULL AND (regexp_replace(COALESCE(pf.cpf, ''), '\\D', '', 'g') = $1 OR regexp_replace(COALESCE(pj.cnpj, ''), '\\D', '', 'g') = $1) LIMIT 1`, [documento])
+export async function getPessoaByDocumento(documento: string, administradoraId: number) {
+  const rows = await query(`SELECT ${pessoaProjection}, COALESCE((SELECT json_agg(e ORDER BY e.is_principal DESC NULLS LAST, e.id) FROM enderecos e WHERE e.pessoa_id = p.id), '[]'::json) AS enderecos, COALESCE((SELECT json_agg(b ORDER BY b.is_principal DESC NULLS LAST, b.id) FROM dados_bancarios b WHERE b.pessoa_id = p.id), '[]'::json) AS dados_bancarios FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE p.administradora_id = $1 AND p.deleted_at IS NULL AND (regexp_replace(COALESCE(pf.cpf, ''), '\\D', '', 'g') = $2 OR regexp_replace(COALESCE(pj.cnpj, ''), '\\D', '', 'g') = $2) LIMIT 1`, [administradoraId, documento])
   return rows[0] || null
 }
 

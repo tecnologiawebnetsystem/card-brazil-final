@@ -25,7 +25,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, X, Loader2, Eye, Plus, Pencil } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -553,21 +552,16 @@ export default function PessoasPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 lg:px-8">
-        <header className="mb-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Cadastros</p>
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[28px]">Pessoas</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Gerencie todas as pessoas do sistema</p>
-            </div>
-            <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-2.5 lg:max-w-[310px] lg:text-right">
-              <p className="text-sm font-semibold text-foreground">Consulta centralizada</p>
-              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">Novos registros são criados no cadastro da entidade.</p>
-            </div>
+        <header className="mb-5 flex flex-col gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Cadastros</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">Pessoas</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Gerencie todas as pessoas do sistema</p>
           </div>
-          <Alert className="mt-4 max-w-[760px] border-primary/20 bg-card py-2.5 shadow-sm">
-            <AlertDescription className="text-sm leading-5">{ordemCadastro}</AlertDescription>
-          </Alert>
+          <div className="flex max-w-xl items-center gap-2 text-xs leading-5 text-muted-foreground sm:justify-end sm:text-right">
+            <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 font-medium text-primary">Consulta centralizada</span>
+            <span>{ordemCadastro}</span>
+          </div>
         </header>
 
           <Dialog

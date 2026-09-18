@@ -104,9 +104,9 @@ export default function PlanosPage() {
     } else {
       const filtered = planos.filter(
         (plano) =>
-          plano.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          plano.codigo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          plano.tipo?.toLowerCase().includes(searchTerm.toLowerCase()),
+          (plano.nome || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (plano.codigo || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (plano.tipo || "").toLowerCase().includes(searchTerm.toLowerCase()),
       )
       setFilteredPlanos(filtered)
     }

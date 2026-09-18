@@ -72,8 +72,8 @@ export default function ProdutosPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (produto) =>
-          produto.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          produto.codigo.toLowerCase().includes(searchTerm.toLowerCase()),
+          (produto.nome || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (produto.codigo || "").toLowerCase().includes(searchTerm.toLowerCase()),
       )
     }
 

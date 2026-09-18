@@ -552,20 +552,23 @@ export default function PessoasPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-6">
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Pessoas</h1>
-  <p className="text-muted-foreground mt-1">Gerencie todas as pessoas do sistema</p>
-  <Alert className="mt-4 max-w-3xl">
-    <AlertDescription>{ordemCadastro}</AlertDescription>
-  </Alert>
-  </div>
-
-          <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-right">
-            <p className="text-sm font-medium text-foreground">Consulta centralizada</p>
-            <p className="text-xs text-muted-foreground">Novos registros são criados dentro do cadastro da entidade.</p>
+      <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 lg:px-8">
+        <header className="mb-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">Cadastros</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[28px]">Pessoas</h1>
+              <p className="mt-1 text-sm text-muted-foreground">Gerencie todas as pessoas do sistema</p>
+            </div>
+            <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-2.5 lg:max-w-[310px] lg:text-right">
+              <p className="text-sm font-semibold text-foreground">Consulta centralizada</p>
+              <p className="mt-0.5 text-xs leading-5 text-muted-foreground">Novos registros são criados no cadastro da entidade.</p>
+            </div>
           </div>
+          <Alert className="mt-4 max-w-[760px] border-primary/20 bg-card py-2.5 shadow-sm">
+            <AlertDescription className="text-sm leading-5">{ordemCadastro}</AlertDescription>
+          </Alert>
+        </header>
 
           <Dialog
             open={isModalOpen}
@@ -1021,15 +1024,14 @@ export default function PessoasPage() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Pesquisar Pessoa</CardTitle>
-            <CardDescription>Digite o nome, CPF ou CNPJ para pesquisar</CardDescription>
+        <Card className="mb-5 overflow-hidden shadow-sm">
+          <CardHeader className="px-5 pb-3 pt-4 sm:px-6">
+            <CardTitle className="text-base">Pesquisar Pessoa</CardTitle>
+            <CardDescription className="text-sm">Digite o nome, CPF ou CNPJ para pesquisar</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
+          <CardContent className="px-5 pb-5 sm:px-6">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <Input
                 placeholder="Digite aqui..."
                 value={searchTerm}
@@ -1044,9 +1046,9 @@ export default function PessoasPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        <Card className="overflow-hidden shadow-sm">
+          <CardHeader className="px-5 pb-3 pt-4 sm:px-6">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <CardTitle>Todas as Pessoas Cadastradas</CardTitle>
                 <CardDescription>{filteredPessoas.length} pessoas encontradas</CardDescription>
@@ -1095,7 +1097,7 @@ export default function PessoasPage() {
                 <TableBody>
                   {filteredPessoas.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
                         Nenhuma pessoa encontrada
                       </TableCell>
                     </TableRow>

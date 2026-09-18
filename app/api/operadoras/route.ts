@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
     const operadoras = await query(
       `SELECT op.*, (op.status = 'ativo') AS ativo,
-              COALESCE(p.nome, pj.razao_social) AS pessoa_nome,
+              COALESCE(p.nome_completo, p.razao_social, p.nome_fantasia) AS pessoa_nome,
               pf.cpf AS pessoa_cpf,
               pj.cnpj AS pessoa_cnpj
          FROM operadoras op

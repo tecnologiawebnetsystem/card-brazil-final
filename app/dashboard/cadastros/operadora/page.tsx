@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
-import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
 interface Operadora {
   id: number
@@ -177,58 +176,6 @@ export default function OperadoraPage() {
       })
     }
   }
-
-  const calculateCompletudeScore = (pessoa: Pessoa, operadora?: Operadora) => {
-    let score = 0
-    const maxScore = 100
-
-    // Dados básicos (40 pontos)
-    if (pessoa.razao_social) score += 10
-    if (pessoa.cnpj) score += 10
-    if (pessoa.inscricaoEstadual) score += 10
-    if (pessoa.inscricaoMunicipal) score += 10
-
-    // Dados da operadora (30 pontos)
-    if (operadora?.natureza_operadora) score += 15
-    if (operadora?.registro_ans) score += 15
-
-    // Endereços (20 pontos)
-    if ((pessoa.enderecos || []).length > 0) score += 20
-
-    // Dados bancários (10 pontos)
-    if ((pessoa.dadosBancarios || []).length > 0) score += 10
-
-    return Math.round((score / maxScore) * 100)
-  }
-
-  const analytics = useMemo(() => {
-    const totalOperadoras = operadoras.length
-    const operadorasAtivas = operadoras.filter((op) => op.ativo).length
-    const operadorasInativas = totalOperadoras - operadorasAtivas
-
-    const naturezaDistribution = operadoras.reduce(
-      (acc, op) => {
-        acc[op.natureza_operadora] = (acc[op.natureza_operadora] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    const avgCompletude =
-      operadoras.reduce((acc, op) => {
-        const pessoa = pessoas.find((p) => p.id === op.pessoa_id)
-        // @ts-ignore
-        return acc + (pessoa ? calculateCompletudeScore(pessoa, op) : 0)
-      }, 0) / totalOperadoras || 0
-
-    return {
-      totalOperadoras,
-      operadorasAtivas,
-      operadorasInativas,
-      naturezaDistribution,
-      avgCompletude: Math.round(avgCompletude),
-    }
-  }, [operadoras, pessoas])
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
@@ -728,22 +675,15 @@ export default function OperadoraPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Operadoras</h1>
-            <p className="text-muted-foreground">Gerencie as operadoras de saúde do sistema</p>
-          </div>
-          <Button onClick={handleCreate}>+ Nova Operadora</Button>
+        <div className="mb-4 border-b border-border/70 pb-4">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Operadoras</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Gerencie as operadoras de saúde do sistema</p>
         </div>
 
-        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
-          <CadastroSummaryCard title="Total de Operadoras" value={analytics.totalOperadoras} description={`${analytics.operadorasAtivas} ativas • ${analytics.operadorasInativas} inativas`} metrics={[{ label: "Completude média", value: `${analytics.avgCompletude}%`, tone: "positive" }]} />
-        </CadastroSummaryGrid>
-
         <Card>
-          <CardHeader>
-            <CardTitle>Operadoras cadastradas</CardTitle>
-            <CardDescription>Busque, visualize, edite e altere o status das operadoras.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 px-5 py-4 sm:px-6">
+            <CardTitle className="text-base">Operadoras cadastradas</CardTitle>
+            <Button onClick={handleCreate} size="sm">+ Nova operadora</Button>
           </CardHeader>
           <CardContent>
             <CadastroTable

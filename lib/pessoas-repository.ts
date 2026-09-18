@@ -46,8 +46,8 @@ export async function getPessoa(id: number, administradoraId: number) {
   return rows[0] || null
 }
 
-export async function getPessoaByDocumento(documento: string) {
-  const rows = await query(`SELECT ${pessoaProjection}, COALESCE((SELECT json_agg(e ORDER BY e.id) FROM enderecos e WHERE e.pessoa_id = p.id), '[]'::json) AS enderecos, COALESCE((SELECT json_agg(b ORDER BY b.id) FROM dados_bancarios b WHERE b.pessoa_id = p.id), '[]'::json) AS dados_bancarios FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE p.deleted_at IS NULL AND (regexp_replace(COALESCE(pf.cpf, ''), '\\D', '', 'g') = $1 OR regexp_replace(COALESCE(pj.cnpj, ''), '\\D', '', 'g') = $1) LIMIT 1`, [documento])
+export async function getPessoaByDocumento(documento: string, administradoraId: number) {
+  const rows = await query(`SELECT ${pessoaProjection}, COALESCE((SELECT json_agg(e ORDER BY e.is_principal DESC NULLS LAST, e.id) FROM enderecos e WHERE e.pessoa_id = p.id), '[]'::json) AS enderecos, COALESCE((SELECT json_agg(b ORDER BY b.is_principal DESC NULLS LAST, b.id) FROM dados_bancarios b WHERE b.pessoa_id = p.id), '[]'::json) AS dados_bancarios FROM pessoas p LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE p.administradora_id = $1 AND p.deleted_at IS NULL AND (regexp_replace(COALESCE(pf.cpf, ''), '\\D', '', 'g') = $2 OR regexp_replace(COALESCE(pj.cnpj, ''), '\\D', '', 'g') = $2) LIMIT 1`, [administradoraId, documento])
   return rows[0] || null
 }
 

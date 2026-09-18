@@ -57,7 +57,7 @@ const pessoaFields = {
   nome_pai: z.string().trim().max(180).optional().nullable(),
   profissao: z.string().trim().max(120).optional().nullable(),
   observacoes: z.string().trim().max(4000).optional().nullable(),
-  status: z.enum(["ativo", "inativo", "suspenso"]).default("ativo"),
+  status: z.enum(["ativo", "inativo", "bloqueado"]).default("ativo"),
 }
 
 export const pessoaSchema = z.object(pessoaFields).superRefine((value, ctx) => {

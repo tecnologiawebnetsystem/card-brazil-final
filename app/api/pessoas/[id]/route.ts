@@ -15,7 +15,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const pessoaId = idSchema.parse((await params).id)
     const pessoa = await getPessoa(pessoaId, administradoraId)
     if (!pessoa) return apiError("Pessoa não encontrada", 404)
-    const [enderecos, dados_bancarios] = await Promise.all([query(`SELECT * FROM enderecos WHERE pessoa_id = $1 ORDER BY id`, [pessoaId]), query(`SELECT id, pessoa_id, banco_id, agencia, conta, tipo_conta, pix, status FROM dados_bancarios WHERE pessoa_id = $1 ORDER BY id`, [pessoaId])])
+    const [enderecos, dados_bancarios] = await Promise.all([
+      query(`SELECT id, pessoa_id, tipo_endereco, cep, logradouro, numero, complemento, bairro, cidade, estado, pais, is_principal AS principal, created_at, updated_at FROM enderecos WHERE pessoa_id = $1 ORDER BY is_principal DESC NULLS LAST, id`, [pessoaId]),
+      query(`SELECT id, pessoa_id, banco_codigo, banco_nome, agencia, agencia_digito, conta, conta_digito, tipo_conta, pix_tipo, pix_chave, is_principal AS principal, created_at, updated_at FROM dados_bancarios WHERE pessoa_id = $1 ORDER BY is_principal DESC NULLS LAST, id`, [pessoaId]),
+    ])
     return apiResponse({ ...pessoa, enderecos, dados_bancarios }, "Pessoa encontrada com sucesso")
   } catch (error: any) {
     const authError = apiAuthError(error)

@@ -24,8 +24,14 @@ import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 
+interface PlanoDisponivel {
+  id: number
+  nome: string
+}
+
 interface PlanoFaixa {
   id: number
+  plano_id: number
   plano: string
   faixaEtaria: string
   idadeMinima: number
@@ -38,6 +44,7 @@ interface PlanoFaixa {
 
 export default function PlanosFaixaPage() {
   const [planosFaixa, setPlanosFaixa] = useState<PlanoFaixa[]>([])
+  const [planosDisponiveis, setPlanosDisponiveis] = useState<PlanoDisponivel[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [filteredPlanos, setFilteredPlanos] = useState<PlanoFaixa[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -56,8 +63,36 @@ export default function PlanosFaixaPage() {
   })
 
   useEffect(() => {
-    setIsLoading(true)
-    fetch("/api/planos-faixas").then((response) => response.json()).then((payload) => setPlanosFaixa((payload.data || []).map((item: any) => ({ id: item.id, plano: item.plano_nome, faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`, idadeMinima: item.idade_minima, idadeMaxima: item.idade_maxima, valor: Number(item.valor), percentualReajuste: 0, ativo: true, dataInclusao: item.created_at })))) .catch((error) => console.error("[v0] Erro ao carregar faixas", error)).finally(() => setIsLoading(false))
+    let cancelled = false
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const [faixasResponse, planosResponse] = await Promise.all([fetch("/api/planos-faixas"), fetch("/api/planos")])
+        const [faixasPayload, planosPayload] = await Promise.all([faixasResponse.json(), planosResponse.json()])
+        if (!faixasResponse.ok) throw new Error(faixasPayload.message || "Não foi possível carregar as faixas")
+        if (!planosResponse.ok) throw new Error(planosPayload.message || "Não foi possível carregar os planos")
+        if (cancelled) return
+        setPlanosDisponiveis((planosPayload.data || []).map((item: PlanoDisponivel) => ({ id: item.id, nome: item.nome })))
+        setPlanosFaixa((faixasPayload.data || []).map((item: any) => ({
+          id: item.id,
+          plano_id: item.plano_id,
+          plano: item.plano_nome || "Plano não identificado",
+          faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`,
+          idadeMinima: Number(item.idade_minima),
+          idadeMaxima: Number(item.idade_maxima),
+          valor: Number(item.valor || 0),
+          percentualReajuste: 0,
+          ativo: item.deleted_at == null,
+          dataInclusao: item.created_at,
+        })))
+      } catch (error) {
+        if (!cancelled) toast.error(error instanceof Error ? error.message : "Não foi possível carregar os dados")
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
+    }
+    void loadData()
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
@@ -86,7 +121,9 @@ export default function PlanosFaixaPage() {
     if (!formData.plano || !formData.idadeMinima || !formData.idadeMaxima) { toast.error("Preencha os campos obrigatórios"); return }
     setIsLoading(true)
     try {
-      const body = { plano_nome: formData.plano, idade_minima: Number(formData.idadeMinima), idade_maxima: Number(formData.idadeMaxima), valor: Number(formData.valor) || 0 }
+      const planoSelecionado = planosDisponiveis.find((plano) => plano.nome === formData.plano)
+      if (!planoSelecionado) throw new Error("Selecione um plano cadastrado")
+      const body = { plano_id: planoSelecionado.id, idade_minima: Number(formData.idadeMinima), idade_maxima: Number(formData.idadeMaxima), valor: Number(formData.valor) || 0 }
       const response = await fetch(editingPlano ? `/api/planos-faixas/${editingPlano.id}` : "/api/planos-faixas", { method: editingPlano ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       const payload = await response.json()
       if (!response.ok) throw new Error(payload.message || payload.error || "Não foi possível salvar a faixa")
@@ -122,7 +159,7 @@ export default function PlanosFaixaPage() {
     toast.info("O cadastro de faixas etárias não possui coluna de status no banco.")
   }
 
-  const planosPorPlano = filterPlano === "todos" ? planosFaixa : planosFaixa.filter((p) => p.plano === filterPlano)
+  const planosPorPlano = filteredPlanos
 
   const totalPlanos = planosFaixa.length
   const planosAtivos = planosFaixa.filter((p) => p.ativo).length
@@ -248,12 +285,13 @@ export default function PlanosFaixaPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 space-y-2">
               <Label htmlFor="plano">Plano *</Label>
-              <Input
-                id="plano"
-                value={formData.plano}
-                onChange={(e) => setFormData({ ...formData, plano: e.target.value })}
-                placeholder="Nome do plano"
-              />
+              <Select value={formData.plano} onValueChange={(value) => setFormData({ ...formData, plano: value })}>
+                <SelectTrigger id="plano"><SelectValue placeholder="Selecione um plano cadastrado" /></SelectTrigger>
+                <SelectContent>
+                  {planosDisponiveis.map((plano) => <SelectItem key={plano.id} value={plano.nome}>{plano.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {planosDisponiveis.length === 0 && <p className="text-sm text-muted-foreground">Cadastre um plano antes de criar uma faixa etária.</p>}
             </div>
 
             <div className="col-span-2 space-y-2">

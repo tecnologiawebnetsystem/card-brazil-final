@@ -15,13 +15,16 @@ export async function GET(request: NextRequest) {
     const params: unknown[] = []
     const conditions: string[] = [`p.administradora_id = $1`, `p.deleted_at IS NULL`]
     params.push(administradoraId)
-    if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`status = $${params.length}`) }
+    if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`p.status = $${params.length}`) }
     if (operadora_id) { params.push(Number.parseInt(operadora_id, 10)); conditions.push(`p.plano_id IN (SELECT id FROM planos WHERE operadora_id = $${params.length})`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
     const produtos = await query(`SELECT p.*, p.codigo_produto AS codigo, p.valor_mensalidade AS valor, (p.status = 'ativo') AS ativo, p.status AS situacao, 'saude' AS categoria, 'saude' AS tipo FROM produtos p${where} ORDER BY p.created_at DESC NULLS LAST`, params)
     return NextResponse.json(successResponse(produtos))
   } catch (error) {
-    return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
+    const auth = apiAuthError(error)
+    if (auth) return apiError(auth.message, auth.status)
+    console.error("[v0] Erro ao listar produtos", error)
+    return apiError("Não foi possível carregar os produtos", 500)
   }
 }
 

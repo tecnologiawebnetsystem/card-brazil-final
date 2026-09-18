@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const conditions: string[] = [`p.administradora_id = $1`, `p.deleted_at IS NULL`]
     params.push(administradoraId)
     if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`status = $${params.length}`) }
-    if (produto_id) { params.push(Number.parseInt(produto_id, 10)); conditions.push(`p.id IN (SELECT plano_id FROM produtos WHERE id = $${params.length} AND administradora_id = $1)`) }
+    if (produto_id) { params.push(Number.parseInt(produto_id, 10)); conditions.push(`p.id = $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
     const planos = await query(`SELECT p.*, p.codigo_ans AS codigo, p.tipo_plano AS tipo, p.valor_base AS valor, p.tipo_plano AS cobertura, (p.status = 'ativo') AS ativo FROM planos p${where} ORDER BY p.created_at DESC NULLS LAST`, params)
     return NextResponse.json(successResponse(planos))

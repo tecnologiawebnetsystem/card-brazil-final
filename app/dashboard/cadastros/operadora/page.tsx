@@ -26,6 +26,9 @@ interface Operadora {
   ativo: boolean
   created_at?: string
   updated_at?: string
+  pessoa_nome?: string
+  pessoa_cpf?: string
+  pessoa_cnpj?: string
   enderecos?: Endereco[]
   dadosBancarios?: DadoBancario[]
 }
@@ -403,12 +406,14 @@ export default function OperadoraPage() {
     }
   }
 
-  const getPessoaNome = (pessoaId: number) => {
+  const getPessoaNome = (pessoaId: number, operadora?: Operadora) => {
+    if (operadora?.pessoa_nome) return operadora.pessoa_nome
     const pessoa = pessoas.find((p) => p.id === pessoaId)
-    return pessoa?.nome || "N/A"
+    return pessoa?.nome || pessoa?.razao_social || "N/A"
   }
 
-  const getPessoaDocumento = (pessoaId: number) => {
+  const getPessoaDocumento = (pessoaId: number, operadora?: Operadora) => {
+    if (operadora?.pessoa_cnpj || operadora?.pessoa_cpf) return operadora.pessoa_cnpj || operadora.pessoa_cpf || "N/A"
     const pessoa = pessoas.find((p) => p.id === pessoaId)
     return pessoa?.cnpj || pessoa?.cpf || "N/A"
   }
@@ -742,11 +747,11 @@ export default function OperadoraPage() {
           </CardHeader>
           <CardContent>
             <CadastroTable
-              data={operadoras}
+              data={filteredOperadoras}
               loading={loading}
               getId={(op) => op.id}
               getSearchText={(op) =>
-                `${getPessoaNome(op.pessoa_id)} ${op.registro_ans} ${op.natureza_operadora} ${getPessoaDocumento(op.pessoa_id)}`
+                `${getPessoaNome(op.pessoa_id, op)} ${op.registro_ans} ${op.natureza_operadora} ${getPessoaDocumento(op.pessoa_id, op)}`
               }
               isActive={(op) => op.ativo}
               searchPlaceholder="Buscar por nome, CNPJ, registro ANS ou natureza..."
@@ -757,15 +762,15 @@ export default function OperadoraPage() {
                     key: "nome",
                     header: "Operadora",
                     sortable: true,
-                    sortValue: (op) => getPessoaNome(op.pessoa_id),
+                    sortValue: (op) => getPessoaNome(op.pessoa_id, op),
                     render: (op) => (
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
                           <AvatarFallback className="text-xs">
-                            {getPessoaNome(op.pessoa_id).substring(0, 2).toUpperCase()}
+                            {getPessoaNome(op.pessoa_id, op).substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="font-medium text-foreground">{getPessoaNome(op.pessoa_id)}</span>
+                        <span className="font-medium text-foreground">{getPessoaNome(op.pessoa_id, op)}</span>
                       </div>
                     ),
                   },
@@ -787,18 +792,18 @@ export default function OperadoraPage() {
                   {
                     key: "documento",
                     header: "Documento",
-                    render: (op) => getPessoaDocumento(op.pessoa_id),
+                    render: (op) => getPessoaDocumento(op.pessoa_id, op),
                   },
                 ] as CadastroColumn<Operadora>[]
               }
   onEdit={handleEdit}
   onToggleStatus={handleToggleStatus}
   onDelete={handleRequestDelete}
-              detailsTitle={(op) => getPessoaNome(op.pessoa_id)}
+              detailsTitle={(op) => getPessoaNome(op.pessoa_id, op)}
               renderDetails={(op) => (
                 <CadastroDetailsGrid>
-                  <CadastroDetailField label="Operadora" value={getPessoaNome(op.pessoa_id)} />
-                  <CadastroDetailField label="Documento" value={getPessoaDocumento(op.pessoa_id)} />
+                  <CadastroDetailField label="Operadora" value={getPessoaNome(op.pessoa_id, op)} />
+                  <CadastroDetailField label="Documento" value={getPessoaDocumento(op.pessoa_id, op)} />
                   <CadastroDetailField label="Registro ANS" value={op.registro_ans} />
                   <CadastroDetailField label="Natureza" value={op.natureza_operadora} />
                   <CadastroDetailField label="Status" value={op.ativo ? "Ativo" : "Inativo"} />

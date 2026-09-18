@@ -17,7 +17,16 @@ export async function GET(request: NextRequest) {
       conditions.push(`status = $${params.length}`)
     }
     const operadoras = await query(
-      `SELECT *, (status = 'ativo') AS ativo FROM operadoras WHERE ${conditions.join(" AND ")} ORDER BY created_at DESC NULLS LAST`,
+      `SELECT op.*, (op.status = 'ativo') AS ativo,
+              COALESCE(p.nome, pj.razao_social) AS pessoa_nome,
+              pf.cpf AS pessoa_cpf,
+              pj.cnpj AS pessoa_cnpj
+         FROM operadoras op
+         JOIN pessoas p ON p.id = op.pessoa_id AND p.administradora_id = op.administradora_id
+         LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id
+         LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id
+        WHERE op.${conditions.join(" AND op.")}
+        ORDER BY op.created_at DESC NULLS LAST`,
       params,
     )
     return NextResponse.json(successResponse(operadoras))

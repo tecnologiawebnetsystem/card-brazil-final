@@ -12,7 +12,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   try {
     const { administradoraId } = await requireCadastroAccess("view")
     const { id } = await params
-    const rows = await query("SELECT *, status AS situacao FROM corretores WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [Number(id), administradoraId])
+    const rows = await query("SELECT c.*, c.status AS situacao, p.nome_completo, pj.nome_fantasia, pj.razao_social, pf.cpf AS pessoa_cpf, pj.cnpj AS pessoa_cnpj FROM corretores c JOIN pessoas p ON p.id = c.pessoa_id LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id WHERE c.id = $1 AND c.administradora_id = $2 AND c.deleted_at IS NULL AND p.deleted_at IS NULL", [Number(id), administradoraId])
     return rows[0] ? NextResponse.json(successResponse(rows[0])) : NextResponse.json(errorResponse("Corretor não encontrado"), { status: 404 })
   } catch (error) { const result = responseError(error); return NextResponse.json(result.body, { status: result.status }) }
 }

@@ -6,9 +6,10 @@
 CREATE TABLE IF NOT EXISTS planos (
     id SERIAL PRIMARY KEY,
     id_administradora INT NOT NULL,
-    operadora_id INT NOT NULL,
-    
-    codigo VARCHAR(50) NOT NULL,
+  operadora_id INT NOT NULL,
+  produto_id INT,
+  
+  codigo VARCHAR(50) NOT NULL,
     nome VARCHAR(255) NOT NULL,
     tipo VARCHAR(20) CHECK (tipo IN ('ambulatorial', 'hospitalar', 'odontologico', 'completo')) NOT NULL,
     abrangencia VARCHAR(20) CHECK (abrangencia IN ('municipal', 'estadual', 'regional', 'nacional')) NOT NULL,

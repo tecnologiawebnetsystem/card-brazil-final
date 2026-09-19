@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`p.status = $${params.length}`) }
     if (operadora_id) { params.push(Number.parseInt(operadora_id, 10)); conditions.push(`p.plano_id IN (SELECT id FROM planos WHERE operadora_id = $${params.length})`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
-    const produtos = await query(`SELECT p.*, p.codigo_produto AS codigo, p.valor_mensalidade AS valor, (p.status = 'ativo') AS ativo, p.status AS situacao, 'saude' AS categoria, 'saude' AS tipo FROM produtos p${where} ORDER BY p.created_at DESC NULLS LAST`, params)
+    const produtos = await query(`SELECT p.*, p.codigo_produto AS codigo, p.valor_mensalidade AS valor, (p.status = 'ativo') AS ativo, p.status AS situacao, 'saude' AS categoria, 'saude' AS tipo, pl.nome AS plano_nome FROM produtos p LEFT JOIN planos pl ON pl.id = p.plano_id AND pl.deleted_at IS NULL${where} ORDER BY p.created_at DESC NULLS LAST`, params)
     return NextResponse.json(successResponse(produtos))
   } catch (error) {
     const auth = apiAuthError(error)

@@ -1,208 +1,65 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Activity, ArrowRight, CalendarDays, FileText, Plus, RefreshCw, ShieldCheck, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SearchIcon, FilterIcon, EyeIcon, EditIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-interface Proposta {
-  id: number
-  nome_proponente: string
-  cpf_cnpj: string
-  empresa: string
-  numero_funcionarios: string
-  tipo_plano: string
-  valor_proposto: number | null
-  status: string
-  created_at: string
-  total_registros?: number
-}
+type Proposta = { id: number; nome_proponente: string; empresa?: string; tipo_plano: string; valor_proposto?: number; status: string; created_at: string }
+type Fatura = { id: number; proposta_id: number; competencia: string; vencimento: string; valor_total: number; status: string }
 
-const getStatusBadge = (status: string) => {
-  const statusConfig = {
-    Pendente: { variant: "secondary" as const, className: "bg-yellow-100 text-yellow-800 border-yellow-200" },
-    Aprovada: { variant: "secondary" as const, className: "bg-green-100 text-green-800 border-green-200" },
-    "Em Análise": { variant: "secondary" as const, className: "bg-blue-100 text-blue-800 border-blue-200" },
-    Rejeitada: { variant: "secondary" as const, className: "bg-red-100 text-red-800 border-red-200" },
-  }
-
-  const config = statusConfig[status as keyof typeof statusConfig] || statusConfig["Pendente"]
-  return (
-    <Badge variant={config.variant} className={config.className}>
-      {status}
-    </Badge>
-  )
-}
+const statusLabel: Record<string, string> = { pendente: "Pendente", em_analise: "Em análise", aprovada: "Aprovada", rejeitada: "Rejeitada", contrato_gerado: "Implantada" }
+const money = (value: number) => `R$ ${Number(value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
 
 export default function ListaPropostasPage() {
   const router = useRouter()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("todos")
   const [propostas, setPropostas] = useState<Proposta[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [faturas, setFaturas] = useState<Fatura[]>([])
+  const [search, setSearch] = useState("")
+  const [status, setStatus] = useState("todos")
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchPropostas = async () => {
-      try {
-        const params = new URLSearchParams()
-        if (statusFilter !== "todos") {
-          params.append("status", ({ Pendente: "pendente", "Em Análise": "em_analise", Aprovada: "aprovada", Rejeitada: "rejeitada" } as Record<string, string>)[statusFilter] || statusFilter.toLowerCase())
-        }
-        if (searchTerm) {
-          params.append("search", searchTerm)
-        }
-
-        const response = await fetch(`/api/propostas?${params.toString()}`)
-        if (!response.ok) {
-          throw new Error("Erro ao carregar propostas")
-        }
-
-        const data = await response.json()
-        setPropostas(Array.isArray(data) ? data : data.data || [])
-      } catch (error) {
-        console.error("[v0] Erro ao carregar propostas:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchPropostas()
-  }, [statusFilter, searchTerm])
-
-  const filteredPropostas = propostas
-
-  const handleNovaProposta = () => {
-    router.push("/dashboard/propostas/nova")
+  async function load() {
+    setLoading(true)
+    const params = new URLSearchParams()
+    if (search) params.set("search", search)
+    if (status !== "todos") params.set("status", status)
+    const [propostasResponse, faturasResponse] = await Promise.all([fetch(`/api/propostas?${params}`), fetch("/api/propostas/faturas")])
+    const propostasData = await propostasResponse.json()
+    const faturasData = await faturasResponse.json()
+    setPropostas(propostasData.data || [])
+    setFaturas(faturasData.data || [])
+    setLoading(false)
   }
 
-  const handleViewProposta = (id: string) => {
-    router.push(`/dashboard/propostas/analise?id=${id}`)
-  }
+  useEffect(() => { load() }, [status])
+  const filtered = useMemo(() => propostas.filter((item) => `${item.nome_proponente} ${item.empresa || ""}`.toLowerCase().includes(search.toLowerCase())), [propostas, search])
+  const abertas = faturas.filter((fatura) => ["aberta", "enviada", "vencida"].includes(fatura.status))
+  const totalMensal = propostas.filter((p) => p.status === "aprovada").reduce((sum, p) => sum + Number(p.valor_proposto || 0), 0)
+  const indicadores = [
+    { label: "Propostas ativas", value: propostas.filter((p) => p.status !== "rejeitada").length, Icon: FileText },
+    { label: "Vidas em análise", value: "—", Icon: Users },
+    { label: "Mensalidade aprovada", value: money(totalMensal), Icon: ShieldCheck },
+    { label: "Faturas em aberto", value: abertas.length, Icon: CalendarDays },
+  ]
 
-  const handleEditProposta = (id: string) => {
-    router.push(`/dashboard/propostas/nova?editar=${id}`)
-  }
+  return <main className="module-page flex-1 space-y-6 p-4 md:p-6">
+    <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <div><div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground"><Activity className="size-4 text-primary" /> Operação de saúde suplementar</div><h1 className="text-3xl font-bold tracking-tight">Propostas de saúde</h1><p className="text-muted-foreground">Da cotação à implantação, com faturamento mensal por competência.</p></div>
+      <Button onClick={() => router.push("/dashboard/propostas/nova")}><Plus data-icon="inline-start" /> Nova proposta</Button>
+    </header>
 
-  const handleDeleteProposta = async (id: number) => {
-    if (!window.confirm("Deseja excluir esta proposta?")) return
-    const response = await fetch(`/api/propostas/${id}`, { method: "DELETE" })
-    if (!response.ok) throw new Error("Não foi possível excluir a proposta")
-    setPropostas((current) => current.filter((item) => item.id !== id))
-  }
+    <section className="grid gap-4 md:grid-cols-4">
+      {indicadores.map(({ label, value, Icon }) => <Card key={label}><CardContent className="flex items-center justify-between p-5"><div><p className="text-sm text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div><Icon className="size-5 text-primary" /></CardContent></Card>)}
+    </section>
 
-  return (
-    <div className="module-page flex-1 space-y-6 p-4 md:p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Lista de Propostas</h1>
-          <p className="text-slate-600">Gerencie todas as propostas de planos de saúde</p>
-        </div>
-        <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNovaProposta}>
-          <PlusIcon className="w-4 h-4 mr-2" />
-          Nova Proposta
-        </Button>
-      </div>
+    <Card><CardHeader className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"><div><CardTitle>Pipeline comercial</CardTitle><CardDescription>Acompanhe propostas, vidas e implantação sem parcelas.</CardDescription></div><div className="flex flex-col gap-2 sm:flex-row"><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar empresa ou proponente" /><Select value={status} onValueChange={setStatus}><SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Status" /></SelectTrigger><SelectContent><SelectItem value="todos">Todos os status</SelectItem><SelectItem value="pendente">Pendente</SelectItem><SelectItem value="em_analise">Em análise</SelectItem><SelectItem value="aprovada">Aprovada</SelectItem><SelectItem value="rejeitada">Rejeitada</SelectItem></SelectContent></Select><Button variant="outline" size="icon" onClick={load} aria-label="Atualizar"><RefreshCw className="size-4" /></Button></div></CardHeader><CardContent>{loading ? <div className="py-12 text-center text-muted-foreground">Carregando operação...</div> : <Table><TableHeader><TableRow><TableHead>Proposta</TableHead><TableHead>Contratante</TableHead><TableHead>Produto de saúde</TableHead><TableHead>Mensalidade</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Ação</TableHead></TableRow></TableHeader><TableBody>{filtered.map((item) => <TableRow key={item.id}><TableCell className="font-medium">PROP-{String(item.id).padStart(4, "0")}</TableCell><TableCell><div>{item.empresa || item.nome_proponente}</div><div className="text-xs text-muted-foreground">{item.nome_proponente}</div></TableCell><TableCell>{item.tipo_plano}</TableCell><TableCell>{money(Number(item.valor_proposto))}</TableCell><TableCell><Badge variant={item.status === "aprovada" ? "default" : "secondary"}>{statusLabel[item.status] || item.status}</Badge></TableCell><TableCell className="text-right"><Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/propostas/analise?id=${item.id}`)}>Abrir <ArrowRight data-icon="inline-end" /></Button></TableCell></TableRow>)}{!filtered.length && <TableRow><TableCell colSpan={6} className="py-12 text-center text-muted-foreground">Nenhuma proposta encontrada.</TableCell></TableRow>}</TableBody></Table>}</CardContent></Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Filtros e Busca</CardTitle>
-          <CardDescription>Use os filtros para encontrar propostas específicas</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 items-end md:grid-cols-[1fr_12rem_auto]">
-            <div className="flex-1">
-              <div className="relative">
-                <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="Buscar por empresa, proponente ou ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="w-48">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <FilterIcon className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos os Status</SelectItem>
-                  <SelectItem value="Pendente">Pendente</SelectItem>
-                  <SelectItem value="Em Análise">Em Análise</SelectItem>
-                  <SelectItem value="Aprovada">Aprovada</SelectItem>
-                  <SelectItem value="Rejeitada">Rejeitada</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Propostas ({filteredPropostas.length})</CardTitle>
-          <CardDescription>Lista completa de propostas cadastradas</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Empresa</TableHead>
-                  <TableHead>Proponente</TableHead>
-                  <TableHead>Tipo de Plano</TableHead>
-                  <TableHead>Funcionários</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPropostas.map((proposta) => (
-                  <TableRow key={proposta.id}>
-                    <TableCell className="font-medium">PROP-{String(proposta.id).padStart(3, "0")}</TableCell>
-                    <TableCell>{proposta.empresa || "-"}</TableCell>
-                    <TableCell>{proposta.nome_proponente}</TableCell>
-                    <TableCell>{proposta.tipo_plano}</TableCell>
-                    <TableCell>{proposta.numero_funcionarios || "-"}</TableCell>
-                    <TableCell className="font-medium">
-                      {proposta.valor_proposto != null ? `R$ ${Number(proposta.valor_proposto).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "-"}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(proposta.status)}</TableCell>
-                    <TableCell>{proposta.created_at ? new Date(proposta.created_at).toLocaleDateString("pt-BR") : "-"}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewProposta(String(proposta.id))}>
-                          <EyeIcon className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEditProposta(String(proposta.id))} aria-label="Editar proposta">
-                          <EditIcon className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteProposta(proposta.id)} aria-label="Excluir proposta">
-                          <Trash2Icon className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  )
+    <Card><CardHeader><CardTitle>Faturamento mensal</CardTitle><CardDescription>Faturas por competência — não são parcelas.</CardDescription></CardHeader><CardContent><Table><TableHeader><TableRow><TableHead>Competência</TableHead><TableHead>Proposta</TableHead><TableHead>Vencimento</TableHead><TableHead>Valor</TableHead><TableHead>Status</TableHead></TableRow></TableHeader><TableBody>{faturas.slice(0, 8).map((fatura) => <TableRow key={fatura.id}><TableCell>{new Date(`${fatura.competencia}T12:00:00`).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</TableCell><TableCell>PROP-{String(fatura.proposta_id).padStart(4, "0")}</TableCell><TableCell>{new Date(`${fatura.vencimento}T12:00:00`).toLocaleDateString("pt-BR")}</TableCell><TableCell>{money(Number(fatura.valor_total))}</TableCell><TableCell><Badge variant={fatura.status === "paga" ? "default" : "outline"}>{fatura.status}</Badge></TableCell></TableRow>)}{!faturas.length && <TableRow><TableCell colSpan={5} className="py-8 text-center text-muted-foreground">As faturas mensais aparecerão aqui após a aprovação da proposta.</TableCell></TableRow>}</TableBody></Table></CardContent></Card>
+  </main>
 }

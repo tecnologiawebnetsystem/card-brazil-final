@@ -25,9 +25,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       idade_minima: body.idade_minima,
       idade_maxima: body.idade_maxima,
       status: body.status ?? (body.ativo === false ? "inativo" : "ativo"),
+      plano_id: body.plano_id,
     }
     const id = Number.parseInt(rawId, 10)
-    const allowed = ["nome", "codigo_produto", "valor_mensalidade", "idade_minima", "idade_maxima", "status"]
+    const allowed = ["nome", "codigo_produto", "valor_mensalidade", "idade_minima", "idade_maxima", "status", "plano_id"]
     const entries = Object.entries(normalized).filter(([key, value]) => allowed.includes(key) && value !== undefined)
     if (!entries.length) return NextResponse.json(errorResponse("Nenhum campo válido para atualizar"), { status: 400 })
     const values = entries.map(([, value]) => value)

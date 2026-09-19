@@ -14,7 +14,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
-    const normalized = { nome: body.nome, codigo_ans: body.codigo_ans ?? body.codigo, tipo_plano: body.tipo_plano ?? body.tipo, valor_base: body.valor_base ?? body.valor, descricao: body.descricao ?? body.cobertura, status: body.status ?? (body.ativo === false ? "inativo" : "ativo") }
+    const normalized = { nome: body.nome, codigo_ans: body.codigo_ans ?? body.codigo, tipo_plano: body.tipo_plano ?? body.tipo, valor_base: body.valor_base ?? body.valor, descricao: body.descricao ?? body.cobertura, produto_id: body.produto_id, status: body.status ?? (body.ativo === false ? "inativo" : "ativo") }
     const entries = Object.entries(normalized).filter(([, value]) => value !== undefined)
     if (!entries.length) return NextResponse.json(errorResponse("Nenhum campo válido para atualizar"), { status: 400 })
     const values = entries.map(([, value]) => value); const updates = entries.map(([key], index) => `${key} = $${index + 1}`); values.push(Number(id), administradoraId)

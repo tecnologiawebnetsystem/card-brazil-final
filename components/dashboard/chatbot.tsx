@@ -56,8 +56,8 @@ export function ChatBot() {
   const [notifications] = useState<Notification[]>([
     {
       id: "1",
-      title: "Parcelas Pendentes",
-      message: "Você tem 15 parcelas pendentes de cobrança",
+title: "Faturas Pendentes",
+  message: "Você tem faturas mensais pendentes de cobrança",
       type: "warning",
       timestamp: new Date(),
     },
@@ -214,7 +214,7 @@ Qual relatório você gostaria de gerar?`
 
 • **Gerar Boletos**: Menu → Cobrança → Gerar Boletos
 • **Consultar**: Menu → Cobrança → Consultar Boletos  
-• **Parcelas Pendentes**: Menu → Cobrança → Parcelas Pendentes
+• **Faturas Pendentes**: Menu → Cobrança → Faturas Pendentes
 
 Você tem ${notifications.find((n) => n.title.includes("Parcelas"))?.message || "parcelas pendentes"}. Precisa de ajuda com alguma cobrança específica?`
     }

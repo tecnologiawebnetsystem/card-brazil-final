@@ -1,29 +1,33 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { query } from "@/lib/database"
+import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
 
 const publicFields = `id, administradora_id, nome_completo AS nome, email, cpf, telefone, foto_perfil_url AS avatar_url, tipo_usuario AS perfil, ultimo_acesso, status, created_at`
 
 export async function GET() {
   try {
-    const users = await query(`SELECT ${publicFields} FROM usuarios WHERE deleted_at IS NULL ORDER BY nome_completo ASC NULLS LAST`)
+    const { administradoraId } = await requireCadastroAccess("view")
+    const users = await query(`SELECT ${publicFields} FROM usuarios WHERE administradora_id = $1 AND deleted_at IS NULL ORDER BY nome_completo ASC NULLS LAST`, [administradoraId])
     return NextResponse.json(users)
-  } catch { return NextResponse.json({ error: "Não foi possível carregar os usuários." }, { status: 500 }) }
+  } catch (error: any) { const auth = apiAuthError(error); return NextResponse.json({ error: auth?.message || "Não foi possível carregar os usuários." }, { status: auth?.status || 500 }) }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("create")
     const body = await request.json()
     if (!body.nome_completo || !body.email || !body.senha || !body.tipo_usuario) return NextResponse.json({ error: "Nome, e-mail, senha e perfil são obrigatórios." }, { status: 400 })
     if (String(body.senha).length < 12) return NextResponse.json({ error: "A senha deve conter pelo menos 12 caracteres." }, { status: 400 })
     const hash = await bcrypt.hash(body.senha, 12)
-    const rows = await query(`INSERT INTO usuarios (administradora_id, nome_completo, email, senha_hash, cpf, telefone, tipo_usuario, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING ${publicFields}`, [body.administradora_id || 1, body.nome_completo, body.email, hash, body.cpf || null, body.telefone || null, body.tipo_usuario, body.status || "ativo"])
+    const rows = await query(`INSERT INTO usuarios (administradora_id, nome_completo, email, senha_hash, cpf, telefone, tipo_usuario, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING ${publicFields}`, [administradoraId, body.nome_completo, body.email, hash, body.cpf || null, body.telefone || null, body.tipo_usuario, body.status || "ativo"])
     return NextResponse.json(rows[0], { status: 201 })
   } catch (error: any) { return NextResponse.json({ error: error.code === "23505" ? "E-mail ou CPF já cadastrado." : "Não foi possível criar o usuário." }, { status: error.code === "23505" ? 409 : 500 }) }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("edit")
     const body = await request.json()
     if (!body.id || !body.nome_completo || !body.email || !body.tipo_usuario) return NextResponse.json({ error: "Dados obrigatórios não informados." }, { status: 400 })
     const values: unknown[] = [body.nome_completo, body.email, body.tipo_usuario, body.status === "inativo" ? "inativo" : "ativo", body.id]
@@ -36,5 +40,5 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  try { const id = Number(request.nextUrl.searchParams.get("id")); if (!id) return NextResponse.json({ error: "ID inválido." }, { status: 400 }); await query("UPDATE usuarios SET deleted_at=CURRENT_TIMESTAMP, status='inativo', updated_at=CURRENT_TIMESTAMP WHERE id=$1", [id]); return NextResponse.json({ success: true }) } catch { return NextResponse.json({ error: "Não foi possível excluir o usuário." }, { status: 500 }) }
+  try { const { administradoraId } = await requireCadastroAccess("delete"); const id = Number(request.nextUrl.searchParams.get("id")); if (!id) return NextResponse.json({ error: "ID inválido." }, { status: 400 }); const rows = await query("UPDATE usuarios SET deleted_at=CURRENT_TIMESTAMP, status='inativo', updated_at=CURRENT_TIMESTAMP WHERE id=$1 AND administradora_id=$2 AND deleted_at IS NULL RETURNING id", [id, administradoraId]); if (!rows.length) return NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 }); return NextResponse.json({ success: true }) } catch (error: any) { const auth = apiAuthError(error); return NextResponse.json({ error: auth?.message || "Não foi possível excluir o usuário." }, { status: auth?.status || 500 }) }
 }

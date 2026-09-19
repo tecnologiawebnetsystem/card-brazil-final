@@ -31,8 +31,28 @@ export async function PATCH(request: NextRequest) {
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   const body = await request.json()
   const allowed = ["aberta", "enviada", "paga", "vencida", "cancelada"]
-  if (!Number.isInteger(Number(body.id)) || !allowed.includes(body.status)) return NextResponse.json({ error: "id ou status inválido" }, { status: 422 })
-  const rows = await query("UPDATE faturas_mensais SET status = $1, data_pagamento = CASE WHEN $1 = 'paga' THEN CURRENT_DATE ELSE data_pagamento END, updated_at = NOW() WHERE id = $2 AND administradora_id = $3 AND deleted_at IS NULL RETURNING *", [body.status, body.id, auth.administradoraId])
+  const id = Number(body.id)
+  if (!Number.isInteger(id) || id <= 0) return NextResponse.json({ error: "id inválido" }, { status: 422 })
+  if (body.status && !allowed.includes(body.status)) return NextResponse.json({ error: "status inválido" }, { status: 422 })
+  const current = await query("SELECT id, valor_base, valor_multa, valor_juros, valor_desconto, status FROM faturas_mensais WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [id, auth.administradoraId])
+  if (!current.length) return NextResponse.json({ error: "Fatura não encontrada" }, { status: 404 })
+  const item = current[0]
+  const base = body.valor_base === undefined ? Number(item.valor_base) : Number(body.valor_base)
+  const multa = body.valor_multa === undefined ? Number(item.valor_multa || 0) : Number(body.valor_multa || 0)
+  const juros = body.valor_juros === undefined ? Number(item.valor_juros || 0) : Number(body.valor_juros || 0)
+  const desconto = body.valor_desconto === undefined ? Number(item.valor_desconto || 0) : Number(body.valor_desconto || 0)
+  if (![base, multa, juros, desconto].every(Number.isFinite) || base < 0 || multa < 0 || juros < 0 || desconto < 0) return NextResponse.json({ error: "Valores da fatura inválidos" }, { status: 422 })
+  const status = body.status || item.status
+  const rows = await query("UPDATE faturas_mensais SET status = $1, valor_base = $2, valor_multa = $3, valor_juros = $4, valor_desconto = $5, valor_total = $2 + $3 + $4 - $5, vencimento = COALESCE($6, vencimento), observacoes = COALESCE($7, observacoes), data_pagamento = CASE WHEN $1 = 'paga' THEN COALESCE(data_pagamento, CURRENT_DATE) ELSE NULL END, updated_at = NOW() WHERE id = $8 AND administradora_id = $9 AND deleted_at IS NULL RETURNING *", [status, base, multa, juros, desconto, body.vencimento || null, body.observacoes || null, id, auth.administradoraId])
+  return NextResponse.json({ data: rows[0], message: "Fatura atualizada" })
+}
+
+export async function DELETE(request: NextRequest) {
+  const auth = await getAuthContext()
+  if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  const id = Number(request.nextUrl.searchParams.get("id"))
+  if (!Number.isInteger(id) || id <= 0) return NextResponse.json({ error: "id inválido" }, { status: 422 })
+  const rows = await query("UPDATE faturas_mensais SET deleted_at = NOW(), updated_at = NOW(), status = 'cancelada' WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL RETURNING id", [id, auth.administradoraId])
   if (!rows.length) return NextResponse.json({ error: "Fatura não encontrada" }, { status: 404 })
-  return NextResponse.json({ data: rows[0] })
+  return NextResponse.json({ message: "Fatura cancelada" })
 }

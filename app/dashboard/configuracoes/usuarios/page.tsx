@@ -1,5 +1,6 @@
 "use client"
 
+import type React from "react"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -67,17 +68,37 @@ export default function ConfiguracoesUsuariosPage() {
     setShowAddUser(true)
   }
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    const payload = { nome_completo: form.get("nome_completo"), email: form.get("email"), senha: form.get("senha"), tipo_usuario: form.get("tipo_usuario") || "operador", telefone: form.get("telefone") || null }
+    const response = await fetch("/api/configuracoes/usuarios", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+    const data = await response.json()
+    if (!response.ok) return toast.error(data.error || "Não foi possível criar o usuário")
+    setUsers((current) => [...current, { id: data.id, name: data.nome, email: data.email, role: data.perfil, status: data.status, lastLogin: "Nunca acessou", avatar: data.avatar_url }])
     setShowAddUser(false)
     toast.success("Usuário criado com sucesso!")
   }
 
-  const handleEditUser = (userId: number) => {
-    toast.success(`Editando usuário ${userId}`)
+  const handleEditUser = async (userId: number) => {
+    const current = users.find((user) => user.id === userId)
+    if (!current) return
+    const nome = window.prompt("Nome completo", current.name)
+    if (!nome) return
+    const response = await fetch("/api/configuracoes/usuarios", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: userId, nome_completo: nome, email: current.email, tipo_usuario: current.role, status: current.status?.toLowerCase() }) })
+    const data = await response.json()
+    if (!response.ok) return toast.error(data.error || "Não foi possível atualizar o usuário")
+    setUsers((items) => items.map((item) => item.id === userId ? { ...item, name: data.nome } : item))
+    toast.success("Usuário atualizado com sucesso")
   }
 
-  const handleDeleteUser = (userId: number) => {
-    toast.success(`Usuário ${userId} removido`)
+  const handleDeleteUser = async (userId: number) => {
+    if (!window.confirm("Excluir este usuário?")) return
+    const response = await fetch(`/api/configuracoes/usuarios?id=${userId}`, { method: "DELETE" })
+    const data = await response.json()
+    if (!response.ok) return toast.error(data.error || "Não foi possível excluir o usuário")
+    setUsers((items) => items.filter((item) => item.id !== userId))
+    toast.success("Usuário removido com sucesso")
   }
 
   return (
@@ -101,19 +122,20 @@ export default function ConfiguracoesUsuariosPage() {
                 <CardTitle>Novo Usuário</CardTitle>
                 <CardDescription>Preencha as informações do novo usuário</CardDescription>
               </CardHeader>
+              <form onSubmit={handleSaveUser}>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="new-name">Nome Completo</Label>
-                    <Input id="new-name" placeholder="Digite o nome completo" />
+                    <Input id="new-name" name="nome_completo" placeholder="Digite o nome completo" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="new-email">Email</Label>
-                    <Input id="new-email" type="email" placeholder="Digite o email" />
+                    <Input id="new-email" name="email" type="email" placeholder="Digite o email" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="new-role">Perfil de Acesso</Label>
-                    <Select>
+                    <Select name="tipo_usuario" defaultValue="operador">
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o perfil" />
                       </SelectTrigger>
@@ -140,11 +162,11 @@ export default function ConfiguracoesUsuariosPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="new-password">Senha Temporária</Label>
-                    <Input id="new-password" type="password" placeholder="Digite a senha temporária" />
+                    <Input id="new-password" name="senha" type="password" placeholder="Digite a senha temporária" minLength={12} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="new-phone">Telefone</Label>
-                    <Input id="new-phone" placeholder="(11) 99999-9999" />
+                    <Input id="new-phone" name="telefone" placeholder="(11) 99999-9999" />
                   </div>
                 </div>
 
@@ -154,7 +176,7 @@ export default function ConfiguracoesUsuariosPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button onClick={handleSaveUser} className="bg-emerald-700 hover:bg-emerald-800">
+                  <Button type="submit" className="bg-emerald-700 hover:bg-emerald-800">
                     Criar Usuário
                   </Button>
                   <Button variant="outline" onClick={() => setShowAddUser(false)}>
@@ -162,6 +184,7 @@ export default function ConfiguracoesUsuariosPage() {
                   </Button>
                 </div>
               </CardContent>
+              </form>
             </Card>
           )}
 

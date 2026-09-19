@@ -1,12 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
+
+function authFailure(error: unknown) {
+  const auth = apiAuthError(error)
+  return auth ? { body: { success: false, message: auth.message }, status: auth.status } : null
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { administradoraId } = await requireCadastroAccess("view")
     const { id } = await params
-    const propostaId = Number.parseInt(id)
+    const propostaId = Number.parseInt(id, 10)
 
-    const rows = await query(`SELECT * FROM propostas WHERE id = $1 AND deleted_at IS NULL`, [propostaId])
+    const rows = await query(`SELECT * FROM propostas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [propostaId, administradoraId])
     const proposta = rows[0]
 
     if (!proposta) {
@@ -16,13 +23,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const historico = await query(`SELECT id, acao, dados_anteriores, dados_novos, created_at FROM auditoria WHERE tabela = 'propostas' AND registro_id = $1 ORDER BY created_at DESC`, [propostaId])
     return NextResponse.json({ success: true, data: { ...proposta, historico } })
   } catch (error: any) {
+    const auth = authFailure(error)
     console.error("[v0] Erro ao buscar proposta:", error)
-    return NextResponse.json({ error: "Erro ao buscar proposta", details: error.message }, { status: 500 })
+    return NextResponse.json(auth?.body || { error: "Erro ao buscar proposta", details: error.message }, { status: auth?.status || 500 })
   }
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
 
@@ -129,30 +138,33 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     sql += updates.join(", ")
-    sql += ` WHERE id = $${updateParams.length + 1} AND deleted_at IS NULL`
-    updateParams.push(id)
+    sql += `, updated_at = CURRENT_TIMESTAMP WHERE id = $${updateParams.length + 1} AND administradora_id = $${updateParams.length + 2} AND deleted_at IS NULL`
+    updateParams.push(id, administradoraId)
 
-    const updatedRows = await query(`${sql}, updated_at = CURRENT_TIMESTAMP RETURNING *`, updateParams)
+    const updatedRows = await query(`${sql} RETURNING *`, updateParams)
     if (!updatedRows[0]) return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
     return NextResponse.json({ success: true, data: updatedRows[0], message: "Proposta atualizada com sucesso" })
   } catch (error: any) {
+    const auth = authFailure(error)
     console.error("[v0] Erro ao atualizar proposta:", error)
-    return NextResponse.json({ error: "Erro ao atualizar proposta", details: error.message }, { status: 500 })
+    return NextResponse.json(auth?.body || { error: "Erro ao atualizar proposta", details: error.message }, { status: auth?.status || 500 })
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { administradoraId } = await requireCadastroAccess("delete")
     const { id } = await params
 
     // Soft delete
     const sql = `UPDATE propostas SET deleted_at = NOW(), updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL`
 
-    const rows = await query(`${sql} RETURNING id`, [id])
+    const rows = await query(`${sql} AND administradora_id = $2 RETURNING id`, [id, administradoraId])
     if (!rows.length) return NextResponse.json({ success: false, message: "Proposta não encontrada" }, { status: 404 })
     return NextResponse.json({ success: true, data: null, message: "Proposta excluída com sucesso" })
   } catch (error: any) {
+    const auth = authFailure(error)
     console.error("[v0] Erro ao excluir proposta:", error)
-    return NextResponse.json({ error: "Erro ao excluir proposta", details: error.message }, { status: 500 })
+    return NextResponse.json(auth?.body || { error: "Erro ao excluir proposta", details: error.message }, { status: auth?.status || 500 })
   }
 }

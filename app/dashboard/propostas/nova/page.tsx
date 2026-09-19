@@ -78,10 +78,10 @@ export default function NovaPropostaPage() {
         body: JSON.stringify({
           nome_proponente: formData.nomeProponente,
           cpf_cnpj: formData.cpfCnpj,
-          email_proponente: formData.email,
-          telefone_proponente: formData.telefone,
-          nome_empresa: formData.empresa,
-          numero_funcionarios: formData.numeroFuncionarios,
+          email: formData.email || null,
+          telefone: formData.telefone || null,
+          empresa: formData.empresa || null,
+          numero_funcionarios: formData.numeroFuncionarios ? Number(formData.numeroFuncionarios) || null : null,
           tipo_plano: formData.tipoPlano,
           valor_proposto: Number.parseFloat(formData.valorProposto.replace(/[^\d,]/g, "").replace(",", ".")) || 0,
           observacoes: formData.observacoes,
@@ -97,7 +97,7 @@ export default function NovaPropostaPage() {
 
       toast({
         title: "Proposta criada",
-        description: `Proposta #${data.id} criada com sucesso`,
+        description: `Proposta #${data.data?.id || propostaId || ""} salva com sucesso`,
       })
 
       // Redirecionar para lista de propostas

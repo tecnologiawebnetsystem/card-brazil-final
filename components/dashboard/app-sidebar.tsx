@@ -325,6 +325,7 @@ const menuItems: MenuGroup[] = [
               { title: "Conciliação Bancária", url: "/dashboard/cobranca/conciliacao-bancaria", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Retorno Bancário", url: "/dashboard/cobranca/retorno-bancario", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Arquivos de Remessa", url: "/dashboard/cobranca/arquivos-remessa", icon: <CogIcon className="h-3 w-3" /> },
+  { title: "Configurações de Cobrança", url: "/dashboard/cobranca/configuracoes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Lotes de Aviso de Crédito", url: "/dashboard/cobranca/lotes-aviso-credito", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Aviso de Crédito", url: "/dashboard/cobranca/aviso-credito", icon: <CogIcon className="h-3 w-3" /> },
             ],

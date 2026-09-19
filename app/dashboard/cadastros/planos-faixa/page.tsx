@@ -107,7 +107,7 @@ export default function PlanosFaixaPage() {
     }
 
     if (filterPlano !== "todos") {
-      filtered = filtered.filter((plano) => plano.plano === filterPlano)
+      filtered = filtered.filter((plano) => plano.plano_id.toString() === filterPlano)
     }
 
     if (filterStatus !== "todos") {
@@ -131,14 +131,14 @@ export default function PlanosFaixaPage() {
       setShowModal(false); setEditingPlano(null)
       const refreshed = await fetch("/api/planos-faixas")
       const next = await refreshed.json()
-      setPlanosFaixa((next.data || []).map((item: any) => ({ id: item.id, plano: item.plano_nome, faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`, idadeMinima: item.idade_minima, idadeMaxima: item.idade_maxima, valor: Number(item.valor), percentualReajuste: 0, ativo: true, dataInclusao: item.created_at })))
+      setPlanosFaixa((next.data || []).map((item: any) => ({ id: item.id, plano_id: item.plano_id, plano: item.plano_nome || "Plano não identificado", faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`, idadeMinima: Number(item.idade_minima), idadeMaxima: Number(item.idade_maxima), valor: Number(item.valor || 0), percentualReajuste: 0, ativo: item.deleted_at == null, dataInclusao: item.created_at })))
     } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível salvar a faixa") } finally { setIsLoading(false) }
   }
 
   const handleEditPlano = (plano: PlanoFaixa) => {
     setEditingPlano(plano)
     setFormData({
-      plano: plano.plano,
+      plano: plano.plano_id.toString(),
       faixaEtaria: plano.faixaEtaria,
       idadeMinima: plano.idadeMinima.toString(),
       idadeMaxima: plano.idadeMaxima.toString(),
@@ -222,9 +222,9 @@ export default function PlanosFaixaPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos os planos</SelectItem>
-                  {Array.from(new Set(planosFaixa.map((p) => p.plano))).map((plano) => (
-                    <SelectItem key={plano} value={plano}>
-                      {plano}
+                  {planosDisponiveis.map((plano) => (
+                    <SelectItem key={plano.id} value={plano.id.toString()}>
+                      {plano.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>

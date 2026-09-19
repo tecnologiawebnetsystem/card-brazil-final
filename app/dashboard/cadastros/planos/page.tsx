@@ -55,6 +55,12 @@ const PlusIcon = () => (
   </svg>
 )
 
+interface ProdutoDisponivel {
+  id: number
+  nome: string
+  operadora_id?: number
+}
+
 interface Plano {
   id: number
   nome: string
@@ -79,11 +85,13 @@ export default function PlanosPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [planos, setPlanos] = useState<Plano[]>([])
+  const [produtos, setProdutos] = useState<ProdutoDisponivel[]>([])
   const [filteredPlanos, setFilteredPlanos] = useState<Plano[]>([])
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [planoToDelete, setPlanoToDelete] = useState<number | null>(null)
 
   const [formData, setFormData] = useState({
+    produto_id: "",
     nome: "",
     codigo: "",
     tipo: "",
@@ -95,8 +103,19 @@ export default function PlanosPage() {
   })
 
   useEffect(() => {
-    loadPlanos()
+    void Promise.all([loadPlanos(), loadProdutos()])
   }, [])
+
+  const loadProdutos = async () => {
+    try {
+      const response = await fetch("/api/produtos", { credentials: "include", cache: "no-store" })
+      const data = await response.json()
+      if (!response.ok || !data.success) throw new Error(data.message)
+      setProdutos(data.data || [])
+    } catch (error) {
+      toast({ title: "Erro", description: "Não foi possível carregar os produtos", variant: "destructive" })
+    }
+  }
 
   useEffect(() => {
     if (!searchTerm.trim()) {
@@ -141,6 +160,7 @@ export default function PlanosPage() {
       setIsEditMode(true)
       setEditingPlano(plano)
       setFormData({
+        produto_id: plano.produto_id?.toString() || "",
         nome: plano.nome,
         codigo: plano.codigo || "",
         tipo: plano.tipo || "",
@@ -154,6 +174,7 @@ export default function PlanosPage() {
       setIsEditMode(false)
       setEditingPlano(null)
       setFormData({
+        produto_id: "",
         nome: "",
         codigo: "",
         tipo: "",
@@ -179,15 +200,17 @@ export default function PlanosPage() {
 
     setIsLoading(true)
     try {
+      const produtoSelecionado = produtos.find((produto) => produto.id.toString() === formData.produto_id)
+      if (!produtoSelecionado) throw new Error("Selecione um produto cadastrado antes de criar o plano")
       const payload = {
+        produto_id: produtoSelecionado.id,
+        operadora_id: produtoSelecionado.operadora_id,
         nome: formData.nome,
-        codigo: formData.codigo || null,
-        tipo: formData.tipo || null,
-        valor: formData.valor ? Number.parseFloat(formData.valor) : null,
-        cobertura: formData.cobertura || null,
+        codigo_ans: formData.codigo || null,
+        tipo_plano: formData.tipo || "Individual",
+        valor_base: formData.valor ? Number.parseFloat(formData.valor) : null,
         descricao: formData.descricao || null,
-        status: formData.status,
-        ativo: formData.ativo,
+        status: formData.status.toLowerCase(),
       }
 
       let response
@@ -236,14 +259,14 @@ export default function PlanosPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          produto_id: plano.produto_id ?? null,
+          operadora_id: produtos.find((produto) => produto.id === plano.produto_id)?.operadora_id,
           nome: plano.nome,
-          codigo: plano.codigo ?? null,
-          tipo: plano.tipo ?? null,
-          valor: plano.valor ?? null,
-          cobertura: plano.cobertura ?? null,
+          codigo_ans: plano.codigo ?? null,
+          tipo_plano: plano.tipo || "Individual",
+          valor_base: plano.valor ?? null,
           descricao: plano.descricao ?? null,
-          status: novoAtivo ? "Ativo" : "Inativo",
-          ativo: novoAtivo,
+          status: novoAtivo ? "ativo" : "inativo",
         }),
       })
       const data = await response.json()
@@ -392,6 +415,16 @@ export default function PlanosPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="produto_id" className="text-right">Produto *</Label>
+                <Select value={formData.produto_id} onValueChange={(value) => setFormData({ ...formData, produto_id: value })}>
+                  <SelectTrigger id="produto_id" className="col-span-3"><SelectValue placeholder="Selecione o produto" /></SelectTrigger>
+                  <SelectContent>
+                    {produtos.map((produto) => <SelectItem key={produto.id} value={produto.id.toString()}>{produto.nome}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              {produtos.length === 0 && <p className="text-sm text-muted-foreground">Cadastre um produto antes de criar um plano.</p>}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="nome" className="text-right">
                   Nome *

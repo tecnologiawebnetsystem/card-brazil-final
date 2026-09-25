@@ -1,6 +1,6 @@
 import { query } from "@/lib/database"
 
-export type CadastroAuditAction = "create" | "update" | "delete" | "toggle" | "approve" | "reject"
+export type CadastroAuditAction = "create" | "update" | "delete" | "toggle" | "approve" | "reject" | "permission_change"
 
 export async function recordCadastroAudit(input: {
   administradoraId: number

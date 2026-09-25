@@ -1,16 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireFinanceiroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get("status")
     const fase = searchParams.get("fase")
     const advogado_id = searchParams.get("advogado_id")
     const beneficiario_id = searchParams.get("beneficiario_id")
 
-    const params: unknown[] = []
-    const conditions: string[] = []
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (fase) { params.push(fase); conditions.push(`fase_processual = $${params.length}`) }
     if (advogado_id) { params.push(Number.parseInt(advogado_id, 10)); conditions.push(`advogado_id = $${params.length}`) }
@@ -26,6 +28,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId, userId } = await requireFinanceiroAccess("create")
     const body = await request.json()
 
     if (
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
         observacoes, historico, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22) RETURNING id`,
       [
-        body.administradora_id || 1,
+        administradoraId,
         body.beneficiario_id,
         body.advogado_id || null,
         body.tribunal_id || null,
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
         body.valor_recuperado || 0,
         body.observacoes || null,
         body.historico ? JSON.stringify(body.historico) : null,
-        body.created_by || 1,
+        userId,
       ],
     )
 

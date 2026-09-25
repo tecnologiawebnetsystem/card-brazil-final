@@ -1,15 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireFinanceiroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const tipo = searchParams.get("tipo")
     const status = searchParams.get("status")
     const categoria = searchParams.get("categoria")
 
-    const params: unknown[] = []
-    const conditions: string[] = []
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (tipo) { params.push(tipo); conditions.push(`tipo = $${params.length}`) }
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (categoria) { params.push(categoria); conditions.push(`categoria = $${params.length}`) }
@@ -24,6 +26,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId, userId } = await requireFinanceiroAccess("create")
     const body = await request.json()
 
     // Validações
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING id`,
       [
-        body.administradora_id || 1,
+        administradoraId,
         body.conta_receber_id || null,
         body.conta_pagar_id || null,
         body.conta_bancaria_id || null,
@@ -62,7 +65,7 @@ export async function POST(request: NextRequest) {
         body.conta_origem || null,
         body.conta_destino || null,
         body.observacoes || null,
-        body.created_by || 1,
+        userId,
       ],
     )
 

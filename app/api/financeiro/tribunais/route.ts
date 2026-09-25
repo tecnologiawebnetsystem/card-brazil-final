@@ -1,15 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireFinanceiroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const tipo = searchParams.get("tipo")
     const uf = searchParams.get("uf")
     const ativo = searchParams.get("ativo")
 
-    const params: unknown[] = []
-    const conditions: string[] = []
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (tipo) { params.push(tipo); conditions.push(`tipo = $${params.length}`) }
     if (uf) { params.push(uf); conditions.push(`uf = $${params.length}`) }
     if (ativo !== null) { params.push(ativo === "true"); conditions.push(`ativo = $${params.length}`) }
@@ -24,6 +26,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("create")
     const body = await request.json()
 
     if (!body.nome || !body.tipo || !body.instancia || !body.uf) {
@@ -37,7 +40,7 @@ export async function POST(request: NextRequest) {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING id`,
       [
-        body.administradora_id || 1,
+        administradoraId,
         body.nome,
         body.sigla || null,
         body.tipo,

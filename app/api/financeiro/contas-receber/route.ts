@@ -1,15 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireFinanceiroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const status = searchParams.get("status")
     const categoria = searchParams.get("categoria")
     const beneficiario_id = searchParams.get("beneficiario_id")
 
-    const params: unknown[] = []
-    const conditions: string[] = []
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["id_administradora = $1", "deleted_at IS NULL"]
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (categoria) { params.push(categoria); conditions.push(`categoria = $${params.length}`) }
     if (beneficiario_id) { params.push(Number.parseInt(beneficiario_id, 10)); conditions.push(`beneficiario_id = $${params.length}`) }
@@ -18,12 +20,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("Erro ao buscar contas a receber:", error)
-    return NextResponse.json({ error: "Erro ao buscar contas a receber" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar contas a receber" }, { status: authErrorStatus(error) })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId, userId } = await requireFinanceiroAccess("create")
     const body = await request.json()
 
     if (!body.numero_documento || !body.descricao || !body.categoria) {
@@ -55,7 +58,7 @@ export async function POST(request: NextRequest) {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
       RETURNING id`,
       [
-        body.administradora_id || 1,
+        administradoraId,
         body.beneficiario_id || null,
         body.proposta_id || null,
         body.contrato_id || null,
@@ -79,13 +82,13 @@ export async function POST(request: NextRequest) {
         body.pix_qrcode || null,
         body.pix_chave || null,
         body.observacoes || null,
-        body.created_by || 1,
+        userId,
       ],
     )
 
     return NextResponse.json({ id: rows[0].id, message: "Conta a receber criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("Erro ao criar conta a receber:", error)
-    return NextResponse.json({ error: "Erro ao criar conta a receber" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar conta a receber" }, { status: authErrorStatus(error) })
   }
 }

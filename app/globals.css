@@ -46,7 +46,7 @@ button, a, input, select, textarea {
   --card-foreground: #172033;
   --popover: #ffffff;
   --popover-foreground: #172033;
-  --primary: #1677c8;
+  --primary: #075985;
   --primary-foreground: #ffffff;
   --secondary: #eaf5fc;
   --secondary-foreground: #124e8c;
@@ -93,8 +93,8 @@ button, a, input, select, textarea {
   --card-foreground: #eaf5fc;
   --popover: #0b1f3a;
   --popover-foreground: #eaf5fc;
-  --primary: #3ba4e8;
-  --primary-foreground: #0b1f3a;
+  --primary: #7dd3fc;
+  --primary-foreground: #071a2d;
   --secondary: #124e8c;
   --secondary-foreground: #eaf5fc;
   --muted: #102d4d;

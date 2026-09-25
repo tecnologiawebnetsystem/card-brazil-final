@@ -85,12 +85,12 @@ export function LoginSection() {
         <section className="relative flex w-full flex-col justify-center bg-background px-4 py-8 lg:w-2/5 lg:px-12 lg:py-0 xl:px-16">
           <div className="w-full max-w-sm">
             <div className="mb-12 lg:hidden">
-              <div className="mb-2 font-mono text-xs font-bold uppercase tracking-[0.3em] text-primary/70">Gestor de Saúde</div>
+              <div className="mb-2 font-mono text-xs font-bold uppercase tracking-[0.3em] text-foreground/80">Gestor de Saúde</div>
               <h1 className="text-3xl font-bold tracking-[-0.05em]">CardBrazil</h1>
             </div>
             <div className="mb-12 space-y-4 border-l-2 border-primary/30 pl-6">
               <div>
-                <div className="mb-1 font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary">Acesso Restrito</div>
+                <div className="mb-1 font-mono text-xs font-bold uppercase tracking-[0.2em] text-foreground">Acesso Restrito</div>
                 <h2 className="text-3xl font-bold leading-tight tracking-[-0.03em]">Bem-vindo ao controle operacional.</h2>
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">Autentique-se para acessar o painel de gestão integrada de propostas e faturamento.</p>
@@ -115,7 +115,7 @@ export function LoginSection() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="font-mono text-xs font-bold uppercase tracking-[0.15em]">Senha</Label>
-                  <Link href="/esqueci-senha" className="font-mono text-xs uppercase tracking-[0.15em] text-primary/80 hover:text-primary">Recuperar</Link>
+                  <Link href="/esqueci-senha" className="font-mono text-xs font-semibold uppercase tracking-[0.15em] text-foreground underline decoration-primary/60 underline-offset-4 hover:text-primary">Recuperar</Link>
                 </div>
                 <div className="relative border-l-2 border-primary/40 pl-4">
                   <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary/50" size={18} />
@@ -156,7 +156,7 @@ export function LoginSection() {
             </form>
             <div className="mt-8 border-t border-primary/20 pt-6">
               <p className="text-xs leading-relaxed text-muted-foreground">
-                <span className="text-primary/60">Ambiente:</span> Produção | <span className="text-primary/60">Versão:</span> 1.0.0
+                <span className="font-semibold text-foreground">Ambiente:</span> Produção | <span className="font-semibold text-foreground">Versão:</span> 1.0.0
               </p>
             </div>
             <LoginInstallActions />

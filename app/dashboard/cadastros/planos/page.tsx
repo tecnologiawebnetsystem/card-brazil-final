@@ -377,7 +377,10 @@ export default function PlanosPage() {
                     header: "Valor",
                     sortable: true,
                     sortValue: (p) => p.valor ?? 0,
-                    render: (p) => (p.valor ? `R$ ${p.valor.toFixed(2).replace(".", ",")}` : "—"),
+                    render: (p) => {
+        const valor = p.valor == null ? null : Number(p.valor)
+        return valor == null || Number.isNaN(valor) ? "—" : `R$ ${valor.toFixed(2).replace(".", ",")}`
+      },
                   },
                 ] as CadastroColumn<Plano>[]
               }
@@ -396,7 +399,10 @@ export default function PlanosPage() {
                   <CadastroDetailField label="Cobertura" value={p.cobertura} />
                   <CadastroDetailField
                     label="Valor"
-                    value={p.valor ? `R$ ${p.valor.toFixed(2).replace(".", ",")}` : undefined}
+                    value={(() => {
+          const valor = p.valor == null ? null : Number(p.valor)
+          return valor == null || Number.isNaN(valor) ? undefined : `R$ ${valor.toFixed(2).replace(".", ",")}`
+        })()}
                   />
                   <CadastroDetailField label="Status" value={p.ativo ? "Ativo" : "Inativo"} />
                   <CadastroDetailField label="Descrição" value={p.descricao} full />

@@ -679,9 +679,9 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent className="px-2 py-2">
           {filteredMenuItems.map((group) => (
-            <SidebarGroup key={group.title} className="mb-2">
+            <SidebarGroup key={group.title} className="mb-0 p-0">
               <SidebarGroupLabel
-                className="mb-1 flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/80"
+                className="mb-0 flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/80"
                 onClick={() => toggleGroupExpansion(group.title)}
               >
                 <span>{group.title}</span>
@@ -692,12 +692,13 @@ export function AppSidebar() {
                 )}
               </SidebarGroupLabel>
               {expandedGroups[group.title] && (
-                <SidebarGroupContent>
-                  <SidebarMenu className="space-y-0.5">
+                  <SidebarGroupContent className="mt-0.5">
+                    <SidebarMenu className="space-y-0">
+
                     {group.items.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         {item.subItems ? (
-                          <div className="flex flex-col space-y-0.5">
+                          <div className="flex flex-col space-y-0">
                             {item.subItems.map((subItem) => (
                               <SidebarMenuButton
                                 key={subItem.title}

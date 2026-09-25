@@ -126,12 +126,16 @@ export default function BeneficiarioTitularPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este beneficiário titular?")) return
+if (!confirm("Tem certeza que deseja excluir este beneficiário titular?")) return
+  const motivo = window.prompt("Informe o motivo da exclusão:")?.trim()
+  if (!motivo || motivo.length < 5) return
 
-    try {
+  try {
       const response = await fetch(`/api/beneficiarios/${id}`, {
-        method: "DELETE",
-      })
+method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ motivo }),
+  })
 
       const data = await response.json()
 

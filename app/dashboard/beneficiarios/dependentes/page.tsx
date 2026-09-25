@@ -132,12 +132,16 @@ export default function DependentesPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este dependente?")) return
+if (!confirm("Tem certeza que deseja excluir este dependente?")) return
+  const motivo = window.prompt("Informe o motivo da exclusão:")?.trim()
+  if (!motivo || motivo.length < 5) return
 
-    try {
+  try {
       const response = await fetch(`/api/beneficiarios/${id}`, {
-        method: "DELETE",
-      })
+method: "DELETE",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ motivo }),
+  })
 
       const data = await response.json()
 

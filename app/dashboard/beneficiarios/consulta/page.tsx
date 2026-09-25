@@ -115,7 +115,7 @@ export default function ConsultaBeneficiariosPage() {
       const response = await fetch(`/api/beneficiarios/${beneficiario.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: beneficiario.ativo ? "inativo" : "ativo" }),
+        body: JSON.stringify({ status: beneficiario.ativo ? "inativo" : "ativo", motivo: `Alteração de status pela consulta de beneficiários: ${beneficiario.ativo ? "inativação" : "ativação"}` }),
       })
       const data = await response.json()
       if (!response.ok || data.success === false) throw new Error(data.message || "Não foi possível alterar o status")
@@ -127,9 +127,11 @@ export default function ConsultaBeneficiariosPage() {
   }
 
   const handleDelete = async (beneficiario: Beneficiario) => {
-    if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario.id}?`)) return
-    try {
-      const response = await fetch(`/api/beneficiarios/${beneficiario.id}`, { method: "DELETE" })
+if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario.id}?`)) return
+  const motivo = window.prompt("Informe o motivo da exclusão:")?.trim()
+  if (!motivo || motivo.length < 5) return
+  try {
+      const response = await fetch(`/api/beneficiarios/${beneficiario.id}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ motivo }) })
       const data = await response.json()
       if (!response.ok || data.success === false) throw new Error(data.message || "Não foi possível excluir")
       setBeneficiarios((current) => current.filter((item) => item.id !== beneficiario.id))

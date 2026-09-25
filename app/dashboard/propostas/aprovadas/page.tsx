@@ -48,7 +48,7 @@ export default function PropostasAprovadasPage() {
         }
 
         const data = await response.json()
-        setPropostas(data)
+        setPropostas(Array.isArray(data) ? data : data.data || [])
       } catch (error) {
         console.error("[v0] Erro ao carregar propostas aprovadas:", error)
       } finally {
@@ -107,7 +107,7 @@ export default function PropostasAprovadasPage() {
       const fetchResponse = await fetch("/api/propostas?status=aprovada")
       if (fetchResponse.ok) {
         const data = await fetchResponse.json()
-        setPropostas(data)
+        setPropostas(Array.isArray(data) ? data : data.data || [])
       }
     } catch (error) {
       console.error("[v0] Erro ao gerar contrato:", error)

@@ -1,9 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
-    const emAnalise = await query(`SELECT * FROM propostas WHERE status = 'em_analise' ORDER BY created_at DESC NULLS LAST`)
+    const { administradoraId } = await requireCadastroAccess("view")
+    const emAnalise = await query(`SELECT * FROM propostas WHERE administradora_id = $1 AND status = 'em_analise' AND deleted_at IS NULL ORDER BY created_at DESC NULLS LAST`, [administradoraId])
 
     return NextResponse.json({
       success: true,
@@ -12,19 +14,20 @@ export async function GET(request: NextRequest) {
     })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar propostas em análise:", error)
-    return NextResponse.json({ error: "Erro ao buscar propostas em análise", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar propostas em análise" }, { status: authErrorStatus(error) })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("edit")
     const body = await request.json()
     
     if (!body.proposta_id) {
       return NextResponse.json({ error: "ID da proposta é obrigatório" }, { status: 400 })
     }
 
-    const propostaRows = await query(`SELECT id FROM propostas WHERE id = $1`, [body.proposta_id])
+    const propostaRows = await query(`SELECT id, status FROM propostas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [body.proposta_id, administradoraId])
     if (!propostaRows.length) {
       return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
     }

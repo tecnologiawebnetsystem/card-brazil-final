@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
-import { requireCadastroAccess } from "@/lib/api-auth"
+import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
 import { propostaSchema, zodFieldErrors } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: true, data: propostas, pagination: { total: propostas[0]?.total_registros ? Number(propostas[0].total_registros) : propostas.length, limit, offset } })
   } catch (error: any) {
     console.error("[v0] Erro ao buscar propostas:", error)
-    return NextResponse.json({ error: "Erro ao buscar propostas" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar propostas" }, { status: authErrorStatus(error) })
   }
 }
 

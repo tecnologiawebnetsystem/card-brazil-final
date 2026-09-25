@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const beneficiario_id = searchParams.get("beneficiario_id")
 
     const params: unknown[] = [administradoraId]
-    const conditions: string[] = ["id_administradora = $1", "deleted_at IS NULL"]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (categoria) { params.push(categoria); conditions.push(`categoria = $${params.length}`) }
     if (beneficiario_id) { params.push(Number.parseInt(beneficiario_id, 10)); conditions.push(`beneficiario_id = $${params.length}`) }
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const rows = await query(
       `INSERT INTO contas_receber (
-        id_administradora, beneficiario_id, proposta_id, contrato_id,
+        administradora_id, beneficiario_id, proposta_id, contrato_id,
         numero_documento, descricao, categoria,
         valor_original, valor_multa, valor_juros, valor_desconto, valor_total, valor_pago,
         data_emissao, data_vencimento, data_pagamento,

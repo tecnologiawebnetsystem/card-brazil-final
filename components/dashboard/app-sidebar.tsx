@@ -301,23 +301,23 @@ const menuItems: MenuGroup[] = [
     ],
   },
       {
-        title: "Cobrança",
+        title: "Cobrança e Recebimento",
         items: [
           {
-            title: "Operação de Cobrança",
+            title: "Faturamento e Emissão",
             icon: <FileTextIcon />,
             subItems: [
               { title: "Visão geral", url: "/dashboard/cobranca", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Geração de Boletos", url: "/dashboard/cobranca/gerar-boletos", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Consulta de Boletos", url: "/dashboard/cobranca/consultar-boletos", icon: <CogIcon className="h-3 w-3" /> },
-{ title: "Consulta de Faturas", url: "/dashboard/cobranca/consulta-parcelas", icon: <CogIcon className="h-3 w-3" /> },
-  { title: "Faturas Pendentes", url: "/dashboard/cobranca/parcelas-pendentes", icon: <CogIcon className="h-3 w-3" /> },
+              { title: "Consulta de Faturas", url: "/dashboard/cobranca/consulta-parcelas", icon: <CogIcon className="h-3 w-3" /> },
+              { title: "Faturas Pendentes", url: "/dashboard/cobranca/parcelas-pendentes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Alteração de Vencimento", url: "/dashboard/cobranca/alteracao-vencimento", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Desconto de Pontualidade", url: "/dashboard/cobranca/desconto-pontualidade", icon: <CogIcon className="h-3 w-3" /> },
             ],
           },
           {
-            title: "Recebimentos e Bancário",
+            title: "Recebimentos e Conciliação",
             icon: <DollarSignIcon />,
             subItems: [
               { title: "Baixa de Pagamento", url: "/dashboard/cobranca/baixa-pagamento", icon: <CogIcon className="h-3 w-3" /> },
@@ -325,7 +325,6 @@ const menuItems: MenuGroup[] = [
               { title: "Conciliação Bancária", url: "/dashboard/cobranca/conciliacao-bancaria", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Retorno Bancário", url: "/dashboard/cobranca/retorno-bancario", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Arquivos de Remessa", url: "/dashboard/cobranca/arquivos-remessa", icon: <CogIcon className="h-3 w-3" /> },
-  { title: "Configurações de Cobrança", url: "/dashboard/cobranca/configuracoes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Lotes de Aviso de Crédito", url: "/dashboard/cobranca/lotes-aviso-credito", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Aviso de Crédito", url: "/dashboard/cobranca/aviso-credito", icon: <CogIcon className="h-3 w-3" /> },
             ],
@@ -341,7 +340,7 @@ const menuItems: MenuGroup[] = [
             ],
           },
           {
-            title: "Inadimplência e Judicial",
+            title: "Inadimplência e Recuperação",
             icon: <ShieldIcon />,
             subItems: [
               { title: "Controle de Inadimplência", url: "/dashboard/cobranca/inadimplencia", icon: <CogIcon className="h-3 w-3" /> },
@@ -351,10 +350,11 @@ const menuItems: MenuGroup[] = [
             ],
           },
           {
-            title: "Configurações e Relatórios",
+            title: "Parâmetros de Cobrança",
             icon: <CogIcon />,
             subItems: [
               { title: "Multas e Juros", url: "/dashboard/cobranca/multas-juros", icon: <CogIcon className="h-3 w-3" /> },
+              { title: "Configurações de Cobrança", url: "/dashboard/cobranca/configuracoes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Configurações Gerais", url: "/dashboard/cobranca/configuracoes-gerais", icon: <CogIcon className="h-3 w-3" /> },
               /* Relatórios desativados para homologação. */
             ],

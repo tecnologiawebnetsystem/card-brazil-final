@@ -11,11 +11,11 @@ export function DashboardHeader() {
   const { toggleSidebar } = useSidebar()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-card/95 pt-[env(safe-area-inset-top)] shadow-sm backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/95 pt-[env(safe-area-inset-top)] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-surface/85">
       <div className="flex min-h-16 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-5 md:px-8">
         <div className="flex items-center gap-4 flex-1 max-w-md">
           <Button variant="ghost" size="sm" onClick={toggleSidebar} className="min-h-11 min-w-11 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Alternar menu lateral">
-            <Menu className="w-5 h-5" />
+            <Menu aria-hidden="true" />
           </Button>
 
           <GlobalSearch />

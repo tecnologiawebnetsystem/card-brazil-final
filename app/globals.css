@@ -43,10 +43,13 @@ button, a, input, select, textarea {
   --background: #f5f8fc;
   --foreground: #172033;
   --card: #ffffff;
+  --surface: #ffffff;
   --card-foreground: #172033;
   --popover: #ffffff;
   --popover-foreground: #172033;
   --primary: #075985;
+  --primary-dark: #0b1f3a;
+  --primary-light: #3ba4e8;
   --primary-foreground: #ffffff;
   --secondary: #eaf5fc;
   --secondary-foreground: #124e8c;
@@ -90,10 +93,13 @@ button, a, input, select, textarea {
   --background: #071a2d;
   --foreground: #eaf5fc;
   --card: #0b1f3a;
+  --surface: #0b1f3a;
   --card-foreground: #eaf5fc;
   --popover: #0b1f3a;
   --popover-foreground: #eaf5fc;
   --primary: #7dd3fc;
+  --primary-dark: #0b1f3a;
+  --primary-light: #38bdf8;
   --primary-foreground: #071a2d;
   --secondary: #124e8c;
   --secondary-foreground: #eaf5fc;
@@ -102,6 +108,8 @@ button, a, input, select, textarea {
   --accent: #1677c8;
   --accent-foreground: #ffffff;
   --destructive: #dc2626;
+  --danger: #dc2626;
+  --danger-foreground: #ffffff;
   --destructive-foreground: #ffffff;
   --border: #1d4168;
   --input: #102d4d;
@@ -142,10 +150,13 @@ button, a, input, select, textarea {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
+  --color-surface: var(--surface);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -154,6 +165,8 @@ button, a, input, select, textarea {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
@@ -190,6 +203,18 @@ button, a, input, select, textarea {
 
 .module-page {
   color: var(--foreground);
+  container-type: inline-size;
+}
+
+.module-page > :first-child {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+}
+
+@container (max-width: 720px) {
+  .module-page table {
+    min-width: 680px;
+  }
 }
 
 .module-page h1,

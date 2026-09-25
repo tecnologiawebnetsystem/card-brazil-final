@@ -46,7 +46,7 @@ export default function DashboardLayout({
         <AppSidebar />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-background">
           <DashboardHeader />
-          <main id="main-content" className="module-page min-w-0 flex-1 overflow-auto bg-background px-3 py-4 pb-8 sm:px-4 sm:py-5 md:px-8 md:py-7">
+          <main id="main-content" className="module-page min-w-0 flex-1 overflow-auto bg-background px-3 py-4 pb-8 sm:px-4 sm:py-5 md:px-8 md:py-7" tabIndex={-1}>
             {children}
           </main>
           <DashboardFooter />

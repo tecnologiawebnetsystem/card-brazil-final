@@ -1,9 +1,10 @@
 "use client"
 
-import type React from "react"
-import { usePathname } from "next/navigation"
+import { useEffect, type ReactNode } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
+import { useAuth } from "@/contexts/auth-context"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardFooter } from "@/components/dashboard/dashboard-footer"
 import { KeyboardShortcuts } from "@/components/navigation/keyboard-shortcuts"
@@ -12,9 +13,25 @@ import { SkipToContent } from "@/components/accessibility/skip-to-content"
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { isAuthenticated, isLoading } = useAuth()
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/")
+    }
+  }, [isAuthenticated, isLoading, router])
+
+  if (isLoading || !isAuthenticated) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background" aria-live="polite">
+        <span className="text-sm text-muted-foreground">Verificando acesso...</span>
+      </main>
+    )
+  }
 
   if (pathname === "/dashboard/sql-manager") {
     return <main className="min-h-screen w-full overflow-auto bg-background">{children}</main>

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getAuthContext } from "@/lib/api-auth"
 import { query, transaction } from "@/lib/database"
 import { parseMoney } from "@/lib/cobranca-state"
+import { recordCadastroAudit } from "@/lib/cadastro-audit"
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       { text: `UPDATE cobranca_parcelas SET valor_pago = $1, status = $2, data_pagamento = CASE WHEN $2 = 'paga' THEN CURRENT_DATE ELSE data_pagamento END, updated_at = CURRENT_TIMESTAMP WHERE id = $3 AND administradora_id = $4`, params: [novoValorPago, novoStatus, parcelaId, auth.administradoraId] },
       { text: `INSERT INTO cobranca_eventos (administradora_id, parcela_id, tipo, status_novo, payload, usuario_id) VALUES ($1, $2, 'pagamento_registrado', $3, $4::jsonb, $5)`, params: [auth.administradoraId, parcelaId, novoStatus, JSON.stringify({ valor_pago: valorPago, forma_pagamento: formaPagamento }), auth.userId] },
     ])
+    await recordCadastroAudit({ administradoraId: auth.administradoraId, userId: auth.userId, action: novoStatus === "paga" ? "settlement" : "payment", tableName: "cobranca_parcelas", recordId: parcelaId, before: { valor_pago: parcela[0].valor_pago, status: parcela[0].status }, after: { valor_pago: novoValorPago, status: novoStatus, pagamento_id: result[0]?.[0]?.id, idempotency_key: idempotencyKey, forma_pagamento: formaPagamento, valor: valorPago } })
     return NextResponse.json({ data: result[0]?.[0], parcela: { id: parcelaId, valor_pago: novoValorPago, status: novoStatus } }, { status: 201 })
   } catch (error) {
     console.error("[v0] Erro ao registrar pagamento:", error)

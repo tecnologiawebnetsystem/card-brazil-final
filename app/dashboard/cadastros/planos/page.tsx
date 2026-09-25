@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -49,11 +49,10 @@ export default function PlanosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [editingPlano, setEditingPlano] = useState<Plano | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
   const [planos, setPlanos] = useState<Plano[]>([])
   const [produtos, setProdutos] = useState<ProdutoDisponivel[]>([])
-  const [filteredPlanos, setFilteredPlanos] = useState<Plano[]>([])
+  const loadRequestRef = useRef(0)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [planoToDelete, setPlanoToDelete] = useState<number | null>(null)
 
@@ -84,29 +83,16 @@ export default function PlanosPage() {
     }
   }
 
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredPlanos(planos)
-    } else {
-      const filtered = planos.filter(
-        (plano) =>
-          (plano.nome || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (plano.codigo || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (plano.tipo || "").toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      setFilteredPlanos(filtered)
-    }
-  }, [searchTerm, planos])
-
   const loadPlanos = async () => {
+    const requestId = ++loadRequestRef.current
     setIsLoading(true)
     try {
       const response = await fetch("/api/planos")
       const data = await response.json()
 
       if (data.success) {
+        if (requestId !== loadRequestRef.current) return
         setPlanos(data.data)
-        setFilteredPlanos(data.data)
       } else {
         throw new Error(data.message)
       }
@@ -118,7 +104,7 @@ export default function PlanosPage() {
         variant: "destructive",
       })
     } finally {
-      setIsLoading(false)
+      if (requestId === loadRequestRef.current) setIsLoading(false)
     }
   }
 

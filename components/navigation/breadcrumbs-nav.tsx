@@ -85,7 +85,7 @@ export function BreadcrumbsNav({ items }: BreadcrumbsNavProps = {}) {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/dashboard" className="flex items-center gap-1 text-[#737373] hover:text-[#ededed] transition-colors">
+            <Link href="/dashboard" className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground">
               <Home className="h-3.5 w-3.5" />
               <span className="sr-only">Dashboard</span>
             </Link>
@@ -98,20 +98,18 @@ export function BreadcrumbsNav({ items }: BreadcrumbsNavProps = {}) {
           const name = routeNames[segment] || segment.charAt(0).toUpperCase() + segment.slice(1)
 
           return (
-            <div key={segment} className="flex items-center gap-1.5">
+            <BreadcrumbItem key={segment} className="flex items-center gap-1.5">
               <BreadcrumbSeparator>
-                <ChevronRight className="h-3.5 w-3.5 text-[#525252]" />
+                <ChevronRight className="text-muted-foreground" />
               </BreadcrumbSeparator>
-              <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage className="text-[#ededed] text-sm">{name}</BreadcrumbPage>
+                  <BreadcrumbPage className="text-foreground text-sm">{name}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link href={href} className="text-[#737373] hover:text-[#ededed] text-sm transition-colors">{name}</Link>
+                    <Link href={href} className="text-muted-foreground hover:text-foreground text-sm transition-colors">{name}</Link>
                   </BreadcrumbLink>
                 )}
-              </BreadcrumbItem>
-            </div>
+            </BreadcrumbItem>
           )
         })}
       </BreadcrumbList>

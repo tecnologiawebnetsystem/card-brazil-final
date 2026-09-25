@@ -86,55 +86,53 @@ button, a, input, select, textarea {
   --health-neutral: #64748b;
 }
 
-.dark {
+  .dark {
   --background: #071a2d;
-  --foreground: #e0f2fe;
-  --card: #0c2942;
-  --card-foreground: #e0f2fe;
-  --popover: #0c2942;
-  --popover-foreground: #e0f2fe;
-  --primary: #38bdf8;
-  --primary-foreground: #082f49;
-  --secondary: #123b5a;
-  --secondary-foreground: #bae6fd;
-  --muted: #0b2238;
-  --muted-foreground: #94a3b8;
-  --accent: #0ea5e9;
-  --accent-foreground: #e0f2fe;
-  --destructive: #ef4444;
+  --foreground: #eaf5fc;
+  --card: #0b1f3a;
+  --card-foreground: #eaf5fc;
+  --popover: #0b1f3a;
+  --popover-foreground: #eaf5fc;
+  --primary: #3ba4e8;
+  --primary-foreground: #0b1f3a;
+  --secondary: #124e8c;
+  --secondary-foreground: #eaf5fc;
+  --muted: #102d4d;
+  --muted-foreground: #a8b8ca;
+  --accent: #1677c8;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #1e4a69;
-  --input: #0a2137;
-  --ring: rgba(56, 189, 248, 0.55);
-  --chart-1: #38bdf8;
-  --chart-2: #0284c7;
-  --chart-3: #60a5fa;
-  --chart-4: #1e3a8a;
-  --chart-5: #94a3b8;
-  --sidebar: #020d1b;
-  --sidebar-foreground: #e0f2fe;
-  --sidebar-primary: #38bdf8;
-  --sidebar-primary-foreground: #082f49;
-  --sidebar-accent: #0c4a6e;
-  --sidebar-accent-foreground: #e0f2fe;
-  --sidebar-border: #164e63;
-  --sidebar-ring: rgba(56, 189, 248, 0.55);
+  --border: #1d4168;
+  --input: #102d4d;
+  --ring: rgba(59, 164, 232, 0.45);
+  --chart-1: #0b1f3a;
+  --chart-2: #124e8c;
+  --chart-3: #1677c8;
+  --chart-4: #3ba4e8;
+  --chart-5: #64748b;
+  --sidebar: #071a2d;
+  --sidebar-foreground: #eaf5fc;
+  --sidebar-primary: #3ba4e8;
+  --sidebar-primary-foreground: #0b1f3a;
+  --sidebar-accent: #124e8c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1d4168;
+  --sidebar-ring: rgba(59, 164, 232, 0.45);
 
-  --success: #00a859;
+  --success: #16a34a;
   --success-foreground: #ffffff;
-  --warning: #f5c400;
-  --warning-foreground: #172b22;
-  --info: #005b82;
+  --warning: #f59e0b;
+  --warning-foreground: #172033;
+  --info: #0284c7;
   --info-foreground: #ffffff;
-  --health-primary: #00a859;
-  --health-secondary: #005b82;
-  --health-neutral: #737373;
+  --health-primary: #1677c8;
+  --health-secondary: #124e8c;
+  --health-neutral: #64748b;
 }
 
 .aperTo-abraco-pattern {
   background-color: var(--background);
-  background-image: radial-gradient(circle at 12% 18%, rgba(8, 120, 190, 0.12) 0 1px, transparent 1.5px), radial-gradient(circle at 78% 72%, rgba(0, 168, 170, 0.14) 0 1px, transparent 1.5px), linear-gradient(135deg, transparent 0 48%, rgba(8, 120, 190, 0.035) 48% 50%, transparent 50% 100%);
-  background-size: 26px 26px, 34px 34px, 100% 100%;
 }
 
 @theme inline {
@@ -420,47 +418,27 @@ button, a, input, select, textarea {
   /* Removed problematic min-height/width rule that was causing utility class error */
   /* Improved touch targets are now handled per component where needed */
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--muted);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 3px;
+    background: var(--border);
+    border-radius: 999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #00d084;
+    background: var(--muted-foreground);
   }
 
-  /* Selection */
   ::selection {
-    background: rgba(0, 208, 132, 0.3);
-    color: #ffffff;
-  }
-
-  /* Text gradient utility */
-  .text-gradient {
-    @apply bg-gradient-to-r from-[#00d084] via-[#00f5a0] to-[#00d084] bg-clip-text text-transparent;
-  }
-
-  /* Glow effects */
-  .glow-primary {
-    box-shadow: 0 0 20px rgba(0, 208, 132, 0.2), 0 0 40px rgba(0, 208, 132, 0.1);
-  }
-
-  .glow-blue {
-    box-shadow: 0 0 20px rgba(0, 112, 243, 0.2), 0 0 40px rgba(0, 112, 243, 0.1);
-  }
-
-  .glow-warning {
-    box-shadow: 0 0 20px rgba(245, 166, 35, 0.2), 0 0 40px rgba(245, 166, 35, 0.1);
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+    color: var(--foreground);
   }
 
   /* Enhanced typography with better hierarchy */
@@ -535,30 +513,16 @@ button, a, input, select, textarea {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Gradient backgrounds */
-  .gradient-primary {
-    @apply bg-gradient-to-r from-[#00d084] to-[#00a86b];
-  }
-
-  .gradient-healthcare {
-    @apply bg-gradient-to-br from-[#00d084]/5 via-transparent to-[#0070f3]/5;
-  }
-
-  .gradient-card {
-    @apply bg-gradient-to-br from-card to-muted/20;
-  }
-
-  /* Talent Health utility classes */
   .healthcare-card {
-    @apply bg-card border border-border rounded-lg transition-all duration-200 hover:border-[#333];
+    @apply bg-card border border-border rounded-lg transition-colors duration-200 hover:border-primary/40;
   }
 
   .healthcare-button {
-    @apply bg-[#00d084] text-black font-medium py-2.5 px-5 rounded-lg transition-all duration-200 hover:bg-[#00f5a0];
+    @apply bg-primary text-primary-foreground font-medium py-2.5 px-5 rounded-lg transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground;
   }
 
   .healthcare-input {
-    @apply bg-[#171717] border border-[#262626] text-[#ededed] placeholder:text-[#737373] hover:border-[#333] focus:border-[#00d084] focus:ring-1 focus:ring-[#00d084]/30 transition-all duration-200 rounded-lg px-4 py-2.5;
+    @apply bg-input border border-border text-foreground placeholder:text-muted-foreground hover:border-primary/40 focus:border-primary focus:ring-1 focus:ring-ring transition-colors duration-200 rounded-lg px-4 py-2.5;
   }
 
   /* Responsive utilities */
@@ -592,17 +556,17 @@ button, a, input, select, textarea {
 }
 
 .sql-manager {
-  --sql-cyan: #22d3ee;
-  --sql-blue: #2563eb;
-  --sql-navy: #0b1f3a;
-  --sql-slate: #334155;
-  --sql-danger: #f43f5e;
+  --sql-cyan: var(--accent);
+  --sql-blue: var(--primary);
+  --sql-navy: var(--sidebar);
+  --sql-slate: var(--muted-foreground);
+  --sql-danger: var(--destructive);
 }
 
 .sql-manager > header {
-  background: linear-gradient(135deg, var(--sql-navy) 0%, #123c73 48%, var(--sql-blue) 100%);
-  border-color: color-mix(in srgb, var(--sql-cyan) 58%, transparent);
-  box-shadow: 0 18px 40px -24px color-mix(in srgb, var(--sql-blue) 80%, transparent);
+  background: var(--sidebar);
+  border-color: var(--sidebar-border);
+  box-shadow: 0 12px 28px -24px color-mix(in srgb, var(--foreground) 50%, transparent);
 }
 
 .sql-manager [data-slot="card"] {
@@ -611,7 +575,7 @@ button, a, input, select, textarea {
 }
 
 .sql-manager [data-slot="card-header"] {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--sql-blue) 11%, var(--card)), color-mix(in srgb, var(--sql-cyan) 5%, var(--card)));
+  background: color-mix(in srgb, var(--sql-blue) 6%, var(--card));
   border-color: color-mix(in srgb, var(--sql-blue) 24%, var(--border));
 }
 
@@ -645,7 +609,7 @@ button, a, input, select, textarea {
 }
 
 .sql-manager [data-slot="button"]:not([data-variant="ghost"]):not([data-variant="outline"]) {
-  background: linear-gradient(135deg, var(--sql-blue), #0891b2);
+  background: var(--sql-blue);
   color: #ffffff;
   box-shadow: 0 8px 18px -12px var(--sql-blue);
 }

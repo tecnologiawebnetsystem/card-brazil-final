@@ -223,7 +223,7 @@ const menuItems: MenuGroup[] = [
     title: "Tabelas Gerais",
     items: [
       {
-        title: "Códigos e Classificaç��������es",
+        title: "Códigos e Classificações",
         icon: <CogIcon />,
         subItems: [
           {
@@ -670,12 +670,15 @@ export function AppSidebar() {
     return roleName || "Usuário"
   }
 
+  const itemHasActivePath = (item: MenuItem): boolean =>
+    item.url === pathname || Boolean(item.subItems?.some(itemHasActivePath))
+
   const renderMenuItems = (items: MenuItem[], level = 0): React.ReactNode => (
     <SidebarMenu className={level === 0 ? "space-y-0" : "ml-3 border-l border-sidebar-border/60 pl-2"}>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          {item.subItems ? (
-            <details open={item.subItems.some((subItem) => subItem.url === pathname || subItem.subItems?.some((nestedItem) => nestedItem.url === pathname))} className="group">
+          {item.subItems?.length ? (
+            <details open={itemHasActivePath(item)} className="group">
               <summary className="flex h-9 cursor-pointer list-none items-center justify-between rounded-lg px-2 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/25 hover:text-sidebar-foreground [&::-webkit-details-marker]:hidden">
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent/20 text-sidebar-foreground/60">{item.icon}</span>
@@ -685,7 +688,7 @@ export function AppSidebar() {
               </summary>
               {renderMenuItems(item.subItems, level + 1)}
             </details>
-          ) : (
+          ) : item.url ? (
             <SidebarMenuButton
               asChild
               className={`h-9 rounded-lg transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-primary/70 ${pathname === item.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-sm" : ""}`}
@@ -695,6 +698,16 @@ export function AppSidebar() {
                 <span className="truncate text-xs text-sidebar-foreground/80 transition-colors">{item.title}</span>
               </a>
             </SidebarMenuButton>
+          ) : (
+            <div
+              title="Este módulo ainda não possui uma tela disponível"
+              aria-disabled="true"
+              className="flex h-9 cursor-not-allowed items-center gap-2 rounded-lg px-2 text-xs text-sidebar-foreground/45"
+            >
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent/10">{item.icon}</span>
+              <span className="truncate">{item.title}</span>
+              <span className="ml-auto text-[9px] uppercase tracking-wide text-sidebar-foreground/35">Em breve</span>
+            </div>
           )}
         </SidebarMenuItem>
       ))}

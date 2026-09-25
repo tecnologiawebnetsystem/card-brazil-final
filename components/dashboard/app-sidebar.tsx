@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ChevronDown, ChevronRight, Menu, PanelLeft, Search, X } from "lucide-react"
 
 const LayoutDashboardIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
@@ -569,6 +569,7 @@ export function AppSidebar() {
   const pathname = usePathname()
   const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
+  const menuScrollTopRef = useRef(0)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     Principal: true,
     Cadastros: true,
@@ -582,6 +583,23 @@ export function AppSidebar() {
     "Sistema Contábil": true,
     Relatórios: true,
   })
+
+  useEffect(() => {
+    const restoreScrollPosition = () => {
+      const sidebarContent = document.querySelector<HTMLElement>("[data-sidebar=content]")
+      if (sidebarContent) {
+        sidebarContent.scrollTop = menuScrollTopRef.current
+      }
+    }
+
+    const frame = requestAnimationFrame(restoreScrollPosition)
+    return () => cancelAnimationFrame(frame)
+  }, [pathname])
+
+  const preserveMenuScroll = () => {
+    const sidebarContent = document.querySelector<HTMLElement>("[data-sidebar=content]")
+    menuScrollTopRef.current = sidebarContent?.scrollTop ?? 0
+  }
 
   const toggleGroupExpansion = (groupTitle: string) => {
     setExpandedGroups((prev) => ({
@@ -686,7 +704,7 @@ export function AppSidebar() {
                                 asChild
 className={`h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-primary/70 ${pathname === subItem.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-sm" : ""}`}
                               >
-                                <a href={subItem.url} className="flex items-center gap-3 px-3 py-1.5">
+                                <a href={subItem.url} onClick={preserveMenuScroll} className="flex items-center gap-3 px-3 py-1.5">
                                   <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent/20 text-sidebar-foreground/65">{subItem.icon || item.icon}</span>
                                   <span className="truncate text-sm text-sidebar-foreground/80 transition-colors">
                                     {subItem.title}
@@ -700,7 +718,7 @@ className={`h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 ho
                             asChild
                             className={`h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-primary/70 ${pathname === item.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-sm" : ""}`}
                           >
-                            <a href={item.url} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} className="flex items-center gap-3 px-3 py-1.5">
+                            <a href={item.url} onClick={preserveMenuScroll} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} className="flex items-center gap-3 px-3 py-1.5">
                               <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent/20 text-sidebar-foreground/65">{item.icon}</span>
                               <span className="truncate text-sm text-sidebar-foreground/80 transition-colors">
                                 {item.title}

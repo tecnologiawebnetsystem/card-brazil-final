@@ -48,7 +48,7 @@ export default function PropostasPendentesPage() {
         }
 
         const data = await response.json()
-        setPropostas(data)
+        setPropostas(Array.isArray(data) ? data : data.data || [])
       } catch (error) {
         console.error("[v0] Erro ao carregar propostas pendentes:", error)
       } finally {

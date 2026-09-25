@@ -17,43 +17,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Plus } from "lucide-react"
+import { DollarSign, Package, TrendingUp, Plus } from "lucide-react"
 import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro-table"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
-
-const ClipboardIcon = () => (
-  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-    />
-  </svg>
-)
-
-const SearchIcon = () => (
-  <svg
-    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-    />
-  </svg>
-)
-
-const PlusIcon = () => (
-  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-  </svg>
-)
 
 interface ProdutoDisponivel {
   id: number
@@ -323,24 +290,42 @@ export default function PlanosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Planos de Saúde</h1>
-            <p className="text-muted-foreground">Gerencie os planos de saúde disponíveis</p>
-          </div>
-          <Button onClick={() => handleOpenModal()}>
+    <div className="container mx-auto px-6 py-6">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Planos de Saúde</h1>
+          <p className="text-muted-foreground">Gerencie os planos de saúde disponíveis</p>
+        </div>
+        <Button onClick={() => handleOpenModal()}>
             <Plus className="mr-2 h-4 w-4" />
             Novo Plano
           </Button>
-        </div>
+      </div>
 
-        <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
-          <CadastroSummaryCard title="Total de Planos" value={planos.length} description="planos cadastrados" metrics={[{ label: "Status", value: `${planos.filter((p) => p.ativo).length} ativos`, tone: "positive" }]} />
-        </CadastroSummaryGrid>
+      <CadastroSummaryGrid className="mb-6">
+        <CadastroSummaryCard
+          title="Total de Planos"
+          value={planos.length}
+          description="planos cadastrados"
+          icon={<Package className="h-5 w-5" />}
+          metrics={[{ label: "Status", value: `${planos.filter((p) => p.ativo).length} ativos`, tone: "positive" }]}
+        />
+        <CadastroSummaryCard
+          title="Planos Ativos"
+          value={planos.filter((p) => p.ativo).length}
+          description={`de ${planos.length} planos`}
+          icon={<TrendingUp className="h-5 w-5" />}
+          metrics={[{ label: "Status", value: "Ativos", tone: "positive" }]}
+        />
+        <CadastroSummaryCard
+          title="Valor Médio"
+          value={`R$ ${planos.length ? (planos.reduce((total, plano) => total + (Number(plano.valor) || 0), 0) / planos.length).toFixed(2) : "0,00"}`}
+          description="valor médio dos planos"
+          icon={<DollarSign className="h-5 w-5" />}
+        />
+      </CadastroSummaryGrid>
 
-        <Card>
+      <Card>
           <CardHeader>
             <CardTitle>Planos cadastrados</CardTitle>
             <CardDescription>Busque, visualize, edite e altere o status dos planos.</CardDescription>
@@ -561,7 +546,6 @@ export default function PlanosPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   )
 }

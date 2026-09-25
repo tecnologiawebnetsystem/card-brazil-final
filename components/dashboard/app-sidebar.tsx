@@ -301,23 +301,23 @@ const menuItems: MenuGroup[] = [
     ],
   },
       {
-        title: "Cobrança",
+        title: "Cobrança e Recebimento",
         items: [
           {
-            title: "Operação de Cobrança",
+            title: "Faturamento e Emissão",
             icon: <FileTextIcon />,
             subItems: [
               { title: "Visão geral", url: "/dashboard/cobranca", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Geração de Boletos", url: "/dashboard/cobranca/gerar-boletos", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Consulta de Boletos", url: "/dashboard/cobranca/consultar-boletos", icon: <CogIcon className="h-3 w-3" /> },
-{ title: "Consulta de Faturas", url: "/dashboard/cobranca/consulta-parcelas", icon: <CogIcon className="h-3 w-3" /> },
-  { title: "Faturas Pendentes", url: "/dashboard/cobranca/parcelas-pendentes", icon: <CogIcon className="h-3 w-3" /> },
+              { title: "Consulta de Faturas", url: "/dashboard/cobranca/consulta-parcelas", icon: <CogIcon className="h-3 w-3" /> },
+              { title: "Faturas Pendentes", url: "/dashboard/cobranca/parcelas-pendentes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Alteração de Vencimento", url: "/dashboard/cobranca/alteracao-vencimento", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Desconto de Pontualidade", url: "/dashboard/cobranca/desconto-pontualidade", icon: <CogIcon className="h-3 w-3" /> },
             ],
           },
           {
-            title: "Recebimentos e Bancário",
+            title: "Recebimentos e Conciliação",
             icon: <DollarSignIcon />,
             subItems: [
               { title: "Baixa de Pagamento", url: "/dashboard/cobranca/baixa-pagamento", icon: <CogIcon className="h-3 w-3" /> },
@@ -325,7 +325,6 @@ const menuItems: MenuGroup[] = [
               { title: "Conciliação Bancária", url: "/dashboard/cobranca/conciliacao-bancaria", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Retorno Bancário", url: "/dashboard/cobranca/retorno-bancario", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Arquivos de Remessa", url: "/dashboard/cobranca/arquivos-remessa", icon: <CogIcon className="h-3 w-3" /> },
-  { title: "Configurações de Cobrança", url: "/dashboard/cobranca/configuracoes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Lotes de Aviso de Crédito", url: "/dashboard/cobranca/lotes-aviso-credito", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Aviso de Crédito", url: "/dashboard/cobranca/aviso-credito", icon: <CogIcon className="h-3 w-3" /> },
             ],
@@ -341,7 +340,7 @@ const menuItems: MenuGroup[] = [
             ],
           },
           {
-            title: "Inadimplência e Judicial",
+            title: "Inadimplência e Recuperação",
             icon: <ShieldIcon />,
             subItems: [
               { title: "Controle de Inadimplência", url: "/dashboard/cobranca/inadimplencia", icon: <CogIcon className="h-3 w-3" /> },
@@ -351,10 +350,11 @@ const menuItems: MenuGroup[] = [
             ],
           },
           {
-            title: "Configurações e Relatórios",
+            title: "Parâmetros de Cobrança",
             icon: <CogIcon />,
             subItems: [
               { title: "Multas e Juros", url: "/dashboard/cobranca/multas-juros", icon: <CogIcon className="h-3 w-3" /> },
+              { title: "Configurações de Cobrança", url: "/dashboard/cobranca/configuracoes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Configurações Gerais", url: "/dashboard/cobranca/configuracoes-gerais", icon: <CogIcon className="h-3 w-3" /> },
               /* Relatórios desativados para homologação. */
             ],
@@ -679,9 +679,9 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent className="px-2 py-2">
           {filteredMenuItems.map((group) => (
-            <SidebarGroup key={group.title} className="mb-2">
+            <SidebarGroup key={group.title} className="mb-0 p-0">
               <SidebarGroupLabel
-                className="mb-1 flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/80"
+                className="mb-0 flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/80"
                 onClick={() => toggleGroupExpansion(group.title)}
               >
                 <span>{group.title}</span>
@@ -692,12 +692,13 @@ export function AppSidebar() {
                 )}
               </SidebarGroupLabel>
               {expandedGroups[group.title] && (
-                <SidebarGroupContent>
-                  <SidebarMenu className="space-y-0.5">
+                  <SidebarGroupContent className="mt-0.5">
+                    <SidebarMenu className="space-y-0">
+
                     {group.items.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         {item.subItems ? (
-                          <div className="flex flex-col space-y-0.5">
+                          <div className="flex flex-col space-y-0">
                             {item.subItems.map((subItem) => (
                               <SidebarMenuButton
                                 key={subItem.title}

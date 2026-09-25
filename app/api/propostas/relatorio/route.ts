@@ -1,16 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const data_inicio = searchParams.get("data_inicio")
     const data_fim = searchParams.get("data_fim")
 
-    const params: unknown[] = []
-    const conditions: string[] = []
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (data_inicio) { params.push(data_inicio); conditions.push(`created_at::date >= $${params.length}`) }
     if (data_fim) { params.push(data_fim); conditions.push(`created_at::date <= $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
@@ -45,6 +47,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(relatorio)
   } catch (error: any) {
     console.error("[v0] Erro ao gerar relatório de propostas:", error)
-    return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao gerar relatório" }, { status: authErrorStatus(error) })
   }
 }

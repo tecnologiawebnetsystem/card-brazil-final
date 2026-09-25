@@ -1,15 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireCadastroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const ativo = searchParams.get("ativo")
     const titular_id = searchParams.get("titular_id")
     const search = searchParams.get("search")
 
-    const params: unknown[] = []
-    const conditions = [`b.tipo_beneficiario = 'dependente'`]
+    const params: unknown[] = [administradoraId]
+    const conditions = [`b.administradora_id = $1`, `b.tipo_beneficiario = 'dependente'`]
     if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`b.status = $${params.length}`) }
     if (titular_id) { params.push(Number.parseInt(titular_id, 10)); conditions.push(`b.titular_id = $${params.length}`) }
     if (search) { params.push(`%${search}%`); conditions.push(`(p.nome_completo ILIKE $${params.length} OR p.cpf ILIKE $${params.length} OR tp.nome_completo ILIKE $${params.length})`) }
@@ -24,7 +26,7 @@ export async function GET(request: NextRequest) {
     console.error("[v0] Erro ao buscar dependentes:", error)
     return NextResponse.json(
       { success: false, message: "Erro ao buscar dependentes", error: error instanceof Error ? error.message : "Erro desconhecido" },
-      { status: 500 },
+      { status: authErrorStatus(error) },
     )
   }
 }

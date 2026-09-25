@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
+import { recordCadastroAudit } from "@/lib/cadastro-audit"
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,9 +16,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Motivo da rejeição é obrigatório" }, { status: 400 })
     }
 
+    const anterior = await query(`SELECT status, parecer, analisado_por FROM propostas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [body.proposta_id, administradoraId])
     const rows = await query(`UPDATE propostas SET status = 'rejeitada', parecer = $2, analisado_por = $3, data_analise = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND administradora_id = $4 AND deleted_at IS NULL AND status NOT IN ('aprovada', 'rejeitada') RETURNING *`, [body.proposta_id, body.motivo, userId, administradoraId])
     if (!rows.length) return NextResponse.json({ error: "Proposta não encontrada ou já finalizada" }, { status: 404 })
-    const rejeicao = { proposta_id: body.proposta_id, status: rows[0].status, parecer: body.motivo, analisado_por: body.analisado_por || 1, data_analise: new Date().toISOString() }
+    await recordCadastroAudit({
+      administradoraId,
+      userId,
+      action: "reject",
+      tableName: "propostas",
+      recordId: Number(body.proposta_id),
+      before: anterior[0] ?? null,
+      after: { status: rows[0].status, parecer: rows[0].parecer, analisado_por: userId },
+    })
+    const rejeicao = { proposta_id: body.proposta_id, status: rows[0].status, parecer: body.motivo, analisado_por: userId, data_analise: new Date().toISOString() }
 
     return NextResponse.json({
       success: true,

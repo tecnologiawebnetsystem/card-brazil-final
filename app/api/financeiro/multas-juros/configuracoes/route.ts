@@ -1,26 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireFinanceiroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const ativo = searchParams.get("ativo")
     const padrao = searchParams.get("padrao")
 
-    const params: unknown[] = []
-    const conditions: string[] = ["deleted_at IS NULL"]
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (ativo !== null) { params.push(ativo === "true"); conditions.push(`ativo = $${params.length}`) }
     if (padrao !== null) { params.push(padrao === "true"); conditions.push(`padrao = $${params.length}`) }
     const resultado = await query(`SELECT * FROM configuracoes_multas_juros WHERE ${conditions.join(" AND ")} ORDER BY nome ASC`, params)
     return NextResponse.json(resultado)
   } catch (error: any) {
     console.error("[v0] Erro ao buscar configurações:", error)
-    return NextResponse.json({ error: "Erro ao buscar configurações", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao buscar configurações", details: error.message }, { status: authErrorStatus(error) })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId, userId } = await requireFinanceiroAccess("create")
     const body = await request.json()
 
     if (!body.nome || body.percentual_multa === undefined || body.percentual_juros_mensal === undefined) {
@@ -29,8 +32,8 @@ export async function POST(request: NextRequest) {
 
     // Se for configuração padrão, desmarcar outras
     if (body.padrao) {
-      await query(`UPDATE configuracoes_multas_juros SET padrao = FALSE WHERE administradora_id = ?`, [
-        body.administradora_id || 1,
+      await query(`UPDATE configuracoes_multas_juros SET padrao = FALSE WHERE administradora_id = $1 AND deleted_at IS NULL`, [
+        administradoraId,
       ])
     }
 
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
         ativo, padrao, created_by
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) RETURNING id`,
       [
-        body.administradora_id || 1,
+        administradoraId,
         body.nome,
         body.descricao || null,
         body.percentual_multa,
@@ -64,13 +67,13 @@ export async function POST(request: NextRequest) {
         body.pix_cidade || null,
         body.ativo !== undefined ? body.ativo : true,
         body.padrao || false,
-        body.created_by || 1,
+        userId,
       ],
     )
 
     return NextResponse.json({ id: rows[0].id, message: "Configuração criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar configuração:", error)
-    return NextResponse.json({ error: "Erro ao criar configuração", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao criar configuração", details: error.message }, { status: authErrorStatus(error) })
   }
 }

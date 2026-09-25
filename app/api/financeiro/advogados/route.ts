@@ -1,14 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireFinanceiroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("view")
     const searchParams = request.nextUrl.searchParams
     const ativo = searchParams.get("ativo")
     const oab_uf = searchParams.get("oab_uf")
 
-    const params: unknown[] = []
-    const conditions: string[] = []
+    const params: unknown[] = [administradoraId]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (ativo !== null) { params.push(ativo === "true"); conditions.push(`ativo = $${params.length}`) }
     if (oab_uf) { params.push(oab_uf); conditions.push(`oab_uf = $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
@@ -22,6 +24,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("create")
     const body = await request.json()
 
     // Validações
@@ -38,7 +41,7 @@ export async function POST(request: NextRequest) {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING id`,
       [
-        body.administradora_id || 1,
+        administradoraId,
         body.nome,
         body.oab,
         body.oab_uf,

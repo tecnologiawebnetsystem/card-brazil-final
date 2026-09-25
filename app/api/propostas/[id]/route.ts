@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
+import { recordCadastroAudit } from "@/lib/cadastro-audit"
 
 function authFailure(error: unknown) {
   const auth = apiAuthError(error)
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
     }
 
-    const historico = await query(`SELECT id, acao, dados_anteriores, dados_novos, created_at FROM auditoria WHERE tabela = 'propostas' AND registro_id = $1 ORDER BY created_at DESC`, [propostaId])
+    const historico = await query(`SELECT id, usuario_id, acao, dados_anteriores, dados_novos, created_at FROM auditoria_cadastros WHERE administradora_id = $1 AND tabela = 'propostas' AND registro_id = $2 ORDER BY created_at DESC`, [administradoraId, propostaId])
     return NextResponse.json({ success: true, data: { ...proposta, historico } })
   } catch (error: any) {
     const auth = authFailure(error)

@@ -1,20 +1,22 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
+import { requireFinanceiroAccess, authErrorStatus } from "@/lib/api-auth"
 
 export async function POST(request: NextRequest) {
   try {
+    const { administradoraId } = await requireFinanceiroAccess("view")
     const body = await request.json()
 
     if (!body.conta_receber_id) {
       return NextResponse.json({ error: "ID da conta a receber é obrigatório" }, { status: 400 })
     }
 
-    const contaRows = await query(`SELECT data_vencimento, valor_original, valor_desconto FROM contas_receber WHERE id = $1`, [body.conta_receber_id])
+    const contaRows = await query(`SELECT data_vencimento, valor_original, valor_desconto FROM contas_receber WHERE id = $1 AND id_administradora = $2 AND deleted_at IS NULL`, [body.conta_receber_id, administradoraId])
     const conta = contaRows[0]
     if (!conta) return NextResponse.json({ error: "Conta a receber não encontrada" }, { status: 404 })
     const configRows = body.configuracao_id
-      ? await query(`SELECT * FROM configuracoes_multas_juros WHERE id = $1 AND ativo = TRUE AND deleted_at IS NULL`, [body.configuracao_id])
-      : await query(`SELECT * FROM configuracoes_multas_juros WHERE padrao = TRUE AND ativo = TRUE AND deleted_at IS NULL ORDER BY id LIMIT 1`)
+      ? await query(`SELECT * FROM configuracoes_multas_juros WHERE id = $1 AND administradora_id = $2 AND ativo = TRUE AND deleted_at IS NULL`, [body.configuracao_id, administradoraId])
+      : await query(`SELECT * FROM configuracoes_multas_juros WHERE administradora_id = $1 AND padrao = TRUE AND ativo = TRUE AND deleted_at IS NULL ORDER BY id LIMIT 1`, [administradoraId])
     const config = configRows[0]
 
     if (!config) {
@@ -74,6 +76,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error("[v0] Erro ao calcular multas e juros:", error)
-    return NextResponse.json({ error: "Erro ao calcular multas e juros", details: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Erro ao calcular multas e juros", details: error.message }, { status: authErrorStatus(error) })
   }
 }

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ID da conta a receber é obrigatório" }, { status: 400 })
     }
 
-    const contaRows = await query(`SELECT data_vencimento, valor_original, valor_desconto FROM contas_receber WHERE id = $1 AND id_administradora = $2 AND deleted_at IS NULL`, [body.conta_receber_id, administradoraId])
+    const contaRows = await query(`SELECT data_vencimento, valor_original, valor_desconto FROM contas_receber WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [body.conta_receber_id, administradoraId])
     const conta = contaRows[0]
     if (!conta) return NextResponse.json({ error: "Conta a receber não encontrada" }, { status: 404 })
     const configRows = body.configuracao_id

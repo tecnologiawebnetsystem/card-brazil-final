@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const beneficiario_id = searchParams.get("beneficiario_id")
 
     const params: unknown[] = [administradoraId]
-    const conditions: string[] = ["id_administradora = $1", "deleted_at IS NULL"]
+    const conditions: string[] = ["administradora_id = $1", "deleted_at IS NULL"]
     if (status) { params.push(status); conditions.push(`status = $${params.length}`) }
     if (categoria) { params.push(categoria); conditions.push(`categoria = $${params.length}`) }
     if (tipo_conta) { params.push(tipo_conta); conditions.push(`tipo_conta = $${params.length}`) }
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const rows = await query(
       `INSERT INTO contas_pagar (
-        id_administradora, fornecedor_id, beneficiario_id, proposta_id,
+        administradora_id, fornecedor_id, beneficiario_id, proposta_id,
         numero_documento, descricao, categoria, tipo_conta,
         valor_original, valor_multa, valor_juros, valor_desconto, valor_total, valor_pago,
         data_emissao, data_vencimento, data_pagamento,

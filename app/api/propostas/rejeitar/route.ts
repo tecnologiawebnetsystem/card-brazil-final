@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     const rows = await query(`UPDATE propostas SET status = 'rejeitada', parecer = $2, analisado_por = $3, data_analise = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND administradora_id = $4 AND deleted_at IS NULL AND status NOT IN ('aprovada', 'rejeitada') RETURNING *`, [body.proposta_id, body.motivo, userId, administradoraId])
     if (!rows.length) return NextResponse.json({ error: "Proposta não encontrada ou já finalizada" }, { status: 404 })
-    const rejeicao = { proposta_id: body.proposta_id, status: rows[0].status, parecer: body.motivo, analisado_por: body.analisado_por || 1, data_analise: new Date().toISOString() }
+    const rejeicao = { proposta_id: body.proposta_id, status: rows[0].status, parecer: body.motivo, analisado_por: userId, data_analise: new Date().toISOString() }
 
     return NextResponse.json({
       success: true,

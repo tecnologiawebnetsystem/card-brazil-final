@@ -167,7 +167,7 @@ method: "DELETE",
       const response = await fetch(`/api/beneficiarios/${selectedBeneficiario.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: selectedBeneficiario.status }),
+        body: JSON.stringify({ status: selectedBeneficiario.status, motivo: "Atualização de status pelo módulo de titulares" }),
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível salvar")

@@ -47,6 +47,8 @@ export default function ConsultaBeneficiariosPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedBeneficiario, setSelectedBeneficiario] = useState<Beneficiario | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [historico, setHistorico] = useState<Array<{ id: number; usuario_id?: string | number; acao: string; dados_anteriores?: Record<string, unknown>; dados_novos?: Record<string, unknown>; created_at: string }>>([])
+  const [isLoadingHistorico, setIsLoadingHistorico] = useState(false)
 
   useEffect(() => {
     loadBeneficiarios()
@@ -105,9 +107,21 @@ export default function ConsultaBeneficiariosPage() {
     setFilteredBeneficiarios(filtered)
   }
 
-  const handleView = (beneficiario: Beneficiario) => {
+  const handleView = async (beneficiario: Beneficiario) => {
     setSelectedBeneficiario(beneficiario)
+    setHistorico([])
     setIsDialogOpen(true)
+    setIsLoadingHistorico(true)
+    try {
+      const response = await fetch(`/api/beneficiarios/${beneficiario.id}`)
+      const data = await response.json()
+      if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível carregar o histórico")
+      setHistorico(data.historico || [])
+    } catch (error) {
+      toast({ title: "Histórico indisponível", description: error instanceof Error ? error.message : "Não foi possível carregar o histórico", variant: "destructive" })
+    } finally {
+      setIsLoadingHistorico(false)
+    }
   }
 
   const handleToggleStatus = async (beneficiario: Beneficiario) => {
@@ -457,7 +471,28 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
               </TabsContent>
 
               <TabsContent value="historico" className="space-y-4">
-                <p className="text-sm text-gray-500">Histórico de alterações e movimentações</p>
+                {isLoadingHistorico ? (
+                  <p className="text-sm text-muted-foreground">Carregando movimentações...</p>
+                ) : historico.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Nenhuma movimentação registrada.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {historico.map((item) => {
+                      const novosDados = item.dados_novos || {}
+                      const motivo = typeof novosDados.motivo === "string" ? novosDados.motivo : null
+                      return (
+                        <div key={item.id} className="flex gap-3 rounded-lg border p-3">
+                          <div className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                          <div className="min-w-0 space-y-1">
+                            <p className="font-medium capitalize">{item.acao === "delete" ? "Exclusão lógica" : item.acao === "update" ? "Alteração cadastral" : "Inclusão"}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(item.created_at).toLocaleString("pt-BR")} · Usuário {item.usuario_id || "não identificado"}</p>
+                            {motivo && <p className="text-sm text-muted-foreground">Motivo: {motivo}</p>}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           )}

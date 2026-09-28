@@ -53,13 +53,18 @@ import { AuthService } from "@/lib/auth-service"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, senha } = body
+    const { email, codigo, challenge } = body
 
-    if (!email || !senha) {
-      return NextResponse.json({ success: false, message: "Email e senha são obrigatórios" }, { status: 400 })
+    if (!email) {
+      return NextResponse.json({ success: false, message: "E-mail é obrigatório" }, { status: 400 })
     }
 
-    const result = await AuthService.login(String(email).trim(), String(senha))
+    if (!codigo || !challenge) {
+      const result = await AuthService.requestLoginToken(String(email).trim())
+      return NextResponse.json(result, { status: result.success ? 200 : 401 })
+    }
+
+    const result = await AuthService.loginWithToken(String(email).trim(), String(codigo), String(challenge))
 
     if (!result.success || !result.data) {
       return NextResponse.json(result, { status: 401 })

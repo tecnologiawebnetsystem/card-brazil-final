@@ -3,8 +3,8 @@
 import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, ShieldAlert, Activity, ChevronRight } from "lucide-react"
+import { Mail, ChevronRight, KeyRound } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,20 +12,27 @@ import { LoginInstallActions } from "@/components/pwa/login-install-actions"
 
 export function LoginSection() {
   const router = useRouter()
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [codigo, setCodigo] = useState("")
+  const [challenge, setChallenge] = useState<string | null>(null)
+  const [tokenExibido, setTokenExibido] = useState<string | null>(null)
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError(null)
     setLoading(true)
     try {
-      const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim(), senha: password }) })
+      const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim(), ...(challenge ? { codigo, challenge } : {}) }) })
       const data = await response.json()
       if (!response.ok || !data.success) { setError(data.message || "Confira seus dados de acesso."); return }
+      if (!challenge) {
+        setChallenge(data.data.challenge)
+        setTokenExibido(data.data.codigo)
+        setCodigo("")
+        return
+      }
       router.push("/dashboard")
     } catch { setError("Não foi possível conectar ao servidor.") } finally { setLoading(false) }
   }
@@ -112,33 +119,6 @@ export function LoginSection() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="font-mono text-xs font-bold uppercase tracking-[0.15em]">Senha</Label>
-                  <Link href="/esqueci-senha" className="font-mono text-xs font-semibold uppercase tracking-[0.15em] text-foreground underline decoration-primary/60 underline-offset-4 hover:text-primary">Recuperar</Link>
-                </div>
-                <div className="relative border-l-2 border-primary/40 pl-4">
-                  <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary/50" size={18} />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="••••••••"
-                    className="border-0 border-b border-primary/30 bg-transparent px-0 pl-8 py-3 placeholder:text-muted-foreground/50 focus-visible:border-b-2 focus-visible:border-primary focus-visible:ring-0"
-                    autoComplete="current-password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                    onClick={() => setShowPassword((value) => !value)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-primary/50 transition-colors hover:text-primary/80"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
               {error && (
                 <div role="alert" className="border-l-2 border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">
                   <p className="font-mono text-xs font-bold uppercase tracking-[0.1em]">Erro de Autenticação</p>
@@ -150,7 +130,7 @@ export function LoginSection() {
                 disabled={loading}
                 className="group w-full border-0 bg-primary px-6 py-3 font-mono text-sm font-bold uppercase tracking-[0.15em] text-primary-foreground shadow-none hover:bg-primary/90"
               >
-                {loading ? "Verificando..." : "Entrar no Sistema"}
+                {loading ? "Verificando..." : challenge ? "Validar token" : "Continuar"}
                 {!loading && <ChevronRight className="ml-2 transition-transform group-hover:translate-x-1" size={16} />}
               </Button>
             </form>
@@ -163,6 +143,29 @@ export function LoginSection() {
           </div>
         </section>
       </div>
+      <Dialog open={Boolean(challenge)} onOpenChange={(open) => { if (!open) { setChallenge(null); setTokenExibido(null); setCodigo(""); setError(null) } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><KeyRound className="text-primary" size={20} />Confirme seu acesso</DialogTitle>
+            <DialogDescription>Digite o token exibido abaixo para concluir o login de {email}.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5">
+            <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-5 text-center">
+              <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Token de acesso</p>
+              <p className="mt-2 font-mono text-3xl font-bold tracking-[0.35em] text-primary">{tokenExibido}</p>
+              <p className="mt-2 text-xs text-muted-foreground">Válido por 10 minutos</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="codigo" className="font-mono text-xs font-bold uppercase tracking-[0.15em]">Digite o token</Label>
+              <Input id="codigo" inputMode="numeric" maxLength={6} value={codigo} onChange={(event) => setCodigo(event.target.value.replace(/\D/g, ""))} placeholder="000000" autoFocus />
+            </div>
+            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+            <Button type="button" className="w-full" disabled={loading || codigo.length !== 6} onClick={() => void handleLogin({ preventDefault: () => undefined } as React.FormEvent<HTMLFormElement>)}>
+              {loading ? "Validando..." : "Confirmar acesso"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }

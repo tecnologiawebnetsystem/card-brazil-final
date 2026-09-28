@@ -47,6 +47,71 @@ export interface LoginResponse {
 }
 
 export class AuthService {
+  static async requestLoginToken(email: string) {
+    try {
+      const usuario = await queryOne<Usuario>(
+        "SELECT * FROM usuarios WHERE LOWER(email) = LOWER($1) AND status = 'ativo'",
+        [email.trim()],
+      )
+
+      if (!usuario) {
+        return { success: false, message: "Não foi possível iniciar o acesso." }
+      }
+
+      const codigo = String(crypto.randomInt(100000, 1000000))
+      const challenge = jwt.sign(
+        { type: "login-challenge", userId: usuario.id, email: usuario.email, code: codigo },
+        getJwtSecret(),
+        { expiresIn: "10m" },
+      )
+
+      return {
+        success: true,
+        message: "Token gerado com sucesso.",
+        data: { challenge, codigo },
+      }
+    } catch (error) {
+      console.error("[v0] Erro ao gerar token de login:", error)
+      return { success: false, message: "Não foi possível iniciar o acesso." }
+    }
+  }
+
+  static async loginWithToken(email: string, codigo: string, challenge: string): Promise<LoginResponse> {
+    try {
+      const decoded = jwt.verify(challenge, getJwtSecret()) as jwt.JwtPayload & {
+        type?: string
+        userId?: number
+        email?: string
+        code?: string
+      }
+
+      if (decoded.type !== "login-challenge" || decoded.email?.toLowerCase() !== email.trim().toLowerCase() || decoded.code !== codigo.trim()) {
+        return { success: false, message: "Token inválido ou expirado." }
+      }
+
+      const usuario = await queryOne<Usuario>(
+        "SELECT * FROM usuarios WHERE id = $1 AND LOWER(email) = LOWER($2) AND status = 'ativo'",
+        [decoded.userId, email.trim()],
+      )
+      if (!usuario) return { success: false, message: "Token inválido ou expirado." }
+
+      await query(
+        "UPDATE usuarios SET ultimo_acesso = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+        [usuario.id],
+      )
+
+      const token = jwt.sign(
+        { userId: usuario.id, email: usuario.email, administradoraId: usuario.administradora_id, tipoUsuario: usuario.tipo_usuario },
+        getJwtSecret(),
+        { expiresIn: JWT_EXPIRES_IN },
+      )
+      const { senha_hash, ...usuarioSemSenha } = usuario
+      return { success: true, message: "Login realizado com sucesso", data: { usuario: usuarioSemSenha, token } }
+    } catch (error) {
+      return { success: false, message: "Token inválido ou expirado." }
+    }
+  }
+
   static async login(email: string, senha: string): Promise<LoginResponse> {
     try {
       const usuario = await queryOne<Usuario>(

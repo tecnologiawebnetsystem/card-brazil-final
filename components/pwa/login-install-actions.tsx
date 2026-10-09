@@ -42,11 +42,28 @@ export function LoginInstallActions() {
         </div>
       </div>
       <div className="mt-4 grid min-w-0 gap-2 sm:grid-cols-2">
-        <Button type="button" variant="outline" className="min-h-11 min-w-0 justify-start px-3 text-left text-xs sm:text-sm" onClick={installAndroid} disabled={!installEvent}>
-          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/android/default.svg" alt="" aria-hidden="true" className="size-5 shrink-0" />Android: instalar app
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="size-11"
+          onClick={installAndroid}
+          disabled={!installEvent}
+          aria-label="Instalar aplicativo no Android"
+          title="Instalar aplicativo no Android"
+        >
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/android/default.svg" alt="" aria-hidden="true" className="size-5" />
         </Button>
-        <Button type="button" variant="outline" className="min-h-11 min-w-0 justify-start px-3 text-left text-xs sm:text-sm" onClick={() => window.alert("No iPhone: abra esta página no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início.")}>
-          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/apple/default.svg" alt="" aria-hidden="true" className="size-5 shrink-0" />iPhone: adicionar à tela
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="size-11"
+          onClick={() => window.alert("No iPhone: abra esta página no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início.")}
+          aria-label="Adicionar à tela de início no iPhone"
+          title="Adicionar à tela de início no iPhone"
+        >
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/apple/default.svg" alt="" aria-hidden="true" className="size-5" />
         </Button>
       </div>
       {!installEvent && <p className="mt-2 text-xs leading-4 text-muted-foreground">No Android, use Chrome. Se o botão estiver desativado, abra o menu do navegador e escolha Instalar aplicativo.</p>}

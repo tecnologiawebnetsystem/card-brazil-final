@@ -38,15 +38,49 @@ export async function POST(request: NextRequest) {
     const saldo = Number(parcela[0].valor_total) - Number(parcela[0].valor_pago)
     if (valorPago > saldo) return NextResponse.json({ error: "Pagamento superior ao saldo da parcela" }, { status: 422 })
 
-    const novoValorPago = Number((Number(parcela[0].valor_pago) + valorPago).toFixed(2))
-    const novoStatus = novoValorPago >= Number(parcela[0].valor_total) ? "paga" : parcela[0].status
     const result = await transaction([
-      { text: `INSERT INTO cobranca_pagamentos (administradora_id, parcela_id, idempotency_key, valor_pago, data_pagamento, forma_pagamento) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5) RETURNING id, parcela_id, valor_pago, status`, params: [auth.administradoraId, parcelaId, idempotencyKey, valorPago, formaPagamento] },
-      { text: `UPDATE cobranca_parcelas SET valor_pago = $1, status = $2, data_pagamento = CASE WHEN $2 = 'paga' THEN CURRENT_DATE ELSE data_pagamento END, updated_at = CURRENT_TIMESTAMP WHERE id = $3 AND administradora_id = $4`, params: [novoValorPago, novoStatus, parcelaId, auth.administradoraId] },
-      { text: `INSERT INTO cobranca_eventos (administradora_id, parcela_id, tipo, status_novo, payload, usuario_id) VALUES ($1, $2, 'pagamento_registrado', $3, $4::jsonb, $5)`, params: [auth.administradoraId, parcelaId, novoStatus, JSON.stringify({ valor_pago: valorPago, forma_pagamento: formaPagamento }), auth.userId] },
+      {
+        text: `WITH parcela_atualizada AS (
+          UPDATE cobranca_parcelas
+            SET valor_pago = ROUND(valor_pago + $1, 2),
+                status = CASE WHEN ROUND(valor_pago + $1, 2) >= valor_total THEN 'paga' ELSE status END,
+                data_pagamento = CASE WHEN ROUND(valor_pago + $1, 2) >= valor_total THEN CURRENT_DATE ELSE data_pagamento END,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $2
+              AND administradora_id = $3
+              AND status NOT IN ('paga', 'cancelada', 'renegociada')
+              AND valor_pago + $1 <= valor_total
+            RETURNING id
+        )
+        INSERT INTO cobranca_pagamentos (administradora_id, parcela_id, idempotency_key, valor_pago, data_pagamento, forma_pagamento)
+          SELECT $3, id, $4, $1, CURRENT_TIMESTAMP, $5
+          FROM parcela_atualizada
+          RETURNING id, parcela_id, valor_pago, status`,
+        params: [valorPago, parcelaId, auth.administradoraId, idempotencyKey, formaPagamento],
+      },
+      {
+        text: `INSERT INTO cobranca_eventos (administradora_id, parcela_id, tipo, status_novo, payload, usuario_id)
+          SELECT $1, $2, 'pagamento_registrado', cp.status, $3::jsonb, $4
+          FROM cobranca_parcelas cp
+          WHERE cp.id = $2
+            AND cp.administradora_id = $1
+            AND EXISTS (
+              SELECT 1 FROM cobranca_pagamentos p
+              WHERE p.parcela_id = $2 AND p.administradora_id = $1 AND p.idempotency_key = $5
+            )`,
+        params: [auth.administradoraId, parcelaId, JSON.stringify({ valor_pago: valorPago, forma_pagamento: formaPagamento, origem: "cobranca_parcela" }), auth.userId, idempotencyKey],
+      },
     ])
-    await recordCadastroAudit({ administradoraId: auth.administradoraId, userId: auth.userId, action: novoStatus === "paga" ? "settlement" : "payment", tableName: "cobranca_parcelas", recordId: parcelaId, before: { valor_pago: parcela[0].valor_pago, status: parcela[0].status }, after: { valor_pago: novoValorPago, status: novoStatus, pagamento_id: result[0]?.[0]?.id, idempotency_key: idempotencyKey, forma_pagamento: formaPagamento, valor: valorPago } })
-    return NextResponse.json({ data: result[0]?.[0], parcela: { id: parcelaId, valor_pago: novoValorPago, status: novoStatus } }, { status: 201 })
+    const pagamento = result[0]?.[0]
+    if (!pagamento) return NextResponse.json({ error: "Parcela não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
+    const parcelaAtualizada = await query<{ valor_pago: number; status: string }>(
+      `SELECT valor_pago, status FROM cobranca_parcelas WHERE id = $1 AND administradora_id = $2`,
+      [parcelaId, auth.administradoraId],
+    )
+    const novoValorPago = Number(parcelaAtualizada[0]?.valor_pago ?? parcela[0].valor_pago)
+    const novoStatus = String(parcelaAtualizada[0]?.status ?? parcela[0].status)
+    await recordCadastroAudit({ administradoraId: auth.administradoraId, userId: auth.userId, action: novoStatus === "paga" ? "settlement" : "payment", tableName: "cobranca_parcelas", recordId: parcelaId, before: { valor_pago: parcela[0].valor_pago, status: parcela[0].status }, after: { valor_pago: novoValorPago, status: novoStatus, pagamento_id: pagamento.id, idempotency_key: idempotencyKey, forma_pagamento: formaPagamento, valor: valorPago } })
+    return NextResponse.json({ data: pagamento, parcela: { id: parcelaId, valor_pago: novoValorPago, status: novoStatus } }, { status: 201 })
   } catch (error) {
     console.error("[v0] Erro ao registrar pagamento:", error)
     return NextResponse.json({ error: "Erro ao registrar pagamento" }, { status: 500 })

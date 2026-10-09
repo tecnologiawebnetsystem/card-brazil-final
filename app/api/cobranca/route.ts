@@ -35,11 +35,31 @@ export async function POST(request: NextRequest) {
     const auth = await getAuthContext()
     if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
     const body = await request.json()
-    const valorOriginal = parseMoney(body.valor_original)
+    const valorInformado = body.valor_original === undefined || body.valor_original === null || body.valor_original === "" ? null : parseMoney(body.valor_original)
     const tipo = String(body.tipo_cobranca || "amigavel")
-    if (valorOriginal === null || valorOriginal <= 0) return NextResponse.json({ error: "valor_original deve ser maior que zero" }, { status: 422 })
+    const contaReceberId = Number(body.conta_receber_id)
+    if (valorInformado !== null && (valorInformado <= 0 || !Number.isFinite(valorInformado))) return NextResponse.json({ error: "valor_original informado é inválido" }, { status: 422 })
     if (!TYPES.includes(tipo as (typeof TYPES)[number])) return NextResponse.json({ error: "tipo_cobranca inválido" }, { status: 422 })
-    const rows = await transaction([{ text: `INSERT INTO cobrancas (administradora_id, beneficiario_id, conta_receber_id, tipo_cobranca, status, valor_original, valor_atual, responsavel_id, canal_contato, observacoes, historico, data_inicio) VALUES ($1,$2,$3,$4,'pendente',$5,$5,$6,$7,$8,$9::jsonb,CURRENT_DATE) RETURNING id`, params: [auth.administradoraId, body.beneficiario_id || null, body.conta_receber_id || null, tipo, valorOriginal, auth.userId, body.canal_contato || "email", body.observacoes || null, JSON.stringify([{ data: new Date().toISOString(), acao: "Início da cobrança", responsavel_id: auth.userId }])] }])
+    if (!Number.isInteger(contaReceberId) || contaReceberId <= 0) return NextResponse.json({ error: "conta_receber_id é obrigatório: a cobrança precisa ter uma origem financeira válida" }, { status: 422 })
+
+    const origem = await query<{ id: number; beneficiario_id: number | null; proposta_id: number | null; contrato_id: number | null; valor_original: number; data_vencimento: string; status: string }>(
+      `SELECT id, beneficiario_id, proposta_id, contrato_id, valor_original, data_vencimento, status FROM contas_receber WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`,
+      [contaReceberId, auth.administradoraId],
+    )
+    if (!origem.length) return NextResponse.json({ error: "Conta a receber não encontrada para esta administradora" }, { status: 404 })
+    if (["cancelado", "pago"].includes(String(origem[0].status))) return NextResponse.json({ error: "A origem financeira não pode gerar nova cobrança neste status" }, { status: 409 })
+    if (body.beneficiario_id !== undefined && Number(body.beneficiario_id) !== Number(origem[0].beneficiario_id)) return NextResponse.json({ error: "O beneficiário não corresponde à origem financeira" }, { status: 422 })
+    const valorOriginal = Number(origem[0].valor_original)
+    if (!Number.isFinite(valorOriginal) || valorOriginal <= 0) return NextResponse.json({ error: "A origem financeira possui valor inválido" }, { status: 409 })
+    if (valorInformado !== null && Math.abs(valorOriginal - valorInformado) > 0.01) return NextResponse.json({ error: "valor_original deve corresponder ao valor da conta a receber" }, { status: 422 })
+
+    const existente = await query<{ id: number }>(
+      `SELECT id FROM cobrancas WHERE administradora_id = $1 AND conta_receber_id = $2 AND deleted_at IS NULL AND status NOT IN ('paga', 'encerrada', 'cancelada') LIMIT 1`,
+      [auth.administradoraId, contaReceberId],
+    )
+    if (existente.length) return NextResponse.json({ error: "Já existe uma cobrança ativa para esta origem financeira", id: existente[0].id }, { status: 409 })
+
+    const rows = await transaction([{ text: `INSERT INTO cobrancas (administradora_id, beneficiario_id, conta_receber_id, tipo_cobranca, status, valor_original, valor_atual, responsavel_id, canal_contato, observacoes, historico, data_inicio) VALUES ($1,$2,$3,$4,'pendente',$5,$5,$6,$7,$8,$9::jsonb,CURRENT_DATE) RETURNING id`, params: [auth.administradoraId, origem[0].beneficiario_id, contaReceberId, tipo, valorOriginal, auth.userId, body.canal_contato || "email", body.observacoes || null, JSON.stringify([{ data: new Date().toISOString(), acao: "Início da cobrança", responsavel_id: auth.userId, origem: { conta_receber_id: contaReceberId, proposta_id: origem[0].proposta_id, contrato_id: origem[0].contrato_id, vencimento: origem[0].data_vencimento } }])] }])
     return NextResponse.json({ message: "Cobrança criada com sucesso", id: rows[0]?.[0]?.id }, { status: 201 })
   } catch (error) { console.error("[v0] Erro ao criar cobrança:", error); return errorResponse(error, "Erro ao criar cobrança") }
 }

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getAuthContext } from "@/lib/api-auth"
+import { getAuthContext, hasPermission } from "@/lib/api-auth"
 import { query, transaction } from "@/lib/database"
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "cobranca", "create")) return NextResponse.json({ error: "Sem permissão para importar transações" }, { status: 403 })
   const body = await request.json()
   const identificador = String(body.identificador_externo || "").trim()
   const valor = Number(body.valor)
@@ -23,11 +24,12 @@ export async function POST(request: NextRequest) {
     [auth.administradoraId, valor, body.data_transacao],
   )
   const match = candidatos.length === 1 ? candidatos[0] : null
+  const parcelaId = match?.id ?? null
   const divergencia = candidatos.length > 1 ? ["duplicidade"] : candidatos.length === 0 ? ["titulo_inexistente"] : []
   const rows = await transaction([{
     text: `INSERT INTO conciliacao_transacoes (administradora_id, arquivo_id, identificador_externo, nosso_numero, documento, pagador_documento, data_transacao, valor, dados, status, divergencia_tipo, divergencia_detalhe, parcela_id)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13) RETURNING *`,
-    params: [auth.administradoraId, body.arquivo_id || null, identificador, body.nosso_numero || null, body.documento || null, body.pagador_documento || null, body.data_transacao, valor, JSON.stringify(body.dados || {}), match ? "sugerida" : "divergente", divergencia.join(",") || null, match ? null : "Nenhuma correspondência única e segura encontrada", match?.id ?? null],
+    params: [auth.administradoraId, body.arquivo_id || null, identificador, body.nosso_numero || null, body.documento || null, body.pagador_documento || null, body.data_transacao, valor, JSON.stringify(body.dados || {}), match ? "sugerida" : "divergente", divergencia.join(",") || null, match ? null : "Nenhuma correspondência única e segura encontrada", parcelaId],
   }])
   return NextResponse.json({ data: rows[0]?.[0], candidatos: candidatos.length }, { status: 201 })
 }
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "cobranca", "edit")) return NextResponse.json({ error: "Sem permissão para conciliar transações" }, { status: 403 })
   const body = await request.json()
   const id = Number(body.id)
   const parcelaId = Number(body.parcela_id)
@@ -66,6 +69,7 @@ export async function PATCH(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "cobranca", "view")) return NextResponse.json({ error: "Sem permissão para consultar conciliação" }, { status: 403 })
   const status = request.nextUrl.searchParams.get("status")
   const rows = await query(`SELECT * FROM conciliacao_transacoes WHERE administradora_id = $1 AND ($2::text IS NULL OR status = $2) ORDER BY created_at DESC LIMIT 200`, [auth.administradoraId, status])
   return NextResponse.json({ data: rows })

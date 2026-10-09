@@ -1,10 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query, transaction } from "@/lib/database"
-import { getAuthContext } from "@/lib/api-auth"
+import { getAuthContext, hasPermission } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "financeiro", "view")) return NextResponse.json({ error: "Sem permissão para consultar faturamento" }, { status: 403 })
   const propostaId = Number(request.nextUrl.searchParams.get("proposta_id"))
   const status = request.nextUrl.searchParams.get("status")
   const values: unknown[] = [auth.administradoraId]
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "financeiro", "create")) return NextResponse.json({ error: "Sem permissão para emitir faturamento" }, { status: 403 })
   const body = await request.json()
   const valorBase = Number(body.valor_base)
   if (!body.proposta_id || !body.competencia || !body.vencimento || !Number.isFinite(valorBase) || valorBase < 0) return NextResponse.json({ error: "proposta_id, competência, vencimento e valor_base são obrigatórios" }, { status: 422 })
@@ -41,6 +43,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "financeiro", "edit")) return NextResponse.json({ error: "Sem permissão para alterar faturamento" }, { status: 403 })
   const body = await request.json()
   const allowed = ["aberta", "enviada", "paga", "vencida", "cancelada"]
   const id = Number(body.id)
@@ -62,6 +65,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "financeiro", "delete")) return NextResponse.json({ error: "Sem permissão para cancelar faturamento" }, { status: 403 })
   const id = Number(request.nextUrl.searchParams.get("id"))
   if (!Number.isInteger(id) || id <= 0) return NextResponse.json({ error: "id inválido" }, { status: 422 })
   const rows = await query("UPDATE faturas_mensais SET deleted_at = NOW(), updated_at = NOW(), status = 'cancelada' WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL RETURNING id", [id, auth.administradoraId])

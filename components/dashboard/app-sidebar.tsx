@@ -172,11 +172,6 @@ const menuItems: MenuGroup[] = [
           { title: "Plano Faixa", url: "/dashboard/cadastros/planos-faixa", icon: <CogIcon className="h-3 w-3" /> },
         ],
       },
-      {
-        title: "Parâmetros Técnicos",
-        icon: <CogIcon />,
-        subItems: [],
-      },
     ],
   },
   {
@@ -242,11 +237,6 @@ const menuItems: MenuGroup[] = [
             icon: <CogIcon className="h-3 w-3" />,
           },
         ],
-      },
-      {
-        title: "Tabelas ANS",
-        icon: <ShieldIcon />,
-        subItems: [],
       },
     ],
   },
@@ -386,7 +376,7 @@ const menuItems: MenuGroup[] = [
               { title: "Multas e Juros", url: "/dashboard/cobranca/multas-juros", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Configurações de Cobrança", url: "/dashboard/cobranca/configuracoes", icon: <CogIcon className="h-3 w-3" /> },
               { title: "Configurações Gerais", url: "/dashboard/cobranca/configuracoes-gerais", icon: <CogIcon className="h-3 w-3" /> },
-              /* Relatórios desativados para homologação. */
+              /* Relatórios desativados para homologa��ão. */
             ],
           },
         ],

@@ -2,6 +2,8 @@ import { cookies } from "next/headers"
 import { AuthService } from "@/lib/auth-service"
 
 export type CadastroPermission = "view" | "create" | "edit" | "toggle" | "delete"
+export type FinanceiroPermission = CadastroPermission
+export type CobrancaPermission = CadastroPermission
 
 export interface AuthContext {
   userId: number
@@ -27,7 +29,7 @@ export async function requireCobrancaAccess(permission: CadastroPermission = "vi
   const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
   const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
   const key = `cobranca.${permission}`
-  if (!isAdmin && permissions[key] === false) throw new Error("FORBIDDEN")
+  if (!isAdmin && permissions[key] !== true) throw new Error("FORBIDDEN")
   return context
 }
 
@@ -37,7 +39,7 @@ export async function requireFinanceiroAccess(permission: CadastroPermission = "
   const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
   const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
   const key = `financeiro.${permission}`
-  if (!isAdmin && permissions[key] === false) throw new Error("FORBIDDEN")
+  if (!isAdmin && permissions[key] !== true) throw new Error("FORBIDDEN")
   return context
 }
 
@@ -47,8 +49,15 @@ export async function requireCadastroAccess(permission: CadastroPermission = "vi
   const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
   const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
   const key = `cadastros.${permission}`
-  if (!isAdmin && permissions[key] === false) throw new Error("FORBIDDEN")
+  if (!isAdmin && permissions[key] !== true) throw new Error("FORBIDDEN")
   return context
+}
+
+export function hasPermission(context: AuthContext, domain: "financeiro" | "cobranca" | "cadastros", permission: CadastroPermission) {
+  const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
+  if (isAdmin) return true
+  const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
+  return permissions[`${domain}.${permission}`] === true
 }
 
 export function apiAuthError(error: unknown) {

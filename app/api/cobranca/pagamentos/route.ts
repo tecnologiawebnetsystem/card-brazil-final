@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   const permissions = (auth.profile.permissions ?? {}) as Record<string, boolean>
   const isAdmin = auth.profile.tipo_usuario === "admin" || auth.profile.tipo_usuario === "administrador"
-  if (!isAdmin && permissions["cobranca.create"] === false) return NextResponse.json({ error: "Sem permissão para registrar pagamentos" }, { status: 403 })
+  if (!isAdmin && permissions["cobranca.create"] !== true) return NextResponse.json({ error: "Sem permissão para registrar pagamentos" }, { status: 403 })
 
   try {
     const body = await request.json()
@@ -24,10 +24,16 @@ export async function POST(request: NextRequest) {
     if (!formaPagamento || formaPagamento.length > 30) return NextResponse.json({ error: "forma_pagamento inválida" }, { status: 422 })
 
     const existing = await query(
-      `SELECT id, parcela_id, valor_pago, status FROM cobranca_pagamentos WHERE administradora_id = $1 AND idempotency_key = $2`,
+      `SELECT id, parcela_id, valor_pago, forma_pagamento, status FROM cobranca_pagamentos WHERE administradora_id = $1 AND idempotency_key = $2`,
       [auth.administradoraId, idempotencyKey],
     )
-    if (existing.length) return NextResponse.json({ data: existing[0], idempotent: true })
+    if (existing.length) {
+      const previous = existing[0]
+      if (previous.parcela_id !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
+        return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
+      }
+      return NextResponse.json({ data: previous, idempotent: true })
+    }
 
     const parcela = await query<{ id: number; valor_total: number; valor_pago: number; status: string }>(
       `SELECT id, valor_total, valor_pago, status FROM cobranca_parcelas WHERE id = $1 AND administradora_id = $2`,

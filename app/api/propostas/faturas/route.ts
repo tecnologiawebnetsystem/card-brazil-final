@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
+import { query, transaction } from "@/lib/database"
 import { getAuthContext } from "@/lib/api-auth"
 
 export async function GET(request: NextRequest) {
@@ -21,9 +21,21 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const valorBase = Number(body.valor_base)
   if (!body.proposta_id || !body.competencia || !body.vencimento || !Number.isFinite(valorBase) || valorBase < 0) return NextResponse.json({ error: "proposta_id, competência, vencimento e valor_base são obrigatórios" }, { status: 422 })
-  const total = valorBase + Number(body.valor_multa || 0) + Number(body.valor_juros || 0) - Number(body.valor_desconto || 0)
-  const rows = await query("INSERT INTO faturas_mensais (administradora_id, proposta_id, competencia, vencimento, valor_base, valor_multa, valor_juros, valor_desconto, valor_total, numero_documento, observacoes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *", [auth.administradoraId, body.proposta_id, body.competencia, body.vencimento, valorBase, Number(body.valor_multa || 0), Number(body.valor_juros || 0), Number(body.valor_desconto || 0), total, body.numero_documento || null, body.observacoes || null])
-  return NextResponse.json({ data: rows[0], message: "Fatura mensal gerada" }, { status: 201 })
+  const multa = Number(body.valor_multa || 0)
+  const juros = Number(body.valor_juros || 0)
+  const desconto = Number(body.valor_desconto || 0)
+  if (![multa, juros, desconto].every(Number.isFinite) || multa < 0 || juros < 0 || desconto < 0 || valorBase + multa + juros - desconto <= 0) return NextResponse.json({ error: "Encargos ou total da fatura inválidos" }, { status: 422 })
+  const proposta = await query<{ id: number; status: string; nome_proponente: string; cpf_cnpj: string }>("SELECT id, status, nome_proponente, cpf_cnpj FROM propostas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [body.proposta_id, auth.administradoraId])
+  if (!proposta.length) return NextResponse.json({ error: "Proposta não encontrada nesta administradora" }, { status: 404 })
+  if (proposta[0].status !== "aprovada" && proposta[0].status !== "contrato_gerado") return NextResponse.json({ error: "Somente propostas aprovadas podem gerar faturamento" }, { status: 409 })
+  const total = valorBase + multa + juros - desconto
+  const numeroDocumento = body.numero_documento || `PROP-${body.proposta_id}-${body.competencia}`
+  const rows = await transaction([
+    { text: "INSERT INTO faturas_mensais (administradora_id, proposta_id, competencia, vencimento, valor_base, valor_multa, valor_juros, valor_desconto, valor_total, numero_documento, observacoes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *", params: [auth.administradoraId, body.proposta_id, body.competencia, body.vencimento, valorBase, multa, juros, desconto, total, numeroDocumento, body.observacoes || null] },
+    { text: "INSERT INTO contas_receber (administradora_id, proposta_id, numero_documento, descricao, categoria, valor_original, valor_multa, valor_juros, valor_desconto, valor_total, valor_pago, data_emissao, data_vencimento, status, observacoes, created_by) VALUES ($1,$2,$3,$4,'faturamento',$5,$6,$7,$8,$9,0,CURRENT_DATE,$10,'pendente',$11,$12) ON CONFLICT (administradora_id, numero_documento) DO NOTHING RETURNING id", params: [auth.administradoraId, body.proposta_id, numeroDocumento, `Faturamento ${body.competencia} - ${proposta[0].nome_proponente}`, valorBase, multa, juros, desconto, total, body.vencimento, body.observacoes || null, auth.userId] },
+  ])
+  if (!rows[1]?.length) return NextResponse.json({ error: "Já existe obrigação financeira para esta proposta e competência" }, { status: 409 })
+  return NextResponse.json({ data: rows[0]?.[0], conta_receber_id: rows[1][0].id, message: "Fatura mensal gerada" }, { status: 201 })
 }
 
 export async function PATCH(request: NextRequest) {

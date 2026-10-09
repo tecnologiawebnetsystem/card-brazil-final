@@ -44,9 +44,11 @@ export async function POST(request: NextRequest) {
     const body = parsed.data
     const pessoa = await query(`SELECT id FROM pessoas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [body.pessoa_id, administradoraId])
     if (!pessoa.length) return NextResponse.json({ success: false, message: "Pessoa não encontrada nesta administradora" }, { status: 404 })
+    const vinculo = await query(`SELECT c.id, c.plano_id FROM contratos c JOIN planos pl ON pl.id = c.plano_id WHERE c.id = $1 AND c.plano_id = $2 AND c.administradora_id = $3 AND c.deleted_at IS NULL AND c.status = 'ativo' AND pl.status = 'ativo'`, [body.contrato_id, body.plano_id, administradoraId])
+    if (!vinculo.length) return NextResponse.json({ success: false, message: "Contrato e plano não possuem vínculo ativo nesta administradora" }, { status: 422 })
     if (body.tipo_beneficiario === "dependente") {
-      const titular = await query(`SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND status = 'ativo'`, [body.titular_id, administradoraId])
-      if (!titular.length) return NextResponse.json({ success: false, message: "Titular ativo não encontrado" }, { status: 400 })
+      const titular = await query(`SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND contrato_id = $3 AND plano_id = $4 AND status = 'ativo'`, [body.titular_id, administradoraId, body.contrato_id, body.plano_id])
+      if (!titular.length) return NextResponse.json({ success: false, message: "Titular ativo do mesmo contrato e plano não encontrado" }, { status: 400 })
     }
     const rows = await query(`INSERT INTO beneficiarios (administradora_id, pessoa_id, contrato_id, plano_id, numero_carteirinha, tipo_beneficiario, titular_id, data_inclusao, valor_mensalidade, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`, [administradoraId, body.pessoa_id, body.contrato_id, body.plano_id, body.numero_carteirinha, body.tipo_beneficiario, body.titular_id || null, body.data_inclusao, body.valor_mensalidade || null, body.status])
     await recordCadastroAudit({ administradoraId, userId, action: "create", tableName: "beneficiarios", recordId: rows[0].id, after: rows[0] })

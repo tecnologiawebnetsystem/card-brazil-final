@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getAuthContext } from "@/lib/api-auth"
+import { getAuthContext, hasPermission } from "@/lib/api-auth"
 import { query, transaction } from "@/lib/database"
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "cobranca", "view")) return NextResponse.json({ error: "Sem permissão para consultar inadimplência" }, { status: 403 })
   const status = request.nextUrl.searchParams.get("status")
   const rows = await query(
     `SELECT i.*, p.data_vencimento, p.valor_total, p.valor_pago, p.cobranca_id
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!hasPermission(auth, "cobranca", "create")) return NextResponse.json({ error: "Sem permissão para registrar inadimplência" }, { status: 403 })
   const body = await request.json()
   const parcelaId = Number(body.parcela_id)
   if (!Number.isInteger(parcelaId) || parcelaId <= 0) return NextResponse.json({ error: "parcela_id é obrigatório" }, { status: 422 })

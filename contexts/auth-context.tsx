@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useRef, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
 interface User {
@@ -29,26 +29,35 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const authRequestRef = useRef<Promise<void> | null>(null)
   const router = useRouter()
 
   const checkAuth = async () => {
-    try {
-      const response = await fetch("/api/auth/me")
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.user) {
-          setUser(data.user)
-        } else {
-          setUser(null)
-        }
-      } else {
+    if (authRequestRef.current) return authRequestRef.current
+
+    const request = (async () => {
+      const controller = new AbortController()
+      const timeout = window.setTimeout(() => controller.abort(), 8000)
+
+      try {
+        const response = await fetch("/api/auth/me", {
+          credentials: "same-origin",
+          cache: "no-store",
+          signal: controller.signal,
+        })
+        const data = response.ok ? await response.json() : null
+        setUser(data?.success && data.user ? data.user : null)
+      } catch {
         setUser(null)
+      } finally {
+        window.clearTimeout(timeout)
+        setIsLoading(false)
+        authRequestRef.current = null
       }
-    } catch (error) {
-      setUser(null)
-    } finally {
-      setIsLoading(false)
-    }
+    })()
+
+    authRequestRef.current = request
+    return request
   }
 
   const login = async (email: string, password: string) => {

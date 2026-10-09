@@ -35,6 +35,34 @@ test("beneficiário só é vinculado ao plano do contrato", () => {
   assert.match(route, /c\.administradora_id = \$3/)
 })
 
+test("conciliação única persiste a parcela encontrada", () => {
+  const route = read("app/api/cobranca/conciliacao/transacoes/route.ts")
+  assert.match(route, /const parcelaId = match\?\.id \?\? null/)
+  assert.match(route, /match \? \"sugerida\" : \"divergente\"/)
+  assert.match(route, /parcelaId\],/)
+})
+
+test("conciliação ambígua ou sem correspondência não cria vínculo", () => {
+  const route = read("app/api/cobranca/conciliacao/transacoes/route.ts")
+  assert.match(route, /candidatos\.length > 1 \? \[\"duplicidade\"\]/)
+  assert.match(route, /candidatos\.length === 0 \? \[\"titulo_inexistente\"\]/)
+  assert.match(route, /const match = candidatos\.length === 1 \? candidatos\[0\] : null/)
+})
+
+test("conciliação é idempotente e escopada por administradora", () => {
+  const route = read("app/api/cobranca/conciliacao/transacoes/route.ts")
+  assert.match(route, /administradora_id = \$1 AND identificador_externo = \$2/)
+  assert.match(route, /WHERE id = \$1 AND administradora_id = \$2/)
+  assert.match(route, /administradora_id = \$3 AND status NOT IN/)
+})
+
+test("migration declara o vínculo da conciliação", () => {
+  const migration = read("banco-dados/migrations/006_conciliacao_inadimplencia.sql")
+  assert.match(migration, /parcela_id BIGINT/)
+  assert.match(migration, /pagamento_id BIGINT/)
+  assert.match(migration, /UNIQUE \(administradora_id, identificador_externo\)/)
+})
+
 test("migration protege idempotência e isolamento do fluxo", () => {
   const migration = read("banco-dados/migrations/007_integracao_fluxo_principal.sql")
   assert.match(migration, /uq_faturas_mensais_admin_proposta_competencia/)

@@ -23,11 +23,12 @@ export async function POST(request: NextRequest) {
     [auth.administradoraId, valor, body.data_transacao],
   )
   const match = candidatos.length === 1 ? candidatos[0] : null
+  const parcelaId = match?.id ?? null
   const divergencia = candidatos.length > 1 ? ["duplicidade"] : candidatos.length === 0 ? ["titulo_inexistente"] : []
   const rows = await transaction([{
     text: `INSERT INTO conciliacao_transacoes (administradora_id, arquivo_id, identificador_externo, nosso_numero, documento, pagador_documento, data_transacao, valor, dados, status, divergencia_tipo, divergencia_detalhe, parcela_id)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13) RETURNING *`,
-    params: [auth.administradoraId, body.arquivo_id || null, identificador, body.nosso_numero || null, body.documento || null, body.pagador_documento || null, body.data_transacao, valor, JSON.stringify(body.dados || {}), match ? "sugerida" : "divergente", divergencia.join(",") || null, match ? null : "Nenhuma correspondência única e segura encontrada", match?.id ?? null],
+    params: [auth.administradoraId, body.arquivo_id || null, identificador, body.nosso_numero || null, body.documento || null, body.pagador_documento || null, body.data_transacao, valor, JSON.stringify(body.dados || {}), match ? "sugerida" : "divergente", divergencia.join(",") || null, match ? null : "Nenhuma correspondência única e segura encontrada", parcelaId],
   }])
   return NextResponse.json({ data: rows[0]?.[0], candidatos: candidatos.length }, { status: 201 })
 }

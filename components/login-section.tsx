@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/auth-context"
 import { Mail, ChevronRight, KeyRound } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,7 @@ import { LoginInstallActions } from "@/components/pwa/login-install-actions"
 
 export function LoginSection() {
   const router = useRouter()
+  const { checkAuth } = useAuth()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
@@ -33,6 +35,7 @@ export function LoginSection() {
         setCodigo("")
         return
       }
+      await checkAuth()
       router.push("/dashboard")
     } catch { setError("Não foi possível conectar ao servidor.") } finally { setLoading(false) }
   }

@@ -2,7 +2,7 @@
 
 import useSWR from "swr"
 import { useMemo, useState } from "react"
-import { AlertCircle, ArrowUpRight, CalendarClock, CircleDollarSign, Filter, RefreshCw, Search, Send, ShieldCheck } from "lucide-react"
+import { AlertCircle, ArrowUpRight, CalendarClock, CircleDollarSign, Filter, RefreshCw, Search, Send } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -51,16 +51,16 @@ export default function CobrancaPage() {
       <div className="container mx-auto flex min-w-0 flex-col gap-5 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 md:px-6">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground"><ShieldCheck className="size-4" /> Operação financeira</div>
+            <p className="text-sm font-medium text-primary">Financeiro</p>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">Cobrança</h1>
-            <p className="text-muted-foreground">Acompanhe títulos vencidos, negociações e recuperação de receita.</p>
+            <p className="text-muted-foreground">Acompanhe vencimentos e recuperação de receita.</p>
           </div>
           <Button onClick={() => mutate()} variant="outline"><RefreshCw data-icon="inline-start" /> Atualizar dados</Button>
         </header>
 
         {error && <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"><AlertCircle className="size-4" /> Não foi possível carregar a carteira de cobrança.</div>}
 
-        <section aria-label="Indicadores de cobrança" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section aria-label="Indicadores de cobrança" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[{ label: "Em atraso", value: money.format(data?.metrics.em_atraso ?? 0), icon: AlertCircle }, { label: "Em cobrança", value: String(data?.metrics.em_cobranca ?? 0), icon: Send }, { label: "Recuperado", value: money.format(data?.metrics.recuperado ?? 0), icon: CircleDollarSign }, { label: "Taxa de recuperação", value: `${data?.metrics.taxa_recuperacao ?? 0}%`, icon: ArrowUpRight }].map(({ label, value, icon: Icon }) => (
             <Card key={label}><CardContent className="flex items-center gap-3 p-5"><div className="rounded-lg bg-primary/10 p-2 text-primary"><Icon className="size-5" /></div><div><p className="text-sm text-muted-foreground">{label}</p><p className="text-xl font-semibold">{isLoading ? <Skeleton className="h-6 w-24" /> : value}</p></div></CardContent></Card>
           ))}

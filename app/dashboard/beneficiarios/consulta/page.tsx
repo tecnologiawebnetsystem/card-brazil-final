@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SearchIcon, EyeIcon, DownloadIcon, FilterIcon, PowerIcon, Trash2Icon } from "lucide-react"
+import { SearchIcon, EyeIcon, DownloadIcon, PowerIcon, Trash2Icon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface Beneficiario {
@@ -171,10 +171,11 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
 
   return (
     <div className="module-page flex-1 space-y-6 p-4 md:p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Consulta de Beneficiários</h1>
-          <p className="text-gray-600">Consulte e visualize informações completas de todos os beneficiários</p>
+          <p className="text-sm font-medium text-primary">Beneficiários</p>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">Consulta de beneficiários</h1>
+          <p className="mt-1 text-muted-foreground">Pesquise titulares e dependentes da carteira.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExport}>
@@ -186,23 +187,14 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Todos os Beneficiários</CardTitle>
-              <CardDescription>
-                Mostrando {filteredBeneficiarios.length} de {beneficiarios.length} beneficiários (titulares e
-                dependentes)
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <FilterIcon className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-500">Filtros ativos</span>
-            </div>
+          <div>
+            <CardTitle>Beneficiários cadastrados</CardTitle>
+            <CardDescription>{filteredBeneficiarios.length} de {beneficiarios.length} registros</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3 md:flex-row">
               <div className="flex-1">
                 <Input
                   placeholder="Buscar por nome, CPF, proposta ou titular..."

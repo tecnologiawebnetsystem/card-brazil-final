@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { UserIcon, BuildingIcon, FileTextIcon, SaveIcon, ArrowLeftIcon } from "lucide-react"
+import { FileTextIcon, SaveIcon, ArrowLeftIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export default function NovaPropostaPage() {
@@ -117,14 +117,15 @@ export default function NovaPropostaPage() {
   return (
     <div className="module-page flex-1 space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => router.push("/dashboard/propostas/lista")}>
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
+            <ArrowLeftIcon data-icon="inline-start" />
             Voltar
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">{propostaId ? "Editar Proposta" : "Nova Proposta"}</h1>
-            <p className="text-slate-600">{propostaId ? "Atualize os dados da proposta" : "Criar uma nova proposta de plano de saúde"}</p>
+            <p className="text-sm font-medium text-primary">Comercial</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">{propostaId ? "Editar proposta" : "Nova proposta"}</h1>
+            <p className="mt-1 text-muted-foreground">Preencha os dados essenciais para iniciar a análise.</p>
           </div>
         </div>
         <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
@@ -136,10 +137,7 @@ export default function NovaPropostaPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserIcon className="w-5 h-5 text-blue-600" />
-              Dados do Proponente
-            </CardTitle>
+            <CardTitle>Dados do proponente</CardTitle>
             <CardDescription>Informações básicas do solicitante</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -189,10 +187,7 @@ export default function NovaPropostaPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BuildingIcon className="w-5 h-5 text-green-600" />
-              Dados da Empresa
-            </CardTitle>
+            <CardTitle>Dados da empresa</CardTitle>
             <CardDescription>Informações da empresa contratante</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -226,10 +221,7 @@ export default function NovaPropostaPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileTextIcon className="w-5 h-5 text-purple-600" />
-            Detalhes da Proposta
-          </CardTitle>
+          <CardTitle>Detalhes da proposta</CardTitle>
           <CardDescription>Especificações do plano solicitado</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

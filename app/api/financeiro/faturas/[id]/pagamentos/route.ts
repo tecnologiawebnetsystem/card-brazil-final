@@ -45,21 +45,42 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           AND f.deleted_at IS NULL
           AND f.status NOT IN ('paga', 'cancelada')
           AND ROUND((f.valor_total - COALESCE((SELECT SUM(p.valor) FROM pagamentos_faturas p WHERE p.fatura_id = f.id AND p.administradora_id = f.administradora_id), 0))::numeric, 2) >= ROUND($1::numeric, 2)
-        RETURNING f.*
+        RETURNING f.id, f.administradora_id, f.status, f.valor_total
+      ), pagamento_criado AS (
+        INSERT INTO pagamentos_faturas (fatura_id, administradora_id, meio, idempotency_key, valor, identificador_externo, retorno_bruto, usuario_id)
+        SELECT id, $3, $4, $5, $1, $6, $7::jsonb, $8 FROM fatura_atualizada
+        RETURNING id, fatura_id, administradora_id, meio, valor
+      ), evento_criado AS (
+        INSERT INTO fatura_eventos (fatura_id, administradora_id, tipo, status_anterior, status_novo, origem, payload, usuario_id)
+        SELECT fc.fatura_id, fc.administradora_id, 'pagamento_confirmado', $9, fa.status, $4, $10::jsonb, $8
+        FROM pagamento_criado fc
+        JOIN fatura_atualizada fa ON fa.id = fc.fatura_id
+        RETURNING id
+      ), auditoria_criada AS (
+        INSERT INTO auditoria_cadastros
+          (administradora_id, usuario_id, acao, tabela, registro_id, dados_anteriores, dados_novos)
+        SELECT $3, $8, CASE WHEN fa.status = 'paga' THEN 'settlement' ELSE 'payment' END,
+          'faturas_mensais', fa.id, $11::jsonb,
+          jsonb_build_object('status', fa.status, 'valor', pc.valor, 'idempotency_key', $5, 'meio', pc.meio)
+        FROM pagamento_criado pc
+        JOIN fatura_atualizada fa ON fa.id = pc.fatura_id
+        RETURNING registro_id
       )
-      INSERT INTO pagamentos_faturas (fatura_id, administradora_id, meio, idempotency_key, valor, identificador_externo, retorno_bruto, usuario_id)
-      SELECT id, $3, $4, $5, $1, $6, $7::jsonb, $8 FROM fatura_atualizada
-      RETURNING *`,
-      params: [valor, id, auth.administradoraId, meio, key, body.identificador_externo || null, JSON.stringify(body.retorno_bruto || {}), auth.userId],
-    },
-    {
-      text: `INSERT INTO fatura_eventos (fatura_id, administradora_id, tipo, status_anterior, status_novo, origem, payload, usuario_id)
-        SELECT f.id, f.administradora_id, 'pagamento_confirmado', $3,
-          f.status, $4, $5::jsonb, $6
-        FROM faturas_mensais f
-        WHERE f.id = $1 AND f.administradora_id = $2
-          AND EXISTS (SELECT 1 FROM pagamentos_faturas p WHERE p.fatura_id = f.id AND p.administradora_id = $2 AND p.idempotency_key = $7)`,
-      params: [id, auth.administradoraId, fatura[0].status, meio, JSON.stringify({ meio, valor, idempotency_key: key }), auth.userId, key],
+      SELECT pc.id, pc.fatura_id, pc.administradora_id, pc.meio, pc.valor
+      FROM pagamento_criado pc`,
+      params: [
+        valor,
+        id,
+        auth.administradoraId,
+        meio,
+        key,
+        body.identificador_externo || null,
+        JSON.stringify(body.retorno_bruto || {}),
+        auth.userId,
+        fatura[0].status,
+        JSON.stringify({ meio, valor, idempotency_key: key }),
+        JSON.stringify({ status: fatura[0].status, valor_total: fatura[0].valor_total }),
+      ],
     },
   ])
   const pagamento = result[0]?.[0]

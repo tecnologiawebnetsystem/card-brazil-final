@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getAuthContext } from "@/lib/api-auth"
 import { query, transaction } from "@/lib/database"
 import { parseMoney } from "@/lib/cobranca-state"
-import { recordCadastroAudit } from "@/lib/cadastro-audit"
+import { createCadastroAuditStatement } from "@/lib/cadastro-audit"
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
@@ -44,6 +44,8 @@ export async function POST(request: NextRequest) {
     const saldo = Number(parcela[0].valor_total) - Number(parcela[0].valor_pago)
     if (valorPago > saldo) return NextResponse.json({ error: "Pagamento superior ao saldo da parcela" }, { status: 422 })
 
+    const novoValorPago = Math.round((Number(parcela[0].valor_pago) + valorPago) * 100) / 100
+    const novoStatus = novoValorPago >= Number(parcela[0].valor_total) ? "paga" : parcela[0].status
     const result = await transaction([
       {
         text: `WITH parcela_atualizada AS (
@@ -76,16 +78,18 @@ export async function POST(request: NextRequest) {
             )`,
         params: [auth.administradoraId, parcelaId, JSON.stringify({ valor_pago: valorPago, forma_pagamento: formaPagamento, origem: "cobranca_parcela" }), auth.userId, idempotencyKey],
       },
+      createCadastroAuditStatement({
+        administradoraId: auth.administradoraId,
+        userId: auth.userId,
+        action: novoStatus === "paga" ? "settlement" : "payment",
+        tableName: "cobranca_parcelas",
+        recordId: parcelaId,
+        before: { valor_pago: parcela[0].valor_pago, status: parcela[0].status },
+        after: { valor_pago: novoValorPago, status: novoStatus, idempotency_key: idempotencyKey, forma_pagamento: formaPagamento, valor: valorPago },
+      }),
     ])
     const pagamento = result[0]?.[0]
     if (!pagamento) return NextResponse.json({ error: "Parcela não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
-    const parcelaAtualizada = await query<{ valor_pago: number; status: string }>(
-      `SELECT valor_pago, status FROM cobranca_parcelas WHERE id = $1 AND administradora_id = $2`,
-      [parcelaId, auth.administradoraId],
-    )
-    const novoValorPago = Number(parcelaAtualizada[0]?.valor_pago ?? parcela[0].valor_pago)
-    const novoStatus = String(parcelaAtualizada[0]?.status ?? parcela[0].status)
-    await recordCadastroAudit({ administradoraId: auth.administradoraId, userId: auth.userId, action: novoStatus === "paga" ? "settlement" : "payment", tableName: "cobranca_parcelas", recordId: parcelaId, before: { valor_pago: parcela[0].valor_pago, status: parcela[0].status }, after: { valor_pago: novoValorPago, status: novoStatus, pagamento_id: pagamento.id, idempotency_key: idempotencyKey, forma_pagamento: formaPagamento, valor: valorPago } })
     return NextResponse.json({ data: pagamento, parcela: { id: parcelaId, valor_pago: novoValorPago, status: novoStatus } }, { status: 201 })
   } catch (error) {
     console.error("[v0] Erro ao registrar pagamento:", error)

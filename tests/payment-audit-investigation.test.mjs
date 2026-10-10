@@ -44,17 +44,21 @@ test("pagamento de fatura depende de leitura prévia antes da transação", () =
   assert.ok(transactionPosition > existingPosition)
 })
 
-test("auditoria de parcela usa query independente após a transação", () => {
+test("auditoria financeira da parcela entra na lista da mesma transação", () => {
   const route = read("app/api/cobranca/pagamentos/route.ts")
   const database = read("lib/cadastro-audit.ts")
 
-  const transactionCall = route.indexOf("await transaction([")
-  const auditCall = route.indexOf("await recordCadastroAudit(")
+  assert.match(route, /createCadastroAuditStatement\(/)
+  assert.match(route, /transaction\(\[[\s\S]*createCadastroAuditStatement\(/)
+  assert.match(database, /export function createCadastroAuditStatement\(/)
+  assert.match(database, /export async function recordCadastroAudit\(/)
+  assert.match(database, /await query\(statement\.text, statement\.params\)/)
+})
 
-  assert.ok(transactionCall >= 0)
-  assert.ok(auditCall > transactionCall)
-  assert.match(database, /import \{ query \} from "@\/lib\/database"/)
-  assert.match(database, /await query\(/)
+test("auditoria financeira da fatura entra na mesma transação", () => {
+  const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
+  assert.match(route, /transaction\(\[[\s\S]*createCadastroAuditStatement\(/)
+  assert.doesNotMatch(route, /await recordCadastroAudit\(/)
 })
 
 test("não há outbox ou recuperação persistente identificada para auditoria", () => {

@@ -1,4 +1,4 @@
-import { query } from "@/lib/database"
+import { query, type DatabaseStatement } from "@/lib/database"
 
 export type CadastroAuditAction = "create" | "update" | "delete" | "toggle" | "approve" | "reject" | "permission_change" | "payment" | "settlement" | "reconciliation" | "negotiation" | "parameter_change" | "bank_processing" | "integration" | "login" | "logout" | "login_failed"
 
@@ -10,7 +10,7 @@ function sanitizeAuditValue(value: unknown): unknown {
   return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, nested]) => [key, SENSITIVE_KEYS.has(key.toLowerCase()) ? "[REDACTED]" : sanitizeAuditValue(nested)]))
 }
 
-export async function recordCadastroAudit(input: {
+export type CadastroAuditInput = {
   administradoraId: number
   userId: number
   action: CadastroAuditAction
@@ -18,12 +18,14 @@ export async function recordCadastroAudit(input: {
   recordId: number
   before?: unknown
   after?: unknown
-}) {
-  await query(
-    `INSERT INTO auditoria_cadastros
+}
+
+export function createCadastroAuditStatement(input: CadastroAuditInput): DatabaseStatement {
+  return {
+    text: `INSERT INTO auditoria_cadastros
       (administradora_id, usuario_id, acao, tabela, registro_id, dados_anteriores, dados_novos)
      VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb)`,
-    [
+    params: [
       input.administradoraId,
       input.userId,
       input.action,
@@ -32,5 +34,10 @@ export async function recordCadastroAudit(input: {
       JSON.stringify(sanitizeAuditValue(input.before ?? null)),
       JSON.stringify(sanitizeAuditValue(input.after ?? null)),
     ],
-  )
+  }
+}
+
+export async function recordCadastroAudit(input: CadastroAuditInput) {
+  const statement = createCadastroAuditStatement(input)
+  await query(statement.text, statement.params)
 }

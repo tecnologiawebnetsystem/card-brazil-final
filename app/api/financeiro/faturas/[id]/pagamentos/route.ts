@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getAuthContext, hasPermission } from "@/lib/api-auth"
 import { query, transaction } from "@/lib/database"
+import { createCadastroAuditStatement } from "@/lib/cadastro-audit"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
@@ -33,6 +34,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const fatura = await query("SELECT id, valor_total, status FROM faturas_mensais WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [id, auth.administradoraId])
   if (!fatura.length) return NextResponse.json({ error: "Fatura não encontrada" }, { status: 404 })
   if (["paga", "cancelada"].includes(fatura[0].status)) return NextResponse.json({ error: "Fatura não aceita pagamento" }, { status: 409 })
+  const novoTotalPago = Number((await query("SELECT COALESCE(SUM(valor), 0) AS total FROM pagamentos_faturas WHERE fatura_id = $1 AND administradora_id = $2", [id, auth.administradoraId]))[0]?.total ?? 0) + valor
+  const novoStatus = Math.round(novoTotalPago * 100) / 100 >= Number(fatura[0].valor_total) ? "paga" : fatura[0].status
   const result = await transaction([
     {
       text: `WITH fatura_atualizada AS (
@@ -61,6 +64,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           AND EXISTS (SELECT 1 FROM pagamentos_faturas p WHERE p.fatura_id = f.id AND p.administradora_id = $2 AND p.idempotency_key = $7)`,
       params: [id, auth.administradoraId, fatura[0].status, meio, JSON.stringify({ meio, valor, idempotency_key: key }), auth.userId, key],
     },
+    createCadastroAuditStatement({
+      administradoraId: auth.administradoraId,
+      userId: auth.userId,
+      action: novoStatus === "paga" ? "settlement" : "payment",
+      tableName: "faturas_mensais",
+      recordId: id,
+      before: { status: fatura[0].status, valor_total: fatura[0].valor_total },
+      after: { status: novoStatus, valor: valor, idempotency_key: key, meio },
+    }),
   ])
   const pagamento = result[0]?.[0]
   if (!pagamento) return NextResponse.json({ error: "Fatura não aceita este pagamento ou saldo insuficiente" }, { status: 409 })

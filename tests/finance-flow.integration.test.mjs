@@ -66,9 +66,9 @@ test("migration declara o vínculo da conciliação", () => {
 test("pagamento de parcela exige permissão e saldo atômico", () => {
   const route = read("app/api/cobranca/pagamentos/route.ts")
   assert.match(route, /permissions\["cobranca\.create"\] !== true/)
-  assert.match(route, /valor_pago \+ \$1 <= valor_total/)
+  assert.match(route, /ROUND\(valor_pago \+ \$1, 2\) <= ROUND\(valor_total, 2\)/)
   assert.match(route, /WITH parcela_atualizada AS \(/)
-  assert.match(route, /RETURNING id, parcela_id, valor_pago, status/)
+  assert.match(route, /SELECT pc\.id, pc\.parcela_id, pc\.valor_pago, pa\.status/)
 })
 
 test("pagamento de fatura exige permissão e calcula saldo acumulado", () => {

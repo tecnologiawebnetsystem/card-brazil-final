@@ -48,8 +48,9 @@ test("auditoria financeira da parcela entra na lista da mesma transação", () =
   const route = read("app/api/cobranca/pagamentos/route.ts")
   const database = read("lib/cadastro-audit.ts")
 
-  assert.match(route, /createCadastroAuditStatement\(/)
-  assert.match(route, /transaction\(\[[\s\S]*createCadastroAuditStatement\(/)
+  assert.match(route, /WITH parcela_atualizada AS \([\s\S]*pagamento_criado AS \([\s\S]*evento_criado AS \([\s\S]*auditoria_criada AS \(/)
+  assert.match(route, /FROM pagamento_criado pc/)
+  assert.doesNotMatch(route, /EXISTS \(\s*SELECT 1 FROM cobranca_pagamentos/)
   assert.match(database, /export function createCadastroAuditStatement\(/)
   assert.match(database, /export async function recordCadastroAudit\(/)
   assert.match(database, /await query\(statement\.text, statement\.params\)/)
@@ -57,7 +58,9 @@ test("auditoria financeira da parcela entra na lista da mesma transação", () =
 
 test("auditoria financeira da fatura entra na mesma transação", () => {
   const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
-  assert.match(route, /transaction\(\[[\s\S]*createCadastroAuditStatement\(/)
+  assert.match(route, /WITH fatura_atualizada AS \([\s\S]*pagamento_criado AS \([\s\S]*evento_criado AS \([\s\S]*auditoria_criada AS \(/)
+  assert.match(route, /FROM pagamento_criado pc/)
+  assert.doesNotMatch(route, /EXISTS \(SELECT 1 FROM pagamentos_faturas/)
   assert.doesNotMatch(route, /await recordCadastroAudit\(/)
 })
 

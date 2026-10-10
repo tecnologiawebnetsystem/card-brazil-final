@@ -63,6 +63,31 @@ test("migration declara o vínculo da conciliação", () => {
   assert.match(migration, /UNIQUE \(administradora_id, identificador_externo\)/)
 })
 
+test("pagamento de parcela exige permissão e saldo atômico", () => {
+  const route = read("app/api/cobranca/pagamentos/route.ts")
+  assert.match(route, /permissions\["cobranca\.create"\] !== true/)
+  assert.match(route, /valor_pago \+ \$1 <= valor_total/)
+  assert.match(route, /WITH parcela_atualizada AS \(/)
+  assert.match(route, /RETURNING id, parcela_id, valor_pago, status/)
+})
+
+test("pagamento de fatura exige permissão e calcula saldo acumulado", () => {
+  const route = read("app/api/financeiro/faturas\/\[id\]\/pagamentos\/route.ts")
+  assert.match(route, /hasPermission\(auth, "financeiro", "create"\)/)
+  assert.match(route, /SUM\(p\.valor\) FROM pagamentos_faturas/)
+  assert.match(route, /f\.valor_total - COALESCE/)
+  assert.match(route, /INSERT INTO pagamentos_faturas/)
+})
+
+test("idempotência rejeita a mesma chave com parâmetros diferentes", () => {
+  const parcelaRoute = read("app/api/cobranca/pagamentos/route.ts")
+  const faturaRoute = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
+  assert.match(parcelaRoute, /Idempotency-Key já utilizada com parâmetros incompatíveis/)
+  assert.match(faturaRoute, /Idempotency-Key já utilizada com parâmetros incompatíveis/)
+  assert.match(parcelaRoute, /status: 409/)
+  assert.match(faturaRoute, /status: 409/)
+})
+
 test("migration protege idempotência e isolamento do fluxo", () => {
   const migration = read("banco-dados/migrations/007_integracao_fluxo_principal.sql")
   assert.match(migration, /uq_faturas_mensais_admin_proposta_competencia/)

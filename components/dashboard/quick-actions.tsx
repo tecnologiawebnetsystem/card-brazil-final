@@ -18,7 +18,7 @@ export function QuickActions() {
           />
         </svg>
       ),
-      color: "bg-blue-50 text-blue-600 hover:bg-blue-100",
+      color: "bg-secondary text-primary hover:bg-primary/10",
       href: "/dashboard/segurados",
     },
     {
@@ -50,7 +50,7 @@ export function QuickActions() {
           />
         </svg>
       ),
-      color: "bg-purple-50 text-purple-600 hover:bg-purple-100",
+      color: "bg-violet/10 text-violet hover:bg-violet/20",
       href: "/dashboard/relatorios",
     },
     {
@@ -66,7 +66,7 @@ export function QuickActions() {
           />
         </svg>
       ),
-      color: "bg-green-50 text-green-600 hover:bg-green-100",
+      color: "bg-success/10 text-success hover:bg-success/20",
       href: "/dashboard/consultas",
     },
   ]

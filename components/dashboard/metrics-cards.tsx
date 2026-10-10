@@ -9,8 +9,8 @@ export function MetricsCards() {
       change: "+5.2%",
       trend: "up",
       icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-primary",
+      bgColor: "bg-secondary",
     },
     {
       title: "Pagamentos em Dia",
@@ -18,8 +18,8 @@ export function MetricsCards() {
       change: "+12.1%",
       trend: "up",
       icon: CheckCircle,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      color: "text-success",
+      bgColor: "bg-success/10",
     },
     {
       title: "Pendências",
@@ -36,8 +36,8 @@ export function MetricsCards() {
       change: "-15.2%",
       trend: "down",
       icon: AlertTriangle,
-      color: "text-red-600",
-      bgColor: "bg-red-50",
+      color: "text-destructive",
+      bgColor: "bg-destructive/10",
     },
   ]
 

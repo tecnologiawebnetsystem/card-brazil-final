@@ -66,13 +66,13 @@ export function RecentActivity() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "success":
-        return "text-green-600 bg-green-50"
+        return "text-success bg-success/10"
       case "error":
-        return "text-red-600 bg-red-50"
+        return "text-destructive bg-destructive/10"
       case "warning":
         return "text-yellow-600 bg-yellow-50"
       case "info":
-        return "text-blue-600 bg-blue-50"
+        return "text-primary bg-secondary"
       default:
         return "text-gray-600 bg-gray-50"
     }

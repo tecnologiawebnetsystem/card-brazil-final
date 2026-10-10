@@ -1,0 +1,69 @@
+import assert from "node:assert/strict"
+import fs from "node:fs"
+import test from "node:test"
+
+const root = new URL("../", import.meta.url)
+const read = (path) => fs.readFileSync(new URL(path, root), "utf8")
+
+test("faturas exigem chave idempotente normalizada e escopada", () => {
+  const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
+
+  assert.match(route, /request\.headers\.get\("idempotency-key"\) \|\| body\.idempotency_key/)
+  assert.match(route, /\.trim\(\)/)
+  assert.match(route, /!key \|\| key\.length > 160/)
+  assert.match(route, /administradora_id = \$1 AND idempotency_key = \$2/)
+})
+
+test("repetição sequencial de fatura compara parâmetros e retorna conflito", () => {
+  const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
+
+  assert.match(route, /previous\.fatura_id !== id/)
+  assert.match(route, /previous\.meio !== meio/)
+  assert.match(route, /Number\(previous\.valor\) !== valor/)
+  assert.match(route, /Idempotency-Key já utilizada com parâmetros incompatíveis/)
+  assert.match(route, /status: 409/)
+  assert.match(route, /idempotent: true/)
+})
+
+test("schema versionado não comprova unicidade de pagamentos de faturas", () => {
+  const ddl = read("banco-dados/DDL/10_faturamento_bancario.sql")
+  const migrations = read("banco-dados/migrations/005_integridade_cobranca_financeira.sql")
+  const pagamentosTable = ddl.match(/CREATE TABLE IF NOT EXISTS pagamentos_faturas \(([^;]+)\);/)?.[1] ?? ""
+
+  assert.match(pagamentosTable, /idempotency_key VARCHAR\(160\) NOT NULL/)
+  assert.match(pagamentosTable, /UNIQUE \(administradora_id, idempotency_key\)/)
+  assert.doesNotMatch(migrations, /uq_.*pagamentos_faturas.*idempotency/i)
+})
+
+test("pagamento de fatura depende de leitura prévia antes da transação", () => {
+  const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
+  const existingPosition = route.indexOf("const existing = await query")
+  const transactionPosition = route.indexOf("const result = await transaction")
+
+  assert.ok(existingPosition >= 0)
+  assert.ok(transactionPosition > existingPosition)
+})
+
+test("auditoria de parcela usa query independente após a transação", () => {
+  const route = read("app/api/cobranca/pagamentos/route.ts")
+  const database = read("lib/cadastro-audit.ts")
+
+  const transactionCall = route.indexOf("await transaction([")
+  const auditCall = route.indexOf("await recordCadastroAudit(")
+
+  assert.ok(transactionCall >= 0)
+  assert.ok(auditCall > transactionCall)
+  assert.match(database, /import \{ query \} from "@\/lib\/database"/)
+  assert.match(database, /await query\(/)
+})
+
+test("não há outbox ou recuperação persistente identificada para auditoria", () => {
+  const audit = read("lib/cadastro-audit.ts")
+  const paymentRoute = read("app/api/cobranca/pagamentos/route.ts")
+
+  assert.doesNotMatch(audit, /outbox|pending|retry|tentativa/i)
+  assert.doesNotMatch(paymentRoute, /auditoria.*pendente|retry.*audit|outbox/i)
+})
+
+// Estes testes são estruturais: não comprovam concorrência, rollback ou constraints aplicadas no PostgreSQL.
+// A validação comportamental permanece pendente de um banco de homologação isolado e autorizado.

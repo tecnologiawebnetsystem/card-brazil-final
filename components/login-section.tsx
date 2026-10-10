@@ -49,7 +49,7 @@ export function LoginSection() {
           <div className="absolute -bottom-44 right-[-6%] h-72 w-[68%] rotate-[-28deg] rounded-[50%] bg-[#13aa9a]/80" />
           <div className="absolute -bottom-48 right-[8%] h-64 w-[58%] rotate-[-28deg] rounded-[50%] bg-[#3157a4]/90" />
           <div className="relative z-10 flex items-center gap-4">
-            <img src="/cardbrazil-icon.svg" alt="" className="h-16 w-16" />
+            <img src="/cardbrazil-icon.svg" alt="" width={64} height={64} className="h-16 w-16 max-w-none object-contain" />
             <div><h1 className="text-5xl font-bold tracking-tight text-white">Card Brazil</h1><p className="text-xl text-white/90">Gestão inteligente em saúde</p></div>
           </div>
           <div className="relative z-10 max-w-xl pb-8">
@@ -64,7 +64,7 @@ export function LoginSection() {
         <section className="relative flex min-h-screen w-full flex-col bg-[#f7f9fc] px-5 py-8 lg:w-[39%] lg:px-14 lg:py-11 xl:px-20">
           <div className="flex justify-end gap-6 text-xs text-[#0d2f63]"><span className="flex items-center gap-2"><LockKeyhole className="h-4 w-4 text-[#486b96]" /> Sistema seguro</span><span className="border-l border-[#cbd7e5] pl-6">Acesso restrito</span></div>
           <div className="my-auto w-full max-w-md self-center rounded-2xl border border-[#dbe4ef] bg-white p-8 shadow-[0_18px_55px_rgba(31,64,103,.08)] xl:p-10">
-            <div className="mb-8 flex items-center gap-3"><img src="/cardbrazil-icon.svg" alt="Card Brasil" className="h-12 w-12" /><div><p className="text-2xl font-bold">Card Brasil</p><p className="text-xs text-[#3157a4]">Gestão inteligente em saúde</p></div></div>
+            <div className="mb-8 flex items-center gap-3"><img src="/cardbrazil-icon.svg" alt="Card Brasil" width={48} height={48} className="h-12 w-12 max-w-none object-contain" /><div><p className="text-2xl font-bold">Card Brasil</p><p className="text-xs text-[#3157a4]">Gestão inteligente em saúde</p></div></div>
             <h2 className="text-3xl font-bold">Bem-vindo(a) ao Card Brasil</h2><p className="mt-2 text-[#6680a5]">Acesse sua plataforma de gestão.</p>
             <form className="mt-9 space-y-5" onSubmit={handleLogin}>
               <div className="space-y-2"><Label htmlFor="email" className="text-xs font-semibold">Usuário ou e-mail</Label><div className="relative"><UserRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#7090b7]" /><Input id="email" type="text" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Digite seu usuário ou e-mail" className="h-12 rounded-lg border-[#cbd9ea] pl-12 text-sm placeholder:text-[#9bb0ca]" autoComplete="username" required /></div></div>

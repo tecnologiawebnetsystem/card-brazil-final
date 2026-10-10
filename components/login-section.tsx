@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
-import { ChevronRight, KeyRound, LockKeyhole, Eye, ShieldCheck, Users, FileText, CreditCard, BarChart3, CircleHelp, UserRound } from "lucide-react"
+import { ChevronRight, KeyRound, LockKeyhole, ShieldCheck, Users, FileText, CreditCard, BarChart3, CircleHelp, UserRound } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -65,16 +65,12 @@ export function LoginSection() {
           <div className="flex justify-end gap-6 text-xs text-[#0d2f63]"><span className="flex items-center gap-2"><LockKeyhole className="h-4 w-4 text-[#486b96]" /> Sistema seguro</span><span className="border-l border-[#cbd7e5] pl-6">Acesso restrito</span></div>
           <div className="my-auto w-full max-w-md self-center rounded-2xl border border-[#dbe4ef] bg-white p-8 shadow-[0_18px_55px_rgba(31,64,103,.08)] xl:p-10">
             <div className="mb-8 flex items-center gap-3"><img src="/cardbrazil-icon.svg" alt="Card Brasil" className="h-12 w-12" /><div><p className="text-2xl font-bold">Card Brasil</p><p className="text-xs text-[#3157a4]">Gestão inteligente em saúde</p></div></div>
-            <h2 className="text-3xl font-bold">Bem-vindo(a)!</h2><p className="mt-2 text-[#6680a5]">Faça login para acessar o sistema.</p>
+            <h2 className="text-3xl font-bold">Bem-vindo(a) ao Card Brasil</h2><p className="mt-2 text-[#6680a5]">Acesse sua plataforma de gestão.</p>
             <form className="mt-9 space-y-5" onSubmit={handleLogin}>
-              <div className="space-y-2"><Label htmlFor="email" className="text-xs font-semibold">Usuário</Label><div className="relative"><UserRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#7090b7]" /><Input id="email" type="text" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Digite seu usuário" className="h-12 rounded-lg border-[#cbd9ea] pl-12 text-sm placeholder:text-[#9bb0ca]" autoComplete="username" required /></div></div>
-              <div className="space-y-2"><Label htmlFor="access-info" className="text-xs font-semibold">Senha</Label><div className="relative"><LockKeyhole className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#7090b7]" /><Input id="access-info" type="text" value={challenge ? "Código enviado para seu usuário" : "Código de acesso enviado após continuar"} readOnly className="h-12 rounded-lg border-[#cbd9ea] bg-[#fbfcfe] pl-12 pr-10 text-sm text-[#8ba1bd]" /><Eye className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#7090b7]" /></div></div>
+              <div className="space-y-2"><Label htmlFor="email" className="text-xs font-semibold">Usuário ou e-mail</Label><div className="relative"><UserRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#7090b7]" /><Input id="email" type="text" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Digite seu usuário ou e-mail" className="h-12 rounded-lg border-[#cbd9ea] pl-12 text-sm placeholder:text-[#9bb0ca]" autoComplete="username" required /></div></div>
               {error && <div role="alert" className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
-              <label className="flex items-center gap-3 text-sm text-[#587294]"><input type="checkbox" className="h-4 w-4 rounded border-[#aabed5] accent-[#3157a4]" /> Manter conectado</label>
               <Button type="submit" disabled={loading} className="h-12 w-full rounded-lg bg-[#2865b5] text-base font-semibold text-white shadow-none hover:bg-[#1f559d]">{loading ? "Verificando..." : challenge ? "Validar token" : "Entrar"}<ChevronRight className="ml-2 h-5 w-5" /></Button>
             </form>
-            <div className="my-7 flex items-center gap-3 text-xs text-[#9aabc0]"><span className="h-px flex-1 bg-[#d8e1ec]" /> ou <span className="h-px flex-1 bg-[#d8e1ec]" /></div>
-            <Button variant="outline" className="h-11 w-full rounded-lg border-[#76a7ee] text-[#2865b5]"><ShieldCheck className="mr-2 h-4 w-4" /> Acessar com certificado digital</Button>
             <button type="button" onClick={() => router.push("/esqueci-senha")} className="mx-auto mt-7 flex items-center gap-2 text-xs font-medium text-[#1665c1] hover:underline"><CircleHelp className="h-4 w-4" /> Esqueceu sua senha?</button>
           </div>
           <p className="mt-8 text-center text-xs text-[#7188a6]">Card Brasil &nbsp; v1.0 &nbsp; | &nbsp; Todos os direitos reservados.</p><LoginInstallActions />

@@ -39,29 +39,29 @@ button, a, input, select, textarea {
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* CARD BRASIL — tokens visuais corporativos */
-  --background: #f5f8fc;
-  --foreground: #172033;
+  /* CARD BRASIL — Clean Enterprise */
+  --background: #f6f8fb;
+  --foreground: #182433;
   --card: #ffffff;
   --surface: #ffffff;
-  --card-foreground: #172033;
+  --card-foreground: #182433;
   --popover: #ffffff;
-  --popover-foreground: #172033;
-  --primary: #075985;
-  --primary-dark: #0b1f3a;
-  --primary-light: #3ba4e8;
+  --popover-foreground: #182433;
+  --primary: #1264a3;
+  --primary-dark: #0b3156;
+  --primary-light: #55a9dc;
   --primary-foreground: #ffffff;
-  --secondary: #eaf5fc;
-  --secondary-foreground: #124e8c;
-  --muted: #eef3f8;
-  --muted-foreground: #64748b;
-  --accent: #3ba4e8;
-  --accent-foreground: #0b1f3a;
-  --destructive: #dc2626;
+  --secondary: #eaf3fa;
+  --secondary-foreground: #124f80;
+  --muted: #eef2f6;
+  --muted-foreground: #667587;
+  --accent: #dcecf7;
+  --accent-foreground: #0b3156;
+  --destructive: #c83b48;
   --destructive-foreground: #ffffff;
-  --border: #d9e2ec;
+  --border: #dce3eb;
   --input: #ffffff;
-  --ring: rgba(22, 119, 200, 0.24);
+  --ring: rgba(18, 100, 163, 0.28);
   --chart-1: #0b1f3a;
   --chart-2: #124e8c;
   --chart-3: #1677c8;
@@ -209,6 +209,49 @@ button, a, input, select, textarea {
 .module-page > :first-child {
   width: min(100%, 1440px);
   margin-inline: auto;
+}
+
+/* Ritmo consistente para módulos legados sem alterar sua estrutura funcional. */
+.module-page {
+  scrollbar-gutter: stable;
+}
+
+.module-page section + section {
+  margin-top: 1.5rem;
+}
+
+.module-page [data-slot="card"] {
+  border-color: color-mix(in srgb, var(--border) 82%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--primary-dark) 5%, transparent);
+}
+
+.module-page [data-slot="card-header"] {
+  padding: 1.25rem 1.25rem 0.9rem;
+}
+
+.module-page [data-slot="card-content"] {
+  padding: 1.25rem;
+}
+
+.module-page input,
+.module-page select,
+.module-page textarea {
+  border-color: var(--border);
+  box-shadow: 0 1px 1px color-mix(in srgb, var(--primary-dark) 3%, transparent);
+}
+
+.module-page input:focus,
+.module-page select:focus,
+.module-page textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+@media (max-width: 767px) {
+  .module-page [data-slot="card-header"],
+  .module-page [data-slot="card-content"] {
+    padding: 1rem;
+  }
 }
 
 @container (max-width: 720px) {

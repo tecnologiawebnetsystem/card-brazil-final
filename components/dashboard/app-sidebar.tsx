@@ -712,9 +712,9 @@ export function AppSidebar() {
         </Button>
       )}
 
-<Sidebar variant="inset" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="border-b border-sidebar-border/70 bg-sidebar-primary/20 p-3">
-          <div className="flex items-center justify-between gap-3 rounded-2xl bg-sidebar-accent/20 p-2">
+<Sidebar variant="inset" className="border-r border-sidebar-border/80 bg-sidebar">
+      <SidebarHeader className="border-b border-sidebar-border/70 bg-sidebar p-3">
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-sidebar-accent/15 p-2">
             <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-accent shadow-sm">
               <svg className="h-5 w-5 text-sidebar-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">

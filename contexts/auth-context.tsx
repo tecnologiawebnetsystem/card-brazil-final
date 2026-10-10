@@ -21,7 +21,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
-  checkAuth: () => Promise<void>
+  checkAuth: (authenticatedUser?: User) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -32,7 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const authRequestRef = useRef<Promise<void> | null>(null)
   const router = useRouter()
 
-  const checkAuth = async () => {
+  const checkAuth = async (authenticatedUser?: User) => {
+    if (authenticatedUser) {
+      setUser(authenticatedUser)
+      setIsLoading(false)
+      return
+    }
+
     if (authRequestRef.current) return authRequestRef.current
 
     const request = (async () => {

@@ -35,7 +35,7 @@ export function LoginSection() {
         setCodigo("")
         return
       }
-      await checkAuth()
+      await checkAuth(data.data.usuario)
       router.push("/dashboard")
     } catch { setError("Não foi possível conectar ao servidor.") } finally { setLoading(false) }
   }

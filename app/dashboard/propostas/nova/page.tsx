@@ -89,14 +89,14 @@ export default function NovaPropostaPage() {
         }),
       })
 
+      const data = await response.json()
       if (!response.ok) {
-        throw new Error("Erro ao criar proposta")
+        const fieldMessage = data.fields ? Object.values(data.fields).flat().join(" ") : ""
+        throw new Error(fieldMessage || data.error || data.message || "Não foi possível salvar a proposta")
       }
 
-      const data = await response.json()
-
       toast({
-        title: "Proposta criada",
+        title: propostaId ? "Proposta atualizada" : "Proposta criada",
         description: `Proposta #${data.data?.id || propostaId || ""} salva com sucesso`,
       })
 
@@ -202,16 +202,16 @@ export default function NovaPropostaPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="numeroFuncionarios">Número de Funcionários</Label>
-              <Select onValueChange={(value) => handleInputChange("numeroFuncionarios", value)}>
+                <Select value={formData.numeroFuncionarios} onValueChange={(value) => handleInputChange("numeroFuncionarios", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a faixa" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1-10">1 a 10 funcionários</SelectItem>
-                  <SelectItem value="11-50">11 a 50 funcionários</SelectItem>
-                  <SelectItem value="51-100">51 a 100 funcionários</SelectItem>
-                  <SelectItem value="101-500">101 a 500 funcionários</SelectItem>
-                  <SelectItem value="500+">Mais de 500 funcionários</SelectItem>
+                  <SelectItem value="10">Até 10 funcionários</SelectItem>
+                  <SelectItem value="50">11 a 50 funcionários</SelectItem>
+                  <SelectItem value="100">51 a 100 funcionários</SelectItem>
+                  <SelectItem value="500">101 a 500 funcionários</SelectItem>
+                  <SelectItem value="501">Mais de 500 funcionários</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -228,7 +228,7 @@ export default function NovaPropostaPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="tipoPlano">Tipo de Plano *</Label>
-              <Select onValueChange={(value) => handleInputChange("tipoPlano", value)}>
+              <Select value={formData.tipoPlano} onValueChange={(value) => handleInputChange("tipoPlano", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o tipo de plano" />
                 </SelectTrigger>

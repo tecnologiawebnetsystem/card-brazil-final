@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
-import { Mail, ChevronRight, KeyRound } from "lucide-react"
+import { ChevronRight, KeyRound, LockKeyhole, ShieldCheck, Users, FileText, CreditCard, BarChart3, CircleHelp, UserRound } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -41,109 +41,39 @@ export function LoginSection() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(90deg,color-mix(in_srgb,var(--primary)_8%,transparent)_1px,transparent_1px),linear-gradient(180deg,color-mix(in_srgb,var(--primary)_8%,transparent)_1px,transparent_1px)] [background-size:80px_80px]" />
-      <div className="absolute left-0 top-0 h-px w-full border-t border-primary/20" />
-      <div className="absolute right-0 top-0 h-full w-px border-r border-primary/10" />
-      <div className="absolute bottom-0 right-0 h-px w-3/5 border-b border-primary/20" />
-      <div className="absolute bottom-0 right-1/3 h-96 w-px border-l border-primary/15" />
-      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col lg:flex-row lg:items-stretch">
-        <section className="relative hidden w-full overflow-hidden border-r border-primary/20 bg-gradient-to-b from-primary via-primary/95 to-primary/90 px-12 py-16 text-primary-foreground lg:flex lg:w-3/5 lg:flex-col lg:justify-between xl:px-20 xl:py-20">
-          <div className="absolute inset-0 opacity-15 [background-image:repeating-linear-gradient(45deg,transparent,transparent_35px,currentColor_35px,currentColor_70px)]" />
-          <div className="absolute right-0 top-1/3 h-96 w-96 border border-primary-foreground/10 opacity-30" />
-          <div className="absolute -bottom-32 right-1/4 h-80 w-80 border border-primary-foreground/5 opacity-20" />
-          <div className="relative">
-            <div className="mb-20 flex items-end justify-between border-b border-primary-foreground/20 pb-8">
-              <div>
-                <div className="mb-2 font-mono text-xs font-bold uppercase tracking-[0.3em] text-primary-foreground/60">Gestor de Saúde</div>
-                <h1 className="text-5xl font-bold tracking-[-0.08em] xl:text-6xl">CardBrazil</h1>
-              </div>
-              <div className="h-16 w-1 bg-gradient-to-b from-accent via-primary-foreground to-transparent" />
+    <main className="min-h-screen overflow-hidden bg-[#f7f9fc] text-[#0d2f63]">
+      <div className="flex min-h-screen flex-col lg:flex-row">
+        <section className="relative hidden min-h-screen overflow-hidden bg-[#06284b] text-white lg:flex lg:w-[61%] lg:flex-col lg:justify-between lg:px-16 lg:py-12 xl:px-20">
+          <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(2,32,67,.96)_0%,rgba(13,67,125,.78)_55%,rgba(31,115,178,.28)_100%),url('/images/cardbrazil-building.png')] bg-cover bg-center" />
+          <div className="absolute -right-36 -top-24 h-[115%] w-72 rotate-[17deg] rounded-[50%] bg-[#f7f9fc] shadow-[-20px_0_60px_rgba(7,41,76,.12)]" />
+          <div className="absolute -bottom-44 right-[-6%] h-72 w-[68%] rotate-[-28deg] rounded-[50%] bg-[#13aa9a]/80" />
+          <div className="absolute -bottom-48 right-[8%] h-64 w-[58%] rotate-[-28deg] rounded-[50%] bg-[#3157a4]/90" />
+          <div className="relative z-10 flex items-center gap-4">
+            <img src="/cardbrazil-icon.svg" alt="" width={64} height={64} className="h-16 w-16 max-w-none object-contain" />
+            <div><h1 className="text-5xl font-bold tracking-tight text-white">Card Brazil</h1><p className="text-xl text-white/90">Gestão inteligente em saúde</p></div>
+          </div>
+          <div className="relative z-10 max-w-xl pb-8">
+            <h2 className="text-4xl font-medium leading-tight text-white xl:text-5xl">Mais eficiência para<br />a gestão do seu <span className="text-[#35d4cc]">plano<br />de saúde.</span></h2>
+            <p className="mt-7 max-w-lg text-lg leading-relaxed text-white/85">O Card Brasil é um ERP completo para administradoras de planos de saúde, com tecnologia, segurança e agilidade em todos os processos.</p>
+            <div className="relative z-20 mt-12 grid max-w-2xl grid-cols-3 gap-x-5 gap-y-9 pr-16">
+              {[{icon: Users, title: "Beneficiários", text: "Cadastro e gestão completa"}, {icon: FileText, title: "Propostas", text: "Mais agilidade no processo"}, {icon: CreditCard, title: "Contratos", text: "Controle e renovação"}, {icon: CreditCard, title: "Financeiro", text: "Conciliação e pagamentos"}, {icon: ShieldCheck, title: "Cobrança", text: "Redução da inadimplência"}, {icon: BarChart3, title: "Relatórios", text: "Decisões com base em dados"}].map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#087b87]/80 ring-1 ring-white/10"><Icon className="h-6 w-6" /></span><div><p className="font-semibold text-white">{title}</p><p className="mt-1 text-sm leading-relaxed text-white/75">{text}</p></div></div>)}
             </div>
           </div>
-          <div className="relative max-w-2xl space-y-12">
-            <div>
-              <div className="mb-6 flex items-center gap-3">
-                <div className="h-px w-8 bg-accent" />
-                <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-accent">Sistema Operacional</span>
-              </div>
-              <h2 className="text-4xl font-bold leading-tight tracking-[-0.05em] lg:text-5xl">Operação de Saúde em Tempo Real</h2>
-              <p className="mt-5 max-w-lg leading-relaxed text-primary-foreground/80">Propostas, vidas e faturamento mensal integrados em um único plano de controle. Decisões data-driven, operação previsível.</p>
-            </div>
-            <div className="grid gap-4 border-t border-primary-foreground/15 pt-8">
-              <div className="flex items-center gap-3 text-sm text-primary-foreground/75">
-                <div className="h-1.5 w-1.5 bg-accent" />
-                Monitoramento contínuo de ciclos
-              </div>
-              <div className="flex items-center gap-3 text-sm text-primary-foreground/75">
-                <div className="h-1.5 w-1.5 bg-accent" />
-                Auditoria e aprovação por perfil
-              </div>
-              <div className="flex items-center gap-3 text-sm text-primary-foreground/75">
-                <div className="h-1.5 w-1.5 bg-accent" />
-                Faturas mensais e reajustes automáticos
-              </div>
-            </div>
-          </div>
-          <div className="relative border-t border-primary-foreground/20 pt-8">
-            <div className="text-xs text-primary-foreground/50">
-              <p>Plataforma de gestão de saúde integrada</p>
-              <p className="mt-2 font-mono">v1.0 • Production Ready</p>
-            </div>
-          </div>
+          <p className="relative z-10 text-sm text-white/80">Tecnologia que simplifica.<br />Gestão que fortalece.</p>
         </section>
-        <section className="relative flex w-full flex-col justify-center bg-background px-4 py-8 lg:w-2/5 lg:px-12 lg:py-0 xl:px-16">
-          <div className="w-full max-w-sm">
-            <div className="mb-12 lg:hidden">
-              <div className="mb-2 font-mono text-xs font-bold uppercase tracking-[0.3em] text-foreground/80">Gestor de Saúde</div>
-              <h1 className="text-3xl font-bold tracking-[-0.05em]">CardBrazil</h1>
-            </div>
-            <div className="mb-12 space-y-4 border-l-2 border-primary/30 pl-6">
-              <div>
-                <div className="mb-1 font-mono text-xs font-bold uppercase tracking-[0.2em] text-foreground">Acesso Restrito</div>
-                <h2 className="text-3xl font-bold leading-tight tracking-[-0.03em]">Bem-vindo ao controle operacional.</h2>
-              </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">Autentique-se para acessar o painel de gestão integrada de propostas e faturamento.</p>
-            </div>
-            <form className="space-y-6" onSubmit={handleLogin}>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="font-mono text-xs font-bold uppercase tracking-[0.15em]">E-mail</Label>
-                <div className="relative border-l-2 border-primary/40 pl-4">
-                  <Mail className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary/50" size={18} />
-                  <Input
-                    id="email"
-                    type="text"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="nome@empresa.com"
-                    className="border-0 border-b border-primary/30 bg-transparent px-0 pl-8 py-3 placeholder:text-muted-foreground/50 focus-visible:border-b-2 focus-visible:border-primary focus-visible:ring-0"
-                    autoComplete="username"
-                    required
-                  />
-                </div>
-              </div>
-              {error && (
-                <div role="alert" className="border-l-2 border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                  <p className="font-mono text-xs font-bold uppercase tracking-[0.1em]">Erro de Autenticação</p>
-                  <p className="mt-1 text-xs">{error}</p>
-                </div>
-              )}
-              <Button
-                type="submit"
-                disabled={loading}
-                className="group w-full border-0 bg-primary px-6 py-3 font-mono text-sm font-bold uppercase tracking-[0.15em] text-primary-foreground shadow-none hover:bg-primary/90"
-              >
-                {loading ? "Verificando..." : challenge ? "Validar token" : "Continuar"}
-                {!loading && <ChevronRight className="ml-2 transition-transform group-hover:translate-x-1" size={16} />}
-              </Button>
+        <section className="relative flex min-h-screen w-full flex-col bg-[#f7f9fc] px-5 py-8 lg:w-[39%] lg:px-14 lg:py-11 xl:px-20">
+          <div className="flex justify-end gap-6 text-xs text-[#0d2f63]"><span className="flex items-center gap-2"><LockKeyhole className="h-4 w-4 text-[#486b96]" /> Sistema seguro</span><span className="border-l border-[#cbd7e5] pl-6">Acesso restrito</span></div>
+          <div className="my-auto w-full max-w-md self-center rounded-2xl border border-[#dbe4ef] bg-white p-8 shadow-[0_18px_55px_rgba(31,64,103,.08)] xl:p-10">
+            <div className="mb-8 flex items-center gap-3"><img src="/cardbrazil-icon.svg" alt="Card Brasil" width={48} height={48} className="h-12 w-12 max-w-none object-contain" /><div><p className="text-2xl font-bold">Card Brasil</p><p className="text-xs text-[#3157a4]">Gestão inteligente em saúde</p></div></div>
+            <h2 className="text-3xl font-bold">Bem-vindo(a) ao Card Brasil</h2><p className="mt-2 text-[#6680a5]">Acesse sua plataforma de gestão.</p>
+            <form className="mt-9 space-y-5" onSubmit={handleLogin}>
+              <div className="space-y-2"><Label htmlFor="email" className="text-xs font-semibold">Usuário ou e-mail</Label><div className="relative"><UserRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#7090b7]" /><Input id="email" type="text" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Digite seu usuário ou e-mail" className="h-12 rounded-lg border-[#cbd9ea] pl-12 text-sm placeholder:text-[#9bb0ca]" autoComplete="username" required /></div></div>
+              {error && <div role="alert" className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
+              <Button type="submit" disabled={loading} className="h-12 w-full rounded-lg bg-[#2865b5] text-base font-semibold text-white shadow-none hover:bg-[#1f559d]">{loading ? "Verificando..." : challenge ? "Validar token" : "Entrar"}<ChevronRight className="ml-2 h-5 w-5" /></Button>
             </form>
-            <div className="mt-8 border-t border-primary/20 pt-6">
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                <span className="font-semibold text-foreground">Ambiente:</span> Produção | <span className="font-semibold text-foreground">Versão:</span> 1.0.0
-              </p>
-            </div>
-            <LoginInstallActions />
+            <button type="button" onClick={() => router.push("/esqueci-senha")} className="mx-auto mt-7 flex items-center gap-2 text-xs font-medium text-[#1665c1] hover:underline"><CircleHelp className="h-4 w-4" /> Esqueceu sua senha?</button>
           </div>
+          <p className="mt-8 text-center text-xs text-[#7188a6]">Card Brasil &nbsp; v1.0 &nbsp; | &nbsp; Todos os direitos reservados.</p><LoginInstallActions />
         </section>
       </div>
       <Dialog open={Boolean(challenge)} onOpenChange={(open) => { if (!open) { setChallenge(null); setTokenExibido(null); setCodigo(""); setError(null) } }}>

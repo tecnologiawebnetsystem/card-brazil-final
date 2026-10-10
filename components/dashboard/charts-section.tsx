@@ -26,9 +26,9 @@ const monthlyData = [
 ]
 
 const planDistribution = [
-  { name: "Básico", value: 35, color: "#8B9A6B" },
-  { name: "Intermediário", value: 45, color: "#A3C6A5" },
-  { name: "Premium", value: 20, color: "#6B8A7A" },
+{ name: "Básico", value: 35, color: "var(--primary)" },
+    { name: "Intermediário", value: 45, color: "var(--teal)" },
+    { name: "Premium", value: 20, color: "var(--violet)" },
 ]
 
 const bankingFilesData = [
@@ -56,9 +56,9 @@ export function ChartsSection() {
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis dataKey="month" />
               <YAxis />
-              <Bar dataKey="pagos" fill="#8B9A6B" name="Pagos" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="pendentes" fill="#A3C6A5" name="Pendentes" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="inadimplentes" fill="#d97706" name="Inadimplentes" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="pagos" fill="var(--primary)" name="Pagos" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="pendentes" fill="var(--teal)" name="Pendentes" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="inadimplentes" fill="var(--warning)" name="Inadimplentes" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -124,7 +124,7 @@ export function ChartsSection() {
                       { month: "Jun", value: fileType.jun },
                     ]}
                   >
-                    <Line type="monotone" dataKey="value" stroke="#8B9A6B" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="value" stroke="var(--violet)" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
                 <p className="text-sm text-muted-foreground">

@@ -56,37 +56,6 @@ interface Plano {
   categoria: string
 }
 
-const mockParcelas: Parcela[] = [
-  {
-    id: "001",
-    beneficiario: "João Silva Santos",
-    corretor: "Maria Oliveira",
-    estipulante: "Empresa ABC Ltda",
-    plano: "Plano Saúde Premium",
-    vencimento: "2024-01-15",
-    premioLiquido: 450.0,
-    adicFrac: 15.5,
-    custo: 25.0,
-    iof: 12.75,
-    premioTotal: 503.25,
-    status: "vencida",
-  },
-  {
-    id: "002",
-    beneficiario: "Ana Costa Lima",
-    corretor: "Carlos Pereira",
-    estipulante: "Empresa XYZ S.A.",
-    plano: "Plano Saúde Básico",
-    vencimento: "2024-01-20",
-    premioLiquido: 280.0,
-    adicFrac: 8.4,
-    custo: 15.0,
-    iof: 7.98,
-    premioTotal: 311.38,
-    status: "pendente",
-  },
-]
-
 const mockBeneficiarios: Beneficiario[] = [
   {
     id: "1",
@@ -127,6 +96,9 @@ export default function BaixaPagamentoPage() {
   const [selectedParcela, setSelectedParcela] = useState<Parcela | null>(null)
   const [parcelas, setParcelas] = useState<Parcela[]>([])
   const [showResults, setShowResults] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
   // Dados do formulário de baixa
   const [formData, setFormData] = useState({
@@ -138,6 +110,7 @@ export default function BaixaPagamentoPage() {
     premioTotal: "",
     valorPago: "",
     dataPagamento: "",
+    formaPagamento: "pix",
     observacao: "",
   })
 
@@ -146,18 +119,35 @@ export default function BaixaPagamentoPage() {
   const [selectedEstipulante, setSelectedEstipulante] = useState<Estipulante | null>(null)
   const [selectedPlano, setSelectedPlano] = useState<Plano | null>(null)
 
-  const handleSearch = () => {
-    // Simular busca
-    setParcelas(
-      mockParcelas.filter(
-        (p) =>
-          p.beneficiario.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.corretor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.estipulante.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.plano.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    )
-    setShowResults(true)
+  const handleSearch = async () => {
+    setIsSearching(true)
+    setFeedback(null)
+    try {
+      const response = await fetch("/api/cobranca/automatica")
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || "Não foi possível consultar as parcelas")
+      const term = searchTerm.trim().toLowerCase()
+      const data = (payload.data || []).map((parcela: Record<string, unknown>): Parcela => ({
+        id: String(parcela.id),
+        beneficiario: String(parcela.beneficiario_nome || `Beneficiário #${parcela.id}`),
+        corretor: String(parcela.corretor_nome || "Não informado"),
+        estipulante: String(parcela.estipulante_nome || "Não informado"),
+        plano: String(parcela.plano_nome || "Não informado"),
+        vencimento: String(parcela.data_vencimento),
+        premioLiquido: Number(parcela.valor_original || parcela.valor_total || 0),
+        adicFrac: Number(parcela.valor_juros || 0),
+        custo: Number(parcela.valor_multa || 0),
+        iof: Number(parcela.valor_desconto || 0),
+        premioTotal: Number(parcela.valor_total || 0),
+        status: parcela.status === "vencida" ? "vencida" : parcela.status === "paga" ? "paga" : "pendente",
+      }))
+      setParcelas(term ? data.filter((p: Parcela) => [p.beneficiario, p.corretor, p.estipulante, p.plano].some((value) => value.toLowerCase().includes(term))) : data)
+      setShowResults(true)
+    } catch (error) {
+      setFeedback({ type: "error", message: error instanceof Error ? error.message : "Erro ao consultar parcelas" })
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   const handleSelectParcela = (parcela: Parcela) => {
@@ -171,6 +161,7 @@ export default function BaixaPagamentoPage() {
       premioTotal: parcela.premioTotal.toString(),
       valorPago: "",
       dataPagamento: "",
+      formaPagamento: "pix",
       observacao: "",
     })
   }
@@ -205,16 +196,38 @@ export default function BaixaPagamentoPage() {
       premioTotal: "",
       valorPago: "",
       dataPagamento: "",
+      formaPagamento: "pix",
       observacao: "",
     })
   }
 
-  const handleEfetivar = () => {
-    if (selectedParcela && formData.valorPago && formData.dataPagamento) {
-      alert("Baixa de pagamento efetuada com sucesso!")
-      handleClear()
-    } else {
-      alert("Preencha todos os campos obrigatórios")
+  const handleEfetivar = async () => {
+    if (!selectedParcela || !formData.valorPago || !formData.dataPagamento || !formData.formaPagamento) {
+      setFeedback({ type: "error", message: "Preencha os campos obrigatórios da baixa" })
+      return
+    }
+    const valorPago = Number(formData.valorPago.replace(",", "."))
+    if (!Number.isFinite(valorPago) || valorPago <= 0) {
+      setFeedback({ type: "error", message: "Informe um valor pago válido" })
+      return
+    }
+    setIsSubmitting(true)
+    setFeedback(null)
+    try {
+      const response = await fetch("/api/cobranca/pagamentos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
+        body: JSON.stringify({ parcela_id: selectedParcela.id, valor_pago: valorPago, forma_pagamento: formData.formaPagamento }),
+      })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || "Não foi possível efetivar a baixa")
+      setFeedback({ type: "success", message: payload.idempotent ? "Baixa já registrada anteriormente" : "Baixa de pagamento efetuada com sucesso" })
+      await handleSearch()
+      setSelectedParcela(null)
+    } catch (error) {
+      setFeedback({ type: "error", message: error instanceof Error ? error.message : "Erro ao efetivar baixa" })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -434,6 +447,11 @@ export default function BaixaPagamentoPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Baixa de Pagamento</h1>
           <p className="text-muted-foreground">Gerencie e efetue baixas de pagamentos de parcelas</p>
+          {feedback && (
+            <div role="status" aria-live="polite" className={`mt-3 rounded-md border px-3 py-2 text-sm ${feedback.type === "success" ? "border-success/30 bg-success/10 text-success" : "border-destructive/30 bg-destructive/10 text-destructive"}`}>
+              {feedback.message}
+            </div>
+          )}
         </div>
       </div>
 
@@ -512,9 +530,9 @@ export default function BaixaPagamentoPage() {
           </div>
 
           <div className="flex gap-3 justify-end pt-4 border-t">
-            <Button type="button" onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            <Button type="button" onClick={handleSearch} disabled={isSearching} className="bg-emerald-600 hover:bg-emerald-700 text-white">
               <Search className="h-4 w-4 mr-2" />
-              Consultar
+              {isSearching ? "Consultando..." : "Consultar"}
             </Button>
             <Button
               onClick={handleClear}
@@ -695,6 +713,23 @@ export default function BaixaPagamentoPage() {
                   className="border-emerald-300 focus:border-emerald-500"
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="formaPagamento" className="text-sm font-medium text-foreground">
+                  Forma de Pagamento: <span className="text-red-500">*</span>
+                </Label>
+                <select
+                  id="formaPagamento"
+                  value={formData.formaPagamento}
+                  onChange={(e) => setFormData({ ...formData, formaPagamento: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-emerald-300 bg-background px-3 py-2 text-sm"
+                >
+                  <option value="pix">PIX</option>
+                  <option value="boleto">Boleto</option>
+                  <option value="transferencia">Transferência</option>
+                  <option value="cartao">Cartão</option>
+                </select>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -715,10 +750,10 @@ export default function BaixaPagamentoPage() {
               <Button
                 onClick={handleEfetivar}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
-                disabled={!formData.valorPago || !formData.dataPagamento}
+                disabled={isSubmitting || !formData.valorPago || !formData.dataPagamento || !formData.formaPagamento}
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Efetivar Baixa
+                {isSubmitting ? "Registrando..." : "Efetivar Baixa"}
               </Button>
               <Button onClick={handleImprimir} className="bg-blue-600 hover:bg-blue-700 text-white px-6">
                 <Printer className="h-4 w-4 mr-2" />

@@ -47,9 +47,13 @@ button, a, input, select, textarea {
   --card-foreground: #182433;
   --popover: #ffffff;
   --popover-foreground: #182433;
-  --primary: #1264a3;
-  --primary-dark: #0b3156;
-  --primary-light: #55a9dc;
+  --primary: #3157a4;
+  --primary-dark: #243f78;
+  --primary-light: #6f8dcc;
+  --teal: #0f766e;
+  --teal-foreground: #ffffff;
+  --violet: #7554a8;
+  --violet-foreground: #ffffff;
   --primary-foreground: #ffffff;
   --secondary: #eaf3fa;
   --secondary-foreground: #124f80;
@@ -77,16 +81,16 @@ button, a, input, select, textarea {
   --sidebar-border: #1d4168;
   --sidebar-ring: rgba(59, 164, 232, 0.45);
 
-  /* Cores semanticas */
-  --success: #16a34a;
+  /* Cores semânticas */
+  --success: #27845a;
   --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #172033;
-  --info: #0284c7;
+  --warning: #b7791f;
+  --warning-foreground: #ffffff;
+  --info: #0f766e;
   --info-foreground: #ffffff;
-  --health-primary: #1677c8;
-  --health-secondary: #124e8c;
-  --health-neutral: #64748b;
+  --health-primary: #3157a4;
+  --health-secondary: #7554a8;
+  --health-neutral: #475569;
 }
 
   .dark {
@@ -97,9 +101,13 @@ button, a, input, select, textarea {
   --card-foreground: #eaf5fc;
   --popover: #0b1f3a;
   --popover-foreground: #eaf5fc;
-  --primary: #7dd3fc;
-  --primary-dark: #0b1f3a;
-  --primary-light: #38bdf8;
+  --primary: #8fa9e6;
+  --primary-dark: #16284d;
+  --primary-light: #b8c9f0;
+  --teal: #45b8ad;
+  --teal-foreground: #082f2c;
+  --violet: #b69adf;
+  --violet-foreground: #24163b;
   --primary-foreground: #071a2d;
   --secondary: #124e8c;
   --secondary-foreground: #eaf5fc;
@@ -126,17 +134,17 @@ button, a, input, select, textarea {
   --sidebar-accent: #124e8c;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #1d4168;
-  --sidebar-ring: rgba(59, 164, 232, 0.45);
+  --sidebar-ring: rgba(143, 169, 230, 0.45);
 
-  --success: #16a34a;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #172033;
-  --info: #0284c7;
-  --info-foreground: #ffffff;
-  --health-primary: #1677c8;
-  --health-secondary: #124e8c;
-  --health-neutral: #64748b;
+  --success: #56bd86;
+  --success-foreground: #082f1e;
+  --warning: #e2af55;
+  --warning-foreground: #382508;
+  --info: #45b8ad;
+  --info-foreground: #082f2c;
+  --health-primary: #8fa9e6;
+  --health-secondary: #b69adf;
+  --health-neutral: #94a3b8;
 }
 
 .aperTo-abraco-pattern {
@@ -157,6 +165,10 @@ button, a, input, select, textarea {
   --color-primary: var(--primary);
   --color-primary-dark: var(--primary-dark);
   --color-primary-light: var(--primary-light);
+  --color-teal: var(--teal);
+  --color-teal-foreground: var(--teal-foreground);
+  --color-violet: var(--violet);
+  --color-violet-foreground: var(--violet-foreground);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

@@ -50,13 +50,13 @@ export function LoginSection() {
           <div className="absolute -bottom-48 right-[8%] h-64 w-[58%] rotate-[-28deg] rounded-[50%] bg-[#3157a4]/90" />
           <div className="relative z-10 flex items-center gap-4">
             <img src="/cardbrazil-icon.svg" alt="" className="h-16 w-16" />
-            <div><h1 className="text-5xl font-bold tracking-tight">Card Brazil</h1><p className="text-xl text-white/90">Gestão inteligente em saúde</p></div>
+            <div><h1 className="text-5xl font-bold tracking-tight text-white">Card Brazil</h1><p className="text-xl text-white/90">Gestão inteligente em saúde</p></div>
           </div>
           <div className="relative z-10 max-w-xl pb-8">
-            <h2 className="text-4xl font-medium leading-tight xl:text-5xl">Mais eficiência para<br />a gestão do seu <span className="text-[#35d4cc]">plano<br />de saúde.</span></h2>
+            <h2 className="text-4xl font-medium leading-tight text-white xl:text-5xl">Mais eficiência para<br />a gestão do seu <span className="text-[#35d4cc]">plano<br />de saúde.</span></h2>
             <p className="mt-7 max-w-lg text-lg leading-relaxed text-white/85">O Card Brasil é um ERP completo para administradoras de planos de saúde, com tecnologia, segurança e agilidade em todos os processos.</p>
-            <div className="mt-12 grid max-w-2xl grid-cols-3 gap-x-8 gap-y-9">
-              {[{icon: Users, title: "Beneficiários", text: "Cadastro e gestão completa"}, {icon: FileText, title: "Propostas", text: "Mais agilidade no processo"}, {icon: CreditCard, title: "Contratos", text: "Controle e renovação"}, {icon: CreditCard, title: "Financeiro", text: "Conciliação e pagamentos"}, {icon: ShieldCheck, title: "Cobrança", text: "Redução da inadimplência"}, {icon: BarChart3, title: "Relatórios", text: "Decisões com base em dados"}].map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#087b87]/80 ring-1 ring-white/10"><Icon className="h-6 w-6" /></span><div><p className="font-semibold">{title}</p><p className="mt-1 text-sm leading-relaxed text-white/75">{text}</p></div></div>)}
+            <div className="relative z-20 mt-12 grid max-w-2xl grid-cols-3 gap-x-5 gap-y-9 pr-16">
+              {[{icon: Users, title: "Beneficiários", text: "Cadastro e gestão completa"}, {icon: FileText, title: "Propostas", text: "Mais agilidade no processo"}, {icon: CreditCard, title: "Contratos", text: "Controle e renovação"}, {icon: CreditCard, title: "Financeiro", text: "Conciliação e pagamentos"}, {icon: ShieldCheck, title: "Cobrança", text: "Redução da inadimplência"}, {icon: BarChart3, title: "Relatórios", text: "Decisões com base em dados"}].map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#087b87]/80 ring-1 ring-white/10"><Icon className="h-6 w-6" /></span><div><p className="font-semibold text-white">{title}</p><p className="mt-1 text-sm leading-relaxed text-white/75">{text}</p></div></div>)}
             </div>
           </div>
           <p className="relative z-10 text-sm text-white/80">Tecnologia que simplifica.<br />Gestão que fortalece.</p>

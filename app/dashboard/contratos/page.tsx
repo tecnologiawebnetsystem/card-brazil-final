@@ -73,7 +73,9 @@ interface Contrato {
   plano_id?: number
   data_inicio?: string
   data_fim?: string
+  data_vencimento?: number
   valor_total?: number
+  forma_pagamento?: string
   status: string
   observacoes?: string
   versao?: string
@@ -101,7 +103,9 @@ export default function ContratosPage() {
     plano_id: "",
     data_inicio: "",
     data_fim: "",
+    data_vencimento: "",
     valor_total: "",
+    forma_pagamento: "boleto",
     status: "Ativo",
     observacoes: "",
   })
@@ -154,7 +158,9 @@ export default function ContratosPage() {
         plano_id: contract.plano_id?.toString() || "",
         data_inicio: contract.data_inicio || "",
         data_fim: contract.data_fim || "",
+        data_vencimento: contract.data_vencimento?.toString() || "",
         valor_total: contract.valor_total?.toString() || "",
+        forma_pagamento: contract.forma_pagamento || "boleto",
         status: contract.status,
         observacoes: contract.observacoes || "",
       })
@@ -168,7 +174,9 @@ export default function ContratosPage() {
         plano_id: "",
         data_inicio: "",
         data_fim: "",
+        data_vencimento: "",
         valor_total: "",
+        forma_pagamento: "boleto",
         status: "Ativo",
         observacoes: "",
       })
@@ -195,7 +203,9 @@ export default function ContratosPage() {
         plano_id: newContract.plano_id ? Number.parseInt(newContract.plano_id) : null,
         data_inicio: newContract.data_inicio || null,
         data_fim: newContract.data_fim || null,
-        valor_total: newContract.valor_total ? Number.parseFloat(newContract.valor_total) : null,
+        data_vencimento: newContract.data_vencimento ? Number.parseInt(newContract.data_vencimento) : null,
+        valor_total: newContract.valor_total ? Number.parseFloat(newContract.valor_total.replace(",", ".").replace(/[^\d.]/g, "")) : null,
+        forma_pagamento: newContract.forma_pagamento,
         status: newContract.status,
         observacoes: newContract.observacoes || null,
       }
@@ -335,7 +345,7 @@ export default function ContratosPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="estipulante">Estipulante</Label>
-                <Select onValueChange={(value) => setNewContract({ ...newContract, estipulante_id: value })}>
+                <Select value={newContract.estipulante_id} onValueChange={(value) => setNewContract({ ...newContract, estipulante_id: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o estipulante" />
                   </SelectTrigger>
@@ -348,8 +358,19 @@ export default function ContratosPage() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="operadora">Operadora</Label>
+                <Select value={newContract.operadora_id} onValueChange={(value) => setNewContract({ ...newContract, operadora_id: value })}>
+                  <SelectTrigger id="operadora"><SelectValue placeholder="Selecione a operadora" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Operadora principal</SelectItem>
+                    <SelectItem value="2">Operadora alternativa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="plano">Plano de Saúde</Label>
-                <Select onValueChange={(value) => setNewContract({ ...newContract, plano_id: value })}>
+                <Select value={newContract.plano_id} onValueChange={(value) => setNewContract({ ...newContract, plano_id: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o plano" />
                   </SelectTrigger>
@@ -361,9 +382,25 @@ export default function ContratosPage() {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="vigenciaInicio">Vigência Início</Label>
+                  <Label htmlFor="dataVencimento">Dia de vencimento</Label>
+                  <Input id="dataVencimento" type="number" min="1" max="31" value={newContract.data_vencimento} onChange={(e) => setNewContract({ ...newContract, data_vencimento: e.target.value })} placeholder="10" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="formaPagamento">Forma de pagamento</Label>
+                  <Select value={newContract.forma_pagamento} onValueChange={(value) => setNewContract({ ...newContract, forma_pagamento: value })}>
+                    <SelectTrigger id="formaPagamento"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="boleto">Boleto</SelectItem>
+                      <SelectItem value="debito_automatico">Débito automático</SelectItem>
+                      <SelectItem value="cartao_credito">Cartão de crédito</SelectItem>
+                      <SelectItem value="pix">Pix</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="vigenciaInicio">Vigência início</Label>
                   <Input
                     id="vigenciaInicio"
                     type="date"
@@ -460,7 +497,7 @@ export default function ContratosPage() {
                     <td className="p-2 text-center">-</td>
                     <td className="p-2">
                       <div className="flex space-x-1">
-                        <Button variant="ghost" size="sm" onClick={() => console.log("View Contract")}>
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenModal(contract)} aria-label={`Visualizar contrato ${contract.numero}`}>
                           <EyeIcon />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleOpenModal(contract)}>

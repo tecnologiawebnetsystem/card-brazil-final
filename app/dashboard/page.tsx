@@ -5,7 +5,6 @@ import Link from "next/link"
 import useSWR from "swr"
 import { Activity, ArrowUpRight, BriefcaseBusiness, FileText, Landmark, Users } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DateRangePicker } from "@/components/dashboard/date-range-picker"
 import { useAuth } from "@/contexts/auth-context"
@@ -49,12 +48,12 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-6">
       <section className="flex flex-col justify-between gap-4 border-b border-border pb-6 md:flex-row md:items-end">
-        <div><p className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-primary">CardBrazil · Inteligência operacional</p><h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Bom dia, {userName.split(" ")[0]}</h1><p className="mt-2 text-muted-foreground">Visão consolidada da carteira, propostas, contratos e recebíveis da administradora.</p></div>
+        <div><p className="text-sm font-medium text-primary">Visão executiva</p><h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Bom dia, {userName.split(" ")[0]}</h1><p className="mt-2 max-w-2xl text-muted-foreground">Acompanhe o que precisa de atenção na operação da administradora.</p></div>
         <DateRangePicker value={dateRange} onChange={setDateRange} />
       </section>
 
       {error && <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">Não foi possível atualizar os indicadores. Verifique sua sessão e tente novamente.</div>}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, detail, icon: Icon, tone }) => <Card key={label} className="border-border/70 bg-card shadow-sm"><CardContent className="p-5"><div className="flex items-start justify-between"><span className={`rounded-lg bg-muted p-2.5 ${tone}`}><Icon className="h-5 w-5" /></span><Badge variant="secondary">Base atual</Badge></div><p className="mt-5 text-sm text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></CardContent></Card>)}</section>
+      <section aria-label="Indicadores principais" className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, detail, icon: Icon, tone }) => <Card key={label} className="border-border/70 bg-card shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-3"><span className={`rounded-lg bg-muted p-2 ${tone}`}><Icon className="h-4 w-4" /></span><p className="text-sm text-muted-foreground">{label}</p></div><p className="mt-4 text-2xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></CardContent></Card>)}</section>
 
       <section className="grid gap-6 xl:grid-cols-[1.6fr_1fr]"><InteractiveChart title="Base operacional atual" data={chartData} type="bar" dataKeys={[{ key: "value", label: "Registros", color: "hsl(var(--primary))" }]} /><Card className="border-border/70 shadow-sm"><CardHeader className="flex flex-row items-center justify-between"><CardTitle className="text-base">Acompanhe agora</CardTitle><Activity className="h-4 w-4 text-muted-foreground" /></CardHeader><CardContent className="space-y-3">{[{ title: "Propostas aguardando análise", value: number(kpis?.propostas?.pendentes), href: "/dashboard/propostas/pendentes", icon: FileText }, { title: "Recebíveis vencidos", value: money(kpis?.recebiveis?.vencido), href: "/dashboard/financeiro/contas-receber", icon: Landmark }, { title: "Contas a pagar liquidadas", value: `${number(kpis?.pagamentos?.pago)} de ${number(kpis?.pagamentos?.total)}`, href: "/dashboard/financeiro/contas-pagar", icon: BriefcaseBusiness }].map(({ title, value, href, icon: Icon }) => <Link href={href} key={title} className="flex items-center gap-3 rounded-lg border border-border/60 p-3 transition hover:bg-muted"><span className="rounded-md bg-primary/10 p-2 text-primary"><Icon className="h-4 w-4" /></span><span className="flex-1 text-sm text-muted-foreground">{title}</span><strong className="text-sm">{value}</strong><ArrowUpRight className="h-4 w-4 text-muted-foreground" /></Link>)}</CardContent></Card></section>
 

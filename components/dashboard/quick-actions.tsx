@@ -1,9 +1,16 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export function QuickActions() {
+  const [lastUpdated, setLastUpdated] = useState("")
+
+  useEffect(() => {
+    setLastUpdated(new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" }))
+  }, [])
+
   const actions = [
     {
       title: "Novo Segurado",
@@ -192,7 +199,7 @@ export function QuickActions() {
 
           <div className="pt-3 border-t">
             <div className="text-xs text-muted-foreground">
-              Última atualização: {new Date().toLocaleTimeString("pt-BR")}
+              Última atualização: {lastUpdated || "—"}
             </div>
           </div>
         </CardContent>

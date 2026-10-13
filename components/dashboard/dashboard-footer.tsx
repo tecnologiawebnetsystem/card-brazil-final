@@ -1,7 +1,13 @@
 "use client"
 
+import { useEffect, useState } from "react"
+
 export function DashboardFooter() {
-  const currentYear = new Date().getFullYear()
+  const [currentYear, setCurrentYear] = useState<number | null>(null)
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear())
+  }, [])
 
   return (
     <footer className="mt-auto border-t border-border bg-card">

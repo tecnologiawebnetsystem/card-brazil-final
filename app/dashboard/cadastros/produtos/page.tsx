@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,7 +31,7 @@ interface Produto {
   categoria: string
   tipo: string
   descricao: string
-  valor: number
+  valor: number | string | null
   ativo: boolean
   operadora_id?: number
   created_at?: string
@@ -39,16 +39,18 @@ interface Produto {
   deleted_at?: string | null
 }
 
+function formatarMoeda(valor: Produto["valor"]) {
+  const valorNumerico = Number(valor)
+  return `R$ ${(Number.isFinite(valorNumerico) ? valorNumerico : 0).toFixed(2)}`
+}
+
 export default function ProdutosPage() {
   const { toast } = useToast()
   const [produtos, setProdutos] = useState<Produto[]>([])
-  const [filteredProdutos, setFilteredProdutos] = useState<Produto[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
   const [filterCategoria, setFilterCategoria] = useState("todos")
-  const [filterStatus, setFilterStatus] = useState("todos")
   const [showModal, setShowModal] = useState(false)
   const [editingProduto, setEditingProduto] = useState<Produto | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [produtoToDelete, setProdutoToDelete] = useState<number | null>(null)
   const hasLoadedProdutos = useRef(false)
@@ -63,43 +65,14 @@ export default function ProdutosPage() {
     ativo: true,
   })
 
-  useEffect(() => {
-    if (hasLoadedProdutos.current) return
-    hasLoadedProdutos.current = true
-    void loadProdutos()
-  }, [])
-
-  useEffect(() => {
-    let filtered = produtos
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (produto) =>
-          (produto.nome || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (produto.codigo || "").toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    }
-
-    if (filterCategoria !== "todos") {
-      filtered = filtered.filter((produto) => produto.categoria === filterCategoria)
-    }
-
-    if (filterStatus !== "todos") {
-      filtered = filtered.filter((produto) => (filterStatus === "ativo" ? produto.ativo : !produto.ativo))
-    }
-
-    setFilteredProdutos(filtered)
-  }, [searchTerm, filterCategoria, filterStatus, produtos])
-
-  const loadProdutos = async () => {
+  const loadProdutos = useCallback(async () => {
     setIsLoading(true)
     try {
       const response = await fetch("/api/produtos", { credentials: "include", cache: "no-store" })
       const data = await response.json()
 
-      if (data.success) {
+      if (data.success && Array.isArray(data.data)) {
         setProdutos(data.data)
-        setFilteredProdutos(data.data)
       } else {
         throw new Error(data.message)
       }
@@ -113,7 +86,13 @@ export default function ProdutosPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    if (hasLoadedProdutos.current) return
+    hasLoadedProdutos.current = true
+    void loadProdutos()
+  }, [loadProdutos])
 
   const handleOpenModal = (produto?: Produto) => {
     if (produto) {
@@ -124,7 +103,7 @@ export default function ProdutosPage() {
         categoria: produto.categoria,
         tipo: produto.tipo,
         descricao: produto.descricao,
-        valor: produto.valor.toString(),
+        valor: produto.valor?.toString() || "",
         operadora_id: produto.operadora_id?.toString() || "",
         ativo: produto.ativo,
       })
@@ -281,7 +260,9 @@ export default function ProdutosPage() {
   const totalProdutos = produtos.length
   const produtosAtivos = produtos.filter((p) => p.ativo).length
   const valorMedio =
-    produtos.length > 0 ? produtos.reduce((acc, p) => acc + (p.valor ?? 0), 0) / produtos.length : 0
+    produtos.length > 0
+      ? produtos.reduce((acc, produto) => acc + (Number(produto.valor) || 0), 0) / produtos.length
+      : 0
 
   return (
     <div className="container mx-auto px-6 py-6">
@@ -299,7 +280,7 @@ export default function ProdutosPage() {
       <CadastroSummaryGrid className="mb-6">
         <CadastroSummaryCard title="Total de Produtos" value={totalProdutos} description="produtos cadastrados" icon={<Package className="h-5 w-5" />} />
         <CadastroSummaryCard title="Produtos Ativos" value={produtosAtivos} description={`de ${totalProdutos} produtos`} icon={<TrendingUp className="h-5 w-5" />} metrics={[{ label: "Status", value: "Ativos", tone: "positive" }]} />
-        <CadastroSummaryCard title="Valor Médio" value={`R$ ${valorMedio.toFixed(2)}`} description="valor médio dos produtos" icon={<DollarSign className="h-5 w-5" />} />
+        <CadastroSummaryCard title="Valor Médio" value={formatarMoeda(valorMedio)} description="valor médio dos produtos" icon={<DollarSign className="h-5 w-5" />} />
         <CadastroSummaryCard title="Categorias" value={new Set(produtos.map((p) => p.categoria)).size} description="categorias diferentes" icon={<Users className="h-5 w-5" />} />
       </CadastroSummaryGrid>
 
@@ -350,7 +331,7 @@ export default function ProdutosPage() {
                   header: "Valor",
                   sortable: true,
                   sortValue: (p) => p.valor ?? 0,
-                  render: (p) => `R$ ${(p.valor ?? 0).toFixed(2)}`,
+                  render: (p) => formatarMoeda(p.valor),
                 },
               ] as CadastroColumn<Produto>[]
             }
@@ -367,7 +348,7 @@ export default function ProdutosPage() {
                 <CadastroDetailField label="Código" value={p.codigo} />
                 <CadastroDetailField label="Categoria" value={p.categoria} />
                 <CadastroDetailField label="Tipo" value={p.tipo} />
-                <CadastroDetailField label="Valor" value={`R$ ${(p.valor ?? 0).toFixed(2)}`} />
+                <CadastroDetailField label="Valor" value={formatarMoeda(p.valor)} />
                 <CadastroDetailField label="Status" value={p.ativo ? "Ativo" : "Inativo"} />
                 <CadastroDetailField label="Descrição" value={p.descricao} full />
               </CadastroDetailsGrid>

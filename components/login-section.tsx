@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { LoginInstallActions } from "@/components/pwa/login-install-actions"
 
 export function LoginSection() {
   const router = useRouter()
@@ -73,7 +72,7 @@ export function LoginSection() {
             </form>
             <button type="button" onClick={() => router.push("/esqueci-senha")} className="mx-auto mt-7 flex items-center gap-2 text-xs font-medium text-[#1665c1] hover:underline"><CircleHelp className="h-4 w-4" /> Esqueceu sua senha?</button>
           </div>
-          <p className="mt-8 text-center text-xs text-[#7188a6]">Card Brasil &nbsp; v1.0 &nbsp; | &nbsp; Todos os direitos reservados.</p><LoginInstallActions />
+          <p className="mt-8 text-center text-xs text-[#7188a6]">Card Brasil &nbsp; v1.0 &nbsp; | &nbsp; Todos os direitos reservados.</p>
         </section>
       </div>
       <Dialog open={Boolean(challenge)} onOpenChange={(open) => { if (!open) { setChallenge(null); setTokenExibido(null); setCodigo(""); setError(null) } }}>

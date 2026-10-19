@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
     const planos = await query("SELECT id FROM planos WHERE nome = $1 AND administradora_id = $2 AND deleted_at IS NULL LIMIT 1", [body.plano_nome, administradoraId])
     planoId = planos[0]?.id
   }
-  if (!planoId || body.idade_minima == null || body.idade_maxima == null || body.valor == null) return NextResponse.json({ success: false, message: "plano_id, idades e valor são obrigatórios" }, { status: 400 })
-  const rows = await query("INSERT INTO planos_faixas_etarias (plano_id, idade_minima, idade_maxima, valor) SELECT $1,$2,$3,$4 WHERE EXISTS (SELECT 1 FROM planos WHERE id = $1 AND administradora_id = $5) RETURNING *", [planoId, body.idade_minima, body.idade_maxima, body.valor, administradoraId])
+  if (!planoId || body.idade_minima == null || body.idade_maxima == null || body.valor == null || !body.vigencia_inicio || !body.vigencia_fim) return NextResponse.json({ success: false, message: "plano_id, idades, valor e período de vigência são obrigatórios" }, { status: 400 })
+  if (body.vigencia_fim < body.vigencia_inicio) return NextResponse.json({ success: false, message: "O fim da vigência não pode ser anterior ao início" }, { status: 400 })
+  const rows = await query("INSERT INTO planos_faixas_etarias (plano_id, idade_minima, idade_maxima, valor, vigencia_inicio, vigencia_fim) SELECT $1,$2,$3,$4,$5,$6 WHERE EXISTS (SELECT 1 FROM planos WHERE id = $1 AND administradora_id = $7) RETURNING *", [planoId, body.idade_minima, body.idade_maxima, body.valor, body.vigencia_inicio, body.vigencia_fim, administradoraId])
   return NextResponse.json({ success: true, data: rows[0] }, { status: 201 })
 }

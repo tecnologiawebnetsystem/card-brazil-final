@@ -7,10 +7,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
+    if (!body.vigencia_inicio || !body.vigencia_fim) return NextResponse.json({ success: false, message: "O período de vigência é obrigatório" }, { status: 400 })
+    if (body.vigencia_fim < body.vigencia_inicio) return NextResponse.json({ success: false, message: "O fim da vigência não pode ser anterior ao início" }, { status: 400 })
     const rows = await query(
-      `UPDATE planos_faixas_etarias f SET idade_minima=$1, idade_maxima=$2, valor=$3, updated_at=CURRENT_TIMESTAMP
-       FROM planos p WHERE f.id=$4 AND f.plano_id=p.id AND p.administradora_id=$5 AND f.deleted_at IS NULL RETURNING f.*`,
-      [body.idade_minima, body.idade_maxima, body.valor, Number(id), administradoraId],
+      `UPDATE planos_faixas_etarias f SET idade_minima=$1, idade_maxima=$2, valor=$3, vigencia_inicio=$4, vigencia_fim=$5, updated_at=CURRENT_TIMESTAMP
+       FROM planos p WHERE f.id=$6 AND f.plano_id=p.id AND p.administradora_id=$7 AND f.deleted_at IS NULL RETURNING f.*`,
+      [body.idade_minima, body.idade_maxima, body.valor, body.vigencia_inicio, body.vigencia_fim, Number(id), administradoraId],
     )
     return rows.length ? NextResponse.json({ success: true, data: rows[0] }) : NextResponse.json({ success: false, message: "Faixa não encontrada" }, { status: 404 })
   } catch (error) {

@@ -89,6 +89,15 @@ CREATE TABLE IF NOT EXISTS sistema_alcadas (
 CREATE INDEX IF NOT EXISTS idx_sistemas_menus_modulo ON sistemas_menus(modulo_id, ordem);
 CREATE INDEX IF NOT EXISTS idx_sistema_perfil_perm ON sistema_perfil_permissoes(administradora_id, perfil_nome);
 CREATE INDEX IF NOT EXISTS idx_sistema_alcadas_lookup ON sistema_alcadas(administradora_id, recurso_id, etapa, ativo);
+CREATE TABLE IF NOT EXISTS sistema_menu_configuracoes (
+  id SERIAL PRIMARY KEY,
+  administradora_id INTEGER NOT NULL,
+  menu_id INTEGER NOT NULL REFERENCES sistemas_menus(id) ON DELETE CASCADE,
+  ativo_global BOOLEAN NOT NULL DEFAULT TRUE,
+  atualizado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (administradora_id, menu_id)
+);
 
 INSERT INTO sistemas_acoes (slug, nome, descricao, ordem) VALUES
 ('visualizar', 'Visualizar', 'Acessar e consultar o recurso', 1),

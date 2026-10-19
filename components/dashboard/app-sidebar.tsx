@@ -589,6 +589,7 @@ export function AppSidebar() {
   const pathname = usePathname()
   const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
+  const [databaseMenu, setDatabaseMenu] = useState<MenuGroup[] | null>(null)
   const menuScrollTopRef = useRef(0)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     Principal: true,
@@ -605,7 +606,26 @@ export function AppSidebar() {
   })
 
   useEffect(() => {
-    const restoreScrollPosition = () => {
+  let cancelled = false
+  fetch("/api/sistemas/menu", { credentials: "same-origin", cache: "no-store" })
+    .then((response) => response.ok ? response.json() : null)
+    .then((data) => {
+      if (cancelled || !Array.isArray(data?.menus) || data.menus.length === 0) return
+      const groups = new Map<string, MenuItem[]>()
+      for (const item of data.menus) {
+        const groupName = item.moduloNome || "Sistemas"
+        const current = groups.get(groupName) || []
+        current.push({ title: item.titulo, url: item.rota || undefined, requiredPermission: item.slug })
+        groups.set(groupName, current)
+      }
+      setDatabaseMenu(Array.from(groups, ([title, items]) => ({ title, items })))
+    })
+    .catch(() => undefined)
+  return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+  const restoreScrollPosition = () => {
       const sidebarContent = document.querySelector<HTMLElement>("[data-sidebar=content]")
       if (sidebarContent) {
         sidebarContent.scrollTop = menuScrollTopRef.current
@@ -654,7 +674,8 @@ export function AppSidebar() {
       .filter((group) => group.items.length > 0)
   }
 
-  const filteredMenuItems = user ? filterMenuGroups(menuItems) : menuItems
+  const configuredMenuItems = databaseMenu && databaseMenu.length > 0 ? databaseMenu : menuItems
+  const filteredMenuItems = user ? filterMenuGroups(configuredMenuItems) : configuredMenuItems
 
   const getProfileDisplayName = (roleName: string) => {
     return roleName || "Usuário"

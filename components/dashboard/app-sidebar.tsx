@@ -704,11 +704,11 @@ export function AppSidebar() {
               asChild
               className={`h-9 rounded-lg transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-primary/70 ${pathname === item.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-sm" : ""}`}
             >
-              <a href={item.url} onClick={preserveMenuScroll} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} className="flex items-center gap-2 px-2 py-1.5">
+              <Link href={item.url} prefetch onClick={preserveMenuScroll} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} className="flex items-center gap-2 px-2 py-1.5">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent/20 text-sidebar-foreground/65">{item.icon}</span>
                 <span className="truncate text-xs text-sidebar-foreground/80 transition-colors">{item.title}</span>
-              </a>
-            </SidebarMenuButton>
+  </Link>
+  </SidebarMenuButton>
           ) : (
             <div
               title="Este módulo ainda não possui uma tela disponível"

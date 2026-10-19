@@ -1,3 +1,5 @@
+import { PageLoading } from "@/components/feedback/page-loading"
+
 export default function Loading() {
-  return <div>Carregando pessoas...</div>
+  return <PageLoading />
 }

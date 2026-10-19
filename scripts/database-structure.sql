@@ -237,6 +237,8 @@ CREATE TABLE IF NOT EXISTS `planos_faixas_etarias` (
   `idade_minima` INT NOT NULL DEFAULT 0,
   `idade_maxima` INT NOT NULL DEFAULT 999,
   `valor` DECIMAL(10,2) NOT NULL,
+  `vigencia_inicio` DATE NULL,
+  `vigencia_fim` DATE NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

@@ -57,6 +57,8 @@ CREATE TABLE IF NOT EXISTS produtos (
     faixa_etaria_fim INT NOT NULL,
     
     valor_mensalidade DECIMAL(10,2) NOT NULL,
+    vigencia_inicio DATE,
+    vigencia_fim DATE,
     valor_adesao DECIMAL(10,2),
     
     descricao TEXT,

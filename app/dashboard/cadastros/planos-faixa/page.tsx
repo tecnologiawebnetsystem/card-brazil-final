@@ -38,6 +38,8 @@ interface PlanoFaixa {
   idadeMaxima: number
   valor: number
   percentualReajuste: number
+  vigenciaInicio: string
+  vigenciaFim: string
   ativo: boolean
   dataInclusao: string
 }
@@ -59,6 +61,8 @@ export default function PlanosFaixaPage() {
     idadeMaxima: "",
     valor: "",
     percentualReajuste: "",
+    vigenciaInicio: "",
+    vigenciaFim: "",
     ativo: true,
   })
 
@@ -82,6 +86,8 @@ export default function PlanosFaixaPage() {
           idadeMaxima: Number(item.idade_maxima),
           valor: Number(item.valor || 0),
           percentualReajuste: 0,
+          vigenciaInicio: item.vigencia_inicio || "",
+          vigenciaFim: item.vigencia_fim || "",
           ativo: item.deleted_at == null,
           dataInclusao: item.created_at,
         })))
@@ -123,7 +129,7 @@ export default function PlanosFaixaPage() {
     try {
       const planoSelecionado = planosDisponiveis.find((plano) => plano.nome === formData.plano)
       if (!planoSelecionado) throw new Error("Selecione um plano cadastrado")
-      const body = { plano_id: planoSelecionado.id, idade_minima: Number(formData.idadeMinima), idade_maxima: Number(formData.idadeMaxima), valor: Number(formData.valor) || 0 }
+      const body = { plano_id: planoSelecionado.id, idade_minima: Number(formData.idadeMinima), idade_maxima: Number(formData.idadeMaxima), valor: Number(formData.valor) || 0, vigencia_inicio: formData.vigenciaInicio, vigencia_fim: formData.vigenciaFim }
       const response = await fetch(editingPlano ? `/api/planos-faixas/${editingPlano.id}` : "/api/planos-faixas", { method: editingPlano ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       const payload = await response.json()
       if (!response.ok) throw new Error(payload.message || payload.error || "Não foi possível salvar a faixa")
@@ -131,7 +137,7 @@ export default function PlanosFaixaPage() {
       setShowModal(false); setEditingPlano(null)
       const refreshed = await fetch("/api/planos-faixas")
       const next = await refreshed.json()
-      setPlanosFaixa((next.data || []).map((item: any) => ({ id: item.id, plano_id: item.plano_id, plano: item.plano_nome || "Plano não identificado", faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`, idadeMinima: Number(item.idade_minima), idadeMaxima: Number(item.idade_maxima), valor: Number(item.valor || 0), percentualReajuste: 0, ativo: item.deleted_at == null, dataInclusao: item.created_at })))
+      setPlanosFaixa((next.data || []).map((item: any) => ({ id: item.id, plano_id: item.plano_id, plano: item.plano_nome || "Plano não identificado", faixaEtaria: `${item.idade_minima} a ${item.idade_maxima} anos`, idadeMinima: Number(item.idade_minima), idadeMaxima: Number(item.idade_maxima), valor: Number(item.valor || 0), percentualReajuste: 0, vigenciaInicio: item.vigencia_inicio || "", vigenciaFim: item.vigencia_fim || "", ativo: item.deleted_at == null, dataInclusao: item.created_at })))
     } catch (error) { toast.error(error instanceof Error ? error.message : "Não foi possível salvar a faixa") } finally { setIsLoading(false) }
   }
 
@@ -144,6 +150,8 @@ export default function PlanosFaixaPage() {
       idadeMaxima: plano.idadeMaxima.toString(),
       valor: plano.valor.toString(),
       percentualReajuste: plano.percentualReajuste.toString(),
+      vigenciaInicio: plano.vigenciaInicio,
+      vigenciaFim: plano.vigenciaFim,
       ativo: plano.ativo,
     })
     setShowModal(true)
@@ -183,6 +191,8 @@ export default function PlanosFaixaPage() {
               idadeMaxima: "",
               valor: "",
               percentualReajuste: "",
+              vigenciaInicio: "",
+              vigenciaFim: "",
               ativo: true,
             })
             setShowModal(true)
@@ -240,6 +250,11 @@ export default function PlanosFaixaPage() {
                   render: (p) => `${p.idadeMinima} a ${p.idadeMaxima} anos`,
                 },
                 {
+                  key: "vigencia",
+                  header: "Vigência",
+                  render: (p) => `${p.vigenciaInicio} a ${p.vigenciaFim}`,
+                },
+                {
                   key: "valor",
                   header: "Valor",
                   sortable: true,
@@ -265,6 +280,8 @@ export default function PlanosFaixaPage() {
                 <CadastroDetailField label="Faixa etária" value={p.faixaEtaria} />
                 <CadastroDetailField label="Idade mínima" value={`${p.idadeMinima} anos`} />
                 <CadastroDetailField label="Idade máxima" value={`${p.idadeMaxima} anos`} />
+                <CadastroDetailField label="Início de vigência" value={p.vigenciaInicio} />
+                <CadastroDetailField label="Fim de vigência" value={p.vigenciaFim} />
                 <CadastroDetailField label="Valor" value={`R$ ${p.valor.toFixed(2)}`} />
                 <CadastroDetailField label="Reajuste" value={`${p.percentualReajuste}%`} />
                 <CadastroDetailField label="Status" value={p.ativo ? "Ativo" : "Inativo"} />
@@ -324,6 +341,16 @@ export default function PlanosFaixaPage() {
                 onChange={(e) => setFormData({ ...formData, idadeMaxima: e.target.value })}
                 placeholder="18"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vigenciaInicio">Início de vigência *</Label>
+              <Input id="vigenciaInicio" type="date" value={formData.vigenciaInicio} onChange={(e) => setFormData({ ...formData, vigenciaInicio: e.target.value })} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vigenciaFim">Fim de vigência *</Label>
+              <Input id="vigenciaFim" type="date" value={formData.vigenciaFim} min={formData.vigenciaInicio || undefined} onChange={(e) => setFormData({ ...formData, vigenciaFim: e.target.value })} />
             </div>
 
             <div className="space-y-2">

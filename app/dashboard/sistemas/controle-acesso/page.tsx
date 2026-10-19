@@ -1,289 +1,80 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Lock, Unlock, Shield, Users, Key, Search, Plus, Edit, Trash2, Eye, Clock, AlertTriangle } from "lucide-react"
+import { Check, Save, Shield, Users } from "lucide-react"
+
+type UserRow = { id: number; nome: string; email: string; perfilLegado: string; perfis: { nome: string }[] }
+type MatrixData = { profiles: { nome: string }[]; resources: { slug: string; nome: string }[]; actions: { slug: string; nome: string }[]; grants: { perfil_nome: string; recurso: string; acao: string; permitido: boolean }[] }
 
 export default function ControleAcessoPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [profiles, setProfiles] = useState<any[]>([])
-  const [logs, setLogs] = useState<any[]>([])
+  const [users, setUsers] = useState<UserRow[]>([])
+  const [profiles, setProfiles] = useState<{ nome: string }[]>([])
+  const [matrix, setMatrix] = useState<MatrixData>({ profiles: [], resources: [], actions: [], grants: [] })
+  const [selectedUser, setSelectedUser] = useState<number | null>(null)
+  const [selectedProfile, setSelectedProfile] = useState("")
+  const [selectedProfiles, setSelectedProfiles] = useState<string[]>([])
+  const [selectedGrants, setSelectedGrants] = useState<Record<string, boolean>>({})
+  const [search, setSearch] = useState("")
+  const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  async function load() {
+    try {
+      const [usersResponse, matrixResponse] = await Promise.all([fetch("/api/sistemas/usuarios-perfis"), fetch("/api/sistemas/matriz")])
+      const usersData = await usersResponse.json()
+      const matrixData = await matrixResponse.json()
+      if (!usersResponse.ok) throw new Error(usersData.error)
+      if (!matrixResponse.ok) throw new Error(matrixData.error)
+      setUsers(usersData.users || [])
+      setProfiles(usersData.profiles || [])
+      setMatrix(matrixData)
+      if (!selectedProfile && matrixData.profiles?.[0]) setSelectedProfile(matrixData.profiles[0].nome)
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Não foi possível carregar a configuração.") }
+  }
+
+  useEffect(() => { load() }, [])
   useEffect(() => {
-    Promise.all([fetch("/api/sistemas/perfis"), fetch("/api/sistemas/logs")])
-      .then(async ([profilesResponse, logsResponse]) => {
-        const profilesData = await profilesResponse.json()
-        const logsData = await logsResponse.json()
-        if (!profilesResponse.ok || !logsResponse.ok) throw new Error(profilesData.error || logsData.error)
-        setProfiles(Array.isArray(profilesData.profiles) ? profilesData.profiles : [])
-        setLogs(Array.isArray(logsData) ? logsData : Array.isArray(logsData.logs) ? logsData.logs : [])
-      })
-      .catch((cause) => setError(cause instanceof Error ? cause.message : "Não foi possível carregar os dados."))
-  }, [])
+    const next: Record<string, boolean> = {}
+    matrix.grants.filter((grant) => grant.perfil_nome === selectedProfile).forEach((grant) => { next[`${grant.recurso}:${grant.acao}`] = grant.permitido })
+    setSelectedGrants(next)
+  }, [matrix.grants, selectedProfile])
 
-  const accessRules = useMemo(() => profiles.filter((profile) => String(profile.nome || "").toLowerCase().includes(searchTerm.toLowerCase())).map((profile) => ({ id: profile.nome, resource: "Perfil de usuário", action: `${profile.permissoes || 0} permissões`, role: profile.nome, status: "Ativo" })), [profiles, searchTerm])
-  const activeUsers = profiles.flatMap((profile) => Array.from({ length: Number(profile.usuarios || 0) }, (_, index) => ({ id: `${profile.nome}-${index}`, name: profile.nome, role: profile.nome, lastAccess: "Disponível no log de auditoria", ip: "—" })))
+  const filteredUsers = useMemo(() => users.filter((user) => `${user.nome} ${user.email}`.toLowerCase().includes(search.toLowerCase())), [users, search])
+  const chosenUser = users.find((user) => user.id === selectedUser)
 
-  return (
-    <div className="flex-1 space-y-6 p-6">
-      {error && <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Controle de Acesso</h1>
-          <p className="text-muted-foreground">
-            Gerencie permissões, regras de acesso e monitore atividades dos usuários
-          </p>
-        </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nova Regra
-        </Button>
-      </div>
+  async function saveUserProfiles() {
+    if (!selectedUser) return
+    const response = await fetch("/api/sistemas/usuarios-perfis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ usuarioId: selectedUser, perfis: selectedProfiles }) })
+    const data = await response.json()
+    if (!response.ok) return setError(data.error)
+    setMessage("Perfis do usuário atualizados."); await load()
+  }
 
-      <div className="grid gap-6 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeUsers.length}</div>
-              <p className="text-xs text-muted-foreground">Conforme registros do sistema</p>
-          </CardContent>
-        </Card>
+  async function saveMatrix() {
+    const grants = Object.entries(selectedGrants).map(([key, permitido]) => { const [recurso, acao] = key.split(":"); return { recurso, acao, permitido } })
+    const response = await fetch("/api/sistemas/matriz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ perfil: selectedProfile, grants }) })
+    const data = await response.json()
+    if (!response.ok) return setError(data.error)
+    setMessage("Matriz de permissões salva."); await load()
+  }
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Regras Ativas</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{accessRules.length}</div>
-            <p className="text-xs text-muted-foreground">Regras configuradas</p>
-          </CardContent>
-        </Card>
+  function selectUser(user: UserRow) { setSelectedUser(user.id); setSelectedProfiles(user.perfis.length ? user.perfis.map((profile) => profile.nome) : [user.perfilLegado]) }
+  function toggleGrant(resource: string, action: string) { const key = `${resource}:${action}`; setSelectedGrants((current) => ({ ...current, [key]: !current[key] })) }
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tentativas Bloqueadas</CardTitle>
-            <Lock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">Últimas 24h</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas de Segurança</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">Requer atenção</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="rules" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="rules">Regras de Acesso</TabsTrigger>
-          <TabsTrigger value="users">Usuários Ativos</TabsTrigger>
-          <TabsTrigger value="logs">Logs de Acesso</TabsTrigger>
-          <TabsTrigger value="settings">Configurações</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="rules" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Regras de Acesso</CardTitle>
-              <CardDescription>Configure permissões por recurso e perfil de usuário</CardDescription>
-              <div className="flex items-center space-x-2">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar regras..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-sm"
-                />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {accessRules.map((rule) => (
-                  <div key={rule.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        {rule.status === "Ativo" ? (
-                          <Unlock className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <Lock className="h-4 w-4 text-red-600" />
-                        )}
-                        <span className="font-medium">{rule.resource}</span>
-                      </div>
-                      <Badge variant="outline">{rule.action}</Badge>
-                      <span className="text-sm text-muted-foreground">{rule.role}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        className={rule.status === "Ativo" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
-                      >
-                        {rule.status}
-                      </Badge>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="users" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Usuários Conectados</CardTitle>
-              <CardDescription>Usuários atualmente logados no sistema</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {activeUsers.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                        <span className="font-medium">{user.name}</span>
-                      </div>
-                      <Badge variant="outline">{user.role}</Badge>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{user.ip}</span>
-                      <span>{user.lastAccess}</span>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="logs" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Logs de Acesso</CardTitle>
-              <CardDescription>Histórico de tentativas de acesso e ações realizadas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {logs.map((log, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-mono">{log.timestamp ? new Date(log.timestamp).toLocaleTimeString("pt-BR") : "—"}</span>
-                      <span className="text-sm">{log.usuario || "Sistema"}</span>
-                      <span className="text-sm text-muted-foreground">{log.action}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-muted-foreground">{log.ip}</span>
-                      <Badge
-                        className={log.status !== "Falha" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
-                      >
-                        {log.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="settings" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Key className="h-5 w-5" />
-                  Configurações de Segurança
-                </CardTitle>
-                <CardDescription>Parâmetros gerais de controle de acesso</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Tempo limite de sessão (minutos)</label>
-                  <Input type="number" defaultValue="120" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Máximo de tentativas de login</label>
-                  <Input type="number" defaultValue="3" />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="force-2fa" defaultChecked />
-                  <label htmlFor="force-2fa" className="text-sm">
-                    Forçar autenticação de dois fatores
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="log-all-actions" defaultChecked />
-                  <label htmlFor="log-all-actions" className="text-sm">
-                    Registrar todas as ações dos usuários
-                  </label>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Políticas de Senha</CardTitle>
-                <CardDescription>Requisitos para senhas de usuários</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Comprimento mínimo</label>
-                  <Input type="number" defaultValue="8" />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="require-uppercase" defaultChecked />
-                  <label htmlFor="require-uppercase" className="text-sm">
-                    Exigir letras maiúsculas
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="require-numbers" defaultChecked />
-                  <label htmlFor="require-numbers" className="text-sm">
-                    Exigir números
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="require-symbols" />
-                  <label htmlFor="require-symbols" className="text-sm">
-                    Exigir símbolos especiais
-                  </label>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Expiração da senha (dias)</label>
-                  <Input type="number" defaultValue="90" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <Button className="w-full">Salvar Configurações</Button>
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
+  return <main className="flex-1 space-y-6 p-6">
+    <header><h1 className="text-3xl font-bold tracking-tight">Controle de Acesso</h1><p className="text-muted-foreground">Configure usuários, perfis, permissões e alçadas com regras persistidas no banco.</p></header>
+    {error && <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
+    {message && <p className="rounded-md border border-primary/30 bg-primary/10 p-3 text-sm">{message}</p>}
+    <div className="grid gap-4 md:grid-cols-3"><Card><CardHeader><CardTitle className="text-sm">Usuários</CardTitle></CardHeader><CardContent className="flex items-center gap-2 text-2xl font-bold"><Users />{users.length}</CardContent></Card><Card><CardHeader><CardTitle className="text-sm">Perfis</CardTitle></CardHeader><CardContent className="flex items-center gap-2 text-2xl font-bold"><Shield />{profiles.length}</CardContent></Card><Card><CardHeader><CardTitle className="text-sm">Recursos</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{matrix.resources.length}</CardContent></Card></div>
+    <Tabs defaultValue="users" className="space-y-4"><TabsList><TabsTrigger value="users">Usuários x Perfis</TabsTrigger><TabsTrigger value="matrix">Matriz de Permissões</TabsTrigger><TabsTrigger value="delegations">Alçadas</TabsTrigger></TabsList>
+      <TabsContent value="users"><Card><CardHeader><CardTitle>Associação de usuários a perfis</CardTitle><CardDescription>Um usuário pode possuir mais de um perfil ativo.</CardDescription><Input placeholder="Buscar usuário..." value={search} onChange={(event) => setSearch(event.target.value)} /></CardHeader><CardContent className="grid gap-6 lg:grid-cols-[1fr_1fr]"><div className="divide-y rounded-md border">{filteredUsers.map((user) => <button type="button" key={user.id} onClick={() => selectUser(user)} className={`flex w-full items-center justify-between p-3 text-left hover:bg-muted ${selectedUser === user.id ? "bg-muted" : ""}`}><span><strong>{user.nome}</strong><span className="block text-sm text-muted-foreground">{user.email}</span></span><span className="flex gap-1">{(user.perfis.length ? user.perfis : [{ nome: user.perfilLegado }]).map((profile) => <Badge key={profile.nome} variant="outline">{profile.nome}</Badge>)}</span></button>)}</div><div className="space-y-4">{chosenUser ? <><div><h3 className="font-semibold">{chosenUser.nome}</h3><p className="text-sm text-muted-foreground">Selecione os perfis permitidos</p></div><div className="grid gap-2">{profiles.map((profile) => <label key={profile.nome} className="flex items-center gap-2 rounded-md border p-3"><input type="checkbox" checked={selectedProfiles.includes(profile.nome)} onChange={() => setSelectedProfiles((current) => current.includes(profile.nome) ? current.filter((item) => item !== profile.nome) : [...current, profile.nome])} />{profile.nome}</label>)}</div><Button onClick={saveUserProfiles}><Save data-icon="inline-start" />Salvar perfis</Button></> : <p className="text-sm text-muted-foreground">Selecione um usuário para editar seus perfis.</p>}</div></CardContent></Card></TabsContent>
+      <TabsContent value="matrix"><Card><CardHeader><CardTitle>Matriz Perfil x Permissão</CardTitle><CardDescription>As alterações são aplicadas server-side às rotas e ações autorizadas.</CardDescription><div className="flex flex-wrap gap-2">{matrix.profiles.map((profile) => <Button key={profile.nome} variant={selectedProfile === profile.nome ? "default" : "outline"} onClick={() => setSelectedProfile(profile.nome)}>{profile.nome}</Button>)}</div></CardHeader><CardContent className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left"><th className="p-3">Recurso</th>{matrix.actions.map((action) => <th key={action.slug} className="p-3">{action.nome}</th>)}</tr></thead><tbody>{matrix.resources.map((resource) => <tr key={resource.slug} className="border-b"><td className="p-3 font-medium">{resource.nome}</td>{matrix.actions.map((action) => { const key = `${resource.slug}:${action.slug}`; return <td key={key} className="p-3"><button type="button" aria-label={`${resource.nome} - ${action.nome}`} onClick={() => toggleGrant(resource.slug, action.slug)} className={`rounded-md border p-2 ${selectedGrants[key] ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{selectedGrants[key] ? <Check /> : "—"}</button></td> })}</tr>)}</tbody></table><Button className="mt-4" onClick={saveMatrix}><Save data-icon="inline-start" />Salvar matriz</Button></CardContent></Card></TabsContent>
+      <TabsContent value="delegations"><Card><CardHeader><CardTitle>Alçadas</CardTitle><CardDescription>O editor de alçadas será conectado ao mesmo catálogo de recursos e perfis, mantendo vigência, limites e sequência.</CardDescription></CardHeader><CardContent><Button variant="outline" onClick={() => window.location.assign("/dashboard/sistemas/controle-acesso?aba=alcadas")}>Abrir configuração de alçadas</Button></CardContent></Card></TabsContent>
+    </Tabs>
+  </main>
 }

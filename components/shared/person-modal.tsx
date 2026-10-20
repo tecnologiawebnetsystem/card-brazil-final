@@ -52,7 +52,7 @@ export function PersonModal({
   allowedTypes = ["fisica", "juridica"],
   showAddressTabs = false,
   showBankTabs = false,
-  className = "!w-[min(96vw,1240px)] !max-w-none", 
+  className = "!w-[min(98vw,1400px)] !max-w-none", 
 }: PersonModalProps) {
   const [personType, setPersonType] = useState(allowedTypes[0])
   const [formData, setFormData] = useState<any>({})

@@ -52,7 +52,7 @@ export function PersonModal({
   allowedTypes = ["fisica", "juridica"],
   showAddressTabs = false,
   showBankTabs = false,
-  className = "max-w-7xl", // Aumentando de max-w-6xl para max-w-7xl
+  className = "!w-[min(96vw,1500px)] !max-w-[1500px]", 
 }: PersonModalProps) {
   const [personType, setPersonType] = useState(allowedTypes[0])
   const [formData, setFormData] = useState<any>({})
@@ -245,16 +245,12 @@ export function PersonModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`${className} max-h-[95vh] overflow-y-auto p-8`}>
-        {" "}
-        {/* Aumentando altura para 95vh e padding para p-8 */}
-        <DialogHeader className="pb-4">
-          {" "}
-          {/* Adicionando padding bottom no header */}
-          <DialogTitle className="text-xl">{title}</DialogTitle> {/* Aumentando tamanho do título */}
-          <DialogDescription className="text-base">{description}</DialogDescription>{" "}
-          {/* Aumentando tamanho da descrição */}
+      <DialogContent className={`${className} max-h-[94vh] overflow-y-auto rounded-2xl border-primary/15 bg-card p-0 shadow-2xl`}>
+        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-10 py-9 text-primary-foreground sm:px-14">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-primary-foreground">{title}</DialogTitle>
+          <DialogDescription className="text-base text-primary-foreground/75">{description}</DialogDescription>
         </DialogHeader>
+        <div className="px-10 py-10 sm:px-14 sm:py-12">
         {!documentoConsultado && (
           <Card className="mb-6 border-primary/20 bg-primary/5">
             <CardHeader>
@@ -300,7 +296,7 @@ export function PersonModal({
             )}
 
             {personType === "fisica" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <Label htmlFor="nome">Nome *</Label>
                   <Input
@@ -339,7 +335,7 @@ export function PersonModal({
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <Label htmlFor="razaoSocial">Razão Social *</Label>
                   <Input
@@ -399,10 +395,13 @@ export function PersonModal({
           </TabsContent>
 
           {showAddressTabs && (
-            <TabsContent value="enderecos" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Endereços</h3>
-                <Button onClick={() => setShowEnderecoForm(true)} disabled={showEnderecoForm}>
+            <TabsContent value="enderecos" className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4 rounded-xl border border-border/70 bg-muted/30 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold tracking-tight text-foreground">Endereços</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">Cadastre os endereços vinculados a esta pessoa.</p>
+                </div>
+                <Button className="shrink-0" onClick={() => setShowEnderecoForm(true)} disabled={showEnderecoForm}>
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
@@ -411,12 +410,13 @@ export function PersonModal({
               </div>
 
               {showEnderecoForm && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Novo Endereço</CardTitle>
+                <Card className="overflow-hidden border-border/80 shadow-sm">
+                  <CardHeader className="border-b border-border/60 bg-primary/[0.04] px-6 py-5">
+                    <CardTitle className="text-lg font-semibold">Novo endereço</CardTitle>
+                    <p className="text-sm text-muted-foreground">Informe os dados para localizar este endereço.</p>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <CardContent className="flex flex-col gap-6 px-6 py-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.1fr_0.8fr_1.3fr]">
                       <div>
                         <Label>Tipo de Endereço *</Label>
                         <Select
@@ -454,7 +454,7 @@ export function PersonModal({
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.6fr_0.7fr]">
                       <div>
                         <Label>Logradouro *</Label>
                         <Input
@@ -472,7 +472,7 @@ export function PersonModal({
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.1fr_1fr_1fr]">
                       <div>
                         <Label>Complemento</Label>
                         <Input
@@ -508,12 +508,21 @@ export function PersonModal({
                 </Card>
               )}
 
-              <div className="space-y-3">
+              <div className="flex flex-col gap-4">
+                {enderecos.length === 0 && !showEnderecoForm && (
+                  <div className="rounded-xl border border-dashed border-border bg-muted/20 px-6 py-10 text-center">
+                    <h4 className="font-semibold text-foreground">Nenhum endereço cadastrado</h4>
+                    <p className="mt-1 text-sm text-muted-foreground">Clique em “Adicionar Endereço” para incluir o primeiro endereço.</p>
+                  </div>
+                )}
                 {enderecos.map((endereco) => (
-                  <Card key={endereco.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium capitalize">{endereco.tipo}</h4>
+                  <Card key={endereco.id} className="border-border/80 shadow-sm">
+                    <CardContent className="p-6">
+                      <div className="mb-4 flex items-center justify-between border-b border-border/60 pb-4">
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Endereço</p>
+                          <h4 className="mt-1 font-semibold capitalize text-foreground">{endereco.tipo}</h4>
+                        </div>
                         <Button variant="ghost" size="sm" onClick={() => handleRemoveEndereco(endereco.id)}>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
@@ -573,7 +582,7 @@ export function PersonModal({
                     <CardTitle className="text-base">Nova Conta Bancária</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div>
                         <Label>Banco *</Label>
                         <Select
@@ -684,6 +693,7 @@ export function PersonModal({
         </Tabs>
         </>
         )}
+        </div>
       </DialogContent>
 
     </Dialog>

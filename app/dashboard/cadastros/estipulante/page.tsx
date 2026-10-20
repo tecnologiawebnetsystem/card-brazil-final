@@ -1084,7 +1084,7 @@ export default function EstipulantePage() {
           allowedTypes={["juridica"]}
           showAddressTabs={true}
           showBankTabs={true}
-          className="max-w-6xl w-full"
+          className="!w-[min(96vw,1500px)] !max-w-[1500px]"
         />
 
         {/* Modal para cadastrar estipulante */}

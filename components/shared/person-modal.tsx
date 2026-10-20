@@ -52,7 +52,7 @@ export function PersonModal({
   allowedTypes = ["fisica", "juridica"],
   showAddressTabs = false,
   showBankTabs = false,
-  className = "!w-[min(96vw,1100px)] !max-w-none", 
+  className = "!w-[min(96vw,1240px)] !max-w-none", 
 }: PersonModalProps) {
   const [personType, setPersonType] = useState(allowedTypes[0])
   const [formData, setFormData] = useState<any>({})
@@ -245,12 +245,12 @@ export function PersonModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`${className} max-h-[92vh] overflow-y-auto rounded-2xl border-primary/15 bg-card p-0 shadow-2xl`}>
-        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-8 py-7 text-primary-foreground sm:px-10">
+      <DialogContent className={`${className} max-h-[94vh] overflow-y-auto rounded-2xl border-primary/15 bg-card p-0 shadow-2xl`}>
+        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-10 py-9 text-primary-foreground sm:px-14">
           <DialogTitle className="text-2xl font-bold tracking-tight text-primary-foreground">{title}</DialogTitle>
           <DialogDescription className="text-base text-primary-foreground/75">{description}</DialogDescription>
         </DialogHeader>
-        <div className="px-8 py-7 sm:px-10">
+        <div className="px-10 py-10 sm:px-14 sm:py-12">
         {!documentoConsultado && (
           <Card className="mb-6 border-primary/20 bg-primary/5">
             <CardHeader>
@@ -296,7 +296,7 @@ export function PersonModal({
             )}
 
             {personType === "fisica" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <Label htmlFor="nome">Nome *</Label>
                   <Input
@@ -335,7 +335,7 @@ export function PersonModal({
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <Label htmlFor="razaoSocial">Razão Social *</Label>
                   <Input
@@ -450,7 +450,7 @@ export function PersonModal({
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div>
                         <Label>Logradouro *</Label>
                         <Input
@@ -569,7 +569,7 @@ export function PersonModal({
                     <CardTitle className="text-base">Nova Conta Bancária</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div>
                         <Label>Banco *</Label>
                         <Select

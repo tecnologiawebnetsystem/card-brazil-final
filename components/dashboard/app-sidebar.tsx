@@ -685,7 +685,7 @@ export function AppSidebar() {
     item.url === pathname || Boolean(item.subItems?.some(itemHasActivePath))
 
   const renderMenuItems = (items: MenuItem[], level = 0): React.ReactNode => (
-    <SidebarMenu className={level === 0 ? "space-y-0" : "ml-3 border-l border-sidebar-border/60 pl-2"}>
+    <SidebarMenu className={level === 0 ? "w-full space-y-0" : "ml-2 w-[calc(100%-0.5rem)] border-l border-sidebar-border/60 pl-2"}>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
           {item.subItems?.length ? (
@@ -762,11 +762,11 @@ export function AppSidebar() {
             <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Buscar no menu" aria-label="Buscar no menu" className="h-9 w-full rounded-xl border border-sidebar-border/70 bg-sidebar/60 pl-9 pr-3 text-xs text-sidebar-foreground outline-none placeholder:text-sidebar-foreground/45 focus:border-sidebar-ring focus:ring-2 focus:ring-sidebar-ring/20" />
           </div>
         </SidebarHeader>
-        <SidebarContent className="px-2 py-2">
+        <SidebarContent className="min-w-0 overflow-x-hidden px-2 py-3">
           {filteredMenuItems.map((group) => (
             <SidebarGroup key={group.title} className="mb-0 p-0">
               <SidebarGroupLabel
-                className="mb-0 flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/45 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/80"
+                className="mb-1 flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/55 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/90"
                 onClick={() => toggleGroupExpansion(group.title)}
               >
                 <span>{group.title}</span>

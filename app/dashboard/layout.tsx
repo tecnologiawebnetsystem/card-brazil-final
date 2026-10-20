@@ -27,8 +27,23 @@ export default function DashboardLayout({
 
   if (isLoading || !isAuthenticated) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background" aria-live="polite">
-        <span className="text-sm text-muted-foreground">Verificando acesso...</span>
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6" aria-live="polite">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_srgb,var(--primary)_12%,transparent),transparent_42%),radial-gradient(circle_at_bottom_left,color-mix(in_srgb,var(--accent)_18%,transparent),transparent_38%)]" />
+        <div className="relative flex w-full max-w-md flex-col items-center gap-7 rounded-3xl border border-border/70 bg-card/90 p-10 text-center shadow-xl shadow-primary/10 backdrop-blur-sm">
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-sidebar text-sidebar-foreground shadow-lg shadow-primary/20">
+            <span className="text-2xl font-bold tracking-tight">CB</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="font-heading text-xl font-semibold text-foreground">CardBrazil</h1>
+            <p className="text-sm text-muted-foreground">Preparando seu ambiente seguro</p>
+          </div>
+          <div className="flex w-full flex-col gap-3">
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-full w-2/3 animate-pulse rounded-full bg-primary" />
+            </div>
+            <p className="text-xs font-medium text-muted-foreground">Verificando acesso...</p>
+          </div>
+        </div>
       </main>
     )
   }

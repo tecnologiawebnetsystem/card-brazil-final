@@ -142,7 +142,7 @@ export default function SubestipulantePage() {
         </Card>
 
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="!w-[min(94vw,1000px)] !max-w-[1000px] rounded-2xl border-primary/15 p-8 shadow-2xl">
             <DialogHeader>
               <DialogTitle>Novo Subestipulante</DialogTitle>
               <DialogDescription>Cadastre um novo subestipulante no sistema.</DialogDescription>

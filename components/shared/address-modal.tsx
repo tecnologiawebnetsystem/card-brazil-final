@@ -128,13 +128,13 @@ export function AddressModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>{endereco ? "Editar Endereço" : title}</DialogTitle>
-          <DialogDescription>{endereco ? "Altere as informações do endereço" : description}</DialogDescription>
+      <DialogContent className="!w-[min(94vw,1000px)] !max-w-[1000px] overflow-y-auto rounded-2xl border-primary/15 bg-card p-0 shadow-2xl">
+        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-8 py-7 text-primary-foreground sm:px-10">
+          <DialogTitle className="text-2xl font-bold text-primary-foreground">{endereco ? "Editar Endereço" : title}</DialogTitle>
+          <DialogDescription className="text-base text-primary-foreground/75">{endereco ? "Altere as informações do endereço" : description}</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-6 px-8 py-8 sm:px-10">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_0.7fr]">
             <div>
               <Label>Tipo de Endereço *</Label>
               <Select
@@ -165,8 +165,8 @@ export function AddressModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[1.8fr_0.7fr]">
+            <div>
               <Label>Logradouro *</Label>
               <Input
                 placeholder="Rua, Avenida, etc."
@@ -193,7 +193,7 @@ export function AddressModal({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div>
               <Label>Bairro *</Label>
               <Input
@@ -231,7 +231,7 @@ export function AddressModal({
             />
           </div>
         </div>
-        <div className="flex justify-end gap-2 mt-6">
+        <div className="flex justify-end gap-3 border-t border-border/60 px-8 py-6 sm:px-10">
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>

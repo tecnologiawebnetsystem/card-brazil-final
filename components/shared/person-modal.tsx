@@ -52,7 +52,7 @@ export function PersonModal({
   allowedTypes = ["fisica", "juridica"],
   showAddressTabs = false,
   showBankTabs = false,
-  className = "max-w-7xl", // Aumentando de max-w-6xl para max-w-7xl
+  className = "!w-[min(96vw,1100px)] !max-w-none", 
 }: PersonModalProps) {
   const [personType, setPersonType] = useState(allowedTypes[0])
   const [formData, setFormData] = useState<any>({})
@@ -245,16 +245,12 @@ export function PersonModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`${className} max-h-[95vh] overflow-y-auto p-8`}>
-        {" "}
-        {/* Aumentando altura para 95vh e padding para p-8 */}
-        <DialogHeader className="pb-4">
-          {" "}
-          {/* Adicionando padding bottom no header */}
-          <DialogTitle className="text-xl">{title}</DialogTitle> {/* Aumentando tamanho do título */}
-          <DialogDescription className="text-base">{description}</DialogDescription>{" "}
-          {/* Aumentando tamanho da descrição */}
+      <DialogContent className={`${className} max-h-[92vh] overflow-y-auto rounded-2xl border-primary/15 bg-card p-0 shadow-2xl`}>
+        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-8 py-7 text-primary-foreground sm:px-10">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-primary-foreground">{title}</DialogTitle>
+          <DialogDescription className="text-base text-primary-foreground/75">{description}</DialogDescription>
         </DialogHeader>
+        <div className="px-8 py-7 sm:px-10">
         {!documentoConsultado && (
           <Card className="mb-6 border-primary/20 bg-primary/5">
             <CardHeader>
@@ -684,6 +680,7 @@ export function PersonModal({
         </Tabs>
         </>
         )}
+        </div>
       </DialogContent>
 
     </Dialog>

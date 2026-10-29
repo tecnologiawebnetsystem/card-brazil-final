@@ -251,7 +251,7 @@ export default function ContasPagarPage() {
           <p className="text-muted-foreground">Gerencie suas contas a pagar e controle despesas</p>
         </div>
         <Button
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-primary text-primary-foreground hover:bg-primary-dark"
           onClick={() => {
             resetForm()
             setDialogOpen(true)

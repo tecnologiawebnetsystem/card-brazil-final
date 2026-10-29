@@ -231,7 +231,7 @@ export default function FluxoCaixaPage() {
 
   const getTipoBadge = (tipo: string) => {
     return tipo === "entrada" ? (
-      <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Entrada</Badge>
+      <Badge className="bg-success/10 text-success hover:bg-success/15">Entrada</Badge>
     ) : (
       <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Saída</Badge>
     )
@@ -276,7 +276,7 @@ export default function FluxoCaixaPage() {
 
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="bg-emerald-700 text-white border-0">
+        <Card className="border-primary/20 bg-primary text-primary-foreground shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Saldo Líquido</CardTitle>
             <DollarSign className="h-4 w-4 bg-emerald-600 p-1 rounded" />

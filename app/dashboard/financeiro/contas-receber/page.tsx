@@ -243,14 +243,15 @@ export default function ContasReceberPage() {
   const totalParcial = contas.filter((c) => c.status === "parcial").reduce((sum, c) => sum + c.valor_pago, 0)
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="module-page flex-1 space-y-6 p-4 md:p-6">
+      <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Contas a Receber</h1>
-          <p className="text-muted-foreground">Gerencie suas contas a receber e acompanhe pagamentos</p>
+          <p className="text-sm font-medium text-primary">Financeiro</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Contas a receber</h1>
+          <p className="mt-1 text-muted-foreground">Acompanhe vencimentos, recebimentos e pendências.</p>
         </div>
         <Button
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={() => {
             resetForm()
             setDialogOpen(true)
@@ -278,10 +279,10 @@ export default function ContasReceberPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pendente</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
+            <Clock className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
+            <div className="text-2xl font-semibold text-warning">
               R$ {totalPendente.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -292,10 +293,10 @@ export default function ContasReceberPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Vencido</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-semibold text-destructive">
               R$ {totalVencido.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -306,10 +307,10 @@ export default function ContasReceberPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Recebido</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-semibold text-success">
               R$ {totalRecebido.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </div>
             <p className="text-xs text-muted-foreground">{contas.filter((c) => c.status === "pago").length} contas</p>
@@ -351,10 +352,10 @@ export default function ContasReceberPage() {
                   <p className="text-muted-foreground">Nenhuma conta encontrada</p>
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="overflow-x-auto rounded-xl border border-border/70">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b bg-muted/50">
+                      <tr className="border-b bg-muted/40">
                         <th className="h-12 px-4 text-left align-middle font-medium">Descrição</th>
                         <th className="h-12 px-4 text-left align-middle font-medium">Categoria</th>
                         <th className="h-12 px-4 text-left align-middle font-medium">Valor Original</th>
@@ -372,7 +373,7 @@ export default function ContasReceberPage() {
                           <td className="h-12 px-4 align-middle font-medium">
                             R$ {conta.valor_original.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="h-12 px-4 align-middle font-medium text-green-600">
+                          <td className="h-12 px-4 align-middle font-medium text-success">
                             R$ {conta.valor_pago.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                           </td>
                           <td className="h-12 px-4 align-middle">
@@ -397,7 +398,7 @@ export default function ContasReceberPage() {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-red-600 hover:text-red-700"
+                                className="text-destructive hover:text-destructive/80"
                                 onClick={() => {
                                   setDeletingId(conta.id)
                                   setDeleteDialogOpen(true)
@@ -640,13 +641,13 @@ export default function ContasReceberPage() {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Valor Pago</Label>
-                  <p className="font-medium text-green-600">
+                  <p className="font-medium text-success">
                     R$ {viewingConta.valor_pago.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Valor Pendente</Label>
-                  <p className="font-medium text-red-600">
+                  <p className="font-medium text-destructive">
                     R$ {viewingConta.valor_pendente.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </p>
                 </div>

@@ -292,16 +292,17 @@ export default function ContratosPage() {
       case "Vencido":
         return "bg-red-100 text-red-800"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "border-border bg-muted text-muted-foreground"
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="module-page flex-1 space-y-6 p-4 md:p-6">
+      <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestão de Contratos</h1>
-          <p className="text-gray-600">Sistema de versionamento e controle de contratos</p>
+          <p className="text-sm font-medium text-primary">Operação</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">Gestão de contratos</h1>
+          <p className="mt-1 text-muted-foreground">Versionamento, vigência e controle dos contratos.</p>
         </div>
 
         <Dialog open={isNewContractOpen} onOpenChange={setIsNewContractOpen}>
@@ -443,9 +444,9 @@ export default function ContratosPage() {
         </Dialog>
       </div>
 
-      <Card>
+      <Card className="border-border/70 shadow-sm">
         <CardHeader>
-          <CardTitle>Contratos Ativos</CardTitle>
+          <CardTitle>Contratos ativos</CardTitle>
           <CardDescription>Gerencie todos os contratos com sistema de versionamento automático</CardDescription>
         </CardHeader>
         <CardContent>
@@ -478,7 +479,7 @@ export default function ContratosPage() {
               </thead>
               <tbody>
                 {filteredContracts.map((contract) => (
-                  <tr key={contract.id} className="border-b hover:bg-gray-50">
+                  <tr key={contract.id} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">{contract.numero}</td>
                     <td className="p-2">{contract.estipulante_id || "-"}</td>
                     <td className="p-2">{contract.plano_id || "-"}</td>
@@ -522,13 +523,13 @@ export default function ContratosPage() {
           </div>
 
           {filteredContracts.length === 0 && !isLoading && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <p>Nenhum contrato encontrado</p>
             </div>
           )}
 
           {isLoading && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <p>Carregando contratos...</p>
             </div>
           )}

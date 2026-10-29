@@ -4,7 +4,7 @@ import { query } from "@/lib/database"
 
 const fields = ["tipo", "categoria", "descricao", "valor", "data_movimentacao", "data_competencia", "status", "conta_origem", "conta_destino", "observacoes"]
 
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   if (!hasPermission(auth, "financeiro", "view")) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
@@ -13,7 +13,7 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
   return NextResponse.json(rows[0])
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   if (!hasPermission(auth, "financeiro", "edit")) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ message: "Movimentação atualizada com sucesso", data: rows[0] })
 }
 
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   if (!hasPermission(auth, "financeiro", "delete")) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })

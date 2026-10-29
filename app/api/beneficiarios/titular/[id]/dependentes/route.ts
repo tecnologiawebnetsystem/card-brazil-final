@@ -2,10 +2,10 @@ import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { administradoraId } = await requireCadastroAccess("view")
-    const { id } = params
+    const { id } = await params
     const titularId = Number.parseInt(id, 10)
 
     const titularRows = await query(`SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND tipo_beneficiario = 'titular' AND deleted_at IS NULL`, [titularId, administradoraId])

@@ -641,12 +641,33 @@ export function AppSidebar() {
     menuScrollTopRef.current = sidebarContent?.scrollTop ?? 0
   }
 
+  const handleMenuNavigation = () => {
+    preserveMenuScroll()
+    if (isMobile) toggleSidebar()
+  }
+
   const toggleGroupExpansion = (groupTitle: string) => {
     setExpandedGroups((prev) => ({
       ...prev,
       [groupTitle]: !prev[groupTitle],
     }))
   }
+
+  useEffect(() => {
+    const activeGroupTitles = filteredMenuItems
+      .filter((group) => group.items.some(itemHasActivePath))
+      .map((group) => group.title)
+
+    if (activeGroupTitles.length === 0) return
+
+    setExpandedGroups((previous) => {
+      const next = { ...previous }
+      activeGroupTitles.forEach((title) => {
+        next[title] = true
+      })
+      return next
+    })
+  }, [pathname])
 
   const filterMenuItems = (items: MenuItem[]): MenuItem[] => {
     return items.filter((item) => {
@@ -681,8 +702,36 @@ export function AppSidebar() {
     return roleName || "Usuário"
   }
 
+  const isPathActive = (url?: string) => {
+    if (!url) return false
+    return url === "/dashboard" ? pathname === url : pathname === url || pathname.startsWith(`${url}/`)
+  }
+
+  const getGroupIcon = (title: string) => {
+    switch (title) {
+      case "Principal":
+        return <LayoutDashboardIcon />
+      case "Cadastros":
+        return <BuildingIcon />
+      case "Propostas":
+        return <BriefcaseIcon />
+      case "Tabelas Gerais":
+        return <FileTextIcon />
+      case "Beneficiários":
+        return <UsersIcon />
+      case "Financeiro":
+      case "Cobrança e Recebimento":
+        return <DollarSignIcon />
+      case "Sistemas":
+      case "Configurações":
+        return <CogIcon />
+      default:
+        return <FileTextIcon />
+    }
+  }
+
   const itemHasActivePath = (item: MenuItem): boolean =>
-    item.url === pathname || Boolean(item.subItems?.some(itemHasActivePath))
+    isPathActive(item.url) || Boolean(item.subItems?.some(itemHasActivePath))
 
   const renderMenuItems = (items: MenuItem[], level = 0): React.ReactNode => (
     <SidebarMenu className={level === 0 ? "w-full space-y-0" : "ml-2 w-[calc(100%-0.5rem)] border-l border-sidebar-border/60 pl-2"}>
@@ -690,7 +739,7 @@ export function AppSidebar() {
         <SidebarMenuItem key={item.title}>
           {item.subItems?.length ? (
             <details open={itemHasActivePath(item)} className="group">
-              <summary className="flex h-9 cursor-pointer list-none items-center justify-between rounded-lg px-2 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/25 hover:text-sidebar-foreground [&::-webkit-details-marker]:hidden">
+              <summary title={item.title} className="flex h-9 cursor-pointer list-none items-center justify-between rounded-lg px-2 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/25 hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring [&::-webkit-details-marker]:hidden">
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent/20 text-sidebar-foreground/60">{item.icon}</span>
                   <span className="truncate">{item.title}</span>
@@ -702,9 +751,11 @@ export function AppSidebar() {
           ) : item.url ? (
             <SidebarMenuButton
               asChild
-              className={`relative h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-accent/35 ${pathname === item.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-md ring-1 ring-sidebar-primary/25 hover:bg-sidebar-primary" : ""}`}
+              isActive={isPathActive(item.url)}
+              tooltip={item.title}
+              className={`relative h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-accent/35 ${isPathActive(item.url) ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-md ring-1 ring-sidebar-primary/25 hover:bg-sidebar-primary" : ""}`}
             >
-              <Link href={item.url} prefetch onClick={preserveMenuScroll} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} aria-current={pathname === item.url ? "page" : undefined} className="flex items-center gap-2 px-2.5 py-2">
+              <Link href={item.url} prefetch onClick={handleMenuNavigation} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} aria-current={isPathActive(item.url) ? "page" : undefined} className="flex items-center gap-2 px-2.5 py-2">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent/20 text-sidebar-foreground/65">{item.icon}</span>
                 <span className="truncate text-xs text-sidebar-foreground/80 transition-colors">{item.title}</span>
   </Link>
@@ -766,20 +817,26 @@ export function AppSidebar() {
         <SidebarContent className="min-w-0 overflow-x-hidden px-2 py-3">
           {filteredMenuItems.map((group) => (
             <SidebarGroup key={group.title} className="mb-0 p-0">
-              <SidebarGroupLabel
-                className="mb-1 flex h-8 cursor-pointer items-center justify-between rounded-lg px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/55 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/90"
-                onClick={() => toggleGroupExpansion(group.title)}
-              >
-                <span>{group.title}</span>
-                {expandedGroups[group.title] ? (
-                  <ChevronDown className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronRight className="h-3.5 w-3.5" />
-                )}
+              <SidebarGroupLabel asChild className="mb-1 h-8 p-0 group-data-[collapsible=icon]:mt-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:opacity-100">
+                <button
+                  type="button"
+                  aria-expanded={expandedGroups[group.title]}
+                  aria-controls={`sidebar-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  onClick={() => toggleGroupExpansion(group.title)}
+                  className="flex h-8 w-full items-center justify-between rounded-lg px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/55 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring group-data-[collapsible=icon]:px-0"
+                >
+                  <span className="flex size-6 shrink-0 items-center justify-center text-sidebar-foreground/65 [&>svg]:size-4 group-data-[collapsible=icon]:text-sidebar-foreground/80">{getGroupIcon(group.title)}</span>
+                  <span className="truncate group-data-[collapsible=icon]:sr-only">{group.title}</span>
+                  {expandedGroups[group.title] ? (
+                    <ChevronDown className="size-3.5 group-data-[collapsible=icon]:hidden" aria-hidden="true" />
+                  ) : (
+                    <ChevronRight className="size-3.5 group-data-[collapsible=icon]:hidden" aria-hidden="true" />
+                  )}
+                </button>
               </SidebarGroupLabel>
               {expandedGroups[group.title] && (
-                  <SidebarGroupContent className="mt-0.5">
-                    {renderMenuItems(group.items)}
+                <SidebarGroupContent id={`sidebar-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="mt-0.5 animate-in fade-in-0 slide-in-from-top-1 duration-200">
+                  {renderMenuItems(group.items)}
                 </SidebarGroupContent>
               )}
             </SidebarGroup>

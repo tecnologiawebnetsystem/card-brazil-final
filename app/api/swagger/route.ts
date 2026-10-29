@@ -407,21 +407,25 @@ const swaggerSpec = {
           id_administradora: { type: "integer", example: 1 },
         },
       },
-      Contrato: {
-        type: "object",
-        properties: {
-          id: { type: "integer", example: 1 },
-          estipulante_id: { type: "integer", example: 1 },
-          operadora_id: { type: "integer", example: 1 },
-          plano_id: { type: "integer", example: 1 },
-          numero_contrato: { type: "string", example: "CONT-2024-001" },
-          data_inicio: { type: "string", format: "date", example: "2024-01-01" },
-          data_fim: { type: "string", format: "date", example: "2024-12-31" },
-          valor_total: { type: "number", format: "decimal", example: 15000.0 },
-          status: { type: "string", enum: ["ativo", "inativo", "cancelado"], example: "ativo" },
-          id_administradora: { type: "integer", example: 1 },
-        },
-      },
+  Contrato: {
+    type: "object",
+    required: ["operadora_id", "numero_contrato", "data_inicio"],
+    properties: {
+      id: { type: "integer", example: 1, readOnly: true },
+      administradora_id: { type: "integer", example: 1, readOnly: true },
+      estipulante_id: { type: "integer", nullable: true, example: 1 },
+      operadora_id: { type: "integer", example: 1 },
+      numero_contrato: { type: "string", example: "CONT-2024-001" },
+      numero: { type: "string", example: "CONT-2024-001", readOnly: true },
+      data_inicio: { type: "string", format: "date", example: "2024-01-01" },
+      data_fim: { type: "string", format: "date", nullable: true, example: "2024-12-31" },
+      quantidade_vidas: { type: "integer", minimum: 0, example: 120 },
+      status: { type: "string", enum: ["ativo", "inativo", "suspenso", "cancelado", "vencido", "encerrado"], example: "ativo" },
+      created_at: { type: "string", format: "date-time", readOnly: true },
+      updated_at: { type: "string", format: "date-time", readOnly: true },
+      deleted_at: { type: "string", format: "date-time", nullable: true, readOnly: true },
+    },
+  },
       Proposta: {
         type: "object",
         properties: {
@@ -1395,10 +1399,9 @@ const swaggerSpec = {
         summary: "Listar todos os contratos",
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: "id_administradora", in: "query", schema: { type: "integer" }, required: true },
           { name: "estipulante_id", in: "query", schema: { type: "integer" } },
           { name: "operadora_id", in: "query", schema: { type: "integer" } },
-          { name: "status", in: "query", schema: { type: "string", enum: ["ativo", "inativo", "cancelado"] } },
+          { name: "status", in: "query", schema: { type: "string", enum: ["ativo", "inativo", "suspenso", "cancelado", "vencido", "encerrado"] } },
         ],
         responses: {
           "200": {

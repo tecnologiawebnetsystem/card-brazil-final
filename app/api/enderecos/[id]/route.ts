@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
 import { query } from "@/back-end/lib/database"
 import { apiResponse, apiError } from "@/back-end/lib/api-response"
-import { idSchema } from "@/back-end/lib/validation"
+import { idSchema } from "@/schemas/validation"
 import { requireCadastroAccess } from "@/back-end/lib/api-auth"
 
 const editableFields = ["tipo_endereco", "cep", "logradouro", "numero", "complemento", "bairro", "cidade", "estado", "pais", "is_principal"]

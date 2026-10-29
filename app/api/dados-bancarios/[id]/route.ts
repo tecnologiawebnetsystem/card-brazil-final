@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server"
 import { query } from "@/back-end/lib/database"
 import { apiResponse, apiError } from "@/back-end/lib/api-response"
 import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
-import { idSchema } from "@/back-end/lib/validation"
+import { idSchema } from "@/schemas/validation"
 
 const editableFields = ["banco_codigo", "banco_nome", "agencia", "agencia_digito", "conta", "conta_digito", "tipo_conta", "pix_tipo", "pix_chave", "is_principal"]
 

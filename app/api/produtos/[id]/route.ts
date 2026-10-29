@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { apiError, handleApiError, successResponse } from "@/back-end/lib/api-response"
 import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
 import { query } from "@/back-end/lib/database"
-import { produtoSchema, zodFieldErrors } from "@/back-end/lib/validation"
+import { produtoSchema, zodFieldErrors } from "@/schemas/validation"
 
 function parseId(value: string) {
   const id = Number(value)

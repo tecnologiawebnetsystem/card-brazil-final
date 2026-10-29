@@ -1,4 +1,4 @@
-import { SwaggerDocumentation } from "@/components/swagger-documentation"
+import { SwaggerDocumentation } from "@/features/documentation/swagger-documentation"
 
 export const metadata = {
   title: "Documentação da API | Card Brazil",

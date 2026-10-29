@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/back-end/lib/database"
 import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
 import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
-import { beneficiarioSchema, zodFieldErrors } from "@/back-end/lib/validation"
+import { beneficiarioSchema, zodFieldErrors } from "@/schemas/validation"
 
 export async function GET(request: NextRequest) {
   try {

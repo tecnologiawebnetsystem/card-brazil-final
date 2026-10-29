@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // The v0 file-sync layer can race Webpack's filesystem cache writes.
+      // Keep development bundles deterministic while preserving production caching.
+      config.cache = false
+    }
+    return config
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

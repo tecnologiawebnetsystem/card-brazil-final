@@ -1,4 +1,4 @@
-import { query } from "@/lib/database"
+import { query } from "@/back-end/lib/database"
 
 export type DependenciaCadastro = {
   pessoa_id?: number | string | null

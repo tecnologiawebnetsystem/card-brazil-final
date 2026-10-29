@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import AuthService from "@/lib/auth-service"
+import AuthService from "@/back-end/lib/auth-service"
 
 export const dynamic = "force-dynamic"
 

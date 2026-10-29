@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
+import { query } from "@/back-end/lib/database"
 
 const fields = ["descricao", "categoria", "valor", "data_vencimento", "data_pagamento", "status", "observacoes"]
 

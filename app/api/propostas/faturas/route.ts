@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query, transaction } from "@/lib/database"
-import { getAuthContext, hasPermission } from "@/lib/api-auth"
+import { query, transaction } from "@/back-end/lib/database"
+import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthContext()

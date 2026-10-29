@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { accessError, getSqlKind, normalizeSql, requireSqlManagerAccess, safeIdentifier } from "@/lib/sql-manager-auth"
+import { query } from "@/back-end/lib/database"
+import { accessError, getSqlKind, normalizeSql, requireSqlManagerAccess, safeIdentifier } from "@/back-end/lib/sql-manager-auth"
 
 const READ = new Set(["SELECT", "SHOW", "DESCRIBE", "EXPLAIN"])
 const WRITE = new Set(["INSERT", "UPDATE", "DELETE"])

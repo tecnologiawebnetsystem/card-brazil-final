@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { query, transaction } from "@/lib/database"
-import { apiAuthError, authErrorStatus, requireCadastroAccess } from "@/lib/api-auth"
-import { recordCadastroAudit } from "@/lib/cadastro-audit"
+import { query, transaction } from "@/back-end/lib/database"
+import { apiAuthError, authErrorStatus, requireCadastroAccess } from "@/back-end/lib/api-auth"
+import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
 
 export async function GET() {
   try {

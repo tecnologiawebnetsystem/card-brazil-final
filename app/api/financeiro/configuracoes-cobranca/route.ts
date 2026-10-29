@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { requireFinanceiroAccess } from "@/lib/api-auth"
-import { recordCadastroAudit } from "@/lib/cadastro-audit"
-import { query } from "@/lib/database"
+import { requireFinanceiroAccess } from "@/back-end/lib/api-auth"
+import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
+import { query } from "@/back-end/lib/database"
 
 export async function GET() {
   const { administradoraId, userId } = await requireFinanceiroAccess("view")

@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
-import { apiResponse, apiError } from "@/lib/api-response"
-import { query } from "@/lib/database"
-import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
+import { apiResponse, apiError } from "@/back-end/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
 
 export async function GET(request: NextRequest) {
   try {

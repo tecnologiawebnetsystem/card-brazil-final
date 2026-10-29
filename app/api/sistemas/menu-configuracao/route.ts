@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { getAuthContext, authErrorStatus } from "@/lib/api-auth"
+import { query } from "@/back-end/lib/database"
+import { getAuthContext, authErrorStatus } from "@/back-end/lib/api-auth"
 
 function isAdmin(context: Awaited<ReturnType<typeof getAuthContext>>) {
   return Boolean(context && ["admin", "administrador"].includes(String(context.profile.tipo_usuario).toLowerCase()))

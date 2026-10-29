@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
+import { query } from "@/back-end/lib/database"
+import { requireCadastroAccess, authErrorStatus } from "@/back-end/lib/api-auth"
 
 export const dynamic = "force-dynamic"
 

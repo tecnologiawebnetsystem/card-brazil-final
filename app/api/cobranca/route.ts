@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext, authErrorStatus } from "@/lib/api-auth"
-import { query, transaction } from "@/lib/database"
-import { canTransitionCobranca, isCobrancaStatus, parseMoney, COBRANCA_STATUSES } from "@/lib/cobranca-state"
+import { getAuthContext, authErrorStatus } from "@/back-end/lib/api-auth"
+import { query, transaction } from "@/back-end/lib/database"
+import { canTransitionCobranca, isCobrancaStatus, parseMoney, COBRANCA_STATUSES } from "@/back-end/lib/cobranca-state"
 
 const STATUSES = COBRANCA_STATUSES
 const TYPES = ["amigavel", "administrativa", "extrajudicial", "judicial"] as const

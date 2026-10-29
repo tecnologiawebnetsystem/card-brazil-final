@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { apiError, successResponse } from "@/lib/api-response"
-import { query } from "@/lib/database"
-import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { planoSchema, zodFieldErrors } from "@/lib/validation"
+import { apiError, successResponse } from "@/back-end/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
+import { planoSchema, zodFieldErrors } from "@/back-end/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {

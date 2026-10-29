@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import { AuthService } from "@/lib/auth-service"
-import { query, queryOne } from "@/lib/database"
+import { AuthService } from "@/back-end/lib/auth-service"
+import { query, queryOne } from "@/back-end/lib/database"
 
 const fallback = { tema: "cardbrazil", fundo: "#f5f7fa", menu: "#103f64" }
 

@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
-import { successResponse, errorResponse, handleApiError, apiError } from "@/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { requireCadastroAccess, apiAuthError } from "@/back-end/lib/api-auth"
+import { successResponse, errorResponse, handleApiError, apiError } from "@/back-end/lib/api-response"
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { administradoraId } = await requireCadastroAccess("view")

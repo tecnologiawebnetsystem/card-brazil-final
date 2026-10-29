@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
-import AuthService from "@/lib/auth-service"
-import { query } from "@/lib/database"
+import AuthService from "@/back-end/lib/auth-service"
+import { query } from "@/back-end/lib/database"
 
 export const dynamic = "force-dynamic"
 

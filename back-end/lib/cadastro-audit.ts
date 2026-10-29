@@ -1,4 +1,4 @@
-import { query, type DatabaseStatement } from "@/lib/database"
+import { query, type DatabaseStatement } from "@/back-end/lib/database"
 
 export type CadastroAuditAction = "create" | "update" | "delete" | "toggle" | "approve" | "reject" | "permission_change" | "payment" | "settlement" | "reconciliation" | "negotiation" | "parameter_change" | "bank_processing" | "integration" | "login" | "logout" | "login_failed"
 

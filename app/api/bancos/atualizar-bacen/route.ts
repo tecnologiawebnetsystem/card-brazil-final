@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createServerClient } from "@/lib/supabase-server"
+import { createServerClient } from "@/back-end/lib/supabase-server"
 
 // API do Banco Central para consultar bancos
 // https://brasilapi.com.br/api/banks/v1

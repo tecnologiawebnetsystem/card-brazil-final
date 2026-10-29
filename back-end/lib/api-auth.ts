@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
-import { AuthService } from "@/lib/auth-service"
-import { query } from "@/lib/database"
+import { AuthService } from "@/back-end/lib/auth-service"
+import { query } from "@/back-end/lib/database"
 
 export type CadastroPermission = "view" | "create" | "edit" | "toggle" | "delete"
 export type FinanceiroPermission = CadastroPermission

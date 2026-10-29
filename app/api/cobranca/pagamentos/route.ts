@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext } from "@/lib/api-auth"
-import { query, transaction } from "@/lib/database"
-import { parseMoney } from "@/lib/cobranca-state"
+import { getAuthContext } from "@/back-end/lib/api-auth"
+import { query, transaction } from "@/back-end/lib/database"
+import { parseMoney } from "@/back-end/lib/cobranca-state"
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()

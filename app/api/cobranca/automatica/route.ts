@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { getAuthContext, apiAuthError } from "@/lib/api-auth"
+import { query } from "@/back-end/lib/database"
+import { getAuthContext, apiAuthError } from "@/back-end/lib/api-auth"
 
 export async function GET(request: Request) {
   try {

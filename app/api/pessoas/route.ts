@@ -1,9 +1,9 @@
 import type { NextRequest } from "next/server"
-import { apiResponse, apiError } from "@/lib/api-response"
-import { authErrorStatus, requireCadastroAccess } from "@/lib/api-auth"
-import { pessoaSchema, zodFieldErrors } from "@/lib/validation"
-import { recordCadastroAudit } from "@/lib/cadastro-audit"
-import { createPessoa, listPessoas } from "@/lib/pessoas-repository"
+import { apiResponse, apiError } from "@/back-end/lib/api-response"
+import { authErrorStatus, requireCadastroAccess } from "@/back-end/lib/api-auth"
+import { pessoaSchema, zodFieldErrors } from "@/back-end/lib/validation"
+import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
+import { createPessoa, listPessoas } from "@/back-end/lib/pessoas-repository"
 
 function normalizePayload(body: Record<string, any>) {
   return {

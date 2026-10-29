@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { successResponse, errorResponse, handleApiError } from "@/lib/api-response"
-import { query } from "@/lib/database"
-import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
+import { successResponse, errorResponse, handleApiError } from "@/back-end/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { requireCadastroAccess, apiAuthError } from "@/back-end/lib/api-auth"
 
 function failure(error: unknown) { const auth = apiAuthError(error); return { body: auth ? { success: false, message: auth.message } : handleApiError(error), status: auth?.status || 500 } }
 

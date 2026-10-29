@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getPessoaByDocumento } from "@/lib/pessoas-repository"
-import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
+import { getPessoaByDocumento } from "@/back-end/lib/pessoas-repository"
+import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
 
 function normalizeDocumento(value: string) {
   return value.replace(/\D/g, "")

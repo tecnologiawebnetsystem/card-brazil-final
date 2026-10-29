@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { AuthService } from "@/lib/auth-service"
+import { AuthService } from "@/back-end/lib/auth-service"
 
 /**
  * @swagger

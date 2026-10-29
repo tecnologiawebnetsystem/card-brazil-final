@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { getAuthContext } from "@/lib/api-auth"
-import { query } from "@/lib/database"
+import { getAuthContext } from "@/back-end/lib/api-auth"
+import { query } from "@/back-end/lib/database"
 
 export async function POST(request: Request) {
   const auth = await getAuthContext()

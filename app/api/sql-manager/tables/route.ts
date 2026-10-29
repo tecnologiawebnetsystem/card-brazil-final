@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { accessError, requireSqlManagerAccess } from "@/lib/sql-manager-auth"
+import { query } from "@/back-end/lib/database"
+import { accessError, requireSqlManagerAccess } from "@/back-end/lib/sql-manager-auth"
 
 export async function GET() {
   try {

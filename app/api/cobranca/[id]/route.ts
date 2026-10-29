@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { requireCobrancaAccess, apiAuthError } from "@/lib/api-auth"
-import { apiError, apiResponse } from "@/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { requireCobrancaAccess, apiAuthError } from "@/back-end/lib/api-auth"
+import { apiError, apiResponse } from "@/back-end/lib/api-response"
 
 function failure(error: unknown) { const auth = apiAuthError(error); return auth ? apiError(auth.message, auth.status) : apiError("Não foi possível processar a cobrança", 500) }
 

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { CrudService } from "@/lib/crud-service"
-import { successResponse, errorResponse, handleApiError } from "@/lib/api-response"
+import { CrudService } from "@/back-end/lib/crud-service"
+import { successResponse, errorResponse, handleApiError } from "@/back-end/lib/api-response"
 
 const service = new CrudService("administradoras")
 const allowedFields = ["razao_social", "nome_fantasia", "cnpj", "inscricao_estadual", "inscricao_municipal", "email", "telefone", "site", "cor_primaria", "cor_secundaria", "logotipo_url", "status"]

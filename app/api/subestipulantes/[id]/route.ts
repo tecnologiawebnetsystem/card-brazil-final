@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { apiError, handleApiError } from "@/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
+import { apiError, handleApiError } from "@/back-end/lib/api-response"
 
 function safeApiError(error: unknown) {
   const auth = apiAuthError(error)

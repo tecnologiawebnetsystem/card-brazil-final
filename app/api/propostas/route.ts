@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
-import { propostaSchema, zodFieldErrors } from "@/lib/validation"
+import { query } from "@/back-end/lib/database"
+import { requireCadastroAccess, authErrorStatus } from "@/back-end/lib/api-auth"
+import { propostaSchema, zodFieldErrors } from "@/back-end/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {

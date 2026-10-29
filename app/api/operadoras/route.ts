@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { successResponse, apiError } from "@/lib/api-response"
-import { query } from "@/lib/database"
-import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
-import { exigirDependenciasCadastro } from "@/lib/cadastro-dependencias"
+import { successResponse, apiError } from "@/back-end/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { requireCadastroAccess, apiAuthError } from "@/back-end/lib/api-auth"
+import { exigirDependenciasCadastro } from "@/back-end/lib/cadastro-dependencias"
 
 export async function GET(request: NextRequest) {
   try {

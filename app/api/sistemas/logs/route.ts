@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { authErrorStatus, requireFinanceiroAccess } from "@/lib/api-auth"
-import { query } from "@/lib/database"
+import { authErrorStatus, requireFinanceiroAccess } from "@/back-end/lib/api-auth"
+import { query } from "@/back-end/lib/database"
 
 export async function GET() {
   try {

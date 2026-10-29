@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext, hasPermission } from "@/lib/api-auth"
-import { query } from "@/lib/database"
+import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
+import { query } from "@/back-end/lib/database"
 
 const fields = ["tipo", "categoria", "descricao", "valor", "data_movimentacao", "data_competencia", "status", "conta_origem", "conta_destino", "observacoes"]
 

@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/database"
-import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { apiError, handleApiError } from "@/lib/api-response"
+import { query } from "@/back-end/lib/database"
+import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
+import { apiError, handleApiError } from "@/back-end/lib/api-response"
 
 function apiErrorFromUnknown(error: unknown) {
   const auth = error instanceof Error && (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN") ? error.message : null

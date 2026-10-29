@@ -1,4 +1,4 @@
-import { query, transaction } from "@/lib/database"
+import { query, transaction } from "@/back-end/lib/database"
 
 export const pessoaProjection = `
   p.*,

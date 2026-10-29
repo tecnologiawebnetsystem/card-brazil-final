@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { successResponse, apiError, handleApiError } from "@/lib/api-response"
-import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { query } from "@/lib/database"
-import { produtoSchema, zodFieldErrors } from "@/lib/validation"
+import { successResponse, apiError, handleApiError } from "@/back-end/lib/api-response"
+import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
+import { query } from "@/back-end/lib/database"
+import { produtoSchema, zodFieldErrors } from "@/back-end/lib/validation"
 
 function parsePositiveId(value: string | null) {
   const id = Number(value)

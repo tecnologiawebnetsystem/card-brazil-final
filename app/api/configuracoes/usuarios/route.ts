@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
-import { query } from "@/lib/database"
-import { requireCadastroAccess, apiAuthError } from "@/lib/api-auth"
-import { recordCadastroAudit } from "@/lib/cadastro-audit"
+import { query } from "@/back-end/lib/database"
+import { requireCadastroAccess, apiAuthError } from "@/back-end/lib/api-auth"
+import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
 
 const publicFields = `id, administradora_id, nome_completo AS nome, email, cpf, telefone, foto_perfil_url AS avatar_url, tipo_usuario AS perfil, ultimo_acesso, status, created_at`
 

@@ -1,9 +1,9 @@
 import type { NextRequest } from "next/server"
-import { apiResponse, apiError } from "@/lib/api-response"
-import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { idSchema, pessoaUpdateSchema, zodFieldErrors } from "@/lib/validation"
-import { getPessoa, savePessoaDetalhe } from "@/lib/pessoas-repository"
-import { query } from "@/lib/database"
+import { apiResponse, apiError } from "@/back-end/lib/api-response"
+import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
+import { idSchema, pessoaUpdateSchema, zodFieldErrors } from "@/back-end/lib/validation"
+import { getPessoa, savePessoaDetalhe } from "@/back-end/lib/pessoas-repository"
+import { query } from "@/back-end/lib/database"
 
 function normalizePayload(body: Record<string, any>) {
   return { ...body, nome_completo: body.nome_completo ?? body.nome ?? null, telefone_principal: body.telefone_principal ?? body.telefone ?? null, telefone_secundario: body.telefone_secundario ?? body.celular ?? null, nome_fantasia: body.nome_fantasia ?? body.razao_abreviada ?? null, data_fundacao: body.data_fundacao ?? body.data_abertura ?? null }

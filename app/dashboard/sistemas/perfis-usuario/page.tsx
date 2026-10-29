@@ -205,7 +205,7 @@ export default function PerfisUsuarioPage() {
                   <Card key={profile.id} className="relative">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <div className={`p-2 rounded-lg bg-${profile.color}-100`}>{profile.icon}</div>
+                        <div className="rounded-lg bg-primary/10 p-2 text-primary">{profile.icon}</div>
                         {profile.name}
                       </CardTitle>
                       <CardDescription>{profile.description}</CardDescription>

@@ -109,7 +109,7 @@ export default function ConfiguracoesUsuariosPage() {
             <h1 className="text-2xl font-bold text-foreground">Cadastro de Usuários</h1>
             <p className="text-muted-foreground">Gerencie os usuários do sistema</p>
           </div>
-          <Button onClick={handleAddUser} className="bg-emerald-700 hover:bg-emerald-800">
+          <Button onClick={handleAddUser} className="bg-primary text-primary-foreground hover:bg-primary/90">
             <PlusIcon className="w-4 h-4 mr-2" />
             Novo Usuário
           </Button>
@@ -176,7 +176,7 @@ export default function ConfiguracoesUsuariosPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button type="submit" className="bg-emerald-700 hover:bg-emerald-800">
+                  <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
                     Criar Usuário
                   </Button>
                   <Button variant="outline" onClick={() => setShowAddUser(false)}>

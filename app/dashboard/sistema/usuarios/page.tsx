@@ -198,7 +198,7 @@ export default function UsuariosPage() {
             <h1 className="text-3xl font-bold text-foreground">Usuários</h1>
             <p className="text-muted-foreground">Gerencie os usuários do sistema</p>
           </div>
-          <Button onClick={() => setShowModal(true)} className="bg-emerald-700 hover:bg-emerald-800">
+          <Button onClick={() => setShowModal(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="h-4 w-4 mr-2" />
             Novo Usuário
           </Button>
@@ -392,7 +392,7 @@ export default function UsuariosPage() {
                 <Button variant="outline" onClick={() => setShowModal(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleSaveUsuario} className="bg-emerald-700 hover:bg-emerald-800">
+                <Button onClick={handleSaveUsuario} className="bg-primary text-primary-foreground hover:bg-primary/90">
                   {editingUsuario ? "Atualizar" : "Criar"} Usuário
                 </Button>
               </div>

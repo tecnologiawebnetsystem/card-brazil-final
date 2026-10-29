@@ -168,7 +168,7 @@ export default function PerfisPage() {
             <h1 className="text-3xl font-bold text-foreground">Perfis de Usuário</h1>
             <p className="text-muted-foreground">Gerencie os perfis e permissões do sistema</p>
           </div>
-          <Button onClick={() => setShowModal(true)} className="bg-emerald-700 hover:bg-emerald-800">
+          <Button onClick={() => setShowModal(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="h-4 w-4 mr-2" />
             Novo Perfil
           </Button>
@@ -301,7 +301,7 @@ export default function PerfisPage() {
                 <Button variant="outline" onClick={() => setShowModal(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleSavePerfil} className="bg-emerald-700 hover:bg-emerald-800">
+                <Button onClick={handleSavePerfil} className="bg-primary text-primary-foreground hover:bg-primary/90">
                   {editingPerfil ? "Atualizar" : "Criar"} Perfil
                 </Button>
               </div>

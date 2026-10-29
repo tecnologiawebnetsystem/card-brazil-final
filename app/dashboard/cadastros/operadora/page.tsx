@@ -674,7 +674,7 @@ export default function OperadoraPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-6">
+      <div className="mx-auto w-full max-w-[1600px] px-3 py-4 sm:px-6 sm:py-6">
         <div className="mb-4 border-b border-border/70 pb-4">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Operadoras</h1>
           <p className="mt-1 text-sm text-muted-foreground">Gerencie as operadoras de saúde do sistema</p>

@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  generateBuildId: async () => process.env.VERCEL_GIT_COMMIT_SHA ?? `preview-${Date.now()}`,
   turbopack: {},
   webpack: (config, { dev }) => {
     if (dev) {

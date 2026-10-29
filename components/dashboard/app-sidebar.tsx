@@ -702,9 +702,9 @@ export function AppSidebar() {
           ) : item.url ? (
             <SidebarMenuButton
               asChild
-              className={`h-9 rounded-lg transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-primary/70 ${pathname === item.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-sm" : ""}`}
+              className={`relative h-10 rounded-xl transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-accent/35 ${pathname === item.url ? "bg-sidebar-primary font-medium text-sidebar-primary-foreground shadow-md ring-1 ring-sidebar-primary/25 hover:bg-sidebar-primary" : ""}`}
             >
-              <Link href={item.url} prefetch onClick={preserveMenuScroll} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} className="flex items-center gap-2 px-2 py-1.5">
+              <Link href={item.url} prefetch onClick={preserveMenuScroll} target={item.title === "SQL Manager" ? "_blank" : undefined} rel={item.title === "SQL Manager" ? "noreferrer" : undefined} aria-current={pathname === item.url ? "page" : undefined} className="flex items-center gap-2 px-2.5 py-2">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent/20 text-sidebar-foreground/65">{item.icon}</span>
                 <span className="truncate text-xs text-sidebar-foreground/80 transition-colors">{item.title}</span>
   </Link>
@@ -751,6 +751,7 @@ export function AppSidebar() {
               <h1 className="truncate text-base font-semibold tracking-tight text-sidebar-foreground">
                 CardBrazil
               </h1>
+              <p className="truncate text-[10px] font-medium uppercase tracking-[0.16em] text-sidebar-foreground/45">Gestão em saúde</p>
             </div>
             <Button variant="ghost" size="icon" className="hidden size-8 shrink-0 text-sidebar-foreground/70 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground md:flex" onClick={toggleSidebar} aria-label="Recolher menu">
               <PanelLeft className="size-4" />
@@ -759,7 +760,7 @@ export function AppSidebar() {
           </div>
           <div className="relative mt-3">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-sidebar-foreground/45" />
-            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Buscar no menu" aria-label="Buscar no menu" className="h-9 w-full rounded-xl border border-sidebar-border/70 bg-sidebar/60 pl-9 pr-3 text-xs text-sidebar-foreground outline-none placeholder:text-sidebar-foreground/45 focus:border-sidebar-ring focus:ring-2 focus:ring-sidebar-ring/20" />
+            <input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Buscar no menu" aria-label="Buscar no menu" className="h-10 w-full rounded-xl border border-sidebar-border/70 bg-sidebar/60 pl-9 pr-3 text-xs text-sidebar-foreground outline-none placeholder:text-sidebar-foreground/45 shadow-sm transition-colors focus:border-sidebar-ring focus:bg-sidebar-accent/20 focus:ring-2 focus:ring-sidebar-ring/20" />
           </div>
         </SidebarHeader>
         <SidebarContent className="min-w-0 overflow-x-hidden px-2 py-3">

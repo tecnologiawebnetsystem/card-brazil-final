@@ -216,6 +216,16 @@ button, a, input, select, textarea {
 .module-page {
   color: var(--foreground);
   container-type: inline-size;
+  background: var(--background);
+}
+
+.module-page > :first-child {
+  animation: module-page-enter 220ms ease-out both;
+}
+
+@keyframes module-page-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .module-page > :first-child {

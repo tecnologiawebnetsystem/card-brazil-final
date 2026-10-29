@@ -136,18 +136,18 @@ export default function ConciliacaoPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "conciliado":
-        return <Badge className="bg-green-100 text-green-800">Conciliado</Badge>
+        return <Badge className="bg-success/10 text-success border-success/20">Conciliado</Badge>
       case "pendente":
-        return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>
+        return <Badge className="bg-warning/10 text-warning border-warning/20">Pendente</Badge>
       case "divergente":
-        return <Badge className="bg-red-100 text-red-800">Divergente</Badge>
+        return <Badge className="bg-destructive/10 text-destructive border-destructive/20">Divergente</Badge>
       default:
         return null
     }
   }
 
   return (
-    <div className="container mx-auto px-6 py-6">
+    <main className="module-page container mx-auto px-4 py-4 md:px-6 md:py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Conciliação Bancária</h1>
@@ -157,7 +157,7 @@ export default function ConciliacaoPage() {
 
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <Card className="bg-emerald-700 text-white border-0">
+        <Card className="border-primary/20 bg-primary text-primary-foreground shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Itens</CardTitle>
             <Calendar className="h-4 w-4 bg-emerald-600 p-1 rounded ml-6" />
@@ -339,7 +339,7 @@ export default function ConciliacaoPage() {
             )}
           </div>
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+    </main>
   )
 }

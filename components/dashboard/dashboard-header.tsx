@@ -22,8 +22,8 @@ export function DashboardHeader() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-surface/95 pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-surface/90">
-      <div className="flex min-h-16 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-6 md:px-8">
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/95 pt-[env(safe-area-inset-top)] shadow-[0_1px_12px_-10px_color-mix(in_srgb,var(--foreground)_35%,transparent)] backdrop-blur supports-[backdrop-filter]:bg-surface/90">
+      <div className="flex min-h-[4.25rem] items-center justify-between gap-2 px-3 sm:gap-4 sm:px-6 md:px-8">
         <div className="flex items-center gap-4 flex-1 max-w-md">
           <Button variant="ghost" size="sm" onClick={toggleSidebar} className="min-h-11 min-w-11 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Alternar menu lateral">
             <Menu aria-hidden="true" />

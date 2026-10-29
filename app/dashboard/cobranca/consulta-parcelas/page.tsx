@@ -297,7 +297,7 @@ export default function ConsultaParcelasPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "paga":
-        return <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">Paga</Badge>
+        return <Badge className="bg-success/10 text-primary-dark border-primary/20">Paga</Badge>
       case "vencida":
         return <Badge variant="destructive">Vencida</Badge>
       case "em_atraso":
@@ -311,7 +311,7 @@ export default function ConsultaParcelasPage() {
   const BeneficiarioModal = () => (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
+        <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -345,7 +345,7 @@ export default function ConsultaParcelasPage() {
                     <Button
                       size="sm"
                       onClick={() => handleSelectBeneficiario(beneficiario)}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-primary hover:bg-primary-dark"
                     >
                       Selecionar
                     </Button>
@@ -362,7 +362,7 @@ export default function ConsultaParcelasPage() {
   const CorretorModal = () => (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
+        <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -394,7 +394,7 @@ export default function ConsultaParcelasPage() {
                     <Button
                       size="sm"
                       onClick={() => setSelectedCorretor(corretor)}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-primary hover:bg-primary-dark"
                     >
                       Selecionar
                     </Button>
@@ -411,7 +411,7 @@ export default function ConsultaParcelasPage() {
   const EstipulanteModal = () => (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
+        <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -443,7 +443,7 @@ export default function ConsultaParcelasPage() {
                     <Button
                       size="sm"
                       onClick={() => setSelectedEstipulante(estipulante)}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-primary hover:bg-primary-dark"
                     >
                       Selecionar
                     </Button>
@@ -460,7 +460,7 @@ export default function ConsultaParcelasPage() {
   const PlanoModal = () => (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
+        <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -492,7 +492,7 @@ export default function ConsultaParcelasPage() {
                     <Button
                       size="sm"
                       onClick={() => setSelectedPlano(plano)}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-primary hover:bg-primary-dark"
                     >
                       Selecionar
                     </Button>
@@ -507,7 +507,7 @@ export default function ConsultaParcelasPage() {
   )
 
   return (
-    <div className="space-y-6 p-6">
+    <main className="module-page space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Consulta de Parcelas/Títulos</h1>
@@ -515,8 +515,8 @@ export default function ConsultaParcelasPage() {
         </div>
       </div>
 
-      <Card className="border-emerald-200">
-        <CardHeader className="border-b border-emerald-200">
+      <Card className="border-primary/20">
+        <CardHeader className="border-b border-primary/20">
           <CardTitle className="text-lg font-semibold flex items-center gap-2 text-foreground">
             <Search className="h-5 w-5" />
             Dados de Pesquisa
@@ -590,7 +590,7 @@ export default function ConsultaParcelasPage() {
           </div>
 
           <div className="flex gap-3 justify-end pt-4 border-t">
-            <Button type="button" onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            <Button type="button" onClick={handleSearch} className="bg-primary hover:bg-primary-dark text-white">
               <Search className="h-4 w-4 mr-2" />
               Consultar
             </Button>
@@ -607,26 +607,26 @@ export default function ConsultaParcelasPage() {
       </Card>
 
       {showResults && (
-        <Card className="border-emerald-200">
-          <CardHeader className="bg-emerald-50 border-b border-emerald-200">
-            <CardTitle className="text-emerald-800">Parcelas Encontradas</CardTitle>
+        <Card className="border-primary/20">
+          <CardHeader className="bg-primary/5 border-b border-primary/20">
+            <CardTitle className="text-primary-dark">Parcelas Encontradas</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="bg-emerald-50">
-                  <TableHead className="text-emerald-800 font-semibold">Beneficiário</TableHead>
-                  <TableHead className="text-emerald-800 font-semibold">Corretor</TableHead>
-                  <TableHead className="text-emerald-800 font-semibold">Plano</TableHead>
-                  <TableHead className="text-emerald-800 font-semibold">Vencimento</TableHead>
-                  <TableHead className="text-emerald-800 font-semibold">Valor Total</TableHead>
-                  <TableHead className="text-emerald-800 font-semibold">Status</TableHead>
-                  <TableHead className="text-emerald-800 font-semibold">Ações</TableHead>
+                <TableRow className="bg-primary/5">
+                  <TableHead className="text-primary-dark font-semibold">Beneficiário</TableHead>
+                  <TableHead className="text-primary-dark font-semibold">Corretor</TableHead>
+                  <TableHead className="text-primary-dark font-semibold">Plano</TableHead>
+                  <TableHead className="text-primary-dark font-semibold">Vencimento</TableHead>
+                  <TableHead className="text-primary-dark font-semibold">Valor Total</TableHead>
+                  <TableHead className="text-primary-dark font-semibold">Status</TableHead>
+                  <TableHead className="text-primary-dark font-semibold">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {parcelas.map((parcela) => (
-                  <TableRow key={parcela.id} className="hover:bg-emerald-50/50">
+                  <TableRow key={parcela.id} className="hover:bg-primary/5/50">
                     <TableCell className="font-medium">{parcela.beneficiario}</TableCell>
                     <TableCell>{parcela.corretor}</TableCell>
                     <TableCell>{parcela.plano}</TableCell>
@@ -640,8 +640,8 @@ export default function ConsultaParcelasPage() {
                         disabled={selectedParcela?.id === parcela.id}
                         className={
                           selectedParcela?.id === parcela.id
-                            ? "bg-emerald-100 text-emerald-800 cursor-not-allowed"
-                            : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                            ? "bg-success/10 text-primary-dark cursor-not-allowed"
+                            : "bg-primary hover:bg-primary-dark text-white"
                         }
                       >
                         {selectedParcela?.id === parcela.id ? "Selecionada" : "Selecionar"}
@@ -656,9 +656,9 @@ export default function ConsultaParcelasPage() {
       )}
 
       {selectedParcela && (
-        <Card className="border-emerald-200">
-          <CardHeader className="bg-emerald-100 border-b border-emerald-200">
-            <CardTitle className="text-emerald-800 flex items-center gap-2">
+        <Card className="border-primary/20">
+          <CardHeader className="bg-success/10 border-b border-primary/20">
+            <CardTitle className="text-primary-dark flex items-center gap-2">
               <FileText className="h-5 w-5" />
               Dados da Parcela
             </CardTitle>
@@ -670,7 +670,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={new Date(selectedParcela.vencimento).toLocaleDateString("pt-BR")}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -679,7 +679,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.premioLiquido.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -688,7 +688,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.adicFrac.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -697,7 +697,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.custo.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -706,7 +706,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.iof.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -715,7 +715,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.premioTotal.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -735,7 +735,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.multa.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -744,7 +744,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.juros.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -753,7 +753,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.desconto.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -762,7 +762,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.cobrancaVist.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -782,7 +782,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.valorPago.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -791,7 +791,7 @@ export default function ConsultaParcelasPage() {
                 <Input
                   value={`R$ ${selectedParcela.valorDevido.toFixed(2)}`}
                   readOnly
-                  className="bg-emerald-50 border-emerald-200"
+                  className="bg-primary/5 border-primary/20"
                 />
               </div>
 
@@ -822,7 +822,7 @@ export default function ConsultaParcelasPage() {
               {selectedParcela.loteBaixa && (
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-foreground">Lote de Baixa:</Label>
-                  <Input value={selectedParcela.loteBaixa} readOnly className="bg-emerald-50 border-emerald-200" />
+                  <Input value={selectedParcela.loteBaixa} readOnly className="bg-primary/5 border-primary/20" />
                 </div>
               )}
 
@@ -841,7 +841,7 @@ export default function ConsultaParcelasPage() {
             <div className="flex gap-3 justify-center pt-4 border-t">
               <Button
                 onClick={handleListarOcorrencias}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6"
+                className="bg-primary hover:bg-primary-dark text-white px-6"
                 disabled={!selectedParcela.ocorrencias.length}
               >
                 <AlertCircle className="h-4 w-4 mr-2" />
@@ -865,6 +865,6 @@ export default function ConsultaParcelasPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </main>
   )
 }

@@ -171,7 +171,7 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
 
   return (
     <div className="module-page flex-1 space-y-6 p-4 md:p-6">
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-medium text-primary">Beneficiários</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">Consulta de beneficiários</h1>
@@ -185,7 +185,7 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
         </div>
       </div>
 
-      <Card>
+      <Card className="border-border/70 shadow-sm">
         <CardHeader>
           <div>
             <CardTitle>Beneficiários cadastrados</CardTitle>
@@ -235,7 +235,7 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
               </Button>
             </div>
 
-            <div className="rounded-md border">
+            <div className="overflow-x-auto rounded-xl border border-border/70">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -307,15 +307,15 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
             </div>
 
             {filteredBeneficiarios.length === 0 && !isLoading && (
-              <div className="text-center py-8 text-gray-500">
-                <SearchIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <div className="py-10 text-center text-muted-foreground">
+                <SearchIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground/60" />
                 <p>Nenhum beneficiário encontrado</p>
                 <p className="text-sm">Tente ajustar os filtros ou termo de busca</p>
               </div>
             )}
 
             {isLoading && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="py-10 text-center text-muted-foreground">
                 <p>Carregando beneficiários...</p>
               </div>
             )}
@@ -344,45 +344,45 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
               <TabsContent value="dados-pessoais" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-500">ID</Label>
+                    <Label className="text-muted-foreground">ID</Label>
                     <p className="font-medium">{selectedBeneficiario.id}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Tipo</Label>
+                    <Label className="text-muted-foreground">Tipo</Label>
                     <Badge variant={selectedBeneficiario.tipo_beneficiario === "titular" ? "default" : "secondary"}>
                       {selectedBeneficiario.tipo_beneficiario}
                     </Badge>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Nome Completo</Label>
+                    <Label className="text-muted-foreground">Nome Completo</Label>
                     <p className="font-medium">{selectedBeneficiario.nome || "-"}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">CPF</Label>
+                    <Label className="text-muted-foreground">CPF</Label>
                     <p className="font-medium">{selectedBeneficiario.cpf || "-"}</p>
                   </div>
                   {selectedBeneficiario.tipo_beneficiario === "dependente" && (
                     <>
                       <div className="space-y-2">
-                        <Label className="text-gray-500">Titular</Label>
+                        <Label className="text-muted-foreground">Titular</Label>
                         <p className="font-medium">{selectedBeneficiario.titular_nome || "-"}</p>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-gray-500">Parentesco</Label>
+                        <Label className="text-muted-foreground">Parentesco</Label>
                         <p className="font-medium">{selectedBeneficiario.parentesco || "-"}</p>
                       </div>
                     </>
                   )}
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Telefone</Label>
+                    <Label className="text-muted-foreground">Telefone</Label>
                     <p className="font-medium">{selectedBeneficiario.telefone || "-"}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">E-mail</Label>
+                    <Label className="text-muted-foreground">E-mail</Label>
                     <p className="font-medium">{selectedBeneficiario.email || "-"}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Data de Adesão</Label>
+                    <Label className="text-muted-foreground">Data de Adesão</Label>
                     <p className="font-medium">
                       {selectedBeneficiario.data_adesao
                         ? new Date(selectedBeneficiario.data_adesao).toLocaleDateString("pt-BR")
@@ -390,7 +390,7 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Status</Label>
+                    <Label className="text-muted-foreground">Status</Label>
                     <Badge variant={selectedBeneficiario.ativo ? "default" : "secondary"}>
                       {selectedBeneficiario.ativo ? "Ativo" : "Inativo"}
                     </Badge>
@@ -399,67 +399,67 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
               </TabsContent>
 
               <TabsContent value="endereco" className="space-y-4">
-                <p className="text-sm text-gray-500">Informações de endereço do beneficiário</p>
+                <p className="text-sm text-muted-foreground">Informações de endereço do beneficiário</p>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-500">CEP</Label>
+                    <Label className="text-muted-foreground">CEP</Label>
                     <p className="font-medium">-</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Logradouro</Label>
+                    <Label className="text-muted-foreground">Logradouro</Label>
                     <p className="font-medium">-</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Número</Label>
+                    <Label className="text-muted-foreground">Número</Label>
                     <p className="font-medium">-</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Complemento</Label>
+                    <Label className="text-muted-foreground">Complemento</Label>
                     <p className="font-medium">-</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Bairro</Label>
+                    <Label className="text-muted-foreground">Bairro</Label>
                     <p className="font-medium">-</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Cidade/UF</Label>
+                    <Label className="text-muted-foreground">Cidade/UF</Label>
                     <p className="font-medium">-</p>
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="plano" className="space-y-4">
-                <p className="text-sm text-gray-500">Informações do plano contratado</p>
+                <p className="text-sm text-muted-foreground">Informações do plano contratado</p>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Proposta</Label>
+                    <Label className="text-muted-foreground">Proposta</Label>
                     <p className="font-medium">{selectedBeneficiario.proposta_id || "-"}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Plano</Label>
+                    <Label className="text-muted-foreground">Plano</Label>
                     <p className="font-medium">
                       {selectedBeneficiario.plano_nome || selectedBeneficiario.plano_id || "-"}
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Operadora</Label>
+                    <Label className="text-muted-foreground">Operadora</Label>
                     <p className="font-medium">
                       {selectedBeneficiario.operadora_nome || selectedBeneficiario.operadora_id || "-"}
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-500">Valor Mensalidade</Label>
+                    <Label className="text-muted-foreground">Valor Mensalidade</Label>
                     <p className="font-medium">-</p>
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="pagamentos" className="space-y-4">
-                <p className="text-sm text-gray-500">Histórico de pagamentos do beneficiário</p>
+                <p className="text-sm text-muted-foreground">Histórico de pagamentos do beneficiário</p>
               </TabsContent>
 
               <TabsContent value="documentos" className="space-y-4">
-                <p className="text-sm text-gray-500">Documentos anexados do beneficiário</p>
+                <p className="text-sm text-muted-foreground">Documentos anexados do beneficiário</p>
               </TabsContent>
 
               <TabsContent value="historico" className="space-y-4">

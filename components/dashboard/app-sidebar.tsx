@@ -733,7 +733,7 @@ export function AppSidebar() {
         </Button>
       )}
 
-<Sidebar variant="inset" className="border-r border-sidebar-border/80 bg-sidebar">
+<Sidebar variant="inset" className="border-r border-sidebar-border/80 bg-sidebar shadow-[8px_0_24px_-24px_rgba(0,0,0,0.45)]">
       <SidebarHeader className="border-b border-sidebar-border/70 bg-sidebar p-3">
           <div className="flex items-center justify-between gap-3 rounded-xl bg-sidebar-accent/15 p-2">
             <div className="flex min-w-0 items-center gap-3">

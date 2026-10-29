@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
     )
     return NextResponse.json(successResponse(operadoras))
   } catch (error) {
+    const auth = apiAuthError(error)
+    if (auth) return apiError(auth.message, auth.status)
     console.error("[v0] Erro ao consultar operadoras:", error)
     return NextResponse.json({ success: false, message: "Erro ao consultar operadoras" }, { status: 500 })
   }

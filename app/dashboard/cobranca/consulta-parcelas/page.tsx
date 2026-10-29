@@ -507,7 +507,7 @@ export default function ConsultaParcelasPage() {
   )
 
   return (
-    <div className="space-y-6 p-6">
+    <main className="module-page space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Consulta de Parcelas/Títulos</h1>
@@ -865,6 +865,6 @@ export default function ConsultaParcelasPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </main>
   )
 }

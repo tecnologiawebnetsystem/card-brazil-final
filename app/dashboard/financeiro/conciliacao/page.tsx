@@ -147,7 +147,7 @@ export default function ConciliacaoPage() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-6">
+    <main className="module-page container mx-auto px-4 py-4 md:px-6 md:py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Conciliação Bancária</h1>
@@ -339,7 +339,7 @@ export default function ConciliacaoPage() {
             )}
           </div>
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+    </main>
   )
 }

@@ -244,7 +244,7 @@ export default function ContasPagarPage() {
   const totalPago = contas.filter((c) => c.status === "pago").reduce((sum, c) => sum + c.valor_pago, 0)
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <main className="module-page flex-1 space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Contas a Pagar</h1>
@@ -749,6 +749,6 @@ export default function ContasPagarPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   )
 }

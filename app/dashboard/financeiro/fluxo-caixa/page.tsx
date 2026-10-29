@@ -256,7 +256,7 @@ export default function FluxoCaixaPage() {
     .reduce((acc, f) => acc + f.valor, 0)
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <main className="module-page flex-1 space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Fluxo de Caixa</h1>
@@ -744,6 +744,6 @@ export default function FluxoCaixaPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   )
 }

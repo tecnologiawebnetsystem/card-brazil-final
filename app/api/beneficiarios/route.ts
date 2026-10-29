@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
-import { requireCadastroAccess, authErrorStatus } from "@/lib/api-auth"
+import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
 import { recordCadastroAudit } from "@/lib/cadastro-audit"
 import { beneficiarioSchema, zodFieldErrors } from "@/lib/validation"
 
@@ -21,18 +21,13 @@ export async function GET(request: NextRequest) {
     if (titular_id) { params.push(Number.parseInt(titular_id, 10)); conditions.push(`titular_id = $${params.length}`) }
     const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
     params.push(limit, offset)
-    const result = await query(`SELECT b.*, p.nome_completo AS nome, p.cpf, p.email, p.telefone_principal AS telefone, tp.nome_completo AS titular_nome, pl.nome AS plano_nome, o.nome_fantasia AS operadora_nome, COUNT(*) OVER() AS total_registros FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id LEFT JOIN beneficiarios tb ON tb.id = b.titular_id LEFT JOIN pessoas tp ON tp.id = tb.pessoa_id LEFT JOIN planos pl ON pl.id = b.plano_id LEFT JOIN operadoras op ON op.id = pl.operadora_id LEFT JOIN pessoas o ON o.id = op.pessoa_id${where.replaceAll("status", "b.status").replaceAll("tipo_beneficiario", "b.tipo_beneficiario").replaceAll("titular_id", "b.titular_id")} ORDER BY b.created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
+    const result = await query(`SELECT b.*, p.nome_completo AS nome, pf.cpf, p.email, p.telefone_principal AS telefone, tp.nome_completo AS titular_nome, pl.nome AS plano_nome, COALESCE(opj.nome_fantasia, opj.razao_social, opp.nome_completo) AS operadora_nome, COUNT(*) OVER() AS total_registros FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id AND p.administradora_id = b.administradora_id LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id LEFT JOIN beneficiarios tb ON tb.id = b.titular_id AND tb.administradora_id = b.administradora_id LEFT JOIN pessoas tp ON tp.id = tb.pessoa_id LEFT JOIN planos pl ON pl.id = b.plano_id AND pl.administradora_id = b.administradora_id LEFT JOIN operadoras op ON op.id = pl.operadora_id AND op.administradora_id = b.administradora_id LEFT JOIN pessoas opp ON opp.id = op.pessoa_id LEFT JOIN pessoas_juridicas opj ON opj.pessoa_id = op.pessoa_id${where.replaceAll("status", "b.status").replaceAll("tipo_beneficiario", "b.tipo_beneficiario").replaceAll("titular_id", "b.titular_id")} ORDER BY b.created_at DESC NULLS LAST LIMIT $${params.length - 1} OFFSET $${params.length}`, params)
     return NextResponse.json({ success: true, data: result, count: result.length, pagination: { limit, offset } })
   } catch (error) {
+    const auth = apiAuthError(error)
+    if (auth) return NextResponse.json({ success: false, message: auth.message }, { status: auth.status })
     console.error("[v0] Erro ao buscar beneficiários:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Erro ao buscar beneficiários",
-        error: "Falha ao consultar beneficiários",
-      },
-      { status: authErrorStatus(error) },
-    )
+    return NextResponse.json({ success: false, message: "Erro ao buscar beneficiários" }, { status: 500 })
   }
 }
 
@@ -54,10 +49,9 @@ export async function POST(request: NextRequest) {
     await recordCadastroAudit({ administradoraId, userId, action: "create", tableName: "beneficiarios", recordId: rows[0].id, after: rows[0] })
     return NextResponse.json({ success: true, data: rows[0], message: "Beneficiário criado com sucesso" }, { status: 201 })
   } catch (error) {
+    const auth = apiAuthError(error)
+    if (auth) return NextResponse.json({ success: false, message: auth.message }, { status: auth.status })
     console.error("[v0] Erro ao criar beneficiário:", error)
-    return NextResponse.json(
-      { success: false, message: "Erro ao criar beneficiário", error: error instanceof Error ? error.message : "Erro desconhecido" },
-      { status: authErrorStatus(error) },
-    )
+    return NextResponse.json({ success: false, message: "Erro ao criar beneficiário" }, { status: 500 })
   }
 }

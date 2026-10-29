@@ -13,8 +13,10 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     const { administradoraId } = await requireCadastroAccess("view")
     const { id } = await params
     const rows = await query(
-      `SELECT b.*, p.nome_completo AS nome, p.cpf, p.cnpj, p.email, p.telefone_principal AS telefone
-       FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id
+      `SELECT b.*, p.nome_completo AS nome, pf.cpf, pj.cnpj, p.email, p.telefone_principal AS telefone
+       FROM beneficiarios b LEFT JOIN pessoas p ON p.id = b.pessoa_id AND p.administradora_id = b.administradora_id
+       LEFT JOIN pessoas_fisicas pf ON pf.pessoa_id = p.id
+       LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id
        WHERE b.id = $1 AND b.administradora_id = $2 AND b.deleted_at IS NULL`,
       [Number.parseInt(id, 10), administradoraId],
     )
@@ -40,7 +42,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { administradoraId, userId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
-    const allowed = ["plano_id", "contrato_id", "numero_carteirinha", "parentesco", "data_inclusao", "data_exclusao", "valor_mensalidade", "status"]
+    const allowed = ["plano_id", "contrato_id", "numero_carteirinha", "data_inclusao", "valor_mensalidade", "status"]
     const motivo = typeof body.motivo === "string" ? body.motivo.trim() : ""
     const requiresReason = ["plano_id", "contrato_id", "data_exclusao", "status"].some((field) => Object.prototype.hasOwnProperty.call(body, field))
     if (requiresReason && motivo.length < 5) return NextResponse.json({ success: false, message: "Informe um motivo com pelo menos 5 caracteres para esta movimentação" }, { status: 400 })

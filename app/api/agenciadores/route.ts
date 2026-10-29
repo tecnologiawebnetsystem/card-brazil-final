@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { successResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
-import { requireCadastroAccess } from "@/lib/api-auth"
+import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
 import { exigirDependenciasCadastro } from "@/lib/cadastro-dependencias"
 export async function GET() {
   try {
@@ -18,6 +18,8 @@ export async function GET() {
       ORDER BY a.created_at DESC NULLS LAST`, [administradoraId])
     return NextResponse.json(successResponse(agenciadores))
   } catch (error) {
+    const auth = apiAuthError(error)
+    if (auth) return NextResponse.json({ success: false, message: auth.message }, { status: auth.status })
     return NextResponse.json({ success: false, message: "Não foi possível consultar os agenciadores no Neon" }, { status: 500 })
   }
 }

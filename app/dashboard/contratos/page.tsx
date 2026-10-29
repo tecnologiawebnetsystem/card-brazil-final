@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 
 const SearchIcon = () => (
@@ -68,17 +67,12 @@ const HistoryIcon = () => (
 interface Contrato {
   id: number
   numero: string
-  estipulante_id?: number
-  operadora_id?: number
-  plano_id?: number
+  estipulante_id?: number | null
+  operadora_id: number
   data_inicio?: string
-  data_fim?: string
-  data_vencimento?: number
-  valor_total?: number
-  forma_pagamento?: string
+  data_fim?: string | null
+  quantidade_vidas?: number
   status: string
-  observacoes?: string
-  versao?: string
   created_at?: string
   updated_at?: string
   deleted_at?: string | null
@@ -100,14 +94,10 @@ export default function ContratosPage() {
     numero: "",
     estipulante_id: "",
     operadora_id: "",
-    plano_id: "",
     data_inicio: "",
     data_fim: "",
-    data_vencimento: "",
-    valor_total: "",
-    forma_pagamento: "boleto",
-    status: "Ativo",
-    observacoes: "",
+    quantidade_vidas: "0",
+    status: "ativo",
   })
 
   useEffect(() => {
@@ -155,14 +145,10 @@ export default function ContratosPage() {
         numero: contract.numero,
         estipulante_id: contract.estipulante_id?.toString() || "",
         operadora_id: contract.operadora_id?.toString() || "",
-        plano_id: contract.plano_id?.toString() || "",
         data_inicio: contract.data_inicio || "",
         data_fim: contract.data_fim || "",
-        data_vencimento: contract.data_vencimento?.toString() || "",
-        valor_total: contract.valor_total?.toString() || "",
-        forma_pagamento: contract.forma_pagamento || "boleto",
+        quantidade_vidas: contract.quantidade_vidas?.toString() || "0",
         status: contract.status,
-        observacoes: contract.observacoes || "",
       })
     } else {
       setIsEditMode(false)
@@ -171,14 +157,10 @@ export default function ContratosPage() {
         numero: "",
         estipulante_id: "",
         operadora_id: "",
-        plano_id: "",
         data_inicio: "",
         data_fim: "",
-        data_vencimento: "",
-        valor_total: "",
-        forma_pagamento: "boleto",
-        status: "Ativo",
-        observacoes: "",
+        quantidade_vidas: "0",
+        status: "ativo",
       })
     }
     setIsNewContractOpen(true)
@@ -200,14 +182,10 @@ export default function ContratosPage() {
         numero: newContract.numero,
         estipulante_id: newContract.estipulante_id ? Number.parseInt(newContract.estipulante_id) : null,
         operadora_id: newContract.operadora_id ? Number.parseInt(newContract.operadora_id) : null,
-        plano_id: newContract.plano_id ? Number.parseInt(newContract.plano_id) : null,
         data_inicio: newContract.data_inicio || null,
         data_fim: newContract.data_fim || null,
-        data_vencimento: newContract.data_vencimento ? Number.parseInt(newContract.data_vencimento) : null,
-        valor_total: newContract.valor_total ? Number.parseFloat(newContract.valor_total.replace(",", ".").replace(/[^\d.]/g, "")) : null,
-        forma_pagamento: newContract.forma_pagamento,
+        quantidade_vidas: Number.parseInt(newContract.quantidade_vidas, 10) || 0,
         status: newContract.status,
-        observacoes: newContract.observacoes || null,
       }
 
       let response
@@ -284,12 +262,13 @@ export default function ContratosPage() {
   }
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Ativo":
+    switch (status.toLowerCase()) {
+      case "ativo":
         return "bg-green-100 text-green-800"
-      case "Renovação Pendente":
+      case "suspenso":
         return "bg-yellow-100 text-yellow-800"
-      case "Vencido":
+      case "vencido":
+      case "cancelado":
         return "bg-red-100 text-red-800"
       default:
         return "border-border bg-muted text-muted-foreground"
@@ -323,7 +302,7 @@ export default function ContratosPage() {
             </DialogHeader>
 
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="numero">Número do Contrato</Label>
                   <Input
@@ -334,22 +313,21 @@ export default function ContratosPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="valor">Valor Total</Label>
+                  <Label htmlFor="quantidadeVidas">Quantidade de vidas</Label>
                   <Input
-                    id="valor"
-                    value={newContract.valor_total}
-                    onChange={(e) => setNewContract({ ...newContract, valor_total: e.target.value })}
-                    placeholder="R$ 150.000,00"
+                    id="quantidadeVidas"
+                    type="number"
+                    min="0"
+                    value={newContract.quantidade_vidas}
+                    onChange={(e) => setNewContract({ ...newContract, quantidade_vidas: e.target.value })}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="estipulante">Estipulante</Label>
+                <Label htmlFor="estipulante">Estipulante (opcional)</Label>
                 <Select value={newContract.estipulante_id} onValueChange={(value) => setNewContract({ ...newContract, estipulante_id: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o estipulante" />
-                  </SelectTrigger>
+                  <SelectTrigger id="estipulante"><SelectValue placeholder="Selecione o estipulante" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">Empresa ABC Ltda</SelectItem>
                     <SelectItem value="2">Corporação XYZ S.A.</SelectItem>
@@ -369,66 +347,29 @@ export default function ContratosPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="plano">Plano de Saúde</Label>
-                <Select value={newContract.plano_id} onValueChange={(value) => setNewContract({ ...newContract, plano_id: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o plano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Executivo Plus</SelectItem>
-                    <SelectItem value="2">Empresarial Standard</SelectItem>
-                    <SelectItem value="3">Básico Familiar</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label htmlFor="dataVencimento">Dia de vencimento</Label>
-                  <Input id="dataVencimento" type="number" min="1" max="31" value={newContract.data_vencimento} onChange={(e) => setNewContract({ ...newContract, data_vencimento: e.target.value })} placeholder="10" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="formaPagamento">Forma de pagamento</Label>
-                  <Select value={newContract.forma_pagamento} onValueChange={(value) => setNewContract({ ...newContract, forma_pagamento: value })}>
-                    <SelectTrigger id="formaPagamento"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="boleto">Boleto</SelectItem>
-                      <SelectItem value="debito_automatico">Débito automático</SelectItem>
-                      <SelectItem value="cartao_credito">Cartão de crédito</SelectItem>
-                      <SelectItem value="pix">Pix</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="vigenciaInicio">Vigência início</Label>
-                  <Input
-                    id="vigenciaInicio"
-                    type="date"
-                    value={newContract.data_inicio}
-                    onChange={(e) => setNewContract({ ...newContract, data_inicio: e.target.value })}
-                  />
+                  <Input id="vigenciaInicio" type="date" value={newContract.data_inicio} onChange={(e) => setNewContract({ ...newContract, data_inicio: e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="vigenciaFim">Vigência Fim</Label>
-                  <Input
-                    id="vigenciaFim"
-                    type="date"
-                    value={newContract.data_fim}
-                    onChange={(e) => setNewContract({ ...newContract, data_fim: e.target.value })}
-                  />
+                  <Label htmlFor="vigenciaFim">Vigência fim (opcional)</Label>
+                  <Input id="vigenciaFim" type="date" value={newContract.data_fim} onChange={(e) => setNewContract({ ...newContract, data_fim: e.target.value })} />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="observacoes">Observações</Label>
-                <Textarea
-                  id="observacoes"
-                  value={newContract.observacoes}
-                  onChange={(e) => setNewContract({ ...newContract, observacoes: e.target.value })}
-                  placeholder="Observações adicionais sobre o contrato..."
-                  rows={3}
-                />
+                <Label htmlFor="status">Status</Label>
+                <Select value={newContract.status} onValueChange={(value) => setNewContract({ ...newContract, status: value })}>
+                  <SelectTrigger id="status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="suspenso">Suspenso</SelectItem>
+                    <SelectItem value="cancelado">Cancelado</SelectItem>
+                    <SelectItem value="vencido">Vencido</SelectItem>
+                    <SelectItem value="encerrado">Encerrado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -447,14 +388,14 @@ export default function ContratosPage() {
       <Card className="border-border/70 shadow-sm">
         <CardHeader>
           <CardTitle>Contratos ativos</CardTitle>
-          <CardDescription>Gerencie todos os contratos com sistema de versionamento automático</CardDescription>
+          <CardDescription>Gerencie contratos com os campos persistidos no cadastro vigente.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2 mb-4">
             <div className="relative flex-1">
               <SearchIcon />
               <Input
-                placeholder="Buscar por número, estipulante ou plano..."
+                placeholder="Buscar por número ou estipulante..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -468,12 +409,10 @@ export default function ContratosPage() {
                 <tr className="border-b">
                   <th className="text-left p-2">Número</th>
                   <th className="text-left p-2">Estipulante</th>
-                  <th className="text-left p-2">Plano</th>
+                  <th className="text-left p-2">Operadora</th>
                   <th className="text-left p-2">Vigência</th>
                   <th className="text-left p-2">Status</th>
-                  <th className="text-left p-2">Versão</th>
-                  <th className="text-left p-2">Valor</th>
-                  <th className="text-left p-2">Segurados</th>
+                  <th className="text-left p-2">Vidas</th>
                   <th className="text-left p-2">Ações</th>
                 </tr>
               </thead>
@@ -482,20 +421,16 @@ export default function ContratosPage() {
                   <tr key={contract.id} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">{contract.numero}</td>
                     <td className="p-2">{contract.estipulante_id || "-"}</td>
-                    <td className="p-2">{contract.plano_id || "-"}</td>
+                    <td className="p-2">{contract.operadora_id}</td>
                     <td className="p-2 text-sm">
-                      {contract.data_inicio && contract.data_fim
-                        ? `${new Date(contract.data_inicio).toLocaleDateString("pt-BR")} - ${new Date(contract.data_fim).toLocaleDateString("pt-BR")}`
+                      {contract.data_inicio
+                        ? `${new Date(contract.data_inicio).toLocaleDateString("pt-BR")} - ${contract.data_fim ? new Date(contract.data_fim).toLocaleDateString("pt-BR") : "em aberto"}`
                         : "-"}
                     </td>
                     <td className="p-2">
                       <Badge className={getStatusColor(contract.status)}>{contract.status}</Badge>
                     </td>
-                    <td className="p-2 font-mono text-sm">{contract.versao || "1.0"}</td>
-                    <td className="p-2 font-medium">
-                      {contract.valor_total ? `R$ ${contract.valor_total.toFixed(2)}` : "-"}
-                    </td>
-                    <td className="p-2 text-center">-</td>
+                    <td className="p-2 text-center">{contract.quantidade_vidas ?? 0}</td>
                     <td className="p-2">
                       <div className="flex space-x-1">
                         <Button variant="ghost" size="sm" onClick={() => handleOpenModal(contract)} aria-label={`Visualizar contrato ${contract.numero}`}>

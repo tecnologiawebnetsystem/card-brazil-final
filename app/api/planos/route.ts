@@ -1,8 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { successResponse } from "@/lib/api-response"
+import { apiError, successResponse } from "@/lib/api-response"
 import { query } from "@/lib/database"
 import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { apiError } from "@/lib/api-response"
 import { planoSchema, zodFieldErrors } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
@@ -21,6 +20,8 @@ export async function GET(request: NextRequest) {
     const planos = await query(`SELECT p.*, p.codigo_ans AS codigo, p.tipo_plano AS tipo, p.valor_base AS valor, p.tipo_plano AS cobertura, (p.status = 'ativo') AS ativo, pr.nome AS produto_nome FROM planos p LEFT JOIN produtos pr ON pr.id = p.produto_id AND pr.deleted_at IS NULL${where} ORDER BY p.created_at DESC NULLS LAST`, params)
     return NextResponse.json(successResponse(planos))
   } catch (error) {
+    const auth = apiAuthError(error)
+    if (auth) return apiError(auth.message, auth.status)
     return NextResponse.json({ success: false, message: "Erro interno" }, { status: 500 })
   }
 }

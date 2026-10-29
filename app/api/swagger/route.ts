@@ -1937,7 +1937,7 @@ const additionalApiRoutes: Record<string, string[]> = {
   "/api/financeiro/multas-juros/configuracoes": ["get", "post"], "/api/financeiro/multas-juros/configuracoes/{id}": ["get", "put", "delete"],
   "/api/planos-faixas": ["get", "post"], "/api/planos-faixas/{id}": ["put", "delete"],
   "/api/propostas/analise": ["get", "post"], "/api/propostas/aprovar": ["post"], "/api/propostas/pendentes": ["get"], "/api/propostas/rejeitar": ["post"], "/api/propostas/relatorio": ["get"],
-  "/api/sistemas/logs": ["get"], "/api/sistemas/perfis": ["get"], "/api/sistemas/permissoes": ["get", "post"],
+  "/api/sistemas/logs": ["get"], "/api/sistemas/perfis": ["get"],
   "/api/sql-manager/query": ["get", "post"], "/api/sql-manager/tables": ["get"],
   "/api/administradoras": ["get", "post"], "/api/administradoras/{id}": ["get", "put", "delete"],
   "/api/agenciadores": ["get", "post"], "/api/agenciadores/{id}": ["get", "put", "delete"],

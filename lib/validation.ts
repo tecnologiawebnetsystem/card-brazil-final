@@ -1,12 +1,12 @@
 import { z } from "zod"
 
 function somenteDigitos(value: string) {
-  return value.replace(/\\D/g, "")
+  return value.replace(/\D/g, "")
 }
 
 function validarCpf(value: string) {
   const cpf = somenteDigitos(value)
-  if (cpf.length !== 11 || /^([0-9])\\1+$/.test(cpf)) return false
+  if (cpf.length !== 11 || /^([0-9])\1+$/.test(cpf)) return false
   let total = 0
   for (let i = 0; i < 9; i++) total += Number(cpf[i]) * (10 - i)
   let resto = (total * 10) % 11
@@ -21,7 +21,7 @@ function validarCpf(value: string) {
 
 function validarCnpj(value: string) {
   const cnpj = somenteDigitos(value)
-  if (cnpj.length !== 14 || /^([0-9])\\1+$/.test(cnpj)) return false
+  if (cnpj.length !== 14 || /^([0-9])\1+$/.test(cnpj)) return false
   const calcular = (length: number) => {
     let total = 0
     let peso = length - 7
@@ -61,8 +61,14 @@ const pessoaFields = {
 }
 
 export const pessoaSchema = z.object(pessoaFields).superRefine((value, ctx) => {
-  if (value.tipo_pessoa === "fisica" && !value.nome_completo) ctx.addIssue({ code: "custom", path: ["nome_completo"], message: "Nome completo é obrigatório" })
-  if (value.tipo_pessoa === "juridica" && !value.razao_social) ctx.addIssue({ code: "custom", path: ["razao_social"], message: "Razão social é obrigatória" })
+  if (value.tipo_pessoa === "fisica") {
+    if (!value.nome_completo) ctx.addIssue({ code: "custom", path: ["nome_completo"], message: "Nome completo é obrigatório" })
+    if (!value.cpf) ctx.addIssue({ code: "custom", path: ["cpf"], message: "CPF é obrigatório" })
+  }
+  if (value.tipo_pessoa === "juridica") {
+    if (!value.razao_social) ctx.addIssue({ code: "custom", path: ["razao_social"], message: "Razão social é obrigatória" })
+    if (!value.cnpj) ctx.addIssue({ code: "custom", path: ["cnpj"], message: "CNPJ é obrigatório" })
+  }
 })
 
 export const pessoaUpdateSchema = z.object(pessoaFields).partial()
@@ -127,6 +133,8 @@ export const propostaSchema = z.object({
 
 export const produtoSchema = papelCadastroSchema.extend({
   plano_id: idSchema.optional().nullable(),
+  codigo: optionalText(80),
+  valor: z.coerce.number().nonnegative().optional().nullable(),
   nome: z.string().trim().min(2).max(180),
 })
 

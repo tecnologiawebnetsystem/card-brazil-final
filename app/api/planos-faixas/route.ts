@@ -1,32 +1,60 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/database"
 import { apiAuthError, requireCadastroAccess } from "@/lib/api-auth"
-import { apiError } from "@/lib/api-response"
+import { apiError, successResponse } from "@/lib/api-response"
+
+function validId(value: unknown): value is number {
+  return Number.isInteger(value) && Number(value) > 0
+}
+
+function parsePayload(body: Record<string, unknown>) {
+  const planoId = Number(body.plano_id)
+  const idadeMinima = Number(body.idade_minima)
+  const idadeMaxima = Number(body.idade_maxima)
+  const valor = Number(body.valor)
+  const inicio = typeof body.vigencia_inicio === "string" ? body.vigencia_inicio : ""
+  const fim = typeof body.vigencia_fim === "string" ? body.vigencia_fim : ""
+  if (!validId(planoId) || !Number.isInteger(idadeMinima) || idadeMinima < 0 || idadeMinima > 150 || !Number.isInteger(idadeMaxima) || idadeMaxima < idadeMinima || idadeMaxima > 150 || !Number.isFinite(valor) || valor < 0 || !/^\d{4}-\d{2}-\d{2}$/.test(inicio) || !/^\d{4}-\d{2}-\d{2}$/.test(fim) || fim < inicio) return null
+  return { planoId, idadeMinima, idadeMaxima, valor, inicio, fim }
+}
 
 export async function GET(request: NextRequest) {
   try {
     const { administradoraId } = await requireCadastroAccess("view")
-    const planoId = request.nextUrl.searchParams.get("plano_id")
-    const params = planoId ? [administradoraId, Number(planoId)] : [administradoraId]
-    const where = planoId ? " WHERE p.administradora_id = $1 AND p.deleted_at IS NULL AND f.plano_id = $2" : " WHERE p.administradora_id = $1 AND p.deleted_at IS NULL"
-    const rows = await query(`SELECT f.*, p.nome AS plano_nome FROM planos_faixas_etarias f JOIN planos p ON p.id = f.plano_id${where} ORDER BY f.plano_id, f.id`, params)
-    return NextResponse.json({ success: true, data: rows })
+    const planoParam = request.nextUrl.searchParams.get("plano_id")
+    const params: unknown[] = [administradoraId]
+    let filter = ""
+    if (planoParam !== null) {
+      const planoId = Number(planoParam)
+      if (!validId(planoId)) return apiError("plano_id inválido", 400)
+      params.push(planoId)
+      filter = " AND f.plano_id = $2"
+    }
+    const rows = await query(`SELECT f.id, f.plano_id, f.idade_minima, f.idade_maxima, f.valor, f.vigencia_inicio, f.vigencia_fim, f.created_at, f.updated_at, p.nome AS plano_nome FROM planos_faixas_etarias f JOIN planos p ON p.id = f.plano_id AND p.administradora_id = $1 AND p.deleted_at IS NULL WHERE TRUE${filter} ORDER BY f.plano_id, f.id`, params)
+    return NextResponse.json(successResponse(rows))
   } catch (error) {
     const auth = apiAuthError(error)
-    return auth ? apiError(auth.message, auth.status) : apiError("Não foi possível carregar as faixas etárias", 500)
+    if (auth) return apiError(auth.message, auth.status)
+    console.error("[v0] Erro ao listar faixas etárias", error)
+    return apiError("Não foi possível carregar as faixas etárias", 500)
   }
 }
 
 export async function POST(request: NextRequest) {
-  const { administradoraId } = await requireCadastroAccess("create")
-  const body = await request.json()
-  let planoId = body.plano_id
-  if (!planoId && body.plano_nome) {
-    const planos = await query("SELECT id FROM planos WHERE nome = $1 AND administradora_id = $2 AND deleted_at IS NULL LIMIT 1", [body.plano_nome, administradoraId])
-    planoId = planos[0]?.id
+  try {
+    const { administradoraId } = await requireCadastroAccess("create")
+    const parsed = parsePayload(await request.json())
+    if (!parsed) return apiError("Dados da faixa inválidos", 422)
+    const plano = await query("SELECT id FROM planos WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [parsed.planoId, administradoraId])
+    if (!plano.length) return apiError("Plano não encontrado", 404)
+    const duplicate = await query("SELECT id FROM planos_faixas_etarias WHERE plano_id = $1 AND idade_minima = $2 AND idade_maxima = $3 AND vigencia_inicio = $4 AND vigencia_fim = $5 LIMIT 1", [parsed.planoId, parsed.idadeMinima, parsed.idadeMaxima, parsed.inicio, parsed.fim])
+    if (duplicate.length) return apiError("Faixa já cadastrada para este plano", 409)
+    const rows = await query("INSERT INTO planos_faixas_etarias (plano_id, idade_minima, idade_maxima, valor, vigencia_inicio, vigencia_fim) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, plano_id, idade_minima, idade_maxima, valor, vigencia_inicio, vigencia_fim, created_at, updated_at", [parsed.planoId, parsed.idadeMinima, parsed.idadeMaxima, parsed.valor, parsed.inicio, parsed.fim])
+    return NextResponse.json(successResponse(rows[0], "Faixa criada com sucesso"), { status: 201 })
+  } catch (error) {
+    const auth = apiAuthError(error)
+    if (auth) return apiError(auth.message, auth.status)
+    console.error("[v0] Erro ao criar faixa etária", error)
+    return apiError("Não foi possível criar a faixa etária", 500)
   }
-  if (!planoId || body.idade_minima == null || body.idade_maxima == null || body.valor == null || !body.vigencia_inicio || !body.vigencia_fim) return NextResponse.json({ success: false, message: "plano_id, idades, valor e período de vigência são obrigatórios" }, { status: 400 })
-  if (body.vigencia_fim < body.vigencia_inicio) return NextResponse.json({ success: false, message: "O fim da vigência não pode ser anterior ao início" }, { status: 400 })
-  const rows = await query("INSERT INTO planos_faixas_etarias (plano_id, idade_minima, idade_maxima, valor, vigencia_inicio, vigencia_fim) SELECT $1,$2,$3,$4,$5,$6 WHERE EXISTS (SELECT 1 FROM planos WHERE id = $1 AND administradora_id = $7) RETURNING *", [planoId, body.idade_minima, body.idade_maxima, body.valor, body.vigencia_inicio, body.vigencia_fim, administradoraId])
-  return NextResponse.json({ success: true, data: rows[0] }, { status: 201 })
 }

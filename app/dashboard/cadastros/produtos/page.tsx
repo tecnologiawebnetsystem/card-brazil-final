@@ -33,7 +33,7 @@ interface Produto {
   descricao: string
   valor: number | string | null
   ativo: boolean
-  operadora_id?: number
+  plano_id?: number
   created_at?: string
   updated_at?: string
   deleted_at?: string | null
@@ -61,7 +61,7 @@ export default function ProdutosPage() {
     tipo: "",
     descricao: "",
     valor: "",
-    operadora_id: "",
+    plano_id: "",
     ativo: true,
   })
 
@@ -104,7 +104,7 @@ export default function ProdutosPage() {
         tipo: produto.tipo,
         descricao: produto.descricao,
         valor: produto.valor?.toString() || "",
-        operadora_id: produto.operadora_id?.toString() || "",
+        plano_id: produto.plano_id?.toString() || "",
         ativo: produto.ativo,
       })
     } else {
@@ -116,7 +116,7 @@ export default function ProdutosPage() {
         tipo: "",
         descricao: "",
         valor: "",
-        operadora_id: "",
+        plano_id: "",
         ativo: true,
       })
     }
@@ -142,7 +142,7 @@ export default function ProdutosPage() {
         tipo: formData.tipo,
         descricao: formData.descricao,
         valor: Number.parseFloat(formData.valor) || 0,
-        operadora_id: formData.operadora_id ? Number.parseInt(formData.operadora_id) : null,
+        plano_id: formData.plano_id ? Number.parseInt(formData.plano_id) : null,
         ativo: formData.ativo,
       }
 
@@ -231,7 +231,7 @@ export default function ProdutosPage() {
           tipo: produto.tipo,
           descricao: produto.descricao,
           valor: produto.valor,
-          operadora_id: produto.operadora_id ?? null,
+          plano_id: produto.plano_id ?? null,
           ativo: !produto.ativo,
         }),
       })
@@ -430,11 +430,11 @@ export default function ProdutosPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="operadora_id">Operadora ID</Label>
+              <Label htmlFor="plano_id">Plano ID</Label>
               <Input
-                id="operadora_id"
-                value={formData.operadora_id}
-                onChange={(e) => setFormData({ ...formData, operadora_id: e.target.value })}
+                id="plano_id"
+                value={formData.plano_id}
+                onChange={(e) => setFormData({ ...formData, plano_id: e.target.value })}
                 placeholder="ID da operadora"
               />
             </div>

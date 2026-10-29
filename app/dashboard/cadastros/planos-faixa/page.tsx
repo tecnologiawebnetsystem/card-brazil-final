@@ -127,7 +127,7 @@ export default function PlanosFaixaPage() {
     if (!formData.plano || !formData.idadeMinima || !formData.idadeMaxima) { toast.error("Preencha os campos obrigatórios"); return }
     setIsLoading(true)
     try {
-      const planoSelecionado = planosDisponiveis.find((plano) => plano.nome === formData.plano)
+      const planoSelecionado = planosDisponiveis.find((plano) => plano.id.toString() === formData.plano)
       if (!planoSelecionado) throw new Error("Selecione um plano cadastrado")
       const body = { plano_id: planoSelecionado.id, idade_minima: Number(formData.idadeMinima), idade_maxima: Number(formData.idadeMaxima), valor: Number(formData.valor) || 0, vigencia_inicio: formData.vigenciaInicio, vigencia_fim: formData.vigenciaFim }
       const response = await fetch(editingPlano ? `/api/planos-faixas/${editingPlano.id}` : "/api/planos-faixas", { method: editingPlano ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
@@ -305,7 +305,7 @@ export default function PlanosFaixaPage() {
               <Select value={formData.plano} onValueChange={(value) => setFormData({ ...formData, plano: value })}>
                 <SelectTrigger id="plano"><SelectValue placeholder="Selecione um plano cadastrado" /></SelectTrigger>
                 <SelectContent>
-                  {planosDisponiveis.map((plano) => <SelectItem key={plano.id} value={plano.nome}>{plano.nome}</SelectItem>)}
+                  {planosDisponiveis.map((plano) => <SelectItem key={plano.id} value={plano.id.toString()}>{plano.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
               {planosDisponiveis.length === 0 && <p className="text-sm text-muted-foreground">Cadastre um plano antes de criar uma faixa etária.</p>}

@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, X, Loader2, Eye, Plus, Pencil } from "lucide-react"
+import { Search, X, Loader2, Eye, Plus, Pencil, UsersRound, Building2, UserCheck } from "lucide-react"
+import { PageHeader, MetricCard } from "@/features/shared/page-toolkit"
 import { useToast } from "@/hooks/use-toast"
 import { apiFetch, apiMutation } from "@/lib/api-client"
 
@@ -548,13 +549,19 @@ export default function PessoasPage() {
     return "NA"
   }
 
+  const pessoasFisicas = pessoas.filter((pessoa) => pessoa.tipo_pessoa === "fisica").length
+  const pessoasJuridicas = pessoas.filter((pessoa) => pessoa.tipo_pessoa === "juridica").length
+  const pessoasAtivas = pessoas.filter((pessoa) => pessoa.status === "ativo").length
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto w-full max-w-[1480px] px-4 py-5 sm:px-6 lg:px-8">
-        <header className="mb-4 border-b border-border/70 pb-4">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[26px]">Pessoas</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Gerencie todas as pessoas do sistema</p>
-        </header>
+      <div className="mx-auto w-full max-w-[1480px] space-y-6 px-4 py-5 sm:px-6 lg:px-8">
+        <PageHeader eyebrow="Cadastros / Pessoas" title="Pessoas" description="Gerencie pessoas físicas e jurídicas, seus endereços e dados bancários." action={<Button onClick={() => { limparFormulario(); setIsModalOpen(true) }}><Plus className="mr-2 h-4 w-4" /> Nova pessoa</Button>} />
+        <section className="grid gap-3 sm:grid-cols-3">
+          <MetricCard label="Total cadastrado" value={pessoas.length} hint="Todos os registros" icon={UsersRound} />
+          <MetricCard label="Pessoas físicas" value={pessoasFisicas} hint="Documentos individuais" icon={UserCheck} />
+          <MetricCard label="Pessoas jurídicas" value={pessoasJuridicas} hint={`${pessoasAtivas} registros ativos`} icon={Building2} />
+        </section>
 
           <Dialog
             open={isModalOpen}

@@ -5,7 +5,7 @@ import { createServerClient } from "@/back-end/lib/supabase-server"
 // https://docs.awesomeapi.com.br/api-de-moedas
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     // Obter id_administradora do usuário logado
     const {

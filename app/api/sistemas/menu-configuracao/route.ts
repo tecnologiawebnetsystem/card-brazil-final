@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       const moduleMenus = await query<{ id: number }>("SELECT id FROM sistemas_menus WHERE modulo_id = $1 AND ativo = TRUE", [Number(body.moduleId)])
       items = moduleMenus.map((menu) => ({ menuId: menu.id, ativoGlobal: body.ativoGlobal }))
     }
-    const uniqueItems = Array.from(new Map(items.map((item: { menuId: number; ativoGlobal: boolean }) => [item.menuId, item])).values())
+    const uniqueItems: Array<{ menuId: number; ativoGlobal: boolean }> = Array.from(new Map<number, { menuId: number; ativoGlobal: boolean }>(items.map((item: { menuId: number; ativoGlobal: boolean }) => [item.menuId, item])).values())
     if (uniqueItems.length === 0 || uniqueItems.length > 250) return NextResponse.json({ error: "Informe entre 1 e 250 itens válidos." }, { status: 400 })
 
     const ids = uniqueItems.map((item: { menuId: number }) => item.menuId)

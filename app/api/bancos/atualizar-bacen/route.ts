@@ -5,7 +5,7 @@ import { createServerClient } from "@/back-end/lib/supabase-server"
 // https://brasilapi.com.br/api/banks/v1
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
     // Buscar dados dos bancos da API Brasil API
     const response = await fetch("https://brasilapi.com.br/api/banks/v1")

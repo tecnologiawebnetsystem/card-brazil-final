@@ -3,8 +3,8 @@ import { createServerClient } from "@/back-end/lib/supabase-server"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = createServerClient()
-    const { data, error } = await supabase.from("moedas").select("*").eq("id", params.id).single()
+    const supabase = await createServerClient()
+    const { data, error } = await supabase.from("moedas").select("*").eq("id", (await params).id).single()
 
     if (error) throw error
 
@@ -16,13 +16,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const body = await request.json()
 
     const { data, error } = await supabase
       .from("moedas")
       .update({ ...body, data_atualizacao: new Date().toISOString() })
-      .eq("id", params.id)
+      .eq("id", (await params).id)
       .select()
       .single()
 
@@ -36,9 +36,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
 
-    const { error } = await supabase.from("moedas").update({ ativo: false }).eq("id", params.id)
+    const { error } = await supabase.from("moedas").update({ ativo: false }).eq("id", (await params).id)
 
     if (error) throw error
 

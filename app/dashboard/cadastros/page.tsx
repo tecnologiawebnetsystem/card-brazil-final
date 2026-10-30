@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation"
+import { CadastrosHub } from "@/features/cadastros/cadastros-hub"
 
 export default function CadastrosPage() {
-  redirect("/dashboard/cadastros/planos")
+  return <CadastrosHub />
 }

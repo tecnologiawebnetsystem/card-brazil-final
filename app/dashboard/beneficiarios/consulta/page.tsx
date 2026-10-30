@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SearchIcon, EyeIcon, DownloadIcon, PowerIcon, Trash2Icon } from "lucide-react"
+import { EyeIcon, DownloadIcon, PowerIcon, Trash2Icon, UsersRound, UserRoundCheck, UserRoundX } from "lucide-react"
+import { PageHeader, MetricCard, EmptyState } from "@/features/shared/page-toolkit"
 import { useToast } from "@/hooks/use-toast"
 
 interface Beneficiario {
@@ -169,21 +170,18 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
     toast({ title: "Exportação concluída", description: `${rows.length} registros exportados.` })
   }
 
+  const titulares = beneficiarios.filter((beneficiario) => beneficiario.tipo_beneficiario === "titular").length
+  const dependentes = beneficiarios.filter((beneficiario) => beneficiario.tipo_beneficiario === "dependente").length
+  const ativos = beneficiarios.filter((beneficiario) => beneficiario.ativo).length
+
   return (
     <div className="module-page flex-1 space-y-6 p-4 md:p-6">
-      <div className="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm font-medium text-primary">Beneficiários</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">Consulta de beneficiários</h1>
-          <p className="mt-1 text-muted-foreground">Pesquise titulares e dependentes da carteira.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport}>
-            <DownloadIcon className="h-4 w-4 mr-2" />
-            Exportar
-          </Button>
-        </div>
-      </div>
+      <PageHeader eyebrow="Cadastros / Beneficiários" title="Consulta de beneficiários" description="Pesquise titulares e dependentes da carteira, acompanhe status e consulte o histórico." action={<Button variant="outline" onClick={handleExport}><DownloadIcon className="mr-2 h-4 w-4" /> Exportar</Button>} />
+      <section className="grid gap-3 sm:grid-cols-3">
+        <MetricCard label="Total" value={beneficiarios.length} hint="Carteira cadastrada" icon={UsersRound} />
+        <MetricCard label="Titulares" value={titulares} hint={`${dependentes} dependentes vinculados`} icon={UserRoundCheck} />
+        <MetricCard label="Ativos" value={ativos} hint={`${beneficiarios.length - ativos} inativos`} icon={UserRoundX} />
+      </section>
 
       <Card className="border-border/70 shadow-sm">
         <CardHeader>
@@ -307,11 +305,7 @@ if (!window.confirm(`Excluir o beneficiário ${beneficiario.nome || beneficiario
             </div>
 
             {filteredBeneficiarios.length === 0 && !isLoading && (
-              <div className="py-10 text-center text-muted-foreground">
-                <SearchIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground/60" />
-                <p>Nenhum beneficiário encontrado</p>
-                <p className="text-sm">Tente ajustar os filtros ou termo de busca</p>
-              </div>
+              <EmptyState title="Nenhum beneficiário encontrado" description="Tente ajustar os filtros ou limpe os critérios de busca." onClear={() => { setFiltroTipo("todos"); setFiltroStatus("todos"); setSearchTerm("") }} />
             )}
 
             {isLoading && (

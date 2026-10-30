@@ -117,6 +117,7 @@ const CarteirinhaIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
 )
 
 type MenuItem = {
+  id?: number
   title: string
   url?: string
   icon?: React.ReactNode
@@ -597,13 +598,14 @@ export function AppSidebar() {
     Propostas: true,
     "Tabelas Gerais": true,
     Beneficiários: true,
-    Sistemas: true,
-    Configurações: true,
     Financeiro: true,
     Cobrança: true,
+    Sistemas: true,
+    Configurações: true,
     "Sistema Contábil": true,
     Relatórios: true,
   })
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
   let cancelled = false
@@ -611,14 +613,37 @@ export function AppSidebar() {
     .then((response) => response.ok ? response.json() : null)
     .then((data) => {
       if (cancelled || !Array.isArray(data?.menus) || data.menus.length === 0) return
-      const groups = new Map<string, MenuItem[]>()
+      const groups = new Map<string, Array<{
+        id: number
+        menuPaiId: number | null
+        titulo: string
+        rota?: string | null
+        slug: string
+      }>>()
       for (const item of data.menus) {
         const groupName = item.moduloNome || "Sistemas"
         const current = groups.get(groupName) || []
-        current.push({ title: item.titulo, url: item.rota || undefined, requiredPermission: item.slug })
+        current.push(item)
         groups.set(groupName, current)
       }
-      setDatabaseMenu(Array.from(groups, ([title, items]) => ({ title, items })))
+
+      const treeGroups = Array.from(groups, ([title, rows]) => {
+        const buildItems = (parentId: number | null): MenuItem[] => rows
+          .filter((item) => item.menuPaiId === parentId)
+          .map((item) => {
+            const subItems = buildItems(item.id)
+            return {
+              id: item.id,
+              title: item.titulo,
+              url: item.rota || undefined,
+              requiredPermission: item.slug,
+              subItems: subItems.length > 0 ? subItems : undefined,
+            }
+          })
+        return { title, items: buildItems(null) }
+      }).filter((group) => group.items.length > 0)
+
+      setDatabaseMenu(treeGroups)
     })
     .catch(() => undefined)
   return () => { cancelled = true }
@@ -669,34 +694,37 @@ export function AppSidebar() {
     })
   }, [pathname])
 
-  const filterMenuItems = (items: MenuItem[]): MenuItem[] => {
-    return items.filter((item) => {
-      if (!item.requiredPermission) return true
-      return user?.permissions?.[item.requiredPermission] === true
-    })
-  }
-
   const filterMenuGroups = (groups: MenuGroup[]): MenuGroup[] => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
     const hiddenGroups = new Set<string>(["Sistema Contábil", "Relatórios"])
     const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
 
+    const filterItem = (item: MenuItem): MenuItem | null => {
+      if (item.requiredPermission && user?.permissions?.[item.requiredPermission] !== true) return null
+      if (item.subItems?.length) {
+        const subItems = item.subItems.map(filterItem).filter((child): child is MenuItem => child !== null)
+        const matchesSearch = !normalizedSearch || item.title.toLowerCase().includes(normalizedSearch)
+        if (normalizedSearch && !matchesSearch && subItems.length === 0) return null
+        return { ...item, subItems: subItems.length > 0 ? subItems : undefined }
+      }
+      return !normalizedSearch || item.title.toLowerCase().includes(normalizedSearch) ? item : null
+    }
+
     return groups
       .filter((group) => !hiddenGroups.has(group.title))
       .map((group) => ({
         ...group,
-        items: filterMenuItems(group.items).filter(
-          (item) => !(group.title === "Sistemas" && hiddenSystemItems.has(item.title)),
-        ).filter((item) => {
-          if (!normalizedSearch) return true
-          return item.title.toLowerCase().includes(normalizedSearch) || item.subItems?.some((subItem) => subItem.title.toLowerCase().includes(normalizedSearch))
-        }),
+        items: group.items
+          .filter((item) => !(group.title === "Sistemas" && hiddenSystemItems.has(item.title)))
+          .map(filterItem)
+          .filter((item): item is MenuItem => item !== null),
       }))
       .filter((group) => group.items.length > 0)
   }
 
   const configuredMenuItems = databaseMenu && databaseMenu.length > 0 ? databaseMenu : menuItems
   const filteredMenuItems = user ? filterMenuGroups(configuredMenuItems) : configuredMenuItems
+  const isGroupExpanded = (title: string) => searchTerm.trim().length > 0 || expandedGroups[title] !== false
 
   const getProfileDisplayName = (roleName: string) => {
     return roleName || "Usuário"
@@ -738,8 +766,21 @@ export function AppSidebar() {
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
           {item.subItems?.length ? (
-            <details open={itemHasActivePath(item)} className="group">
-              <summary title={item.title} className="flex h-9 cursor-pointer list-none items-center justify-between rounded-lg px-2 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/25 hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring [&::-webkit-details-marker]:hidden">
+            <details
+              open={expandedItems[`${level}:${item.id ?? item.title}`] ?? itemHasActivePath(item)}
+              className="group"
+            >
+              <summary
+                title={item.title}
+                onClick={(event) => {
+                  event.preventDefault()
+                  const key = `${level}:${item.id ?? item.title}`
+                  setExpandedItems((previous) => ({
+                    ...previous,
+                    [key]: !(previous[key] ?? itemHasActivePath(item)),
+                  }))
+                }}
+                className="flex h-9 cursor-pointer list-none items-center justify-between rounded-lg px-2 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/25 hover:text-sidebar-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring [&::-webkit-details-marker]:hidden" >
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent/20 text-sidebar-foreground/60">{item.icon}</span>
                   <span className="truncate">{item.title}</span>
@@ -820,21 +861,21 @@ export function AppSidebar() {
               <SidebarGroupLabel asChild className="mb-1 h-8 p-0 group-data-[collapsible=icon]:mt-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:opacity-100">
                 <button
                   type="button"
-                  aria-expanded={expandedGroups[group.title]}
+                  aria-expanded={isGroupExpanded(group.title)}
                   aria-controls={`sidebar-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                   onClick={() => toggleGroupExpansion(group.title)}
                   className="flex h-8 w-full items-center justify-between rounded-lg px-3 py-1 text-left text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/55 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring group-data-[collapsible=icon]:px-0"
                 >
                   <span className="flex size-6 shrink-0 items-center justify-center text-sidebar-foreground/65 [&>svg]:size-4 group-data-[collapsible=icon]:text-sidebar-foreground/80">{getGroupIcon(group.title)}</span>
                   <span className="truncate group-data-[collapsible=icon]:sr-only">{group.title}</span>
-                  {expandedGroups[group.title] ? (
+                  {isGroupExpanded(group.title) ? (
                     <ChevronDown className="size-3.5 group-data-[collapsible=icon]:hidden" aria-hidden="true" />
                   ) : (
                     <ChevronRight className="size-3.5 group-data-[collapsible=icon]:hidden" aria-hidden="true" />
                   )}
                 </button>
               </SidebarGroupLabel>
-              {expandedGroups[group.title] && (
+              {isGroupExpanded(group.title) && (
                 <SidebarGroupContent id={`sidebar-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="mt-0.5 animate-in fade-in-0 slide-in-from-top-1 duration-200">
                   {renderMenuItems(group.items)}
                 </SidebarGroupContent>

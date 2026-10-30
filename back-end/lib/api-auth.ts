@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import { AuthService } from "@/back-end/lib/auth-service"
-import { query } from "@/back-end/lib/database"
+import { requirePermission } from "@/back-end/security/authorization"
 
 export type CadastroPermission = "view" | "create" | "edit" | "toggle" | "delete"
 export type FinanceiroPermission = CadastroPermission
@@ -27,48 +27,21 @@ export async function getAuthContext(): Promise<AuthContext | null> {
 export async function requireCobrancaAccess(permission: CadastroPermission = "view") {
   const context = await getAuthContext()
   if (!context) throw new Error("UNAUTHENTICATED")
-  const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
-  const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
-  const key = `cobranca.${permission}`
-  if (!isAdmin && permissions[key] !== true) throw new Error("FORBIDDEN")
+  await requirePermission(context, "cobranca", permission)
   return context
 }
 
 export async function requireFinanceiroAccess(permission: CadastroPermission = "view") {
   const context = await getAuthContext()
   if (!context) throw new Error("UNAUTHENTICATED")
-  const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
-  const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
-  const key = `financeiro.${permission}`
-  if (!isAdmin && permissions[key] !== true) throw new Error("FORBIDDEN")
+  await requirePermission(context, "financeiro", permission)
   return context
 }
 
 export async function requireCadastroAccess(permission: CadastroPermission = "view") {
   const context = await getAuthContext()
   if (!context) throw new Error("UNAUTHENTICATED")
-  const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
-  const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
-  if (isAdmin) return context
-  try {
-    const rows = await query(`
-      SELECT 1
-      FROM sistema_usuario_perfis up
-      JOIN sistema_perfil_permissoes pp ON pp.administradora_id = up.administradora_id
-        AND pp.perfil_nome = up.perfil_nome AND pp.permitido = TRUE
-      JOIN sistemas_recursos r ON r.id = pp.recurso_id AND r.slug IN ('cadastros', 'sistemas') AND r.ativo = TRUE
-      JOIN sistemas_acoes a ON a.id = pp.acao_id AND a.slug = $3 AND a.ativo = TRUE
-      WHERE up.administradora_id = $1 AND up.usuario_id = $2 AND up.ativo = TRUE
-        AND (up.vigencia_inicio IS NULL OR up.vigencia_inicio <= CURRENT_DATE)
-        AND (up.vigencia_fim IS NULL OR up.vigencia_fim >= CURRENT_DATE)
-      LIMIT 1
-    `, [context.administradoraId, context.userId, permission === "toggle" ? "editar" : permission])
-    if (rows[0]) return context
-  } catch {
-    // Instalações sem a migração usam as permissões legadas durante a transição.
-  }
-  const key = `cadastros.${permission}`
-  if (permissions[key] !== true) throw new Error("FORBIDDEN")
+  await requirePermission(context, "cadastros", permission)
   return context
 }
 

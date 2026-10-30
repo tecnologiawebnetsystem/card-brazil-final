@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
 import { apiResponse, apiError } from "@/back-end/lib/api-response"
 import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
-import { idSchema, pessoaUpdateSchema, zodFieldErrors } from "@/back-end/lib/validation"
+import { idSchema, pessoaUpdateSchema, zodFieldErrors } from "@/schemas/validation"
 import { getPessoa, savePessoaDetalhe } from "@/back-end/lib/pessoas-repository"
 import { query } from "@/back-end/lib/database"
 

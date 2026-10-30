@@ -6,7 +6,7 @@
     "build": "next build",
     "dev": "next dev --turbo",
     "lint": "eslint . --cache",
-    "test:contracts": "node --test tests/api-contracts.test.mjs",
+    "test:contracts": "node --test tests/api/api-contracts.test.mjs",
     "lint:fix": "eslint . --cache --fix",
     "start": "next start"
   },

@@ -6,20 +6,15 @@ import { Menu } from "lucide-react"
 import { useSidebar } from "@/components/ui/sidebar"
 import { BreadcrumbsNav } from "@/components/navigation/breadcrumbs-nav"
 import { ProfileMenu } from "@/components/dashboard/profile-menu"
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 
 export function DashboardHeader() {
   const { toggleSidebar } = useSidebar()
-  const [currentDate, setCurrentDate] = useState("")
-
-  useEffect(() => {
-    setCurrentDate(new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      timeZone: "America/Sao_Paulo",
-    }).format(new Date()))
-  }, [])
+  const currentDate = useSyncExternalStore(
+    () => () => undefined,
+    () => new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Sao_Paulo" }).format(new Date()),
+    () => "",
+  )
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/95 pt-[env(safe-area-inset-top)] shadow-[0_1px_12px_-10px_color-mix(in_srgb,var(--foreground)_35%,transparent)] backdrop-blur supports-[backdrop-filter]:bg-surface/90">

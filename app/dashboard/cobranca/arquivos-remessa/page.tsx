@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useEffectEvent, useState } from "react"
 import { Upload, FileOutput, RefreshCw, CheckCircle2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,7 +25,9 @@ export default function ArquivosRemessaPage() {
     setLoading(false)
   }
 
-  useEffect(() => { void load() }, [])
+  const loadOnMount = useEffectEvent(load)
+
+  useEffect(() => { void loadOnMount() }, [loadOnMount])
 
   async function processReturn() {
     if (!file) return

@@ -3,7 +3,7 @@ import { query } from "@/back-end/lib/database"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number.parseInt(params.id)
+    const id = Number.parseInt((await params).id)
 
     const rows = await query(`SELECT * FROM advogados WHERE id = $1`, [id])
     const advogado = rows[0]
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number.parseInt(params.id)
+    const id = Number.parseInt((await params).id)
     const body = await request.json()
 
     const allowed = ["nome", "oab", "oab_uf", "cpf", "email", "telefone", "celular", "ativo", "observacoes"]
@@ -37,7 +37,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number.parseInt(params.id)
+    const id = Number.parseInt((await params).id)
 
     const rows = await query(`DELETE FROM advogados WHERE id = $1 RETURNING id`, [id])
     if (!rows.length) return NextResponse.json({ error: "Advogado não encontrado" }, { status: 404 })

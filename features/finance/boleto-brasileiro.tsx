@@ -110,8 +110,8 @@ export function BoletoBrasileiro({
                       key={i}
                       className="bg-black"
                       style={{
-                        width: Math.random() > 0.5 ? "2px" : "1px",
-                        height: `${20 + Math.random() * 28}px`,
+                        width: i % 3 === 0 ? "2px" : "1px",
+                        height: `${20 + ((i * 17) % 28)}px`,
                       }}
                     />
                   ))}
@@ -126,7 +126,7 @@ export function BoletoBrasileiro({
                 {/* Simulação simples de QR Code */}
                 <div className="grid grid-cols-8 gap-px">
                   {Array.from({ length: 64 }, (_, i) => (
-                    <div key={i} className={`w-1 h-1 ${Math.random() > 0.5 ? "bg-black" : "bg-white"}`} />
+                    <div key={i} className={`w-1 h-1 ${((i * 13 + nossoNumero.length) % 7) < 3 ? "bg-black" : "bg-white"}`} />
                   ))}
                 </div>
               </div>

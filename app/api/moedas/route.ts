@@ -3,7 +3,7 @@ import { createServerClient } from "@/back-end/lib/supabase-server"
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const searchParams = request.nextUrl.searchParams
     const search = searchParams.get("search") || ""
     const status = searchParams.get("status") || "Ativa"
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const body = await request.json()
 
     const { data, error } = await supabase.from("moedas").insert([body]).select().single()

@@ -329,7 +329,7 @@ export default function AprovacaoPropostasPage() {
               <TableBody>
                 {propostas.map((proposta) => {
                   const diasPendente = calcularDiasPendente(proposta.data_submissao)
-                  const score = proposta.score_risco || Math.floor(Math.random() * 30) + 70
+                  const score = proposta.score_risco || 70 + (proposta.id % 30)
                   return (
                     <TableRow key={proposta.id}>
                       <TableCell>

@@ -3,7 +3,7 @@ import { query } from "@/back-end/lib/database"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number.parseInt(params.id)
+    const id = Number.parseInt((await params).id)
 
     const rows = await query(`SELECT * FROM configuracoes_multas_juros WHERE id = $1 AND deleted_at IS NULL`, [id])
     const config = rows[0]
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number.parseInt(params.id)
+    const id = Number.parseInt((await params).id)
     const body = await request.json()
 
     const allowed = ["nome", "descricao", "percentual_multa", "valor_fixo_multa", "percentual_juros_mensal", "percentual_juros_diario", "tipo_calculo_juros", "dias_carencia", "aplicar_multa", "aplicar_juros", "ativo", "padrao"]
@@ -37,7 +37,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const id = Number.parseInt(params.id)
+    const id = Number.parseInt((await params).id)
 
     const rows = await query(`UPDATE configuracoes_multas_juros SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL RETURNING id`, [id])
     if (!rows.length) return NextResponse.json({ error: "Configuração não encontrada" }, { status: 404 })

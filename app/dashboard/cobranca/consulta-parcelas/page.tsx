@@ -308,7 +308,7 @@ export default function ConsultaParcelasPage() {
   }
 
   // Modais reutilizados
-  const BeneficiarioModal = () => (
+  const renderBeneficiarioModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
@@ -359,7 +359,7 @@ export default function ConsultaParcelasPage() {
     </Dialog>
   )
 
-  const CorretorModal = () => (
+  const renderCorretorModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
@@ -408,7 +408,7 @@ export default function ConsultaParcelasPage() {
     </Dialog>
   )
 
-  const EstipulanteModal = () => (
+  const renderEstipulanteModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
@@ -457,7 +457,7 @@ export default function ConsultaParcelasPage() {
     </Dialog>
   )
 
-  const PlanoModal = () => (
+  const renderPlanoModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-primary/30 hover:bg-primary/5 bg-transparent">
@@ -536,7 +536,7 @@ export default function ConsultaParcelasPage() {
                   readOnly
                   className="flex-1"
                 />
-                <BeneficiarioModal />
+                {renderBeneficiarioModal()}
               </div>
             </div>
 
@@ -552,7 +552,7 @@ export default function ConsultaParcelasPage() {
                   readOnly
                   className="flex-1"
                 />
-                <CorretorModal />
+                {renderCorretorModal()}
               </div>
             </div>
 
@@ -568,7 +568,7 @@ export default function ConsultaParcelasPage() {
                   readOnly
                   className="flex-1"
                 />
-                <EstipulanteModal />
+                {renderEstipulanteModal()}
               </div>
             </div>
 
@@ -584,7 +584,7 @@ export default function ConsultaParcelasPage() {
                   readOnly
                   className="flex-1"
                 />
-                <PlanoModal />
+                {renderPlanoModal()}
               </div>
             </div>
           </div>

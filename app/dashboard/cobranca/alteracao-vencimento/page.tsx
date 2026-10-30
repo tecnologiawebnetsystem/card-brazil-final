@@ -285,7 +285,7 @@ export default function AlteracaoVencimentoPage() {
   }
 
   // Modais reutilizados da página de Baixa de Pagamento
-  const BeneficiarioModal = () => (
+  const renderBeneficiarioModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
@@ -336,7 +336,7 @@ export default function AlteracaoVencimentoPage() {
     </Dialog>
   )
 
-  const CorretorModal = () => (
+  const renderCorretorModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
@@ -385,7 +385,7 @@ export default function AlteracaoVencimentoPage() {
     </Dialog>
   )
 
-  const EstipulanteModal = () => (
+  const renderEstipulanteModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
@@ -434,7 +434,7 @@ export default function AlteracaoVencimentoPage() {
     </Dialog>
   )
 
-  const PlanoModal = () => (
+  const renderPlanoModal = () => (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="icon" className="border-emerald-300 hover:bg-emerald-50 bg-transparent">
@@ -513,7 +513,7 @@ export default function AlteracaoVencimentoPage() {
                   readOnly
                   className="flex-1"
                 />
-                <BeneficiarioModal />
+                {renderBeneficiarioModal()}
               </div>
             </div>
 
@@ -529,7 +529,7 @@ export default function AlteracaoVencimentoPage() {
                   readOnly
                   className="flex-1"
                 />
-                <CorretorModal />
+                {renderCorretorModal()}
               </div>
             </div>
 
@@ -545,7 +545,7 @@ export default function AlteracaoVencimentoPage() {
                   readOnly
                   className="flex-1"
                 />
-                <EstipulanteModal />
+                {renderEstipulanteModal()}
               </div>
             </div>
 
@@ -561,7 +561,7 @@ export default function AlteracaoVencimentoPage() {
                   readOnly
                   className="flex-1"
                 />
-                <PlanoModal />
+                {renderPlanoModal()}
               </div>
             </div>
           </div>

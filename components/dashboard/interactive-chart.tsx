@@ -28,23 +28,23 @@ interface InteractiveChartProps {
   className?: string
 }
 
-export function InteractiveChart({ title, data, type = "bar", dataKeys, className }: InteractiveChartProps) {
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="rounded-lg border bg-background p-3 shadow-md">
-          <p className="font-medium mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {entry.value.toLocaleString("pt-BR")}
-            </p>
-          ))}
-        </div>
-      )
-    }
-    return null
+function CustomTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border bg-background p-3 shadow-md">
+        <p className="font-medium mb-2">{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} className="text-sm" style={{ color: entry.color }}>
+            {entry.name}: {entry.value.toLocaleString("pt-BR")}
+          </p>
+        ))}
+      </div>
+    )
   }
+  return null
+}
 
+export function InteractiveChart({ title, data, type = "bar", dataKeys, className }: InteractiveChartProps) {
   return (
     <Card className={cn(className)}>
       <CardHeader>

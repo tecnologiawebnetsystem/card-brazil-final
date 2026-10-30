@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { startTransition, useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -120,7 +120,7 @@ export default function PlanosFaixaPage() {
       filtered = filtered.filter((plano) => (filterStatus === "ativo" ? plano.ativo : !plano.ativo))
     }
 
-    setFilteredPlanos(filtered)
+    startTransition(() => setFilteredPlanos(filtered))
   }, [searchTerm, filterPlano, filterStatus, planosFaixa])
 
   const handleSavePlano = async () => {

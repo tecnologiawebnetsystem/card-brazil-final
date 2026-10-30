@@ -8,6 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Bot, Send, Minimize2, Maximize2, X, Sparkles, FileText, Calculator, Users, TrendingUp } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
+const INITIAL_MESSAGE_TIMESTAMP = new Date(0)
+
 interface Message {
   id: string
   type: "user" | "bot"
@@ -26,7 +28,7 @@ export function ChatbotHealth() {
       type: "bot",
       content:
         "Olá! Sou o assistente inteligente da CardBrazil. Como posso ajudá-lo hoje com questões sobre seguros de saúde?",
-      timestamp: new Date(),
+      timestamp: INITIAL_MESSAGE_TIMESTAMP,
       suggestions: [
         "Consultar sinistralidade",
         "Gerar relatório financeiro",
@@ -63,22 +65,22 @@ export function ChatbotHealth() {
 
     // Simular resposta do bot
     setTimeout(() => {
-      const botResponse = generateBotResponse(message)
+      const botResponse = generateBotResponse(message, new Date())
       setMessages((prev) => [...prev, botResponse])
       setIsTyping(false)
     }, 1500)
   }
 
-  const generateBotResponse = (userMessage: string): Message => {
+  const generateBotResponse = (userMessage: string, timestamp: Date): Message => {
     const lowerMessage = userMessage.toLowerCase()
 
     if (lowerMessage.includes("sinistralidade") || lowerMessage.includes("sinistro")) {
       return {
-        id: Date.now().toString(),
+        id: timestamp.getTime().toString(),
         type: "bot",
         content:
           "Analisando a sinistralidade atual... A taxa de sinistralidade está em 78.5% este mês, dentro da meta de 80%. Identifiquei que procedimentos cardiológicos representam 23% dos custos. Gostaria de um relatório detalhado?",
-        timestamp: new Date(),
+        timestamp,
         suggestions: ["Gerar relatório de sinistralidade", "Ver por especialidade", "Comparar com mês anterior"],
         attachments: [{ type: "report", title: "Relatório de Sinistralidade - Janeiro 2024", url: "#" }],
       }
@@ -86,11 +88,11 @@ export function ChatbotHealth() {
 
     if (lowerMessage.includes("financeiro") || lowerMessage.includes("receita") || lowerMessage.includes("despesa")) {
       return {
-        id: Date.now().toString(),
+        id: timestamp.getTime().toString(),
         type: "bot",
         content:
           "Situação financeira atual: Receitas R$ 8.5M (+8% vs mês anterior), Despesas R$ 6.2M (+3%). Margem operacional de 27%. Fluxo de caixa positivo em R$ 2.3M. Posso gerar análises mais específicas?",
-        timestamp: new Date(),
+        timestamp,
         suggestions: ["DRE detalhada", "Projeção próximos 6 meses", "Análise de custos por área"],
         attachments: [{ type: "chart", title: "Dashboard Financeiro Executivo", url: "#" }],
       }
@@ -98,11 +100,11 @@ export function ChatbotHealth() {
 
     if (lowerMessage.includes("inadimplência") || lowerMessage.includes("inadimplente")) {
       return {
-        id: Date.now().toString(),
+        id: timestamp.getTime().toString(),
         type: "bot",
         content:
           "Taxa de inadimplência atual: 4.2% (meta: <5%). Identifiquei 156 beneficiários em atraso >60 dias. Sugestão: campanha de negociação para 23 casos com maior potencial de recuperação (R$ 450K).",
-        timestamp: new Date(),
+        timestamp,
         suggestions: ["Lista de inadimplentes", "Estratégias de cobrança", "Análise de risco"],
         attachments: [{ type: "list", title: "Relatório de Inadimplência Detalhado", url: "#" }],
       }
@@ -110,11 +112,11 @@ export function ChatbotHealth() {
 
     if (lowerMessage.includes("beneficiário") || lowerMessage.includes("carteira")) {
       return {
-        id: Date.now().toString(),
+        id: timestamp.getTime().toString(),
         type: "bot",
         content:
           "Carteira atual: 12.450 beneficiários ativos. Crescimento de 3.2% no trimestre. Faixa etária predominante: 25-45 anos (45%). Taxa de utilização média: 2.3 consultas/beneficiário/mês. Alguma análise específica?",
-        timestamp: new Date(),
+        timestamp,
         suggestions: ["Perfil demográfico", "Utilização por plano", "Projeção de crescimento"],
         attachments: [{ type: "dashboard", title: "Dashboard de Beneficiários", url: "#" }],
       }
@@ -122,11 +124,11 @@ export function ChatbotHealth() {
 
     // Resposta padrão
     return {
-      id: Date.now().toString(),
+      id: timestamp.getTime().toString(),
       type: "bot",
       content:
         "Entendi sua pergunta. Posso ajudar com análises sobre sinistralidade, situação financeira, inadimplência, beneficiários, relatórios personalizados e muito mais. O que gostaria de saber especificamente?",
-      timestamp: new Date(),
+      timestamp,
       suggestions: [
         "Mostrar dashboard executivo",
         "Gerar relatório personalizado",

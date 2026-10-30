@@ -13,6 +13,12 @@ export async function GET() {
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $2
       WHERE m.ativo = TRUE AND mo.ativo = TRUE AND COALESCE(mc.ativo_global, TRUE) = TRUE
         AND NOT EXISTS (
+          SELECT 1
+          FROM sistemas_menus parent
+          LEFT JOIN sistema_menu_configuracoes parent_config ON parent_config.menu_id = parent.id AND parent_config.administradora_id = $2
+          WHERE parent.id = m.menu_pai_id AND COALESCE(parent_config.ativo_global, TRUE) = FALSE
+        )
+        AND NOT EXISTS (
           SELECT 1 FROM sistema_menu_perfis mp
           JOIN sistema_usuario_perfis up ON up.administradora_id = mp.administradora_id
             AND up.perfil_nome = mp.perfil_nome AND up.usuario_id = $1 AND up.ativo = TRUE

@@ -282,7 +282,7 @@ const handleCreateNewLegacy = () => {
                   </svg>
                   Editar
                 </Button>
-                <Button onClick={() => setShowDeleteDialog(true)} variant="destructive" size="sm">
+                <Button onClick={() => setShowDeleteDialog(true)} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" size="sm">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -526,7 +526,7 @@ const handleCreateNewLegacy = () => {
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={loading}>
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleDelete} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Excluir
             </Button>

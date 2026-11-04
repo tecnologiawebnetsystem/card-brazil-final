@@ -93,16 +93,16 @@ export function LoginSection() {
           <div className="pointer-events-none absolute -bottom-36 -right-36 h-96 w-96 rounded-full border-[44px] border-sidebar-primary/10" aria-hidden="true" />
         </section>
 
-        <section className="flex min-h-screen flex-col bg-card px-5 py-6 sm:px-10 lg:px-16 xl:px-24">
+        <section className="flex min-h-screen flex-col bg-muted/20 px-5 py-6 sm:px-10 lg:px-16 xl:px-24">
           <div className="flex justify-end">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-2 text-xs font-medium text-muted-foreground">
               <LockKeyhole className="h-3.5 w-3.5 text-primary" />
               Ambiente seguro
             </div>
           </div>
 
-          <div className="my-auto flex w-full justify-center py-14">
-            <div className="w-full max-w-md">
+          <div className="my-auto flex w-full justify-center py-10 sm:py-14">
+            <div className="w-full max-w-md rounded-3xl border border-border/70 bg-card p-6 shadow-xl shadow-foreground/[0.04] sm:p-9">
               <div className="mb-10 lg:hidden">
                 <div className="flex items-center gap-3">
                   <img src="/cardbrazil-icon.svg" alt="" width={40} height={40} className="h-10 w-10 object-contain" />
@@ -111,6 +111,7 @@ export function LoginSection() {
               </div>
 
               <div className="mb-8">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15"><LockKeyhole className="h-5 w-5" /></div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">Acesso à plataforma</p>
                 <h2 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">Bem-vindo(a) de volta.</h2>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">Entre com seu usuário ou e-mail para continuar.</p>
@@ -125,7 +126,7 @@ export function LoginSection() {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="nome@empresa.com.br"
-                    className="h-12 rounded-lg bg-background px-4 text-sm shadow-none"
+                    className="h-12 rounded-xl border-border/80 bg-background px-4 text-sm shadow-sm transition-shadow focus-visible:ring-2 focus-visible:ring-primary/25"
                     autoComplete="username"
                     required
                   />
@@ -133,7 +134,7 @@ export function LoginSection() {
 
                 {error && <div role="alert" className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-5 text-destructive">{error}</div>}
 
-                <Button type="submit" disabled={loading} className="h-12 w-full rounded-lg text-sm font-semibold shadow-none">
+                <Button type="submit" disabled={loading} className="h-12 w-full rounded-xl text-sm font-semibold shadow-sm shadow-primary/20 transition-transform hover:-translate-y-0.5">
                   {loading ? "Verificando..." : challenge ? "Validar token" : "Entrar"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -144,7 +145,7 @@ export function LoginSection() {
                 Esqueceu sua senha?
               </button>
 
-              <p className="mt-14 text-center text-xs text-muted-foreground/70">Card Brasil · v1.0 · Todos os direitos reservados.</p>
+              <div className="mt-10 border-t border-border/60 pt-5"><p className="text-center text-xs text-muted-foreground/70">Card Brasil · v1.0 · Todos os direitos reservados.</p></div>
             </div>
           </div>
         </section>

@@ -45,8 +45,8 @@ const cadastros: Cadastro[] = [
   { title: "Corretores", description: "Parceiros e canais de distribuição", href: "/dashboard/cadastros/corretor", icon: ContactRound, endpoint: "/api/corretores", tone: "blue" },
   { title: "Estipulantes", description: "Empresas e contratos coletivos", href: "/dashboard/cadastros/estipulante", icon: BriefcaseBusiness, endpoint: "/api/estipulantes", tone: "teal" },
   { title: "Produtos", description: "Linhas de produtos comercializados", href: "/dashboard/cadastros/produtos", icon: Package, endpoint: "/api/produtos", tone: "violet" },
-  { title: "Planos", description: "Planos, coberturas e regras comerciais", href: "/dashboard/cadastros/planos-saude", icon: Layers3, endpoint: "/api/planos", tone: "coral" },
-  { title: "Planos por faixa", description: "Valores e composição por idade", href: "/dashboard/cadastros/planos-faixa", icon: FileSpreadsheet, endpoint: "/api/planos-faixas", tone: "blue" },
+  { title: "Planos", description: "Planos criados a partir de produtos", href: "/dashboard/cadastros/planos", icon: Layers3, endpoint: "/api/planos", tone: "coral" },
+  { title: "Planos Faixa", description: "Valores e composição por idade", href: "/dashboard/cadastros/planos-faixa", icon: FileSpreadsheet, endpoint: "/api/planos-faixas", tone: "blue" },
   { title: "Beneficiários", description: "Titulares, dependentes e carteira ativa", href: "/dashboard/beneficiarios/consulta", icon: PersonStanding, endpoint: "/api/beneficiarios", tone: "teal" },
 ]
 

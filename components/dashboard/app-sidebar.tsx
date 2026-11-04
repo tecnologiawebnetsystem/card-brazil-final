@@ -169,6 +169,7 @@ const menuItems: MenuGroup[] = [
         icon: <FileTextIcon />,
         subItems: [
           { title: "Produtos", url: "/dashboard/cadastros/produtos", icon: <CogIcon className="h-3 w-3" /> },
+          { title: "Planos", url: "/dashboard/cadastros/planos", icon: <CogIcon className="h-3 w-3" /> },
           { title: "Planos Faixa", url: "/dashboard/cadastros/planos-faixa", icon: <CogIcon className="h-3 w-3" /> },
                 ],
       },

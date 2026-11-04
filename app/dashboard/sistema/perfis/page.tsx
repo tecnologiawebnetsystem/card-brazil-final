@@ -147,15 +147,15 @@ export default function PerfisPage() {
 
   const getPerfilColor = (perfil: string) => {
     const colors: Record<string, string> = {
-      administrador: "bg-red-100 text-red-800",
-      operador: "bg-blue-100 text-blue-800",
-      estipulante: "bg-green-100 text-green-800",
-      agenciador: "bg-purple-100 text-purple-800",
-      corretor: "bg-orange-100 text-orange-800",
-      financeiro: "bg-yellow-100 text-yellow-800",
-      cobranca: "bg-pink-100 text-pink-800",
+      administrador: "bg-primary/10 text-primary",
+      operador: "bg-primary/10 text-primary",
+      estipulante: "bg-muted text-foreground",
+      agenciador: "bg-primary/10 text-primary",
+      corretor: "bg-muted text-foreground",
+      financeiro: "bg-primary/10 text-primary",
+      cobranca: "bg-muted text-foreground",
     }
-    return colors[perfil] || "bg-gray-100 text-gray-800"
+    return colors[perfil] || "bg-muted text-muted-foreground"
   }
 
   const totalUsuarios = perfis.reduce((sum, perfil) => sum + perfil.usuariosCount, 0)
@@ -176,10 +176,10 @@ export default function PerfisPage() {
 
         {/* Métricas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <Card className="bg-emerald-700 text-white border-0">
+          <Card className="bg-primary text-primary-foreground border-primary">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white/90">Total de Perfis</CardTitle>
-              <Shield className="h-5 w-5 text-white/80" />
+              <CardTitle className="text-sm font-medium text-primary-foreground/90">Total de Perfis</CardTitle>
+              <Shield className="h-5 w-5 text-primary-foreground/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{perfis.length}</div>
@@ -190,10 +190,10 @@ export default function PerfisPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
-              <Users className="h-5 w-5 text-blue-600" />
+              <Users className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{totalUsuarios}</div>
+              <div className="text-2xl font-bold text-primary">{totalUsuarios}</div>
               <p className="text-xs text-muted-foreground">usuários com perfis</p>
             </CardContent>
           </Card>
@@ -201,10 +201,10 @@ export default function PerfisPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Perfis Ativos</CardTitle>
-              <Shield className="h-5 w-5 text-green-600" />
+              <Shield className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{perfis.filter((p) => p.ativo).length}</div>
+              <div className="text-2xl font-bold text-primary">{perfis.filter((p) => p.ativo).length}</div>
               <p className="text-xs text-muted-foreground">perfis ativos</p>
             </CardContent>
           </Card>
@@ -240,7 +240,7 @@ export default function PerfisPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDeletePerfil(perfil.id)}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-destructive hover:text-destructive/80"
                       disabled={perfil.usuariosCount > 0}
                     >
                       <Trash2 className="h-4 w-4" />

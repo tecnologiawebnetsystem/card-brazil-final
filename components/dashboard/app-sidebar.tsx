@@ -635,7 +635,12 @@ export function AppSidebar() {
 
           const treeGroups = Array.from(groups, ([title, rows]) => {
             const buildItems = (parentId: number | null): MenuItem[] => rows
-              .filter((item) => item.menuPaiId === parentId && item.ativoGlobal !== false && item.ativoGlobal !== "false")
+              .filter((item) => {
+                const isRoot = parentId === null
+                const isRootItem = item.menuPaiId === null || item.menuPaiId === undefined || item.menuPaiId === 0
+                const hasParent = Number(item.menuPaiId) === parentId
+                return (isRoot ? isRootItem : hasParent) && item.ativoGlobal !== false && item.ativoGlobal !== "false"
+              })
               .map((item) => {
                 const subItems = buildItems(item.id)
                 return {

@@ -87,7 +87,7 @@ title: "Faturas Pendentes",
     "/dashboard/cadastros/agenciador": "Agenciador - Gestão de agenciadores",
     "/dashboard/cadastros/corretor": "Corretor - Cadastro de corretores",
     "/dashboard/cadastros/produtos": "Produtos - Gestão de produtos de saúde",
-    "/dashboard/cadastros/planos": "Planos - Cadastro de planos de saúde",
+    "/dashboard/cadastros/planos-saude": "Planos de Saúde - Cadastro e gestão de planos",
     "/dashboard/cadastros/planos-faixa": "Planos Faixa - Gestão de faixas etárias",
     "/dashboard/cobranca": "Cobrança - Gestão de boletos e cobranças",
     "/dashboard/financeiro": "Financeiro - Controle financeiro e fluxo de caixa",
@@ -214,7 +214,7 @@ Qual relatório você gostaria de gerar?`
 
 • **Gerar Boletos**: Menu → Cobrança → Gerar Boletos
 • **Consultar**: Menu → Cobrança → Consultar Boletos  
-• **Faturas Pendentes**: Menu → Cobrança → Faturas Pendentes
+• **Faturas Pendentes**: Menu → Cobrança �� Faturas Pendentes
 
 Você tem ${notifications.find((n) => n.title.includes("Parcelas"))?.message || "parcelas pendentes"}. Precisa de ajuda com alguma cobrança específica?`
     }

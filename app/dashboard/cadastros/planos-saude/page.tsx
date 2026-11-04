@@ -7,7 +7,7 @@ import { CadastroTable, type CadastroColumn } from "@/components/tables/cadastro
 import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/cadastro-summary-card"
 import { CadastroDetailsGrid, CadastroDetailField } from "@/components/tables/cadastro-details"
 
-interface PlanoSaude {
+interface Plano {
   id: number
   codigo: string
   nome: string
@@ -16,8 +16,8 @@ interface PlanoSaude {
   ativo: boolean
 }
 
-export default function PlanosSaudePage() {
-  const [planos, setPlanos] = useState<PlanoSaude[]>([
+export default function PlanosPage() {
+  const [planos, setPlanos] = useState<Plano[]>([
     {
       id: 1,
       codigo: "001",
@@ -28,19 +28,19 @@ export default function PlanosSaudePage() {
     },
   ])
 
-  const handleToggleStatus = (plano: PlanoSaude) => {
+  const handleToggleStatus = (plano: Plano) => {
     setPlanos(planos.map((p) => (p.id === plano.id ? { ...p, ativo: !p.ativo } : p)))
   }
 
   return (
     <div className="space-y-6">
       <div className="mb-2">
-          <h1 className="text-3xl font-bold text-foreground">Planos de Saúde</h1>
+          <h1 className="text-3xl font-bold text-foreground">Planos</h1>
           <p className="text-muted-foreground">Cadastro e gestão de planos de saúde</p>
         </div>
 
         <CadastroSummaryGrid className="mb-6 xl:grid-cols-1">
-          <CadastroSummaryCard title="Total de Planos de Saúde" value={planos.length} description="planos cadastrados" metrics={[{ label: "Status", value: `${planos.filter((p) => p.ativo).length} ativos`, tone: "positive" }]} />
+          <CadastroSummaryCard title="Total de Planos" value={planos.length} description="planos cadastrados" metrics={[{ label: "Status", value: `${planos.filter((p) => p.ativo).length} ativos`, tone: "positive" }]} />
         </CadastroSummaryGrid>
 
         <Card>
@@ -71,7 +71,7 @@ export default function PlanosSaudePage() {
                   { key: "nome", header: "Nome do plano", sortable: true, className: "font-medium text-foreground" },
                   { key: "segmentacao", header: "Segmentação", sortable: true },
                   { key: "modalidade", header: "Modalidade", sortable: true },
-                ] as CadastroColumn<PlanoSaude>[]
+                ] as CadastroColumn<Plano>[]
               }
               onToggleStatus={handleToggleStatus}
               detailsTitle={(p) => p.nome}

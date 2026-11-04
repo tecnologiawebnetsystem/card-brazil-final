@@ -1,6 +1,21 @@
 # CardBrazil CRM - Sistema de Gestão de Saúde
 
-Sistema completo de gestão para operadoras de saúde, administradoras de benefícios e corretoras, desenvolvido com Next.js 15, React 19, TypeScript e Neon PostgreSQL.
+Sistema completo de gestão para operadoras de saúde, administradoras de benefícios e corretoras, desenvolvido com Next.js, React, TypeScript e Neon PostgreSQL.
+
+## Estrutura do projeto
+
+O projeto segue uma organização incremental por camadas:
+
+- `app/` — rotas do Next.js, dashboard e adaptadores de API
+- `components/` — UI, layout, formulários e componentes de domínio
+- `back-end/` — domínios, casos de uso, segurança e infraestrutura
+- `lib/` — clientes e utilitários compartilhados
+- `database/` — migrations, DDL e seeds novos
+- `sql/` — scripts legados em processo de migração
+- `docs/` — arquitetura, domínios, front-end, banco e contribuição
+- `tests/` — testes organizados por camada e domínio
+
+Consulte [`docs/architecture.md`](docs/architecture.md) antes de criar novos módulos.
 
 ## 🚀 Características Principais
 

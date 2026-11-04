@@ -532,7 +532,7 @@ const menuItems: MenuGroup[] = [
           },
           {
             title: "Perfis de Usuario",
-            url: "/dashboard/sistemas/perfis-usuario",
+            url: "/dashboard/sistema/perfis",
             icon: <CogIcon className="h-3 w-3" />,
           },
           {

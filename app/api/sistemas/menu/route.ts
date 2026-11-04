@@ -8,7 +8,11 @@ export async function GET() {
     if (!context) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
     const { administradoraId } = context
     const rows = await query(`
-  SELECT m.id, m.slug, m.titulo, m.rota, m.icone, m.ordem,
+  SELECT m.id,
+  m.slug,
+  CASE WHEN m.slug = 'perfis-usuario' THEN 'Perfis de usuário' ELSE m.titulo END AS titulo,
+  CASE WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
+  m.icone, m.ordem,
   m.menu_pai_id AS "menuPaiId", mo.slug AS "moduloSlug", mo.nome AS "moduloNome",
   COALESCE(mc.ativo_global, TRUE) AS "ativoGlobal"
       FROM sistemas_menus m

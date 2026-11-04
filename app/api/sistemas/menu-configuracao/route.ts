@@ -33,12 +33,12 @@ export async function GET(request: Request) {
     const menus = await query(`
       SELECT m.id,
   CASE WHEN m.slug = 'planos' THEN 'planos-faixa' ELSE m.slug END AS slug,
-  CASE WHEN m.slug = 'planos' THEN 'Planos Faixa' ELSE m.titulo END AS titulo,
+  CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' WHEN m.slug = 'planos' THEN 'Planos Faixa' ELSE m.titulo END AS titulo,
   CASE WHEN m.slug = 'planos' THEN '/dashboard/cadastros/planos-faixa' WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
   CASE WHEN m.slug = 'planos' THEN 'file-spreadsheet' WHEN m.slug = 'perfis-usuario' THEN 'users-round' ELSE m.icone END AS icone,
   m.ordem,
              m.menu_pai_id AS "menuPaiId", m.modulo_id AS "moduloId",
-             mo.slug AS "moduloSlug", mo.nome AS "moduloNome", mo.descricao AS "moduloDescricao",
+             mo.slug AS "moduloSlug", CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS "moduloNome", mo.descricao AS "moduloDescricao",
              COALESCE(mc.ativo_global, TRUE) AS "ativoGlobal"
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
       ORDER BY mo.ordem, m.ordem, m.id
     `, [context.administradoraId])
     const modules = await query(`
-      SELECT mo.id, mo.slug, mo.nome, mo.descricao, mo.ordem,
+      SELECT mo.id, mo.slug, CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS nome, mo.descricao, mo.ordem,
              COUNT(m.id)::int AS "totalMenus",
              COUNT(m.id) FILTER (WHERE COALESCE(mc.ativo_global, TRUE))::int AS "activeMenus"
       FROM sistemas_modulos mo

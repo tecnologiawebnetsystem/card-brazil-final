@@ -877,6 +877,11 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent className="min-w-0 overflow-x-hidden px-2 py-3">
           {filteredMenuItems.map((group) => (
+            group.title === "Dashboard" ? (
+              <div key={group.title} className="mb-0 w-full p-0">
+                {renderMenuItems(group.items)}
+              </div>
+            ) : (
             <SidebarGroup key={group.title} className="mb-0 p-0">
               <SidebarGroupLabel asChild className="mb-1 h-8 p-0 group-data-[collapsible=icon]:mt-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:opacity-100">
                 <button
@@ -898,9 +903,10 @@ export function AppSidebar() {
               {isGroupExpanded(group.title) && (
                 <SidebarGroupContent id={`sidebar-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="mt-0.5 animate-in fade-in-0 slide-in-from-top-1 duration-200">
                   {renderMenuItems(group.items)}
-                </SidebarGroupContent>
-              )}
+              </SidebarGroupContent>
+                )}
             </SidebarGroup>
+            )
           ))}
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border/70 bg-sidebar-primary/10 p-3">

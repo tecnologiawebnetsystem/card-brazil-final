@@ -10,7 +10,7 @@ export async function GET() {
     const rows = await query(`
   SELECT m.id,
   m.slug,
-  CASE WHEN m.slug = 'perfis-usuario' THEN 'Perfis de usuário' ELSE m.titulo END AS titulo,
+  CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' WHEN m.slug = 'perfis-usuario' THEN 'Perfis de usuário' ELSE m.titulo END AS titulo,
   CASE WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
   m.icone, m.ordem,
   m.menu_pai_id AS "menuPaiId", mo.slug AS "moduloSlug", mo.nome AS "moduloNome",

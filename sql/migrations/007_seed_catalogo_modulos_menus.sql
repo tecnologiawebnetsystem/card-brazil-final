@@ -2,7 +2,7 @@
 -- Idempotente: preserva desativações da administradora e apenas adiciona itens ausentes.
 WITH modulos(slug, nome, descricao, ordem) AS (
   VALUES
-    ('inicio','Início','Visão geral e atalhos da operação',1),
+    ('inicio','Dashboard','Visão geral e atalhos da operação',1),
     ('beneficiarios','Beneficiários','Cadastro, consulta e movimentação de beneficiários',10),
     ('propostas','Propostas','Cotações, análises e aprovações',20),
     ('cadastros','Cadastros','Administradoras, operadoras, planos e produtos',30),
@@ -22,7 +22,7 @@ WITH modulos(slug, nome, descricao, ordem) AS (
   RETURNING id,slug
 ), itens(modulo_slug,slug,titulo,rota,icone,ordem) AS (
   VALUES
-    ('inicio','inicio','Início','/dashboard','layout-dashboard',1),
+    ('inicio','inicio','Dashboard','/dashboard','layout-dashboard',1),
     ('beneficiarios','beneficiarios-consulta','Consulta de beneficiários','/dashboard/beneficiarios/consulta','users',1),('beneficiarios','beneficiarios-inclusao','Inclusão de beneficiário','/dashboard/beneficiarios/inclusao','user-plus',2),('beneficiarios','beneficiarios-titular','Titulares','/dashboard/beneficiarios/titular','user-round',3),('beneficiarios','beneficiarios-dependentes','Dependentes','/dashboard/beneficiarios/dependentes','users-round',4),('beneficiarios','beneficiarios-alteracao','Alteração de beneficiário','/dashboard/beneficiarios/alteracao','user-cog',5),('beneficiarios','beneficiarios-exclusao','Exclusão de beneficiário','/dashboard/beneficiarios/exclusao','user-minus',6),('beneficiarios','beneficiarios-carteirinhas','Carteirinhas','/dashboard/beneficiarios/carteirinhas','contact',7),
     ('propostas','propostas-lista','Lista de propostas','/dashboard/propostas/lista','file-text',1),('propostas','propostas-nova','Nova proposta','/dashboard/propostas/nova','file-plus',2),('propostas','propostas-pendentes','Propostas pendentes','/dashboard/propostas/pendentes','clock-3',3),('propostas','propostas-analise','Análise de propostas','/dashboard/propostas/analise','search-check',4),('propostas','propostas-aprovacao','Aprovação de propostas','/dashboard/propostas/aprovacao','check-check',5),('propostas','propostas-aprovadas','Propostas aprovadas','/dashboard/propostas/aprovadas','badge-check',6),('propostas','cotacao','Cotação','/dashboard/cotacao','calculator',7),
     ('cadastros','administradora','Administradoras','/dashboard/cadastros/administradora','building-2',2),('cadastros','operadora','Operadoras','/dashboard/cadastros/operadora','briefcase-business',3),('cadastros','planos','Planos Faixa','/dashboard/cadastros/planos-faixa','file-spreadsheet',4),('cadastros','produtos','Produtos','/dashboard/cadastros/produtos','package',6),('cadastros','corretor','Corretores','/dashboard/cadastros/corretor','contact-round',7),('cadastros','estipulante','Estipulantes','/dashboard/cadastros/estipulante','landmark',8),('cadastros','subestipulante','Subestipulantes','/dashboard/cadastros/subestipulante','network',9),

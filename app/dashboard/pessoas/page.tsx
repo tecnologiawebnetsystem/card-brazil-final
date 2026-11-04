@@ -1184,21 +1184,23 @@ export default function PessoasPage() {
         </AlertDialog>
 
         <Dialog open={isDetalhesOpen} onOpenChange={setIsDetalhesOpen}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Detalhes da Pessoa</DialogTitle>
-              <DialogDescription>Informações completas da pessoa cadastrada</DialogDescription>
+          <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto border-border/80 bg-background p-0 shadow-2xl">
+            <DialogHeader className="border-b border-border/70 bg-muted/30 px-6 py-6 pr-12">
+              <div className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15"><Building2 className="h-5 w-5" /></div>
+                <div><DialogTitle className="text-xl tracking-tight">Detalhes da pessoa</DialogTitle><DialogDescription className="mt-1">Informações completas da pessoa cadastrada</DialogDescription></div>
+              </div>
             </DialogHeader>
 
             {pessoaDetalhes && (
-              <Tabs defaultValue="dados-pessoais" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="dados-pessoais">Dados Pessoais</TabsTrigger>
-                  <TabsTrigger value="enderecos">Endereços ({enderecosDetalhes.length})</TabsTrigger>
-                  <TabsTrigger value="dados-bancarios">Dados Bancários ({contasDetalhes.length})</TabsTrigger>
+              <Tabs defaultValue="dados-pessoais" className="w-full px-6 py-5">
+                <TabsList className="grid h-12 w-full grid-cols-3 rounded-xl bg-muted/60 p-1">
+                  <TabsTrigger className="rounded-lg text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm" value="dados-pessoais">Dados pessoais</TabsTrigger>
+                  <TabsTrigger className="rounded-lg text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm" value="enderecos">Endereços ({enderecosDetalhes.length})</TabsTrigger>
+                  <TabsTrigger className="rounded-lg text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm" value="dados-bancarios">Dados bancários ({contasDetalhes.length})</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="dados-pessoais" className="space-y-4 mt-4">
+                <TabsContent value="dados-pessoais" className="mt-4 space-y-4 rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-muted-foreground">Tipo de Pessoa</Label>
@@ -1208,7 +1210,7 @@ export default function PessoasPage() {
                     </div>
                     <div>
                       <Label className="text-muted-foreground">Status</Label>
-                      <p className="font-medium capitalize">{pessoaDetalhes.status}</p>
+                      <Badge className="mt-1 bg-primary/10 text-primary hover:bg-primary/15">{pessoaDetalhes.status === "ativo" ? "Ativo" : "Inativo"}</Badge>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -1222,7 +1224,7 @@ export default function PessoasPage() {
                       <Label className="text-muted-foreground">
                         {pessoaDetalhes.tipo_pessoa === "fisica" ? "CPF" : "CNPJ"}
                       </Label>
-                      <p className="font-medium">{pessoaDetalhes.cpf || pessoaDetalhes.cnpj}</p>
+                      <p className="font-medium">{pessoaDetalhes.tipo_pessoa === "juridica" && pessoaDetalhes.cnpj?.length === 14 ? pessoaDetalhes.cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5") : pessoaDetalhes.cpf || pessoaDetalhes.cnpj}</p>
                     </div>
                   </div>
                   {(pessoaDetalhes.rg || pessoaDetalhes.inscricao_estadual) && (
@@ -1270,18 +1272,17 @@ export default function PessoasPage() {
                     <p className="text-center text-muted-foreground py-8">Nenhum endereço cadastrado</p>
                   ) : (
                     enderecosDetalhes.map((endereco, index) => (
-                      <Card key={endereco.id} className="p-4">
-                        <h4 className="font-medium mb-4">
-                          {endereco.principal ? "Endereço Principal" : `Endereço ${index + 1}`}
-                        </h4>
+                      <Card key={endereco.id} className="overflow-hidden border-border/70 shadow-sm">
+                        <CardHeader className="border-b border-border/70 bg-muted/30 px-5 py-4"><CardTitle className="text-base">{endereco.principal ? "Endereço principal" : `Endereço ${index + 1}`}</CardTitle></CardHeader>
+                        <CardContent className="p-5">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <Label className="text-muted-foreground">Tipo</Label>
-                            <p className="font-medium capitalize">{endereco.tipo_endereco}</p>
+                            <p className="font-medium capitalize">{endereco.tipo_endereco === "correspondencia" ? "Correspondência" : endereco.tipo_endereco}</p>
                           </div>
                           <div>
                             <Label className="text-muted-foreground">CEP</Label>
-                            <p className="font-medium">{endereco.cep}</p>
+                            <p className="font-medium">{endereco.cep?.length === 8 ? endereco.cep.replace(/(\d{5})(\d{3})/, "$1-$2") : endereco.cep}</p>
                           </div>
                         </div>
                         <div className="mt-4">
@@ -1300,12 +1301,13 @@ export default function PessoasPage() {
                             <p className="font-medium">{endereco.email}</p>
                           </div>
                         )}
+                        </CardContent>
                       </Card>
                     ))
                   )}
                 </TabsContent>
 
-                <TabsContent value="dados-bancarios" className="space-y-4 mt-4">
+                <TabsContent value="dados-bancarios" className="mt-4 space-y-4 rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
                   {contasDetalhes.length === 0 ? (
                     <p className="text-center text-muted-foreground py-8">Nenhuma conta bancária cadastrada</p>
                   ) : (

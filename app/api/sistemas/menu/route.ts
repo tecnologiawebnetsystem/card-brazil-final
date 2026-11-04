@@ -20,6 +20,7 @@ export async function GET() {
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
       WHERE m.ativo = TRUE AND mo.ativo = TRUE
     AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager', 'subestipulante', 'subestipulantes')
+    AND NOT (mo.slug = 'cobranca' AND m.slug = 'cobranca')
     AND COALESCE(mc.ativo_global, TRUE) = TRUE
         AND NOT EXISTS (
           SELECT 1

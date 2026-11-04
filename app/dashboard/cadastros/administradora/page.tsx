@@ -267,11 +267,11 @@ const handleCreateNewLegacy = () => {
       {administradora ? (
         <div className="space-y-6">
           {/* Dados da Administradora */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Dados da Administradora</CardTitle>
+          <Card className="border-primary/15 shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-border/70">
+              <CardTitle className="text-primary">Dados da Administradora</CardTitle>
               <div className="flex gap-2">
-                <Button onClick={handleEdit} variant="outline" size="sm">
+                <Button onClick={handleEdit} variant="default" size="sm">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -282,7 +282,7 @@ const handleCreateNewLegacy = () => {
                   </svg>
                   Editar
                 </Button>
-                <Button onClick={() => setShowDeleteDialog(true)} variant="destructive" size="sm">
+                <Button onClick={() => setShowDeleteDialog(true)} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" size="sm">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -337,7 +337,7 @@ const handleCreateNewLegacy = () => {
                 )}
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                  <Badge variant={administradora.status === "ativo" ? "default" : "secondary"}>
+                  <Badge className={administradora.status === "ativo" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}>
                     {administradora.status}
                   </Badge>
                 </div>
@@ -526,7 +526,7 @@ const handleCreateNewLegacy = () => {
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={loading}>
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleDelete} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Excluir
             </Button>

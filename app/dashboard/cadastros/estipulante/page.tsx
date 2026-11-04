@@ -876,7 +876,7 @@ export default function EstipulantePage() {
                       )}
                       {selectedPerson.data_fundacao && (
                         <div>
-                          <Label className="text-sm font-medium text-muted-foreground">Data de Fundação</Label>
+                          <Label className="text-sm font-medium text-muted-foreground">Data de Funda��ão</Label>
                           <p className="font-medium">
                             {new Date(selectedPerson.data_fundacao).toLocaleDateString("pt-BR")}
                           </p>
@@ -1084,7 +1084,7 @@ export default function EstipulantePage() {
           allowedTypes={["juridica"]}
           showAddressTabs={true}
           showBankTabs={true}
-          className="!w-[min(96vw,1500px)] !max-w-[1500px]"
+          className="w-[min(96vw,920px)] max-w-[920px]"
         />
 
         {/* Modal para cadastrar estipulante */}

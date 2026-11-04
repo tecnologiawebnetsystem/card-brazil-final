@@ -865,7 +865,7 @@ export default function OperadoraPage() {
           allowedTypes={["juridica"]}
           showAddressTabs={true}
           showBankTabs={true}
-            className="!w-[min(96vw,1500px)] !max-w-[1500px]"
+            className="w-[min(96vw,920px)] max-w-[920px]"
           />
         )}
 

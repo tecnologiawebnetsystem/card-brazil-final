@@ -62,6 +62,9 @@ export function PersonModal({
   const [consultandoDocumento, setConsultandoDocumento] = useState(false)
   const [documentoConsultado, setDocumentoConsultado] = useState(false)
   const [pessoaEncontrada, setPessoaEncontrada] = useState(false)
+  const aceitaCpf = allowedTypes.includes("fisica")
+  const aceitaCnpj = allowedTypes.includes("juridica")
+  const documentoLabel = aceitaCpf && aceitaCnpj ? "CPF ou CNPJ" : "CNPJ"
 
   // Estados para formulários de endereço
   const [showEnderecoForm, setShowEnderecoForm] = useState(false)
@@ -176,7 +179,8 @@ export function PersonModal({
 
   const consultarDocumento = async () => {
     const normalizado = documento.replace(/\\D/g, "")
-    if (normalizado.length !== 11 && normalizado.length !== 14) return
+    const documentoValido = (normalizado.length === 11 && aceitaCpf) || (normalizado.length === 14 && aceitaCnpj)
+    if (!documentoValido) return
     setConsultandoDocumento(true)
     try {
       const response = await fetch(`/api/pessoas/lookup?documento=${normalizado}`)
@@ -245,33 +249,33 @@ export function PersonModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`${className} max-h-[94vh] overflow-y-auto rounded-2xl border-primary/15 bg-card p-0 shadow-2xl`}>
-        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-10 py-9 text-primary-foreground sm:px-14">
-          <DialogTitle className="text-2xl font-bold tracking-tight text-primary-foreground">{title}</DialogTitle>
-          <DialogDescription className="text-base text-primary-foreground/75">{description}</DialogDescription>
+      <DialogContent className={`${className} max-h-[92vh] overflow-y-auto rounded-2xl border-border bg-card p-0 shadow-2xl`}>
+        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-6 py-6 text-primary-foreground sm:px-8">
+          <DialogTitle className="text-xl font-bold tracking-tight text-primary-foreground sm:text-2xl">{title}</DialogTitle>
+          <DialogDescription className="mt-1 text-sm text-primary-foreground/75 sm:text-base">{description}</DialogDescription>
         </DialogHeader>
-        <div className="px-10 py-10 sm:px-14 sm:py-12">
+        <div className="space-y-6 px-6 py-6 sm:px-8">
         {!documentoConsultado && (
-          <Card className="mb-6 border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><Search className="h-4 w-4" />Identifique a pessoa antes do cadastro</CardTitle>
-              <CardContent className="px-0 pb-0">
-                <p className="mb-4 text-sm text-muted-foreground">Informe o CPF ou CNPJ para reaproveitar os dados existentes de endereço e conta bancária.</p>
-                <div className="flex gap-2">
-                  <Input value={documento} onChange={(event) => setDocumento(event.target.value)} placeholder="CPF ou CNPJ" inputMode="numeric" />
-                  <Button type="button" onClick={consultarDocumento} disabled={consultandoDocumento}>
+          <Card className="border-primary/20 bg-primary/5 shadow-sm">
+            <CardHeader className="space-y-1 px-5 pb-3 pt-5">
+              <CardTitle className="flex items-center gap-2 text-base"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><Search className="h-4 w-4" /></span>Identifique a pessoa antes do cadastro</CardTitle>
+              <p className="text-sm leading-relaxed text-muted-foreground">Informe o {documentoLabel} para reaproveitar dados existentes de endereço e conta bancária.</p>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Input value={documento} onChange={(event) => setDocumento(event.target.value)} placeholder={documentoLabel} inputMode="numeric" />
+                  <Button type="button" className="shrink-0" onClick={consultarDocumento} disabled={consultandoDocumento}>
                     {consultandoDocumento ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Consultar
                   </Button>
                 </div>
               </CardContent>
-            </CardHeader>
           </Card>
         )}
         {documentoConsultado && (
         <>
-          {pessoaEncontrada && <div className="mb-4 flex items-center gap-2 rounded-md bg-emerald-50 p-3 text-sm text-emerald-700"><CheckCircle2 className="h-4 w-4" />Pessoa encontrada. Os dados compartilhados foram carregados.</div>}
+          {pessoaEncontrada && <div className="mb-4 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm text-primary"><CheckCircle2 className="h-4 w-4" />Pessoa encontrada. Os dados compartilhados foram carregados.</div>}
         <Tabs defaultValue="dados" className="w-full">
-          <TabsList className={`grid w-full grid-cols-${tabsConfig.length} mb-6`}>
+          <TabsList className={`mb-6 grid w-full ${tabsConfig.length === 3 ? "grid-cols-3" : tabsConfig.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
             {" "}
             {/* Adicionando margin bottom nas tabs */}
             <TabsTrigger value="dados">Dados Pessoais</TabsTrigger>

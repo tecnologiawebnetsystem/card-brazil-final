@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Loader2, CheckCircle2 } from "lucide-react"
+import { Search, Loader2, CheckCircle2, Building2 } from "lucide-react"
 
 interface Endereco {
   id: number
@@ -250,21 +250,32 @@ export function PersonModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`${className} max-h-[92vh] overflow-y-auto rounded-2xl border-border bg-card p-0 shadow-2xl`}>
-        <DialogHeader className="border-b border-border bg-gradient-to-r from-sidebar to-primary px-6 py-6 text-primary-foreground sm:px-8">
-          <DialogTitle className="text-xl font-bold tracking-tight text-primary-foreground sm:text-2xl">{title}</DialogTitle>
-          <DialogDescription className="mt-1 text-sm text-primary-foreground/75 sm:text-base">{description}</DialogDescription>
+        <DialogHeader className="border-b border-primary-foreground/10 bg-gradient-to-r from-sidebar to-primary px-6 py-6 text-primary-foreground sm:px-8">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-foreground/10 ring-1 ring-primary-foreground/15">
+              <Building2 className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div className="min-w-0">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/60">Novo cadastro</p>
+              <DialogTitle className="text-xl font-bold tracking-tight text-primary-foreground sm:text-2xl">{title}</DialogTitle>
+              <DialogDescription className="mt-1 text-sm text-primary-foreground/75 sm:text-base">{description}</DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
         <div className="space-y-6 px-6 py-6 sm:px-8">
         {!documentoConsultado && (
-          <Card className="border-primary/20 bg-primary/5 shadow-sm">
-            <CardHeader className="space-y-1 px-5 pb-3 pt-5">
-              <CardTitle className="flex items-center gap-2 text-base"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary"><Search className="h-4 w-4" /></span>Identifique a pessoa antes do cadastro</CardTitle>
+          <Card className="overflow-hidden border-border shadow-sm">
+            <CardHeader className="space-y-2 border-b border-border/70 bg-muted/30 px-5 py-4">
+              <CardTitle className="flex items-center gap-2 text-base"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Search className="h-4 w-4" /></span>Identifique a pessoa antes do cadastro</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">Informe o {documentoLabel} para reaproveitar dados existentes de endereço e conta bancária.</p>
             </CardHeader>
-            <CardContent className="px-5 pb-5">
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Input value={documento} onChange={(event) => setDocumento(event.target.value)} placeholder={documentoLabel} inputMode="numeric" />
-                  <Button type="button" className="shrink-0" onClick={consultarDocumento} disabled={consultandoDocumento}>
+            <CardContent className="px-5 py-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="documento">Documento</Label>
+                    <Input id="documento" value={documento} onChange={(event) => setDocumento(event.target.value)} placeholder={documentoLabel} inputMode="numeric" />
+                  </div>
+                  <Button type="button" className="h-10 shrink-0" onClick={consultarDocumento} disabled={consultandoDocumento}>
                     {consultandoDocumento ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Consultar
                   </Button>
                 </div>
@@ -275,12 +286,10 @@ export function PersonModal({
         <>
           {pessoaEncontrada && <div className="mb-4 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm text-primary"><CheckCircle2 className="h-4 w-4" />Pessoa encontrada. Os dados compartilhados foram carregados.</div>}
         <Tabs defaultValue="dados" className="w-full">
-          <TabsList className={`mb-6 grid w-full ${tabsConfig.length === 3 ? "grid-cols-3" : tabsConfig.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
-            {" "}
-            {/* Adicionando margin bottom nas tabs */}
-            <TabsTrigger value="dados">Dados Pessoais</TabsTrigger>
-            {showAddressTabs && <TabsTrigger value="enderecos">Endereços ({enderecos.length})</TabsTrigger>}
-            {showBankTabs && <TabsTrigger value="bancarios">Dados Bancários ({dadosBancarios.length})</TabsTrigger>}
+          <TabsList className={`mb-6 grid h-11 w-full rounded-xl bg-muted/60 p-1 ${tabsConfig.length === 3 ? "grid-cols-3" : tabsConfig.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+            <TabsTrigger className="rounded-lg text-sm" value="dados">Dados Pessoais</TabsTrigger>
+            {showAddressTabs && <TabsTrigger className="rounded-lg text-sm" value="enderecos">Endereços ({enderecos.length})</TabsTrigger>}
+            {showBankTabs && <TabsTrigger className="rounded-lg text-sm" value="bancarios">Dados Bancários ({dadosBancarios.length})</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="dados" className="space-y-4">

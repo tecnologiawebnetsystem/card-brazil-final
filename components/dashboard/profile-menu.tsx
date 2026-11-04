@@ -38,7 +38,7 @@ export function ProfileMenu() {
         sideOffset={8}
         avoidCollisions
         collisionPadding={16}
-        className="w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl border-border/80 bg-popover/95 p-2 shadow-xl backdrop-blur"
+        className="!left-auto !right-4 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border-border/80 bg-popover/95 p-2 text-left shadow-xl backdrop-blur sm:!right-6"
       >
         <DropdownMenuLabel className="flex items-center gap-3 rounded-xl bg-muted/60 px-3 py-3">
           <Avatar className="h-10 w-10"><AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback></Avatar>

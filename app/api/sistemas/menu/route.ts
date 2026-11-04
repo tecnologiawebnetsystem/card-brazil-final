@@ -28,7 +28,7 @@ export async function GET() {
           WHERE parent.id = m.menu_pai_id AND COALESCE(parent_config.ativo_global, TRUE) = FALSE
         )
 
-      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, CASE WHEN mo.slug = 'cadastros' THEN CASE m.slug WHEN 'administradora' THEN 1 WHEN 'operadora' THEN 2 WHEN 'estipulante' THEN 3 WHEN 'agenciador' THEN 4 WHEN 'corretor' THEN 5 WHEN 'produtos' THEN 6 WHEN 'planos' THEN 7 WHEN 'planos-faixa' THEN 8 ELSE 99 END ELSE m.ordem END, m.id
+      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, CASE WHEN mo.slug = 'cadastros' THEN CASE m.slug WHEN 'administradora' THEN 1 WHEN 'pessoas' THEN 2 WHEN 'operadora' THEN 3 WHEN 'estipulante' THEN 4 WHEN 'agenciador' THEN 5 WHEN 'corretor' THEN 6 WHEN 'produtos' THEN 7 WHEN 'planos' THEN 8 WHEN 'planos-faixa' THEN 9 ELSE 99 END ELSE m.ordem END, m.id
     `, [administradoraId])
     return NextResponse.json({
       menus: rows,

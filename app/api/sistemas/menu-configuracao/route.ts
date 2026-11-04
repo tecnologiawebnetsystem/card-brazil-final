@@ -43,15 +43,15 @@ export async function GET(request: Request) {
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
-      WHERE m.ativo = TRUE AND mo.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager')
-      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, m.ordem, m.id
+      WHERE m.ativo = TRUE AND mo.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager', 'subestipulante', 'subestipulantes')
+      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, CASE WHEN mo.slug = 'cadastros' THEN CASE m.slug WHEN 'administradora' THEN 1 WHEN 'operadora' THEN 2 WHEN 'estipulante' THEN 3 WHEN 'agenciador' THEN 4 WHEN 'corretor' THEN 5 WHEN 'produtos' THEN 6 WHEN 'planos' THEN 7 WHEN 'planos-faixa' THEN 8 ELSE 99 END ELSE m.ordem END, m.id
     `, [context.administradoraId])
     const modules = await query(`
       SELECT mo.id, mo.slug, CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS nome, mo.descricao, mo.ordem,
              COUNT(m.id)::int AS "totalMenus",
              COUNT(m.id) FILTER (WHERE COALESCE(mc.ativo_global, TRUE))::int AS "activeMenus"
       FROM sistemas_modulos mo
-      LEFT JOIN sistemas_menus m ON m.modulo_id = mo.id AND m.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager')
+      LEFT JOIN sistemas_menus m ON m.modulo_id = mo.id AND m.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager', 'subestipulante', 'subestipulantes')
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
       WHERE mo.ativo = TRUE
       GROUP BY mo.id
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id AND mo.ativo = TRUE
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
-      WHERE m.id = ANY($2::int[]) AND m.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager')
+      WHERE m.id = ANY($2::int[]) AND m.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager', 'subestipulante', 'subestipulantes')
     `, [context.administradoraId, ids])
     const currentById = new Map(current.map((item) => [item.id, item]))
     const statements: DatabaseStatement[] = []

@@ -643,7 +643,6 @@ export function AppSidebar() {
                   title: item.titulo,
                   url: item.rota || undefined,
                   icon: item.slug.includes("benefici") ? <UsersIcon /> : item.slug.includes("cadastro") || item.slug.includes("operadora") ? <BuildingIcon /> : item.slug.includes("propost") ? <FileTextIcon /> : item.slug.includes("cobr") || item.slug.includes("finance") ? <DollarSignIcon /> : item.slug.includes("relat") ? <BarChartIcon /> : item.slug.includes("sistema") || item.slug.includes("perfil") ? <ShieldIcon /> : <FileTextIcon />,
-                  requiredPermission: item.slug,
                   subItems: subItems.length > 0 ? subItems : undefined,
                 }
               })

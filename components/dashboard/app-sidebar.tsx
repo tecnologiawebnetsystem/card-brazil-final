@@ -608,45 +608,56 @@ export function AppSidebar() {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
-  let cancelled = false
-  fetch("/api/sistemas/menu", { credentials: "same-origin", cache: "no-store" })
-    .then((response) => response.ok ? response.json() : null)
-    .then((data) => {
-      if (cancelled || !Array.isArray(data?.menus) || data.menus.length === 0) return
-      const groups = new Map<string, Array<{
-        id: number
-        menuPaiId: number | null
-        titulo: string
-        rota?: string | null
-        slug: string
-      }>>()
-      for (const item of data.menus) {
-        const groupName = item.moduloNome || "Sistemas"
-        const current = groups.get(groupName) || []
-        current.push(item)
-        groups.set(groupName, current)
-      }
+    let cancelled = false
 
-      const treeGroups = Array.from(groups, ([title, rows]) => {
-        const buildItems = (parentId: number | null): MenuItem[] => rows
-          .filter((item) => item.menuPaiId === parentId)
-          .map((item) => {
-            const subItems = buildItems(item.id)
-            return {
-              id: item.id,
-              title: item.titulo,
-              url: item.rota || undefined,
-              requiredPermission: item.slug,
-              subItems: subItems.length > 0 ? subItems : undefined,
-            }
-          })
-        return { title, items: buildItems(null) }
-      }).filter((group) => group.items.length > 0)
+    const loadDatabaseMenu = () => {
+      fetch("/api/sistemas/menu", { credentials: "same-origin", cache: "no-store" })
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => {
+          if (cancelled || !Array.isArray(data?.menus)) return
+          const groups = new Map<string, Array<{
+            id: number
+            menuPaiId: number | null
+            titulo: string
+            rota?: string | null
+            slug: string
+          }>>()
+          for (const item of data.menus) {
+            const groupName = item.moduloNome || "Sistemas"
+            const current = groups.get(groupName) || []
+            current.push(item)
+            groups.set(groupName, current)
+          }
 
-      setDatabaseMenu(treeGroups)
-    })
-    .catch(() => undefined)
-  return () => { cancelled = true }
+          const treeGroups = Array.from(groups, ([title, rows]) => {
+            const buildItems = (parentId: number | null): MenuItem[] => rows
+              .filter((item) => item.menuPaiId === parentId)
+              .map((item) => {
+                const subItems = buildItems(item.id)
+                return {
+                  id: item.id,
+                  title: item.titulo,
+                  url: item.rota || undefined,
+                  requiredPermission: item.slug,
+                  subItems: subItems.length > 0 ? subItems : undefined,
+                }
+              })
+            return { title, items: buildItems(null) }
+          }).filter((group) => group.items.length > 0)
+
+          setDatabaseMenu(treeGroups)
+        })
+        .catch(() => undefined)
+    }
+
+    loadDatabaseMenu()
+    window.addEventListener("navigation-config-updated", loadDatabaseMenu)
+    window.addEventListener("focus", loadDatabaseMenu)
+    return () => {
+      cancelled = true
+      window.removeEventListener("navigation-config-updated", loadDatabaseMenu)
+      window.removeEventListener("focus", loadDatabaseMenu)
+    }
   }, [])
 
   useEffect(() => {

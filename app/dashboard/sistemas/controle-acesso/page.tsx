@@ -72,7 +72,8 @@ export default function ControleAcessoPage() {
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Não foi possível salvar as alterações.")
       setMenus((current) => current.map((menu) => ({ ...menu, ativoGlobal: draft[menu.id] })))
-      setMessage(`${data.updated} alteração(ões) salvas. O menu global será atualizado no próximo carregamento.`)
+      window.dispatchEvent(new Event("navigation-config-updated"))
+      setMessage(`${data.updated} alteração(ões) salvas. A navegação lateral foi atualizada.`)
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Não foi possível salvar as alterações.") } finally { setBusy(false) }
   }
 
@@ -82,7 +83,7 @@ export default function ControleAcessoPage() {
     try {
       const response = await fetch("/api/sistemas/menu-configuracao", { method: "DELETE", credentials: "same-origin" }); const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Não foi possível restaurar a configuração.")
-      setDraft(Object.fromEntries(menus.map((menu) => [menu.id, true]))); setMenus((current) => current.map((menu) => ({ ...menu, ativoGlobal: true }))); setMessage(`Configuração padrão restaurada para ${data.restored} item(ns).`)
+      setDraft(Object.fromEntries(menus.map((menu) => [menu.id, true]))); setMenus((current) => current.map((menu) => ({ ...menu, ativoGlobal: true }))); window.dispatchEvent(new Event("navigation-config-updated")); setMessage(`Configuração padrão restaurada para ${data.restored} item(ns).`)
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Não foi possível restaurar a configuração.") } finally { setBusy(false) }
   }
 

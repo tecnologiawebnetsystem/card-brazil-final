@@ -13,7 +13,7 @@ export async function GET() {
   CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' WHEN m.slug = 'perfis-usuario' THEN 'Perfis de usuário' ELSE m.titulo END AS titulo,
   CASE WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
   m.icone, m.ordem,
-  m.menu_pai_id AS "menuPaiId", mo.slug AS "moduloSlug", mo.nome AS "moduloNome",
+  m.menu_pai_id AS "menuPaiId", mo.slug AS "moduloSlug", CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS "moduloNome",
   COALESCE(mc.ativo_global, TRUE) AS "ativoGlobal"
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id

@@ -877,7 +877,7 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent className="min-w-0 overflow-x-hidden px-2 py-3">
           {filteredMenuItems.map((group) => (
-            group.title === "Dashboard" ? (
+            ["Dashboard", "Início"].includes(group.title) ? (
               <div key={group.title} className="mb-0 w-full p-0">
                 {renderMenuItems(group.items)}
               </div>

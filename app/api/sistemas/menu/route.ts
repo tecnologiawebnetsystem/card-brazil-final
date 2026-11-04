@@ -10,9 +10,9 @@ export async function GET() {
     const rows = await query(`
   SELECT m.id,
   m.slug,
-  CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' WHEN m.slug = 'perfis-usuario' THEN 'Perfis de usuário' ELSE m.titulo END AS titulo,
-  CASE WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
-  m.icone, m.ordem,
+  CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' WHEN m.slug = 'planos' THEN 'Planos Faixa' WHEN m.slug = 'perfis-usuario' THEN 'Perfis de usuário' ELSE m.titulo END AS titulo,
+  CASE WHEN m.slug = 'planos' THEN '/dashboard/cadastros/planos-faixa' WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
+  CASE WHEN m.slug = 'planos' THEN 'file-spreadsheet' ELSE m.icone END AS icone, m.ordem,
   m.menu_pai_id AS "menuPaiId", mo.slug AS "moduloSlug", CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS "moduloNome",
   COALESCE(mc.ativo_global, TRUE) AS "ativoGlobal"
       FROM sistemas_menus m

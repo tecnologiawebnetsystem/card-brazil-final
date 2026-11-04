@@ -170,8 +170,7 @@ const menuItems: MenuGroup[] = [
         subItems: [
           { title: "Produtos", url: "/dashboard/cadastros/produtos", icon: <CogIcon className="h-3 w-3" /> },
           { title: "Planos Faixa", url: "/dashboard/cadastros/planos-faixa", icon: <CogIcon className="h-3 w-3" /> },
-          { title: "Plano Faixa", url: "/dashboard/cadastros/planos-faixa", icon: <CogIcon className="h-3 w-3" /> },
-        ],
+                ],
       },
     ],
   },

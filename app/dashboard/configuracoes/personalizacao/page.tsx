@@ -7,17 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
+import { Palette, Upload, Save } from "lucide-react"
 
-const SaveIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-    />
-  </svg>
-)
 
 const UploadIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,19 +47,19 @@ export default function ConfiguracoesPersonalizacaoPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Personalização</h1>
-          <p className="text-muted-foreground">Customize a aparência e identidade visual do sistema</p>
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-8 flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15"><Palette className="h-6 w-6" /></div>
+          <div><p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">Administração do sistema</p><h1 className="text-3xl font-bold tracking-tight text-foreground">Personalização</h1><p className="mt-1 text-muted-foreground">Customize a aparência e a identidade visual do sistema.</p></div>
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-border shadow-sm">
+            <CardHeader className="border-b border-border/70 bg-muted/30 px-6 py-5">
               <CardTitle>Identidade Visual</CardTitle>
               <CardDescription>Configure a marca e logotipos da empresa</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-6">
               <div className="space-y-2">
                 <Label htmlFor="company-name">Nome da Empresa</Label>
                 <Input
@@ -82,12 +73,12 @@ export default function ConfiguracoesPersonalizacaoPage() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Logo da Empresa</h3>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <div className="w-20 h-20 mx-auto mb-4 bg-emerald-100 rounded-lg flex items-center justify-center">
-                      <span className="text-emerald-600 font-bold text-xl">CB</span>
+                    <div className="w-20 h-20 mx-auto mb-4 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <span className="text-primary font-bold text-xl">CB</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">Logo atual: 200x80px</p>
                     <Button onClick={handleLogoUpload} variant="outline" size="sm">
-                      <UploadIcon className="w-4 h-4 mr-2" />
+                      <Upload className="mr-2 h-4 w-4" />
                       Alterar Logo
                     </Button>
                   </div>
@@ -96,12 +87,12 @@ export default function ConfiguracoesPersonalizacaoPage() {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Favicon</h3>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-emerald-600 rounded-lg flex items-center justify-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-primary rounded-lg flex items-center justify-center">
                       <span className="text-white font-bold">CB</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">Favicon atual: 32x32px</p>
                     <Button onClick={handleFaviconUpload} variant="outline" size="sm">
-                      <UploadIcon className="w-4 h-4 mr-2" />
+                      <Upload className="mr-2 h-4 w-4" />
                       Alterar Favicon
                     </Button>
                   </div>
@@ -110,12 +101,12 @@ export default function ConfiguracoesPersonalizacaoPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-border shadow-sm">
+            <CardHeader className="border-b border-border/70 bg-muted/30 px-6 py-5">
               <CardTitle>Cores do Sistema</CardTitle>
               <CardDescription>Configure as cores principais da interface</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="primary-color">Cor Primária</Label>
@@ -181,8 +172,8 @@ export default function ConfiguracoesPersonalizacaoPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-border shadow-sm">
+            <CardHeader className="border-b border-border/70 bg-muted/30 px-6 py-5">
               <CardTitle>Opções de Personalização</CardTitle>
               <CardDescription>Configure as opções avançadas de personalização</CardDescription>
             </CardHeader>
@@ -230,8 +221,8 @@ export default function ConfiguracoesPersonalizacaoPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-border shadow-sm">
+            <CardHeader className="border-b border-border/70 bg-muted/30 px-6 py-5">
               <CardTitle>Temas Predefinidos</CardTitle>
               <CardDescription>Escolha entre temas predefinidos para aplicar rapidamente</CardDescription>
             </CardHeader>
@@ -239,7 +230,7 @@ export default function ConfiguracoesPersonalizacaoPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 border rounded-lg cursor-pointer hover:bg-muted/50">
                   <div className="flex gap-2 mb-2">
-                    <div className="w-4 h-4 rounded bg-emerald-600"></div>
+                    <div className="w-4 h-4 rounded bg-primary"></div>
                     <div className="w-4 h-4 rounded bg-emerald-700"></div>
                     <div className="w-4 h-4 rounded bg-cyan-600"></div>
                   </div>
@@ -268,9 +259,9 @@ export default function ConfiguracoesPersonalizacaoPage() {
             </CardContent>
           </Card>
 
-          <Button onClick={handleSave} className="bg-emerald-700 hover:bg-emerald-800">
-            <SaveIcon className="w-4 h-4 mr-2" />
-            Salvar Configurações
+          <Button onClick={handleSave}>
+            <Save className="mr-2 h-4 w-4" />
+            Salvar configurações
           </Button>
         </div>
       </div>

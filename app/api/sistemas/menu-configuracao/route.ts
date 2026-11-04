@@ -44,7 +44,7 @@ export async function GET(request: Request) {
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
       WHERE m.ativo = TRUE AND mo.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager')
-      ORDER BY mo.ordem, m.ordem, m.id
+      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, m.ordem, m.id
     `, [context.administradoraId])
     const modules = await query(`
       SELECT mo.id, mo.slug, CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS nome, mo.descricao, mo.ordem,
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
       WHERE mo.ativo = TRUE
       GROUP BY mo.id
-      ORDER BY mo.ordem, mo.id
+      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, mo.id
     `, [context.administradoraId])
     return NextResponse.json({ menus, modules })
   } catch (error) {

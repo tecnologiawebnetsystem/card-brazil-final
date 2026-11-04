@@ -3,16 +3,16 @@
 WITH modulos(slug, nome, descricao, ordem) AS (
   VALUES
     ('inicio','Dashboard','Visão geral e atalhos da operação',1),
-    ('beneficiarios','Beneficiários','Cadastro, consulta e movimentação de beneficiários',10),
-    ('propostas','Propostas','Cotações, análises e aprovações',20),
-    ('cadastros','Cadastros','Administradoras, operadoras, planos e produtos',30),
-    ('cobranca','Cobrança','Boletos, pagamentos, inadimplência e remessa',40),
-    ('financeiro','Financeiro','Contas, conciliação e fluxo de caixa',50),
+('cadastros','Cadastros','Administradoras, operadoras, planos e produtos',2),
+  ('propostas','Propostas','Cotações, análises e aprovações',3),
+  ('beneficiarios','Beneficiários','Cadastro, consulta e movimentação de beneficiários',4),
+  ('cobranca','Cobrança','Boletos, pagamentos, inadimplência e remessa',5),
+  ('financeiro','Financeiro','Contas, conciliação e fluxo de caixa',6),
     ('contabil','Contábil','Lançamentos, relatórios e demonstrações contábeis',60),
     ('consultas','Consultas','Consultas operacionais e financeiras',70),
-    ('tabelas','Tabelas','Tabelas auxiliares e referências do sistema',80),
-    ('relatorios','Relatórios','Relatórios operacionais, financeiros e de vendas',90),
-    ('sistemas','Sistemas','Segurança, perfis, auditoria e administração',100),
+('tabelas','Tabelas','Tabelas auxiliares e referências do sistema',7),
+  ('relatorios','Relatórios','Relatórios operacionais, financeiros e de vendas',90),
+  ('sistemas','Sistemas','Segurança, perfis, auditoria e administração',8),
     ('configuracoes','Configurações','Preferências, comunicação e usuários',110),
     ('utilitarios','Utilitários','Ferramentas e integrações auxiliares',120)
 ), inseridos AS (

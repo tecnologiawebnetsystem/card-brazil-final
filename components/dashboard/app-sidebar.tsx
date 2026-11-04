@@ -735,7 +735,9 @@ export function AppSidebar() {
       .filter((group) => group.items.length > 0)
   }
 
-  const configuredMenuItems = databaseMenu && databaseMenu.length > 0 ? databaseMenu : menuItems
+  // Um catálogo vazio é uma configuração válida: todos os menus globais podem estar desativados.
+  // O fallback estático só deve aparecer quando a API ainda não respondeu ou falhou.
+  const configuredMenuItems = databaseMenu !== null ? databaseMenu : menuItems
   const filteredMenuItems = user ? filterMenuGroups(configuredMenuItems) : configuredMenuItems
   const isGroupExpanded = (title: string) => searchTerm.trim().length > 0 || expandedGroups[title] !== false
 

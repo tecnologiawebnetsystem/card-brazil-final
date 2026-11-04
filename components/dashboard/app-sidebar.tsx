@@ -612,9 +612,12 @@ export function AppSidebar() {
 
     const loadDatabaseMenu = () => {
       fetch("/api/sistemas/menu", { credentials: "same-origin", cache: "no-store" })
-        .then((response) => response.ok ? response.json() : null)
+        .then((response) => response.ok ? response.json() : { menus: [] })
         .then((data) => {
-          if (cancelled || !Array.isArray(data?.menus)) return
+          if (cancelled || !Array.isArray(data?.menus)) {
+            setDatabaseMenu([])
+            return
+          }
           const groups = new Map<string, Array<{
             id: number
             menuPaiId: number | null
@@ -648,7 +651,9 @@ export function AppSidebar() {
 
           setDatabaseMenu(treeGroups)
         })
-        .catch(() => undefined)
+        .catch(() => {
+          if (!cancelled) setDatabaseMenu([])
+        })
     }
 
     loadDatabaseMenu()

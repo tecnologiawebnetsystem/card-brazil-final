@@ -9,8 +9,9 @@ export async function GET() {
     const { administradoraId, userId } = context
     const isAdministrator = ["admin", "administrador"].includes(String(context.profile.tipo_usuario).toLowerCase())
     const rows = await query(`
-      SELECT m.id, m.slug, m.titulo, m.rota, m.icone, m.ordem,
-             m.menu_pai_id AS "menuPaiId", mo.slug AS "moduloSlug", mo.nome AS "moduloNome"
+  SELECT m.id, m.slug, m.titulo, m.rota, m.icone, m.ordem,
+  m.menu_pai_id AS "menuPaiId", mo.slug AS "moduloSlug", mo.nome AS "moduloNome",
+  COALESCE(mc.ativo_global, TRUE) AS "ativoGlobal"
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $2

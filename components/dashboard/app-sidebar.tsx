@@ -624,6 +624,7 @@ export function AppSidebar() {
             titulo: string
             rota?: string | null
             slug: string
+            ativoGlobal?: boolean
           }>>()
           for (const item of data.menus) {
             const groupName = item.moduloNome || "Sistemas"
@@ -634,7 +635,7 @@ export function AppSidebar() {
 
           const treeGroups = Array.from(groups, ([title, rows]) => {
             const buildItems = (parentId: number | null): MenuItem[] => rows
-              .filter((item) => item.menuPaiId === parentId)
+              .filter((item) => item.menuPaiId === parentId && item.ativoGlobal !== false)
               .map((item) => {
                 const subItems = buildItems(item.id)
                 return {
@@ -664,7 +665,7 @@ export function AppSidebar() {
       window.removeEventListener("navigation-config-updated", loadDatabaseMenu)
       window.removeEventListener("focus", loadDatabaseMenu)
     }
-  }, [])
+  }, [user?.id])
 
   useEffect(() => {
   const restoreScrollPosition = () => {
@@ -740,9 +741,9 @@ export function AppSidebar() {
       .filter((group) => group.items.length > 0)
   }
 
-  // Um catálogo vazio é uma configuração válida: todos os menus globais podem estar desativados.
-  // O fallback estático só deve aparecer quando a API ainda não respondeu ou falhou.
-  const configuredMenuItems = databaseMenu !== null ? databaseMenu : menuItems
+  // A navegação exibida deve vir exclusivamente do catálogo persistido.
+  // Nunca reintroduzir o menu estático quando a API retornar vazio, erro ou itens inativos.
+  const configuredMenuItems = databaseMenu ?? []
   const filteredMenuItems = user ? filterMenuGroups(configuredMenuItems) : configuredMenuItems
   const isGroupExpanded = (title: string) => searchTerm.trim().length > 0 || expandedGroups[title] !== false
 

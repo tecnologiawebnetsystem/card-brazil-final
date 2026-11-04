@@ -664,7 +664,7 @@ export function AppSidebar() {
       window.removeEventListener("navigation-config-updated", loadDatabaseMenu)
       window.removeEventListener("focus", loadDatabaseMenu)
     }
-  }, [])
+  }, [0])
 
   useEffect(() => {
   const restoreScrollPosition = () => {

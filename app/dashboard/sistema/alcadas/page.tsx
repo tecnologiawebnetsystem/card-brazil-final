@@ -190,27 +190,34 @@ export default function AlcadasPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Alçadas e Permissões</h1>
-            <p className="text-muted-foreground">Configure as permissões de acesso por perfil</p>
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+              <Shield className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">Segurança do sistema</p>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Alçadas e Permissões</h1>
+              <p className="mt-1 text-muted-foreground">Configure as permissões de acesso por perfil</p>
+            </div>
           </div>
-          <Button onClick={salvarAlcadas} className="bg-emerald-700 hover:bg-emerald-800">
-            <Save className="h-4 w-4 mr-2" />
-            Salvar Alterações
+          <Button onClick={salvarAlcadas} className="w-full sm:w-auto">
+            <Save className="mr-2 h-4 w-4" />
+            Salvar alterações
           </Button>
         </div>
 
         {/* Seletor de Perfil */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Selecionar Perfil</CardTitle>
+        <Card className="mb-8 overflow-hidden border-border shadow-sm">
+          <CardHeader className="border-b border-border/70 bg-muted/30 px-6 py-5">
+            <CardTitle className="text-lg">Selecionar perfil</CardTitle>
+            <p className="text-sm text-muted-foreground">Escolha o perfil que deseja configurar.</p>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
+          <CardContent className="px-6 py-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <Select value={perfilSelecionado} onValueChange={setPerfilSelecionado}>
-                <SelectTrigger className="w-64">
+                <SelectTrigger className="w-full sm:w-72">
                   <SelectValue placeholder="Selecione um perfil" />
                 </SelectTrigger>
                 <SelectContent>
@@ -222,7 +229,7 @@ export default function AlcadasPage() {
                 </SelectContent>
               </Select>
               <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-emerald-600" />
+                <Shield className="h-5 w-5 text-primary" />
                 <span className="text-sm text-muted-foreground">
                   {alcadaAtual.permissoes.length} de {permissoesDisponiveis.length} permissões (
                   {getPercentualPermissoes()}%)
@@ -239,10 +246,10 @@ export default function AlcadasPage() {
             const permissoesAtivas = permissoesCategoria.filter((p) => alcadaAtual.permissoes.includes(p.id)).length
 
             return (
-              <Card key={categoria}>
-                <CardHeader>
+              <Card key={categoria} className="overflow-hidden border-border shadow-sm">
+                <CardHeader className="border-b border-border/70 bg-muted/30 px-6 py-5">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-lg">
                       {categoria === "Dashboard" && <Shield className="h-5 w-5" />}
                       {categoria === "Cadastros" && <Lock className="h-5 w-5" />}
                       {categoria === "Pessoas" && <Lock className="h-5 w-5" />}
@@ -258,19 +265,19 @@ export default function AlcadasPage() {
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="px-6 py-5">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {permissoesCategoria.map((permissao) => {
                       const ativa = alcadaAtual.permissoes.includes(permissao.id)
 
                       return (
-                        <div key={permissao.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div key={permissao.id} className="flex items-center justify-between gap-4 rounded-xl border border-border/80 bg-background p-4 transition-colors hover:border-primary/30 hover:bg-primary/[0.02]">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               {ativa ? (
-                                <Unlock className="h-4 w-4 text-green-600" />
+                                <Unlock className="h-4 w-4 text-primary" />
                               ) : (
-                                <Lock className="h-4 w-4 text-red-600" />
+                                <Lock className="h-4 w-4 text-muted-foreground" />
                               )}
                               <h4 className="font-medium">{permissao.nome}</h4>
                             </div>

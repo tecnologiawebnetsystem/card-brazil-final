@@ -14,7 +14,9 @@ export async function GET() {
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
-      WHERE m.ativo = TRUE AND mo.ativo = TRUE AND COALESCE(mc.ativo_global, TRUE) = TRUE
+      WHERE m.ativo = TRUE AND mo.ativo = TRUE
+    AND m.slug <> 'cadastros'
+    AND COALESCE(mc.ativo_global, TRUE) = TRUE
         AND NOT EXISTS (
           SELECT 1
           FROM sistemas_menus parent

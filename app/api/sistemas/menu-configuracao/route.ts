@@ -38,7 +38,7 @@ export async function GET(request: Request) {
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
-      WHERE m.ativo = TRUE AND mo.ativo = TRUE
+      WHERE m.ativo = TRUE AND mo.ativo = TRUE AND m.slug <> 'cadastros'
       ORDER BY mo.ordem, m.ordem, m.id
     `, [context.administradoraId])
     const modules = await query(`
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
              COUNT(m.id)::int AS "totalMenus",
              COUNT(m.id) FILTER (WHERE COALESCE(mc.ativo_global, TRUE))::int AS "activeMenus"
       FROM sistemas_modulos mo
-      LEFT JOIN sistemas_menus m ON m.modulo_id = mo.id AND m.ativo = TRUE
+      LEFT JOIN sistemas_menus m ON m.modulo_id = mo.id AND m.ativo = TRUE AND m.slug <> 'cadastros'
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
       WHERE mo.ativo = TRUE
       GROUP BY mo.id
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       .filter((item: { menuId: number; ativoGlobal: unknown }) => Number.isInteger(item.menuId) && item.menuId > 0 && typeof item.ativoGlobal === "boolean")
 
     if (Number.isInteger(Number(body.moduleId)) && typeof body.ativoGlobal === "boolean") {
-      const moduleMenus = await query<{ id: number }>("SELECT id FROM sistemas_menus WHERE modulo_id = $1 AND ativo = TRUE", [Number(body.moduleId)])
+      const moduleMenus = await query<{ id: number }>("SELECT id FROM sistemas_menus WHERE modulo_id = $1 AND ativo = TRUE AND slug <> 'cadastros'", [Number(body.moduleId)])
       items = moduleMenus.map((menu) => ({ menuId: menu.id, ativoGlobal: body.ativoGlobal }))
     }
     const uniqueItems: Array<{ menuId: number; ativoGlobal: boolean }> = Array.from(new Map<number, { menuId: number; ativoGlobal: boolean }>(items.map((item: { menuId: number; ativoGlobal: boolean }) => [item.menuId, item])).values())
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id AND mo.ativo = TRUE
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
-      WHERE m.id = ANY($2::int[]) AND m.ativo = TRUE
+      WHERE m.id = ANY($2::int[]) AND m.ativo = TRUE AND m.slug <> 'cadastros'
     `, [context.administradoraId, ids])
     const currentById = new Map(current.map((item) => [item.id, item]))
     const statements: DatabaseStatement[] = []

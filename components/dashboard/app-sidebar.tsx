@@ -591,19 +591,7 @@ export function AppSidebar() {
   const [searchTerm, setSearchTerm] = useState("")
   const [databaseMenu, setDatabaseMenu] = useState<MenuGroup[] | null>(null)
   const menuScrollTopRef = useRef(0)
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    Principal: true,
-    Cadastros: true,
-    Propostas: true,
-    "Tabelas Gerais": true,
-    Beneficiários: true,
-    Financeiro: true,
-    Cobrança: true,
-    Sistemas: true,
-    Configurações: true,
-    "Sistema Contábil": true,
-    Relatórios: true,
-  })
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
@@ -748,7 +736,7 @@ export function AppSidebar() {
   // Nunca reintroduzir o menu estático quando a API retornar vazio, erro ou itens inativos.
   const configuredMenuItems = databaseMenu ?? []
   const filteredMenuItems = user ? filterMenuGroups(configuredMenuItems) : configuredMenuItems
-  const isGroupExpanded = (title: string) => searchTerm.trim().length > 0 || expandedGroups[title] !== false
+  const isGroupExpanded = (title: string) => searchTerm.trim().length > 0 || expandedGroups[title] === true
 
   const getProfileDisplayName = (roleName: string) => {
     return roleName || "Usuário"

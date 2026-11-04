@@ -826,7 +826,7 @@ export default function AgenciadorPage() {
           allowedTypes={["fisica", "juridica"]}
           showAddressTabs={true}
           showBankTabs={true}
-          className="max-w-7xl w-full"
+          className="w-[min(96vw,920px)] max-w-[920px]"
         />
 
         <Dialog open={showAgenciadorModal} onOpenChange={setShowAgenciadorModal}>

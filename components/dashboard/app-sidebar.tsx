@@ -706,12 +706,13 @@ export function AppSidebar() {
   }, [pathname])
 
   const filterMenuGroups = (groups: MenuGroup[]): MenuGroup[] => {
-    const normalizedSearch = searchTerm.trim().toLowerCase()
-    const hiddenGroups = new Set<string>(["Sistema Contábil", "Relatórios"])
-    const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+  const hiddenGroups = new Set<string>(["Sistema Contábil", "Relatórios"])
+  const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
+  const isAdministrator = ["admin", "administrador"].includes(String(user?.tipo_usuario ?? "").toLowerCase())
 
-    const filterItem = (item: MenuItem): MenuItem | null => {
-      if (item.requiredPermission && user?.permissions?.[item.requiredPermission] !== true) return null
+  const filterItem = (item: MenuItem): MenuItem | null => {
+  if (!isAdministrator && item.requiredPermission && user?.permissions?.[item.requiredPermission] !== true) return null
       if (item.subItems?.length) {
         const subItems = item.subItems.map(filterItem).filter((child): child is MenuItem => child !== null)
         const matchesSearch = !normalizedSearch || item.title.toLowerCase().includes(normalizedSearch)

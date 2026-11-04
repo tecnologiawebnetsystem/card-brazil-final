@@ -169,7 +169,7 @@ const menuItems: MenuGroup[] = [
         icon: <FileTextIcon />,
         subItems: [
           { title: "Produtos", url: "/dashboard/cadastros/produtos", icon: <CogIcon className="h-3 w-3" /> },
-          { title: "Planos", url: "/dashboard/cadastros/planos", icon: <CogIcon className="h-3 w-3" /> },
+          { title: "Planos Faixa", url: "/dashboard/cadastros/planos-faixa", icon: <CogIcon className="h-3 w-3" /> },
           { title: "Plano Faixa", url: "/dashboard/cadastros/planos-faixa", icon: <CogIcon className="h-3 w-3" /> },
         ],
       },
@@ -532,7 +532,7 @@ const menuItems: MenuGroup[] = [
           },
           {
             title: "Perfis de Usuario",
-            url: "/dashboard/sistemas/perfis-usuario",
+            url: "/dashboard/sistema/perfis",
             icon: <CogIcon className="h-3 w-3" />,
           },
           {
@@ -608,46 +608,63 @@ export function AppSidebar() {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
-  let cancelled = false
-  fetch("/api/sistemas/menu", { credentials: "same-origin", cache: "no-store" })
-    .then((response) => response.ok ? response.json() : null)
-    .then((data) => {
-      if (cancelled || !Array.isArray(data?.menus) || data.menus.length === 0) return
-      const groups = new Map<string, Array<{
-        id: number
-        menuPaiId: number | null
-        titulo: string
-        rota?: string | null
-        slug: string
-      }>>()
-      for (const item of data.menus) {
-        const groupName = item.moduloNome || "Sistemas"
-        const current = groups.get(groupName) || []
-        current.push(item)
-        groups.set(groupName, current)
-      }
+    let cancelled = false
 
-      const treeGroups = Array.from(groups, ([title, rows]) => {
-        const buildItems = (parentId: number | null): MenuItem[] => rows
-          .filter((item) => item.menuPaiId === parentId)
-          .map((item) => {
-            const subItems = buildItems(item.id)
-            return {
-              id: item.id,
-              title: item.titulo,
-              url: item.rota || undefined,
-              requiredPermission: item.slug,
-              subItems: subItems.length > 0 ? subItems : undefined,
-            }
-          })
-        return { title, items: buildItems(null) }
-      }).filter((group) => group.items.length > 0)
+    const loadDatabaseMenu = () => {
+      fetch("/api/sistemas/menu", { credentials: "same-origin", cache: "no-store" })
+        .then((response) => response.ok ? response.json() : { menus: [] })
+        .then((data) => {
+          if (cancelled || !Array.isArray(data?.menus)) {
+            setDatabaseMenu([])
+            return
+          }
+          const groups = new Map<string, Array<{
+            id: number
+            menuPaiId: number | null
+            titulo: string
+            rota?: string | null
+            slug: string
+            ativoGlobal?: boolean | string
+          }>>()
+          for (const item of data.menus) {
+            const groupName = item.moduloNome || "Sistemas"
+            const current = groups.get(groupName) || []
+            current.push(item)
+            groups.set(groupName, current)
+          }
 
-      setDatabaseMenu(treeGroups)
-    })
-    .catch(() => undefined)
-  return () => { cancelled = true }
-  }, [])
+          const treeGroups = Array.from(groups, ([title, rows]) => {
+            const buildItems = (parentId: number | null): MenuItem[] => rows
+              .filter((item) => item.menuPaiId === parentId && item.ativoGlobal !== false && item.ativoGlobal !== "false")
+              .map((item) => {
+                const subItems = buildItems(item.id)
+                return {
+                  id: item.id,
+                  title: item.titulo,
+                  url: item.rota || undefined,
+                  icon: item.slug.includes("benefici") ? <UsersIcon /> : item.slug.includes("cadastro") || item.slug.includes("operadora") ? <BuildingIcon /> : item.slug.includes("propost") ? <FileTextIcon /> : item.slug.includes("cobr") || item.slug.includes("finance") ? <DollarSignIcon /> : item.slug.includes("relat") ? <BarChartIcon /> : item.slug.includes("sistema") || item.slug.includes("perfil") ? <ShieldIcon /> : <FileTextIcon />,
+                  subItems: subItems.length > 0 ? subItems : undefined,
+                }
+              })
+            return { title, items: buildItems(null) }
+          }).filter((group) => group.items.length > 0)
+
+          setDatabaseMenu(treeGroups)
+        })
+        .catch(() => {
+          if (!cancelled) setDatabaseMenu([])
+        })
+    }
+
+    loadDatabaseMenu()
+    window.addEventListener("navigation-config-updated", loadDatabaseMenu)
+    window.addEventListener("focus", loadDatabaseMenu)
+    return () => {
+      cancelled = true
+      window.removeEventListener("navigation-config-updated", loadDatabaseMenu)
+      window.removeEventListener("focus", loadDatabaseMenu)
+    }
+  }, [0])
 
   useEffect(() => {
   const restoreScrollPosition = () => {
@@ -695,12 +712,13 @@ export function AppSidebar() {
   }, [pathname])
 
   const filterMenuGroups = (groups: MenuGroup[]): MenuGroup[] => {
-    const normalizedSearch = searchTerm.trim().toLowerCase()
-    const hiddenGroups = new Set<string>(["Sistema Contábil", "Relatórios"])
-    const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+  const hiddenGroups = new Set<string>(["Sistema Contábil", "Relatórios"])
+  const hiddenSystemItems = new Set(["Integracao ANS", "Monitoramento"])
+  const isAdministrator = ["admin", "administrador"].includes(String(user?.tipo_usuario ?? "").toLowerCase())
 
-    const filterItem = (item: MenuItem): MenuItem | null => {
-      if (item.requiredPermission && user?.permissions?.[item.requiredPermission] !== true) return null
+  const filterItem = (item: MenuItem): MenuItem | null => {
+  if (!isAdministrator && item.requiredPermission && user?.permissions?.[item.requiredPermission] !== true) return null
       if (item.subItems?.length) {
         const subItems = item.subItems.map(filterItem).filter((child): child is MenuItem => child !== null)
         const matchesSearch = !normalizedSearch || item.title.toLowerCase().includes(normalizedSearch)
@@ -722,7 +740,9 @@ export function AppSidebar() {
       .filter((group) => group.items.length > 0)
   }
 
-  const configuredMenuItems = databaseMenu && databaseMenu.length > 0 ? databaseMenu : menuItems
+  // A navegação exibida deve vir exclusivamente do catálogo persistido.
+  // Nunca reintroduzir o menu estático quando a API retornar vazio, erro ou itens inativos.
+  const configuredMenuItems = databaseMenu ?? []
   const filteredMenuItems = user ? filterMenuGroups(configuredMenuItems) : configuredMenuItems
   const isGroupExpanded = (title: string) => searchTerm.trim().length > 0 || expandedGroups[title] !== false
 
@@ -857,6 +877,11 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent className="min-w-0 overflow-x-hidden px-2 py-3">
           {filteredMenuItems.map((group) => (
+            ["Dashboard", "Início"].includes(group.title) ? (
+              <div key={group.title} className="mb-0 w-full p-0">
+                {renderMenuItems(group.items)}
+              </div>
+            ) : (
             <SidebarGroup key={group.title} className="mb-0 p-0">
               <SidebarGroupLabel asChild className="mb-1 h-8 p-0 group-data-[collapsible=icon]:mt-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:opacity-100">
                 <button
@@ -878,9 +903,10 @@ export function AppSidebar() {
               {isGroupExpanded(group.title) && (
                 <SidebarGroupContent id={`sidebar-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="mt-0.5 animate-in fade-in-0 slide-in-from-top-1 duration-200">
                   {renderMenuItems(group.items)}
-                </SidebarGroupContent>
-              )}
+              </SidebarGroupContent>
+                )}
             </SidebarGroup>
+            )
           ))}
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border/70 bg-sidebar-primary/10 p-3">

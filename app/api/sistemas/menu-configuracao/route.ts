@@ -31,26 +31,31 @@ export async function GET(request: Request) {
     }
 
     const menus = await query(`
-      SELECT m.id, m.slug, m.titulo, m.rota, m.icone, m.ordem,
+      SELECT m.id,
+  CASE WHEN m.slug = 'planos' THEN 'planos-faixa' ELSE m.slug END AS slug,
+  CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' WHEN m.slug = 'planos' THEN 'Planos Faixa' ELSE m.titulo END AS titulo,
+  CASE WHEN m.slug = 'planos' THEN '/dashboard/cadastros/planos-faixa' WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
+  CASE WHEN m.slug = 'planos' THEN 'file-spreadsheet' WHEN m.slug = 'perfis-usuario' THEN 'users-round' ELSE m.icone END AS icone,
+  m.ordem,
              m.menu_pai_id AS "menuPaiId", m.modulo_id AS "moduloId",
-             mo.slug AS "moduloSlug", mo.nome AS "moduloNome", mo.descricao AS "moduloDescricao",
+             mo.slug AS "moduloSlug", CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS "moduloNome", mo.descricao AS "moduloDescricao",
              COALESCE(mc.ativo_global, TRUE) AS "ativoGlobal"
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
-      WHERE m.ativo = TRUE AND mo.ativo = TRUE
-      ORDER BY mo.ordem, m.ordem, m.id
+      WHERE m.ativo = TRUE AND mo.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager')
+      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, m.ordem, m.id
     `, [context.administradoraId])
     const modules = await query(`
-      SELECT mo.id, mo.slug, mo.nome, mo.descricao, mo.ordem,
+      SELECT mo.id, mo.slug, CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS nome, mo.descricao, mo.ordem,
              COUNT(m.id)::int AS "totalMenus",
              COUNT(m.id) FILTER (WHERE COALESCE(mc.ativo_global, TRUE))::int AS "activeMenus"
       FROM sistemas_modulos mo
-      LEFT JOIN sistemas_menus m ON m.modulo_id = mo.id AND m.ativo = TRUE
+      LEFT JOIN sistemas_menus m ON m.modulo_id = mo.id AND m.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager')
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
       WHERE mo.ativo = TRUE
       GROUP BY mo.id
-      ORDER BY mo.ordem, mo.id
+      ORDER BY CASE mo.slug WHEN 'inicio' THEN 1 WHEN 'cadastros' THEN 2 WHEN 'propostas' THEN 3 WHEN 'beneficiarios' THEN 4 WHEN 'cobranca' THEN 5 WHEN 'financeiro' THEN 6 WHEN 'tabelas' THEN 7 WHEN 'sistemas' THEN 8 ELSE 99 END, mo.id
     `, [context.administradoraId])
     return NextResponse.json({ menus, modules })
   } catch (error) {
@@ -75,7 +80,7 @@ export async function POST(request: Request) {
       .filter((item: { menuId: number; ativoGlobal: unknown }) => Number.isInteger(item.menuId) && item.menuId > 0 && typeof item.ativoGlobal === "boolean")
 
     if (Number.isInteger(Number(body.moduleId)) && typeof body.ativoGlobal === "boolean") {
-      const moduleMenus = await query<{ id: number }>("SELECT id FROM sistemas_menus WHERE modulo_id = $1 AND ativo = TRUE", [Number(body.moduleId)])
+      const moduleMenus = await query<{ id: number }>("SELECT id FROM sistemas_menus WHERE modulo_id = $1 AND ativo = TRUE AND slug <> 'cadastros'", [Number(body.moduleId)])
       items = moduleMenus.map((menu) => ({ menuId: menu.id, ativoGlobal: body.ativoGlobal }))
     }
     const uniqueItems: Array<{ menuId: number; ativoGlobal: boolean }> = Array.from(new Map<number, { menuId: number; ativoGlobal: boolean }>(items.map((item: { menuId: number; ativoGlobal: boolean }) => [item.menuId, item])).values())
@@ -87,7 +92,7 @@ export async function POST(request: Request) {
       FROM sistemas_menus m
       JOIN sistemas_modulos mo ON mo.id = m.modulo_id AND mo.ativo = TRUE
       LEFT JOIN sistema_menu_configuracoes mc ON mc.menu_id = m.id AND mc.administradora_id = $1
-      WHERE m.id = ANY($2::int[]) AND m.ativo = TRUE
+      WHERE m.id = ANY($2::int[]) AND m.ativo = TRUE AND m.slug NOT IN ('cadastros', 'planos-saude', 'database-manager')
     `, [context.administradoraId, ids])
     const currentById = new Map(current.map((item) => [item.id, item]))
     const statements: DatabaseStatement[] = []

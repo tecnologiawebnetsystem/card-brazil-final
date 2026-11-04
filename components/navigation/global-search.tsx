@@ -20,7 +20,7 @@ const pages = [
   { name: "Estipulantes", href: "/dashboard/cadastros/estipulante", icon: Building2, category: "Cadastros" },
   { name: "Corretores", href: "/dashboard/cadastros/corretor", icon: Users, category: "Cadastros" },
   { name: "Agenciadores", href: "/dashboard/cadastros/agenciador", icon: Users, category: "Cadastros" },
-  { name: "Planos", href: "/dashboard/cadastros/planos", icon: FileText, category: "Cadastros" },
+  { name: "Planos Faixa", href: "/dashboard/cadastros/planos-faixa", icon: FileText, category: "Cadastros" },
   { name: "Produtos", href: "/dashboard/cadastros/produtos", icon: FileText, category: "Cadastros" },
   { name: "Nova Proposta", href: "/dashboard/propostas/nova", icon: ClipboardList, category: "Propostas" },
   { name: "Lista de Propostas", href: "/dashboard/propostas/lista", icon: ClipboardList, category: "Propostas" },

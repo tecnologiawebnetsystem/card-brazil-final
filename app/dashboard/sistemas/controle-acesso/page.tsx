@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import { AlertCircle, ArchiveRestore, Check, ChevronDown, ChevronRight, Clock3, Eye, History, Loader2, Menu, Power, Save, Search, ShieldCheck, Sparkles } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ import { Switch } from "@/components/ui/switch"
  type Stat = { label: string; value: number; Icon: StatIcon }
 
 export default function ControleAcessoPage() {
+  const router = useRouter()
   const [menus, setMenus] = useState<MenuConfig[]>([])
   const [modules, setModules] = useState<ModuleConfig[]>([])
   const [draft, setDraft] = useState<Record<number, boolean>>({})
@@ -71,8 +73,9 @@ export default function ControleAcessoPage() {
       const response = await fetch("/api/sistemas/menu-configuracao", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ items }) })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Não foi possível salvar as alterações.")
-      setMenus((current) => current.map((menu) => ({ ...menu, ativoGlobal: draft[menu.id] })))
-      setMessage(`${data.updated} alteração(ões) salvas. O menu global será atualizado no próximo carregamento.`)
+      await loadMenus()
+      window.dispatchEvent(new Event("navigation-config-updated"))
+      setMessage(`${data.updated} alteração(ões) salvas. A navegação lateral foi atualizada.`)
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Não foi possível salvar as alterações.") } finally { setBusy(false) }
   }
 
@@ -82,7 +85,7 @@ export default function ControleAcessoPage() {
     try {
       const response = await fetch("/api/sistemas/menu-configuracao", { method: "DELETE", credentials: "same-origin" }); const data = await response.json()
       if (!response.ok) throw new Error(data.error || "Não foi possível restaurar a configuração.")
-      setDraft(Object.fromEntries(menus.map((menu) => [menu.id, true]))); setMenus((current) => current.map((menu) => ({ ...menu, ativoGlobal: true }))); setMessage(`Configuração padrão restaurada para ${data.restored} item(ns).`)
+      setDraft(Object.fromEntries(menus.map((menu) => [menu.id, true]))); setMenus((current) => current.map((menu) => ({ ...menu, ativoGlobal: true }))); window.dispatchEvent(new Event("navigation-config-updated")); setMessage(`Configuração padrão restaurada para ${data.restored} item(ns).`)
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Não foi possível restaurar a configuração.") } finally { setBusy(false) }
   }
 
@@ -98,7 +101,7 @@ export default function ControleAcessoPage() {
   ]
 
   return <main className="module-page flex-1 space-y-6 p-4 md:p-6 lg:p-8">
-    <header className="flex flex-col justify-between gap-5 border-b border-border/70 pb-7 lg:flex-row lg:items-end"><div className="max-w-3xl"><p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary"><ShieldCheck className="size-4" /> Governança da plataforma</p><h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">Gestão de Módulos e Navegação</h1><p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">Configure a disponibilidade do catálogo para a administradora autenticada sem alterar permissões individuais.</p></div><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={restore} disabled={busy}><ArchiveRestore data-icon="inline-start" /> Restaurar padrão</Button><Button onClick={save} disabled={busy || pendingCount === 0}>{busy ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Save data-icon="inline-start" />} Salvar {pendingCount > 0 ? `(${pendingCount})` : ""}</Button></div></header>
+    <header className="flex flex-col justify-between gap-5 border-b border-border/70 pb-7 lg:flex-row lg:items-end"><div className="max-w-3xl"><p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary"><ShieldCheck className="size-4" /> Governança da plataforma</p><h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">Gestão de Módulos e Navegação</h1><p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">Configure a disponibilidade do catálogo para a administradora autenticada sem alterar permissões individuais.</p></div><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={restore} disabled={busy}><ArchiveRestore data-icon="inline-start" /> Restaurar padrão</Button><Button variant="ghost" onClick={() => { if (pendingCount > 0 && !window.confirm("Sair sem salvar as alterações pendentes?")) return; router.push("/dashboard") }} disabled={busy}>Sair sem salvar</Button><Button onClick={save} disabled={busy || pendingCount === 0}>{busy ? <Loader2 className="animate-spin" data-icon="inline-start" /> : <Save data-icon="inline-start" />} Salvar {pendingCount > 0 ? `(${pendingCount})` : ""}</Button></div></header>
     {message && <div role="status" className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm"><Check className="size-4 text-primary" /> {message}</div>}
     {error && <div role="alert" className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
     <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{stats.map(({ label, value, Icon }) => <Card key={String(label)} className="border-border/70"><CardContent className="flex items-center justify-between p-4"><div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p></div><div className="rounded-xl bg-accent p-2.5 text-primary"><Icon className="size-5" /></div></CardContent></Card>)}</section>

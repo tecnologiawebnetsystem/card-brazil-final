@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       params.push(planoId)
       filter = " AND f.plano_id = $2"
     }
-    const rows = await query(`SELECT f.id, f.plano_id, f.idade_minima, f.idade_maxima, f.valor, f.vigencia_inicio, f.vigencia_fim, f.created_at, f.updated_at, p.nome AS plano_nome FROM planos_faixas_etarias f JOIN planos p ON p.id = f.plano_id AND p.administradora_id = $1 AND p.deleted_at IS NULL WHERE TRUE${filter} ORDER BY f.plano_id, f.id`, params)
+    const rows = await query(`SELECT f.id, f.plano_id, f.idade_minima, f.idade_maxima, f.valor, f.vigencia_inicio, f.vigencia_fim, f.created_at, f.updated_at, p.nome AS plano_nome, p.produto_id, pr.nome AS produto_nome FROM planos_faixas_etarias f JOIN planos p ON p.id = f.plano_id AND p.administradora_id = $1 AND p.deleted_at IS NULL JOIN produtos pr ON pr.id = p.produto_id AND pr.administradora_id = p.administradora_id AND pr.deleted_at IS NULL WHERE TRUE${filter} ORDER BY f.plano_id, f.id`, params)
     return NextResponse.json(successResponse(rows))
   } catch (error) {
     const auth = apiAuthError(error)

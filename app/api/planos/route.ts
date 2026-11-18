@@ -15,8 +15,13 @@ export async function GET(request: NextRequest) {
     const conditions: string[] = [`p.administradora_id = $1`, `p.deleted_at IS NULL`]
     params.push(administradoraId)
     if (ativo !== null) { params.push(ativo === "true" ? "ativo" : "inativo"); conditions.push(`p.status = $${params.length}`) }
-    if (produto_id) { params.push(Number.parseInt(produto_id, 10)); conditions.push(`p.produto_id = $${params.length}`) }
-    const where = conditions.length ? ` WHERE ${conditions.join(" AND ")}` : ""
+    if (produto_id !== null) {
+      const parsedProdutoId = Number(produto_id)
+      if (!Number.isInteger(parsedProdutoId) || parsedProdutoId <= 0) return apiError("produto_id inválido", 400)
+      params.push(parsedProdutoId)
+      conditions.push(`p.produto_id = $${params.length}`)
+    }
+    const where = ` WHERE ${conditions.join(" AND ")}`
     const planos = await query(`SELECT p.*, p.codigo_ans AS codigo, p.tipo_plano AS tipo, p.valor_base AS valor, p.tipo_plano AS cobertura, (p.status = 'ativo') AS ativo, pr.nome AS produto_nome, COALESCE(pj.nome_fantasia, pj.razao_social, pessoa.nome_completo) AS operadora_nome FROM planos p LEFT JOIN produtos pr ON pr.id = p.produto_id AND pr.administradora_id = p.administradora_id AND pr.deleted_at IS NULL LEFT JOIN operadoras op ON op.id = p.operadora_id AND op.administradora_id = p.administradora_id LEFT JOIN pessoas pessoa ON pessoa.id = op.pessoa_id AND pessoa.administradora_id = op.administradora_id LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = pessoa.id${where} ORDER BY p.created_at DESC NULLS LAST`, params)
     return NextResponse.json(successResponse(planos))
   } catch (error) {

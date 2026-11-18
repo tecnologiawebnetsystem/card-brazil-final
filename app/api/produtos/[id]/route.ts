@@ -16,10 +16,9 @@ function mutationError(error: unknown) {
 
 async function getProduto(id: number, administradoraId: number) {
   const rows = await query(
-    `SELECT p.id, p.administradora_id, p.plano_id, p.nome, p.codigo_produto AS codigo, p.valor_mensalidade AS valor,
-            p.idade_minima, p.idade_maxima, p.status, (p.status = 'ativo') AS ativo, p.created_at, p.updated_at, p.deleted_at,
-            pl.nome AS plano_nome
-     FROM produtos p LEFT JOIN planos pl ON pl.id = p.plano_id AND pl.administradora_id = p.administradora_id AND pl.deleted_at IS NULL
+    `SELECT p.id, p.administradora_id, p.nome, p.codigo_produto AS codigo, p.valor_mensalidade AS valor,
+            p.idade_minima, p.idade_maxima, p.status, (p.status = 'ativo') AS ativo, p.created_at, p.updated_at, p.deleted_at
+     FROM produtos p
      WHERE p.id = $1 AND p.administradora_id = $2 AND p.deleted_at IS NULL`,
     [id, administradoraId],
   )

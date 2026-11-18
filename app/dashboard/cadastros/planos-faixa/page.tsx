@@ -27,6 +27,8 @@ import { CadastroSummaryCard, CadastroSummaryGrid } from "@/components/tables/ca
 interface PlanoDisponivel {
   id: number
   nome: string
+  produto_id: number
+  produto_nome: string
 }
 
 interface PlanoFaixa {
@@ -76,7 +78,7 @@ export default function PlanosFaixaPage() {
         if (!faixasResponse.ok) throw new Error(faixasPayload.message || "Não foi possível carregar as faixas")
         if (!planosResponse.ok) throw new Error(planosPayload.message || "Não foi possível carregar os planos")
         if (cancelled) return
-        setPlanosDisponiveis((planosPayload.data || []).filter((item: PlanoDisponivel & { produto_id?: number | null }) => item.produto_id != null).map((item: PlanoDisponivel) => ({ id: item.id, nome: item.nome })))
+        setPlanosDisponiveis((planosPayload.data || []).filter((item: PlanoDisponivel & { produto_id?: number | null }) => item.produto_id != null && item.produto_nome).map((item: PlanoDisponivel) => ({ id: item.id, nome: item.nome, produto_id: item.produto_id, produto_nome: item.produto_nome })))
         setPlanosFaixa((faixasPayload.data || []).map((item: any) => ({
           id: item.id,
           plano_id: item.plano_id,
@@ -313,9 +315,10 @@ export default function PlanosFaixaPage() {
               <Select value={formData.plano} onValueChange={(value) => setFormData({ ...formData, plano: value })}>
                 <SelectTrigger id="plano"><SelectValue placeholder="Selecione um plano cadastrado" /></SelectTrigger>
                 <SelectContent>
-                  {planosDisponiveis.map((plano) => <SelectItem key={plano.id} value={plano.id.toString()}>{plano.nome}</SelectItem>)}
+                  {planosDisponiveis.map((plano) => <SelectItem key={plano.id} value={plano.id.toString()}>{plano.nome} — Produto: {plano.produto_nome}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {formData.plano && <p className="text-sm text-muted-foreground">Produto vinculado: {planosDisponiveis.find((plano) => plano.id.toString() === formData.plano)?.produto_nome || "não identificado"}</p>}
               {planosDisponiveis.length === 0 && <p className="text-sm text-muted-foreground">Cadastre um plano antes de criar uma faixa etária.</p>}
             </div>
 

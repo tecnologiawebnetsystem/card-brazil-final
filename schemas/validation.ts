@@ -96,11 +96,15 @@ export const papelCadastroSchema = z.object({
   status: cadastroStatus,
 })
 
-export const planoSchema = papelCadastroSchema.extend({
+export const planoSchema = z.object({
   operadora_id: idSchema,
-  produto_id: idSchema.optional().nullable(),
+  produto_id: idSchema,
   nome: z.string().trim().min(2).max(180),
+  codigo_ans: optionalText(60),
   tipo_plano: z.string().trim().min(2).max(80),
+  valor_base: z.coerce.number().nonnegative().optional().nullable(),
+  descricao: optionalText(4000),
+  status: cadastroStatus,
 })
 
 export const beneficiarioSchema = z.object({
@@ -131,11 +135,15 @@ export const propostaSchema = z.object({
   observacoes: z.string().trim().max(4000).optional().nullable(),
 })
 
-export const produtoSchema = papelCadastroSchema.extend({
-  plano_id: idSchema.optional().nullable(),
+export const produtoSchema = z.object({
   codigo: optionalText(80),
   valor: z.coerce.number().nonnegative().optional().nullable(),
+  valor_mensalidade: z.coerce.number().nonnegative().optional().nullable(),
+  valor_base: z.coerce.number().nonnegative().optional().nullable(),
+  idade_minima: z.coerce.number().int().min(0).max(150).optional().nullable(),
+  idade_maxima: z.coerce.number().int().min(0).max(150).optional().nullable(),
   nome: z.string().trim().min(2).max(180),
+  status: cadastroStatus,
 })
 
 export function zodFieldErrors(error: z.ZodError) {

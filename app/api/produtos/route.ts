@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
               p.idade_minima, p.idade_maxima, p.status, (p.status = 'ativo') AS ativo, p.created_at, p.updated_at,
               p.deleted_at, pl.nome AS plano_nome
        FROM produtos p
-       JOIN planos pl ON pl.id = p.plano_id AND pl.administradora_id = p.administradora_id AND pl.deleted_at IS NULL
+       LEFT JOIN planos pl ON pl.id = p.plano_id AND pl.administradora_id = p.administradora_id AND pl.deleted_at IS NULL
        WHERE ${conditions.join(" AND ")}
        ORDER BY p.created_at DESC NULLS LAST, p.id DESC`,
       params,
@@ -56,13 +56,10 @@ export async function POST(request: NextRequest) {
     const parsed = produtoSchema.safeParse(await request.json())
     if (!parsed.success) return apiError("Dados do produto inválidos", 422, zodFieldErrors(parsed.error))
     const data = parsed.data
-    if (!data.plano_id) return apiError("Plano é obrigatório", 422, { plano_id: ["Informe um plano válido"] })
-    const plano = await query("SELECT id FROM planos WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [data.plano_id, administradoraId])
-    if (!plano.length) return apiError("Plano não encontrado", 404)
     const rows = await query(
-      `INSERT INTO produtos (administradora_id, plano_id, nome, codigo_produto, valor_mensalidade, idade_minima, idade_maxima, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id, administradora_id, plano_id, nome, codigo_produto AS codigo, valor_mensalidade AS valor, idade_minima, idade_maxima, status, created_at, updated_at`,
-      [administradoraId, data.plano_id, data.nome, data.codigo ?? null, data.valor_mensalidade ?? data.valor_base ?? null, data.idade_minima ?? null, data.idade_maxima ?? null, data.status ?? "ativo"],
+      `INSERT INTO produtos (administradora_id, nome, codigo_produto, valor_mensalidade, idade_minima, idade_maxima, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, administradora_id, plano_id, nome, codigo_produto AS codigo, valor_mensalidade AS valor, idade_minima, idade_maxima, status, created_at, updated_at`,
+      [administradoraId, data.nome, data.codigo ?? null, data.valor_mensalidade ?? data.valor_base ?? null, data.idade_minima ?? null, data.idade_maxima ?? null, data.status ?? "ativo"],
     )
     return NextResponse.json(successResponse(rows[0], "Produto criado com sucesso"), { status: 201 })
   } catch (error) {

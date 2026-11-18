@@ -76,7 +76,7 @@ export default function PlanosFaixaPage() {
         if (!faixasResponse.ok) throw new Error(faixasPayload.message || "Não foi possível carregar as faixas")
         if (!planosResponse.ok) throw new Error(planosPayload.message || "Não foi possível carregar os planos")
         if (cancelled) return
-        setPlanosDisponiveis((planosPayload.data || []).map((item: PlanoDisponivel) => ({ id: item.id, nome: item.nome })))
+        setPlanosDisponiveis((planosPayload.data || []).filter((item: PlanoDisponivel & { produto_id?: number | null }) => item.produto_id != null).map((item: PlanoDisponivel) => ({ id: item.id, nome: item.nome })))
         setPlanosFaixa((faixasPayload.data || []).map((item: any) => ({
           id: item.id,
           plano_id: item.plano_id,
@@ -182,6 +182,7 @@ export default function PlanosFaixaPage() {
           <p className="text-muted-foreground">Gerencie os valores por faixa etária dos planos</p>
         </div>
         <Button
+          disabled={isLoading || planosDisponiveis.length === 0}
           onClick={() => {
             setEditingPlano(null)
             setFormData({
@@ -202,6 +203,13 @@ export default function PlanosFaixaPage() {
           Nova Faixa
         </Button>
       </div>
+
+      {planosDisponiveis.length === 0 && !isLoading && (
+        <Card><CardContent className="flex flex-col gap-3 p-5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>Cadastre primeiro um Produto e depois um Plano vinculado a ele para liberar as faixas etárias.</p>
+          <Button variant="outline" asChild><a href="/dashboard/cadastros/produtos">Ir para Produtos</a></Button>
+        </CardContent></Card>
+      )}
 
       <CadastroSummaryGrid className="mb-6">
         <CadastroSummaryCard title="Total de Faixas" value={totalPlanos} description="faixas cadastradas" icon={<BarChart3 className="h-5 w-5" />} />

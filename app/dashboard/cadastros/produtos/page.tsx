@@ -33,7 +33,6 @@ interface Produto {
   descricao: string
   valor: number | string | null
   ativo: boolean
-  plano_id?: number
   created_at?: string
   updated_at?: string
   deleted_at?: string | null
@@ -61,7 +60,6 @@ export default function ProdutosPage() {
     tipo: "",
     descricao: "",
     valor: "",
-    plano_id: "",
     ativo: true,
   })
 
@@ -104,7 +102,6 @@ export default function ProdutosPage() {
         tipo: produto.tipo,
         descricao: produto.descricao,
         valor: produto.valor?.toString() || "",
-        plano_id: produto.plano_id?.toString() || "",
         ativo: produto.ativo,
       })
     } else {
@@ -116,7 +113,6 @@ export default function ProdutosPage() {
         tipo: "",
         descricao: "",
         valor: "",
-        plano_id: "",
         ativo: true,
       })
     }
@@ -142,7 +138,6 @@ export default function ProdutosPage() {
         tipo: formData.tipo,
         descricao: formData.descricao,
         valor: Number.parseFloat(formData.valor) || 0,
-        plano_id: formData.plano_id ? Number.parseInt(formData.plano_id) : null,
         ativo: formData.ativo,
       }
 
@@ -231,7 +226,6 @@ export default function ProdutosPage() {
           tipo: produto.tipo,
           descricao: produto.descricao,
           valor: produto.valor,
-          plano_id: produto.plano_id ?? null,
           ativo: !produto.ativo,
         }),
       })
@@ -426,16 +420,6 @@ export default function ProdutosPage() {
                 value={formData.valor}
                 onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
                 placeholder="0.00"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="plano_id">Plano ID</Label>
-              <Input
-                id="plano_id"
-                value={formData.plano_id}
-                onChange={(e) => setFormData({ ...formData, plano_id: e.target.value })}
-                placeholder="ID da operadora"
               />
             </div>
 

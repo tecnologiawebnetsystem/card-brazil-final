@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS planos (
 
 -- Tabela de Produtos (Faixas Etárias dos Planos)
 CREATE TABLE IF NOT EXISTS produtos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_administradora INT NOT NULL,
-    plano_id INT NOT NULL,
+ id SERIAL PRIMARY KEY,
+ id_administradora INT NOT NULL,
+ plano_id INT NULL,
     
     codigo VARCHAR(50) NOT NULL,
     nome VARCHAR(255) NOT NULL,

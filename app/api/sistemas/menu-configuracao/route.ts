@@ -31,11 +31,10 @@ export async function GET(request: Request) {
     }
 
     const menus = await query(`
-      SELECT m.id,
-  CASE WHEN m.slug = 'planos' THEN 'planos-faixa' ELSE m.slug END AS slug,
-  CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' WHEN m.slug = 'planos' THEN 'Planos Faixa' ELSE m.titulo END AS titulo,
-  CASE WHEN m.slug = 'planos' THEN '/dashboard/cadastros/planos-faixa' WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
-  CASE WHEN m.slug = 'planos' THEN 'file-spreadsheet' WHEN m.slug = 'perfis-usuario' THEN 'users-round' ELSE m.icone END AS icone,
+      SELECT m.id, m.slug,
+  CASE WHEN m.slug IN ('inicio', 'dashboard') THEN 'Dashboard' ELSE m.titulo END AS titulo,
+  CASE WHEN m.slug = 'perfis-usuario' THEN '/dashboard/sistema/perfis' ELSE m.rota END AS rota,
+  CASE WHEN m.slug = 'perfis-usuario' THEN 'users-round' ELSE m.icone END AS icone,
   m.ordem,
              m.menu_pai_id AS "menuPaiId", m.modulo_id AS "moduloId",
              mo.slug AS "moduloSlug", CASE WHEN mo.slug = 'inicio' THEN 'Dashboard' ELSE mo.nome END AS "moduloNome", mo.descricao AS "moduloDescricao",

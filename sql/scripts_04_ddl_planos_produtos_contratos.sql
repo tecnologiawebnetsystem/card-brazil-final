@@ -42,9 +42,9 @@ CREATE INDEX IF NOT EXISTS idx_planos_admin ON planos(id_administradora);
 
 -- Tabela de Produtos
 CREATE TABLE IF NOT EXISTS produtos (
-    id SERIAL PRIMARY KEY,
-    id_administradora INT NOT NULL,
-    plano_id INT NOT NULL,
+ id SERIAL PRIMARY KEY,
+ id_administradora INT NOT NULL,
+ plano_id INT NULL,
     
     codigo VARCHAR(50) NOT NULL,
     nome VARCHAR(255) NOT NULL,

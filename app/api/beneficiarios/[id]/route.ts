@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/back-end/lib/database"
 import { requireCadastroAccess, apiAuthError } from "@/back-end/lib/api-auth"
-import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
 
 function authFailure(error: unknown) {
   const auth = apiAuthError(error)
@@ -100,12 +99,26 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const body = await request.json().catch(() => ({}))
     const motivo = typeof body.motivo === "string" ? body.motivo.trim() : ""
     if (motivo.length < 5) return NextResponse.json({ success: false, message: "Informe o motivo da exclusão com pelo menos 5 caracteres" }, { status: 400 })
-    const current = await query(`SELECT * FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [Number.parseInt(id, 10), administradoraId])
     const rows = await query(
-      "UPDATE beneficiarios SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP, status = 'inativo' WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL RETURNING *",
-      [Number.parseInt(id, 10), administradoraId],
+      `WITH current AS (
+        SELECT * FROM beneficiarios
+        WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL
+        FOR UPDATE
+      ), updated AS (
+        UPDATE beneficiarios b
+        SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP, status = 'inativo'
+        FROM current c
+        WHERE b.id = c.id AND b.administradora_id = $2 AND b.deleted_at IS NULL
+        RETURNING b.*
+      ), audited AS (
+        INSERT INTO auditoria_cadastros (administradora_id, usuario_id, acao, tabela, registro_id, dados_anteriores, dados_novos)
+        SELECT $2, $3, 'delete', 'beneficiarios', updated.id, to_jsonb(current),
+          to_jsonb(updated) || jsonb_build_object('motivo', $4::text)
+        FROM updated JOIN current ON current.id = updated.id
+        RETURNING registro_id
+      ) SELECT updated.* FROM updated JOIN audited ON audited.registro_id = updated.id`,
+      [Number.parseInt(id, 10), administradoraId, userId, motivo],
     )
-    if (rows[0]) await recordCadastroAudit({ administradoraId, userId, action: "delete", tableName: "beneficiarios", recordId: rows[0].id, before: current[0], after: { ...rows[0], motivo } })
     return rows[0]
       ? NextResponse.json({ success: true, data: null, message: "Beneficiário excluído com sucesso" })
       : NextResponse.json({ success: false, message: "Beneficiário não encontrado" }, { status: 404 })

@@ -35,6 +35,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
     const body = await request.json()
+    if (body.status === "aprovada") {
+      return NextResponse.json(
+        { error: "Aprovação indisponível: use o fluxo de aprovação, atualmente bloqueado até validação do schema. Nenhuma alteração foi gravada." },
+        { status: 501 },
+      )
+    }
 
     const {
       nome_proponente,

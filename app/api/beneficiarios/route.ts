@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     const body = parsed.data
     const pessoa = await query(`SELECT id FROM pessoas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [body.pessoa_id, administradoraId])
     if (!pessoa.length) return NextResponse.json({ success: false, message: "Pessoa não encontrada nesta administradora" }, { status: 404 })
-    const vinculo = await query(`SELECT c.id, c.plano_id FROM contratos c JOIN planos pl ON pl.id = c.plano_id WHERE c.id = $1 AND c.plano_id = $2 AND c.administradora_id = $3 AND c.deleted_at IS NULL AND c.status = 'ativo' AND pl.status = 'ativo'`, [body.contrato_id, body.plano_id, administradoraId])
+    const vinculo = await query(`SELECT c.id, c.plano_id FROM contratos c JOIN planos pl ON pl.id = c.plano_id AND pl.administradora_id = c.administradora_id WHERE c.id = $1 AND c.plano_id = $2 AND c.administradora_id = $3 AND c.deleted_at IS NULL AND c.status = 'ativo' AND pl.deleted_at IS NULL AND pl.status = 'ativo'`, [body.contrato_id, body.plano_id, administradoraId])
     if (!vinculo.length) return NextResponse.json({ success: false, message: "Contrato e plano não possuem vínculo ativo nesta administradora" }, { status: 422 })
     if (body.tipo_beneficiario === "dependente") {
       const titular = await query(`SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND contrato_id = $3 AND plano_id = $4 AND tipo_beneficiario = 'titular' AND status = 'ativo' AND deleted_at IS NULL`, [body.titular_id, administradoraId, body.contrato_id, body.plano_id])

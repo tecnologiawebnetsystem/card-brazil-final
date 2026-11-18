@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   try {
     const { administradoraId } = await requireCadastroAccess("create")
     const body = await request.json()
-    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id)
+    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id, administradoraId)
     if (!body.registro_susep) {
       return NextResponse.json({ success: false, message: "Registro SUSEP é obrigatório" }, { status: 400 })
     }

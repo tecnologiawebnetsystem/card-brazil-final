@@ -26,9 +26,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await requireCadastroAccess("create")
+    const { administradoraId } = await requireCadastroAccess("create")
     const body = await request.json()
-    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id)
+    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id, administradoraId)
     if (!body.nome_fantasia && !body.razao_social) {
       return NextResponse.json({ success: false, message: "Nome ou razão social é obrigatório" }, { status: 400 })
     }

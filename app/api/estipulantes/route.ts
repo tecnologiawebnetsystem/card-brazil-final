@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   try {
     const { administradoraId } = await requireCadastroAccess("create")
     const body = await request.json()
-    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id)
+    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id, administradoraId)
     const rows = await query(`INSERT INTO estipulantes (administradora_id, pessoa_id, codigo_interno, observacoes, status) VALUES ($1,$2,$3,$4,$5) RETURNING *`, [administradoraId, pessoaId, body.codigo_interno || null, body.observacoes || null, body.status || "ativo"])
     return NextResponse.json(successResponse(rows[0], "Estipulante criado com sucesso"), { status: 201 })
   } catch (error) {

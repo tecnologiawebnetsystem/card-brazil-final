@@ -50,15 +50,40 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!entries.length) return NextResponse.json({ success: false, message: "Nenhum campo válido para atualizar" }, { status: 400 })
     const current = await query(`SELECT * FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [Number.parseInt(id, 10), administradoraId])
     if (!current[0]) return NextResponse.json({ success: false, message: "Beneficiário não encontrado" }, { status: 404 })
+    const contratoId = Number(body.contrato_id ?? current[0].contrato_id)
+    const planoId = Number(body.plano_id ?? current[0].plano_id)
+    const vinculo = await query(
+      `SELECT c.id FROM contratos c
+       JOIN planos pl ON pl.id = c.plano_id AND pl.administradora_id = c.administradora_id
+       WHERE c.id = $1 AND c.plano_id = $2 AND c.administradora_id = $3
+         AND c.deleted_at IS NULL AND c.status = 'ativo' AND pl.deleted_at IS NULL AND pl.status = 'ativo'`,
+      [contratoId, planoId, administradoraId],
+    )
+    if (!vinculo.length) return NextResponse.json({ success: false, message: "Contrato e plano devem permanecer vinculados à administradora autenticada" }, { status: 422 })
+
+    const titularId = current[0].titular_id
+    if (current[0].tipo_beneficiario === "dependente") {
+      const titular = await query(
+        `SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2
+         AND contrato_id = $3 AND plano_id = $4 AND tipo_beneficiario = 'titular' AND status = 'ativo' AND deleted_at IS NULL`,
+        [titularId, administradoraId, contratoId, planoId],
+      )
+      if (!titular.length) return NextResponse.json({ success: false, message: "Titular deve pertencer ao mesmo contrato, plano e administradora" }, { status: 422 })
+    }
+
     const values = entries.map(([, value]) => value)
     const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
     values.push(Number.parseInt(id, 10), administradoraId)
-    const rows = await query(
-      `UPDATE beneficiarios SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $${values.length - 1} AND administradora_id = $${values.length} AND deleted_at IS NULL RETURNING *`,
-      values,
-    )
-    if (rows[0]) await recordCadastroAudit({ administradoraId, userId, action: "update", tableName: "beneficiarios", recordId: rows[0].id, before: current[0], after: { ...rows[0], motivo: motivo || null } })
+    const updateSql = `WITH updated AS (
+      UPDATE beneficiarios SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${values.length - 1} AND administradora_id = $${values.length} AND deleted_at IS NULL RETURNING *
+    ), audited AS (
+      INSERT INTO auditoria_cadastros (administradora_id, usuario_id, acao, tabela, registro_id, dados_anteriores, dados_novos)
+      SELECT $${values.length + 1}, $${values.length + 2}, 'update', 'beneficiarios', updated.id, $${values.length + 3}::jsonb,
+        (to_jsonb(updated) || jsonb_build_object('motivo', $${values.length + 4}::text))
+      FROM updated RETURNING registro_id
+    ) SELECT updated.* FROM updated JOIN audited ON audited.registro_id = updated.id`
+    const rows = await query(updateSql, [...values, administradoraId, userId, JSON.stringify(current[0]), motivo || null])
     return rows[0]
       ? NextResponse.json({ success: true, data: rows[0], message: "Beneficiário atualizado com sucesso" })
       : NextResponse.json({ success: false, message: "Beneficiário não encontrado" }, { status: 404 })

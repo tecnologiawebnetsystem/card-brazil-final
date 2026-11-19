@@ -35,6 +35,7 @@ const EDITABLE_PROPOSAL_FIELDS = new Set([
   "cpf_cnpj",
   "email",
   "telefone",
+  "estipulante_id",
   "empresa",
   "numero_funcionarios",
   "tipo_plano",
@@ -66,6 +67,25 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const forbiddenFields = receivedFields.filter((field) => !EDITABLE_PROPOSAL_FIELDS.has(field))
     if (forbiddenFields.length > 0) {
       return NextResponse.json({ error: "A atualização contém campos reservados ou não permitidos", fields: forbiddenFields }, { status: 400 })
+    }
+
+    if (body.estipulante_id !== undefined) {
+      const estipulanteId = Number(body.estipulante_id)
+      if (!Number.isSafeInteger(estipulanteId) || estipulanteId <= 0) {
+        return NextResponse.json({ error: "Estipulante inválido" }, { status: 400 })
+      }
+      const [estipulante] = await query(
+        `SELECT COALESCE(p.nome_completo, pj.nome_fantasia, pj.razao_social, '') AS nome_empresa
+         FROM estipulantes e
+         INNER JOIN pessoas p ON p.id = e.pessoa_id
+         LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id
+         WHERE e.id = $1 AND e.administradora_id = $2 AND e.status = 'ativo'
+           AND e.deleted_at IS NULL AND p.deleted_at IS NULL`,
+        [estipulanteId, administradoraId],
+      )
+      if (!estipulante) return NextResponse.json({ error: "Selecione um estipulante ativo válido." }, { status: 400 })
+      body.estipulante_id = estipulanteId
+      body.empresa = estipulante.nome_empresa || null
     }
 
     const updates: string[] = []

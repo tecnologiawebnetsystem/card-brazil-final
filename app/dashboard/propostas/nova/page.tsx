@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import useSWR from "swr"
 import { useRouter, useSearchParams } from "next/navigation"
+import { apiFetch } from "@/lib/api-client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,7 +20,10 @@ export default function NovaPropostaPage() {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const propostaId = searchParams.get("editar")
-
+  const { data: estipulantes = [], isLoading: isLoadingEstipulantes } = useSWR(
+    "/api/estipulantes",
+    (url: string) => apiFetch<Array<{ id: number; status: string; nome_exibicao: string; razao_social?: string | null; nome_fantasia?: string | null }>>(url),
+  )
   useEffect(() => {
     if (!propostaId) return
     fetch(`/api/propostas/${propostaId}`)
@@ -27,6 +32,7 @@ export default function NovaPropostaPage() {
         if (!ok) throw new Error(data.error || "Não foi possível carregar a proposta")
         const proposta = data.data || data
         setFormData({
+          estipulanteId: proposta.estipulante_id != null ? String(proposta.estipulante_id) : "",
           tipoPlano: proposta.tipo_plano || "",
           nomeProponente: proposta.nome_proponente || "",
           cpfCnpj: proposta.cpf_cnpj || proposta.cpf_cnpj_proponente || "",
@@ -42,6 +48,7 @@ export default function NovaPropostaPage() {
   }, [propostaId, toast])
 
   const [formData, setFormData] = useState({
+    estipulanteId: "",
     tipoPlano: "",
     nomeProponente: "",
     cpfCnpj: "",
@@ -53,16 +60,22 @@ export default function NovaPropostaPage() {
     observacoes: "",
   })
 
+  const estipulantesDisponiveis = estipulantes.filter(
+    (estipulante) => estipulante.status === "ativo" || String(estipulante.id) === formData.estipulanteId,
+  )
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async () => {
     // Validação básica
-    if (!formData.nomeProponente || !formData.cpfCnpj || !formData.tipoPlano) {
+    if (!formData.estipulanteId || !formData.nomeProponente || !formData.cpfCnpj || !formData.tipoPlano) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha todos os campos obrigatórios",
+        description: !formData.estipulanteId
+          ? "Selecione primeiro o estipulante da proposta."
+          : "Preencha todos os campos obrigatórios",
         variant: "destructive",
       })
       return
@@ -76,6 +89,7 @@ export default function NovaPropostaPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          estipulante_id: Number(formData.estipulanteId),
           nome_proponente: formData.nomeProponente,
           cpf_cnpj: formData.cpfCnpj,
           email: formData.email || null,
@@ -85,7 +99,7 @@ export default function NovaPropostaPage() {
           tipo_plano: formData.tipoPlano,
           valor_proposto: Number.parseFloat(formData.valorProposto.replace(/[^\d,]/g, "").replace(",", ".")) || 0,
           observacoes: formData.observacoes,
-          status: "pendente",
+          status: propostaId ? undefined : "pendente",
         }),
       })
 
@@ -134,6 +148,45 @@ export default function NovaPropostaPage() {
         </Badge>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Estipulante da proposta</CardTitle>
+          <CardDescription>Selecione primeiro a empresa contratante para liberar os demais dados.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="max-w-xl space-y-2">
+            <Label htmlFor="estipulante">Estipulante *</Label>
+            <Select
+              value={formData.estipulanteId}
+              onValueChange={(value) => {
+                const selecionado = estipulantes.find((item) => String(item.id) === value)
+                setFormData((prev) => ({
+                  ...prev,
+                  estipulanteId: value,
+                  empresa: selecionado?.nome_exibicao || selecionado?.nome_fantasia || selecionado?.razao_social || "",
+                }))
+              }}
+              disabled={isLoadingEstipulantes}
+            >
+              <SelectTrigger id="estipulante" aria-label="Selecione o estipulante">
+                <SelectValue placeholder={isLoadingEstipulantes ? "Carregando estipulantes..." : "Selecione o estipulante"} />
+              </SelectTrigger>
+              <SelectContent>
+                {estipulantesDisponiveis.map((estipulante) => (
+                  <SelectItem key={estipulante.id} value={String(estipulante.id)}>
+                    {estipulante.nome_exibicao || estipulante.nome_fantasia || estipulante.razao_social || `Estipulante #${estipulante.id}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!isLoadingEstipulantes && estipulantesDisponiveis.length === 0 && (
+              <p className="text-sm text-muted-foreground">Nenhum estipulante ativo cadastrado para esta administradora.</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <fieldset disabled={!formData.estipulanteId} className="flex min-w-0 flex-col gap-6 disabled:opacity-60">
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
@@ -196,8 +249,8 @@ export default function NovaPropostaPage() {
               <Input
                 id="empresa"
                 value={formData.empresa}
-                onChange={(e) => handleInputChange("empresa", e.target.value)}
-                placeholder="Nome da empresa"
+                readOnly
+                placeholder="Definido pelo estipulante selecionado"
               />
             </div>
             <div className="space-y-2">
@@ -262,6 +315,7 @@ export default function NovaPropostaPage() {
           </div>
         </CardContent>
       </Card>
+      </fieldset>
 
       <div className="flex justify-end gap-4">
         <Button variant="outline" onClick={() => router.push("/dashboard/propostas/lista")}>

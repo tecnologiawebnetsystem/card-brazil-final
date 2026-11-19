@@ -35,7 +35,18 @@ export async function POST(request: NextRequest) {
     const parsed = propostaSchema.safeParse(await request.json())
     if (!parsed.success) return NextResponse.json({ error: "Dados da proposta inválidos", fields: zodFieldErrors(parsed.error) }, { status: 400 })
     const body = parsed.data
-    const rows = await query(`INSERT INTO propostas (administradora_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pendente') RETURNING id`, [administradoraId, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, body.empresa || null, body.numero_funcionarios ?? null, body.tipo_plano, body.valor_proposto ?? null, body.observacoes || null])
+    const [estipulante] = await query(
+      `SELECT COALESCE(p.nome_completo, pj.nome_fantasia, pj.razao_social, '') AS nome_empresa
+       FROM estipulantes e
+       INNER JOIN pessoas p ON p.id = e.pessoa_id
+       LEFT JOIN pessoas_juridicas pj ON pj.pessoa_id = p.id
+       WHERE e.id = $1 AND e.administradora_id = $2 AND e.status = 'ativo'
+         AND e.deleted_at IS NULL AND p.deleted_at IS NULL`,
+      [body.estipulante_id, administradoraId],
+    )
+    if (!estipulante) return NextResponse.json({ error: "Selecione um estipulante ativo válido." }, { status: 400 })
+
+    const rows = await query(`INSERT INTO propostas (administradora_id, estipulante_id, nome_proponente, cpf_cnpj, email, telefone, empresa, numero_funcionarios, tipo_plano, valor_proposto, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'pendente') RETURNING id`, [administradoraId, body.estipulante_id, body.nome_proponente, body.cpf_cnpj, body.email || null, body.telefone || null, estipulante.nome_empresa || body.empresa || null, body.numero_funcionarios ?? null, body.tipo_plano, body.valor_proposto ?? null, body.observacoes || null])
     return NextResponse.json({ success: true, data: rows[0], message: "Proposta criada com sucesso" }, { status: 201 })
   } catch (error: any) {
     console.error("[v0] Erro ao criar proposta:", error)

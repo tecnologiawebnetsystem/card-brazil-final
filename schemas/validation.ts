@@ -124,6 +124,7 @@ export const beneficiarioSchema = z.object({
 })
 
 export const propostaSchema = z.object({
+  estipulante_id: z.coerce.number().int().positive(),
   nome_proponente: z.string().trim().min(2).max(180),
   cpf_cnpj: z.string().trim().min(11).max(18).refine((value) => validarCpf(value) || validarCnpj(value), "CPF ou CNPJ inválido"),
   tipo_plano: z.string().trim().min(2).max(80),

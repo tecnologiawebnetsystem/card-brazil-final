@@ -1,0 +1,45 @@
+name: PostgreSQL financial integration
+
+on:
+  push:
+    branches:
+      - v0/card-brasil-p0-p1-security
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: card_brazil_test
+          POSTGRES_USER: card_brazil_ci
+          POSTGRES_PASSWORD: ci-only-temporary
+        ports:
+          - 5432
+        options: >-
+          --health-cmd "pg_isready -U card_brazil_ci -d card_brazil_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run isolated PostgreSQL integration and concurrency tests
+        env:
+          CARD_BRAZIL_CI_POSTGRES: "1"
+          TEST_DATABASE_URL: postgresql://card_brazil_ci:ci-only-temporary@127.0.0.1:${{ job.services.postgres.ports[5432] }}/card_brazil_test
+          DATABASE_URL: ""
+        run: pnpm test:integration:postgres

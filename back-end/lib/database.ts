@@ -10,14 +10,19 @@ function isIsolatedPostgresTest() {
 
 async function getTestPool() {
   if (!isIsolatedPostgresTest()) throw new Error("O driver PostgreSQL de teste só pode ser usado pelo harness isolado")
+  for (const name of ["DATABASE_URL", "DATABASE_URL_UNPOOLED", "NEON_DATABASE_URL", "POSTGRES_URL", "POSTGRES_URL_NON_POOLING", "POSTGRES_PRISMA_URL"]) {
+    if (process.env[name]) throw new Error(`${name} operacional não pode estar definido no harness isolado`)
+  }
   const connectionString = process.env.TEST_DATABASE_URL
   if (!connectionString) throw new Error("TEST_DATABASE_URL é obrigatória no modo de teste isolado")
 
   const target = new URL(connectionString)
   const localHost = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(target.hostname)
-  const ephemeralPort = Number(target.port) >= 49152 && Number(target.port) <= 65535
-  if (!(["postgres:", "postgresql:"].includes(target.protocol) && localHost && ephemeralPort && target.pathname === "/card_brazil_test")) {
-    throw new Error("O harness aceita exclusivamente o banco efêmero card_brazil_test em porta dinâmica de loopback local")
+  const ephemeralPort = Number(target.port) >= 32768 && Number(target.port) <= 65535
+  const isolatedDatabase = target.pathname === "/card_brazil_test" && target.username === "card_brazil_ci"
+  const noConnectionOverrides = !target.search && !target.hash
+  if (!( ["postgres:", "postgresql:"].includes(target.protocol) && localHost && ephemeralPort && isolatedDatabase && noConnectionOverrides)) {
+    throw new Error("O harness aceita exclusivamente card_brazil_ci no banco efêmero card_brazil_test em loopback local e porta dinâmica")
   }
 
   if (!testPool) {

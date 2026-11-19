@@ -14,6 +14,14 @@ test("modo de teste rejeita conexão que não seja loopback", async () => {
   else process.env.TEST_DATABASE_URL = original
 })
 
+test("modo de teste rejeita DATABASE_URL operacional", async () => {
+  const original = process.env.DATABASE_URL
+  process.env.DATABASE_URL = "postgresql://operational.invalid/production"
+  await assert.rejects(database.query("SELECT 1"), /DATABASE_URL operacional/)
+  if (original === undefined) delete process.env.DATABASE_URL
+  else process.env.DATABASE_URL = original
+})
+
 test("consulta parametrizada usa o PostgreSQL efêmero", { skip: !databaseUrl }, async () => {
   const rows = await database.query("SELECT $1::text AS marcador", ["card-brazil-test"])
   assert.deepEqual(rows, [{ marcador: "card-brazil-test" }])

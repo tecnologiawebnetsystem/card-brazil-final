@@ -1,6 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+run_tests() {
+  export CARD_BRAZIL_TEST_DB=1
+  export DATABASE_URL=""
+  node tests/integration/prepare-postgres.mjs
+  corepack pnpm exec node --experimental-strip-types --test tests/integration/*.test.mjs
+}
+
+if [[ "${CARD_BRAZIL_CI_POSTGRES:-}" == "1" ]]; then
+  if [[ "${GITHUB_ACTIONS:-}" != "true" ]]; then
+    printf '%s\n' "O serviço PostgreSQL de CI só é aceito no GitHub Actions." >&2
+    exit 2
+  fi
+  if [[ -n "${DATABASE_URL:-}" ]]; then
+    printf '%s\n' "DATABASE_URL operacional está proibida no harness de CI." >&2
+    exit 2
+  fi
+  for name in DATABASE_URL_UNPOOLED NEON_DATABASE_URL POSTGRES_URL POSTGRES_URL_NON_POOLING POSTGRES_PRISMA_URL; do
+    if [[ -n "${!name:-}" ]]; then
+      printf 'Variável operacional proibida: %s\n' "$name" >&2
+      exit 2
+    fi
+  done
+  run_tests
+  exit 0
+fi
+
 if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
   printf '%s\n' "Docker não está disponível; nenhum teste PostgreSQL foi executado." >&2
   exit 2
@@ -14,7 +40,7 @@ trap cleanup EXIT
 docker run --rm --detach --name "$container" \
   --publish 127.0.0.1::5432 \
   --env POSTGRES_DB=card_brazil_test \
-  --env POSTGRES_USER=postgres \
+  --env POSTGRES_USER=card_brazil_ci \
   --env POSTGRES_PASSWORD="$password" \
   postgres:16-alpine >/dev/null
 
@@ -23,7 +49,7 @@ for attempt in $(seq 1 60); do
   mapping="$(docker port "$container" 5432/tcp 2>/dev/null || true)"
   if [[ "$mapping" == 127.0.0.1:* ]]; then
     port="${mapping##*:}"
-    if docker exec "$container" pg_isready -U postgres -d card_brazil_test >/dev/null 2>&1; then break; fi
+    if docker exec "$container" pg_isready -U card_brazil_ci -d card_brazil_test >/dev/null 2>&1; then break; fi
   fi
   sleep 1
 done
@@ -33,34 +59,8 @@ if [[ -z "$port" ]]; then
   exit 2
 fi
 
-apply_sql() {
-  local file="$1"
-  docker exec -i --env PGPASSWORD="$password" "$container" \
-    psql --no-psqlrc --set ON_ERROR_STOP=1 --username postgres --dbname card_brazil_test < "$file"
-}
-
-for file in \
-  sql/banco-dados_DDL_00_administradoras.sql \
-  sql/banco-dados_DDL_01_usuarios_autenticacao.sql \
-  sql/banco-dados_DDL_02_pessoas_enderecos_bancarios.sql \
-  sql/banco-dados_DDL_03_operadoras_estipulantes.sql \
-  sql/banco-dados_DDL_04_corretores_agenciadores.sql \
-  sql/banco-dados_DDL_05_planos_produtos.sql \
-  sql/banco-dados_DDL_06_financeiro_auditoria.sql \
-  sql/banco-dados_DDL_07_propostas.sql \
-  sql/banco-dados_DDL_08_tabelas_gerais.sql \
-  sql/banco-dados_DDL_09_modulo_financeiro.sql \
-  sql/banco-dados_DDL_10_faturamento_bancario.sql \
-  sql/banco-dados_migrations_001_cadastros_postgresql.sql \
-  sql/banco-dados_migrations_002_saneamento_cadastros.sql \
-  sql/banco-dados_migrations_005_integridade_cobranca_financeira.sql \
-  sql/banco-dados_migrations_006_conciliacao_inadimplencia.sql \
-  sql/banco-dados_migrations_007_integracao_fluxo_principal.sql; do
-  apply_sql "$file"
-done
-
 export CARD_BRAZIL_TEST_DB=1
-export TEST_DATABASE_URL="postgres://postgres:${password}@127.0.0.1:${port}/card_brazil_test"
+export TEST_DATABASE_URL="postgresql://card_brazil_ci:${password}@127.0.0.1:${port}/card_brazil_test"
 export DATABASE_URL=""
 export NODE_ENV=test
-corepack pnpm exec node --experimental-strip-types --test tests/integration/postgres-driver.test.mjs
+run_tests

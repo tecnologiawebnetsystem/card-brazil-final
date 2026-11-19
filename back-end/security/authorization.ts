@@ -17,6 +17,16 @@ export interface AuthorizationResult {
   scope: "tenant" | "own" | "team" | "all"
 }
 
+const ACTION_SLUGS: Record<PermissionAction, string[]> = {
+  view: ["view", "visualizar"],
+  create: ["create", "criar"],
+  edit: ["edit", "editar"],
+  toggle: ["toggle", "editar"],
+  delete: ["delete", "excluir"],
+  approve: ["approve", "aprovar"],
+  export: ["export", "exportar"],
+}
+
 const RESOURCE_ALIASES: Record<string, PermissionResource> = {
   cadastro: "cadastros",
   cadastros: "cadastros",
@@ -81,11 +91,11 @@ export async function authorize(
          AND up.usuario_id = $2
          AND up.ativo = TRUE
          AND r.slug = $3
-         AND a.slug = $4
+         AND a.slug = ANY($4::text[])
          AND (up.vigencia_inicio IS NULL OR up.vigencia_inicio <= CURRENT_DATE)
          AND (up.vigencia_fim IS NULL OR up.vigencia_fim >= CURRENT_DATE)
        LIMIT 1`,
-      [context.administradoraId, context.userId, key.split(".")[0], action === "toggle" ? "editar" : action],
+      [context.administradoraId, context.userId, key.split(".")[0], ACTION_SLUGS[action]],
     )
     if (rows[0]?.permitido) {
       const scope = rows[0].escopo === "all" || rows[0].escopo === "own" || rows[0].escopo === "team" ? rows[0].escopo : "tenant"

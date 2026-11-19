@@ -13,6 +13,14 @@ test("autorização central define ações e recursos", () => {
   assert.match(authorizationSource, /export async function requirePermission/)
 })
 
+test("autorização traduz ações do app para slugs existentes no catálogo", () => {
+  assert.match(authorizationSource, /view: \["view", "visualizar"\]/)
+  assert.match(authorizationSource, /create: \["create", "criar"\]/)
+  assert.match(authorizationSource, /edit: \["edit", "editar"\]/)
+  assert.match(authorizationSource, /delete: \["delete", "excluir"\]/)
+  assert.match(authorizationSource, /a\.slug = ANY\(\$4::text\[\]\)/)
+})
+
 test("guardas de API usam o núcleo central de autorização", () => {
   assert.match(apiAuthSource, /requirePermission\(context, "cobranca", permission\)/)
   assert.match(apiAuthSource, /requirePermission\(context, "financeiro", permission\)/)
@@ -22,5 +30,6 @@ test("guardas de API usam o núcleo central de autorização", () => {
 test("autorização possui escopo e auditoria de negação", () => {
   assert.match(authorizationSource, /scope: "tenant" \| "own" \| "team" \| "all"/)
   assert.match(authorizationSource, /recordAuthorizationDenied/)
-  assert.match(auditSource, /authorization_denied/)
+  assert.match(auditSource, /INSERT INTO auditoria_cadastros/)
+  assert.match(auditSource, /"access_denied"/)
 })

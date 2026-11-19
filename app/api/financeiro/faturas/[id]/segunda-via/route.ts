@@ -1,10 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext } from "@/back-end/lib/api-auth"
+import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
 import { query } from "@/back-end/lib/database"
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!(await hasPermission(auth, "financeiro", "create"))) return NextResponse.json({ error: "Sem permissão para gerar segunda via" }, { status: 403 })
   const faturaId = Number((await params).id)
   const body = await request.json().catch(() => ({}))
   const faturas = await query("SELECT id, status, valor_total, vencimento FROM faturas_mensais WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [faturaId, auth.administradoraId])

@@ -23,11 +23,13 @@ test("repetição sequencial de fatura compara parâmetros e retorna conflito", 
   assert.match(route, /Idempotency-Key já utilizada com parâmetros incompatíveis/)
   assert.match(route, /status: 409/)
   assert.match(route, /idempotent: true/)
+  assert.match(route, /isUniqueConstraintViolation\(error\)/)
+  assert.match(route, /if \(!previous\) throw error/)
 })
 
 test("schema versionado não comprova unicidade de pagamentos de faturas", () => {
-  const ddl = read("banco-dados/DDL/10_faturamento_bancario.sql")
-  const migrations = read("banco-dados/migrations/005_integridade_cobranca_financeira.sql")
+  const ddl = read("sql/banco-dados_DDL_10_faturamento_bancario.sql")
+  const migrations = read("sql/banco-dados_migrations_005_integridade_cobranca_financeira.sql")
   const pagamentosTable = ddl.match(/CREATE TABLE IF NOT EXISTS pagamentos_faturas \(([^;]+)\);/)?.[1] ?? ""
 
   assert.match(pagamentosTable, /idempotency_key VARCHAR\(160\) NOT NULL/)
@@ -38,7 +40,7 @@ test("schema versionado não comprova unicidade de pagamentos de faturas", () =>
 test("pagamento de fatura depende de leitura prévia antes da transação", () => {
   const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
   const existingPosition = route.indexOf("const existing = await query")
-  const transactionPosition = route.indexOf("const result = await transaction")
+  const transactionPosition = route.indexOf("result = await transaction")
 
   assert.ok(existingPosition >= 0)
   assert.ok(transactionPosition > existingPosition)
@@ -46,7 +48,7 @@ test("pagamento de fatura depende de leitura prévia antes da transação", () =
 
 test("auditoria financeira da parcela entra na lista da mesma transação", () => {
   const route = read("app/api/cobranca/pagamentos/route.ts")
-  const database = read("lib/cadastro-audit.ts")
+  const database = read("back-end/lib/cadastro-audit.ts")
 
   assert.match(route, /WITH parcela_atualizada AS \([\s\S]*pagamento_criado AS \([\s\S]*evento_criado AS \([\s\S]*auditoria_criada AS \(/)
   assert.match(route, /FROM pagamento_criado pc/)
@@ -65,7 +67,7 @@ test("auditoria financeira da fatura entra na mesma transação", () => {
 })
 
 test("não há outbox ou recuperação persistente identificada para auditoria", () => {
-  const audit = read("lib/cadastro-audit.ts")
+  const audit = read("back-end/lib/cadastro-audit.ts")
   const paymentRoute = read("app/api/cobranca/pagamentos/route.ts")
 
   assert.doesNotMatch(audit, /outbox|pending|retry|tentativa/i)

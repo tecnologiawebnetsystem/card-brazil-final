@@ -5,28 +5,28 @@ import test from "node:test"
 const root = new URL("../../", import.meta.url)
 const read = (file) => fs.readFileSync(new URL(file, root), "utf8")
 
-test("aprovação cria contrato na mesma transação", () => {
+test("aprovação permanece bloqueada sem modelo e regra comercial comprovados", () => {
   const route = read("app/api/propostas/aprovar/route.ts")
-  assert.match(route, /transaction\(\[/)
-  assert.match(route, /UPDATE propostas SET status = 'contrato_gerado'/)
-  assert.match(route, /INSERT INTO contratos/)
-  assert.match(route, /contrato_id: rows\[1\]\[0\]\.id/)
+  assert.match(route, /requireCadastroAccess\("edit"\)/)
+  assert.match(route, /status: 501/)
+  assert.match(route, /Nenhuma alteração foi gravada/)
+  assert.doesNotMatch(route, /transaction\(|INSERT INTO contratos|UPDATE propostas SET status = 'contrato_gerado'/)
 })
 
-test("faturamento exige proposta aprovada e cria conta a receber", () => {
+test("faturamento permanece bloqueado sem categoria financeira aprovada", () => {
   const route = read("app/api/propostas/faturas/route.ts")
-  assert.match(route, /status !== ["']aprovada["']/)
-  assert.match(route, /INSERT INTO contas_receber/)
-  assert.match(route, /ON CONFLICT \(administradora_id, numero_documento\)/)
+  assert.match(route, /categoria 'faturamento'/)
+  assert.match(route, /status: 501/)
+  assert.doesNotMatch(route, /INSERT INTO contas_receber/)
 })
 
-test("contrato exige plano, estipulante e condição financeira", () => {
+test("contratos validam a administradora autenticada sem confiar em campos de tenant do cliente", () => {
   const route = read("app/api/contratos/route.ts")
-  assert.match(route, /plano_id/)
-  assert.match(route, /estipulante_id/)
-  assert.match(route, /valor_total/)
-  assert.match(route, /forma_pagamento/)
-  assert.match(route, /p\.id_administradora = \$3/)
+  assert.match(route, /requireCadastroAccess\("create"\)/)
+  assert.match(route, /e\.administradora_id = \$3/)
+  assert.match(route, /o\.administradora_id = \$3/)
+  assert.match(route, /INSERT INTO contratos \(administradora_id, operadora_id, estipulante_id/)
+  assert.doesNotMatch(route, /body\.administradora_id|id_administradora|e\.ativo/)
 })
 
 test("beneficiário só é vinculado ao plano do contrato", () => {
@@ -57,7 +57,7 @@ test("conciliação é idempotente e escopada por administradora", () => {
 })
 
 test("migration declara o vínculo da conciliação", () => {
-  const migration = read("banco-dados/migrations/006_conciliacao_inadimplencia.sql")
+  const migration = read("sql/banco-dados_migrations_006_conciliacao_inadimplencia.sql")
   assert.match(migration, /parcela_id BIGINT/)
   assert.match(migration, /pagamento_id BIGINT/)
   assert.match(migration, /UNIQUE \(administradora_id, identificador_externo\)/)
@@ -65,7 +65,7 @@ test("migration declara o vínculo da conciliação", () => {
 
 test("pagamento de parcela exige permissão e saldo atômico", () => {
   const route = read("app/api/cobranca/pagamentos/route.ts")
-  assert.match(route, /permissions\["cobranca\.create"\] !== true/)
+  assert.match(route, /await hasPermission\(auth, "cobranca", "create"\)/)
   assert.match(route, /ROUND\(valor_pago \+ \$1, 2\) <= ROUND\(valor_total, 2\)/)
   assert.match(route, /WITH parcela_atualizada AS \(/)
   assert.match(route, /SELECT pc\.id, pc\.parcela_id, pc\.valor_pago, pa\.status/)
@@ -89,7 +89,7 @@ test("idempotência rejeita a mesma chave com parâmetros diferentes", () => {
 })
 
 test("migration protege idempotência e isolamento do fluxo", () => {
-  const migration = read("banco-dados/migrations/007_integracao_fluxo_principal.sql")
+  const migration = read("sql/banco-dados_migrations_007_integracao_fluxo_principal.sql")
   assert.match(migration, /uq_faturas_mensais_admin_proposta_competencia/)
   assert.match(migration, /uq_contas_receber_admin_documento/)
   assert.match(migration, /idx_beneficiarios_admin_contrato_plano/)

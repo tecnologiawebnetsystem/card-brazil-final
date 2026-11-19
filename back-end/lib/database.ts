@@ -2,6 +2,36 @@ import { neon } from "@neondatabase/serverless"
 import type { NeonQueryFunction } from "@neondatabase/serverless"
 
 let sql: NeonQueryFunction<false, false> | null = null
+let testPool: import("pg").Pool | null = null
+
+function isIsolatedPostgresTest() {
+  return process.env.CARD_BRAZIL_TEST_DB === "1"
+}
+
+async function getTestPool() {
+  if (!isIsolatedPostgresTest()) throw new Error("O driver PostgreSQL de teste só pode ser usado pelo harness isolado")
+  const connectionString = process.env.TEST_DATABASE_URL
+  if (!connectionString) throw new Error("TEST_DATABASE_URL é obrigatória no modo de teste isolado")
+
+  const target = new URL(connectionString)
+  const localHost = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(target.hostname)
+  const ephemeralPort = Number(target.port) >= 49152 && Number(target.port) <= 65535
+  if (!(["postgres:", "postgresql:"].includes(target.protocol) && localHost && ephemeralPort && target.pathname === "/card_brazil_test")) {
+    throw new Error("O harness aceita exclusivamente o banco efêmero card_brazil_test em porta dinâmica de loopback local")
+  }
+
+  if (!testPool) {
+    const { Pool } = await import("pg")
+    testPool = new Pool({ connectionString, max: 5 })
+  }
+  return testPool
+}
+
+export async function closeTestDatabasePool() {
+  if (!testPool) return
+  await testPool.end()
+  testPool = null
+}
 
 function getSql() {
   if (!process.env.DATABASE_URL) {
@@ -14,8 +44,12 @@ function getSql() {
 export { sql }
 
 export const pool = {
-  execute: async <T = any>(query: string, params?: any[]) => {
-    const result = await getSql().query(query, params || [])
+  execute: async <T = any>(queryText: string, params?: any[]) => {
+    if (isIsolatedPostgresTest()) {
+      const result = await (await getTestPool()).query(queryText, params || [])
+      return [result.rows] as [T[]]
+    }
+    const result = await getSql().query(queryText, params || [])
     return [result] as [T[]]
   },
 }
@@ -27,7 +61,12 @@ function normalizePostgresQuery(text: string) {
 
 export async function query<T = any>(text: string, params?: any[]): Promise<T[]> {
   try {
-    const result = await getSql().query(normalizePostgresQuery(text), params || [])
+    const normalized = normalizePostgresQuery(text)
+    if (isIsolatedPostgresTest()) {
+      const result = await (await getTestPool()).query(normalized, params || [])
+      return result.rows as T[]
+    }
+    const result = await getSql().query(normalized, params || [])
     return result as T[]
   } catch (error) {
     console.error("Database query error:", error)
@@ -37,18 +76,37 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
 
 export type DatabaseStatement = { text: string; params?: any[] }
 
+export function isUniqueConstraintViolation(error: unknown) {
+  if (!error || typeof error !== "object") return false
+  const databaseError = error as { code?: unknown; cause?: { code?: unknown } }
+  return databaseError.code === "23505" || databaseError.cause?.code === "23505"
+}
+
 export async function transaction<T = any>(statements: DatabaseStatement[]): Promise<T[][]> {
+  if (isIsolatedPostgresTest()) {
+    const client = await (await getTestPool()).connect()
+    try {
+      await client.query("BEGIN")
+      const results: T[][] = []
+      for (const statement of statements) {
+        const result = await client.query(normalizePostgresQuery(statement.text), statement.params || [])
+        results.push(result.rows as T[])
+      }
+      await client.query("COMMIT")
+      return results
+    } catch (error) {
+      await client.query("ROLLBACK")
+      throw error
+    } finally {
+      client.release()
+    }
+  }
   const connection = getSql()
   const queries = statements.map(({ text, params }) => connection.query(normalizePostgresQuery(text), params || []))
   return (await connection.transaction(queries)) as T[][]
 }
 
 export async function queryOne<T = any>(text: string, params?: any[]): Promise<T | null> {
-  try {
-    const result = await getSql().query(normalizePostgresQuery(text), params || [])
-    return result.length > 0 ? (result[0] as T) : null
-  } catch (error) {
-    console.error("Database query error:", error)
-    throw error
-  }
+  const rows = await query<T>(text, params)
+  return rows[0] ?? null
 }

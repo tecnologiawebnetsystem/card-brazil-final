@@ -7,7 +7,7 @@ const fields = ["tipo", "categoria", "descricao", "valor", "data_movimentacao", 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "financeiro", "view")) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
+  if (!(await hasPermission(auth, "financeiro", "view"))) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
   const rows = await query("SELECT * FROM fluxo_caixa WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [Number.parseInt((await params).id, 10), auth.administradoraId])
   if (!rows.length) return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
   return NextResponse.json(rows[0])
@@ -16,7 +16,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "financeiro", "edit")) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
+  if (!(await hasPermission(auth, "financeiro", "edit"))) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
   const body = await request.json()
   const entries = Object.entries(body).filter(([key]) => fields.includes(key))
   if (!entries.length) return NextResponse.json({ error: "Nenhum campo válido para atualizar" }, { status: 400 })
@@ -31,7 +31,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "financeiro", "delete")) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
+  if (!(await hasPermission(auth, "financeiro", "delete"))) return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
   const rows = await query("UPDATE fluxo_caixa SET deleted_at = CURRENT_TIMESTAMP, status = 'cancelada', updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL RETURNING id", [Number.parseInt((await params).id, 10), auth.administradoraId])
   if (!rows.length) return NextResponse.json({ error: "Movimentação não encontrada" }, { status: 404 })
   return NextResponse.json({ message: "Movimentação excluída com sucesso" })

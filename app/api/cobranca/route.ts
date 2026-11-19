@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext, authErrorStatus } from "@/back-end/lib/api-auth"
+import { getAuthContext, hasPermission, authErrorStatus } from "@/back-end/lib/api-auth"
 import { query, transaction } from "@/back-end/lib/database"
 import { canTransitionCobranca, isCobrancaStatus, parseMoney, COBRANCA_STATUSES } from "@/back-end/lib/cobranca-state"
 
@@ -11,17 +11,16 @@ function errorResponse(error: unknown, fallback: string) {
   return NextResponse.json({ error: status === 401 ? "Não autenticado" : status === 403 ? "Sem permissão" : fallback }, { status })
 }
 
-function hasCobrancaPermission(auth: Awaited<ReturnType<typeof getAuthContext>>, action: "view" | "create" | "edit") {
+async function hasCobrancaPermission(auth: Awaited<ReturnType<typeof getAuthContext>>, action: "view" | "create" | "edit") {
   if (!auth) return false
-  const permissions = auth.profile.permissions as Record<string, unknown> | undefined
-  return permissions?.[`cobranca.${action}`] === true
+  return hasPermission(auth, "cobranca", action)
 }
 
 export async function GET(request: NextRequest) {
   try {
     const auth = await getAuthContext()
     if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-    if (!hasCobrancaPermission(auth, "view")) return NextResponse.json({ error: "Sem permissão cobranca.view" }, { status: 403 })
+    if (!(await hasCobrancaPermission(auth, "view"))) return NextResponse.json({ error: "Sem permissão cobranca.view" }, { status: 403 })
     const params = request.nextUrl.searchParams
     const status = params.get("status")
     const limit = Math.min(Math.max(Number.parseInt(params.get("limit") || "50", 10) || 50, 1), 100)
@@ -41,7 +40,7 @@ export async function POST(request: NextRequest) {
   try {
     const auth = await getAuthContext()
     if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-    if (!hasCobrancaPermission(auth, "create")) return NextResponse.json({ error: "Sem permissão cobranca.create" }, { status: 403 })
+    if (!(await hasCobrancaPermission(auth, "create"))) return NextResponse.json({ error: "Sem permissão cobranca.create" }, { status: 403 })
     const body = await request.json()
     const valorInformado = body.valor_original === undefined || body.valor_original === null || body.valor_original === "" ? null : parseMoney(body.valor_original)
     const tipo = String(body.tipo_cobranca || "amigavel")
@@ -76,7 +75,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const auth = await getAuthContext()
     if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-    if (!hasCobrancaPermission(auth, "edit")) return NextResponse.json({ error: "Sem permissão cobranca.edit" }, { status: 403 })
+    if (!(await hasCobrancaPermission(auth, "edit"))) return NextResponse.json({ error: "Sem permissão cobranca.edit" }, { status: 403 })
     const body = await request.json()
     const id = Number(body.id)
     const status = body.status

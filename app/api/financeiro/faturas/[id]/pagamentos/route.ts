@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
-import { query, transaction } from "@/back-end/lib/database"
+import { isUniqueConstraintViolation, query, transaction } from "@/back-end/lib/database"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "financeiro", "view")) return NextResponse.json({ error: "Sem permissão para consultar pagamentos" }, { status: 403 })
+  if (!(await hasPermission(auth, "financeiro", "view"))) return NextResponse.json({ error: "Sem permissão para consultar pagamentos" }, { status: 403 })
   const id = Number((await params).id)
   return NextResponse.json({ data: await query("SELECT * FROM pagamentos_faturas WHERE fatura_id = $1 AND administradora_id = $2 ORDER BY created_at DESC", [id, auth.administradoraId]) })
 }
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "financeiro", "create")) return NextResponse.json({ error: "Sem permissão para registrar pagamentos" }, { status: 403 })
+  if (!(await hasPermission(auth, "financeiro", "create"))) return NextResponse.json({ error: "Sem permissão para registrar pagamentos" }, { status: 403 })
   const id = Number((await params).id)
   const body = await request.json()
   const meio = String(body.meio || "").trim()
@@ -33,7 +33,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const fatura = await query("SELECT id, valor_total, status FROM faturas_mensais WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL", [id, auth.administradoraId])
   if (!fatura.length) return NextResponse.json({ error: "Fatura não encontrada" }, { status: 404 })
   if (["paga", "cancelada"].includes(fatura[0].status)) return NextResponse.json({ error: "Fatura não aceita pagamento" }, { status: 409 })
-  const result = await transaction([
+  let result
+  try {
+    result = await transaction([
     {
       text: `WITH fatura_atualizada AS (
         UPDATE faturas_mensais f
@@ -82,7 +84,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         JSON.stringify({ status: fatura[0].status, valor_total: fatura[0].valor_total }),
       ],
     },
-  ])
+    ])
+  } catch (error) {
+    if (!isUniqueConstraintViolation(error)) throw error
+    const raced = await query<{ fatura_id: number; meio: string; idempotency_key: string; valor: number }>(
+      "SELECT fatura_id, meio, idempotency_key, valor FROM pagamentos_faturas WHERE administradora_id = $1 AND idempotency_key = $2",
+      [auth.administradoraId, key],
+    )
+    const previous = raced[0]
+    if (!previous) throw error
+    if (previous.fatura_id !== id || previous.meio !== meio || Number(previous.valor) !== valor) {
+      return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
+    }
+    return NextResponse.json({ data: previous, idempotent: true })
+  }
   const pagamento = result[0]?.[0]
   if (!pagamento) return NextResponse.json({ error: "Fatura não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
   return NextResponse.json({ data: pagamento, message: "Pagamento registrado e histórico criado" }, { status: 201 })

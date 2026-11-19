@@ -45,6 +45,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const motivo = typeof body.motivo === "string" ? body.motivo.trim() : ""
     const requiresReason = ["plano_id", "contrato_id", "data_exclusao", "status"].some((field) => Object.prototype.hasOwnProperty.call(body, field))
     if (requiresReason && motivo.length < 5) return NextResponse.json({ success: false, message: "Informe um motivo com pelo menos 5 caracteres para esta movimentação" }, { status: 400 })
+    if (body.status !== undefined && !["ativo", "suspenso"].includes(body.status)) {
+      return NextResponse.json({ success: false, message: "Inativação e exclusão devem seguir o fluxo de solicitação e processamento" }, { status: 409 })
+    }
+    if (Object.prototype.hasOwnProperty.call(body, "data_exclusao")) {
+      return NextResponse.json({ success: false, message: "Data de exclusão só pode ser registrada pelo fluxo de solicitação e processamento" }, { status: 409 })
+    }
     const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
     if (!entries.length) return NextResponse.json({ success: false, message: "Nenhum campo válido para atualizar" }, { status: 400 })
     const current = await query(`SELECT * FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [Number.parseInt(id, 10), administradoraId])
@@ -92,38 +98,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE() {
   try {
-    const { administradoraId, userId } = await requireCadastroAccess("delete")
-    const { id } = await params
-    const body = await request.json().catch(() => ({}))
-    const motivo = typeof body.motivo === "string" ? body.motivo.trim() : ""
-    if (motivo.length < 5) return NextResponse.json({ success: false, message: "Informe o motivo da exclusão com pelo menos 5 caracteres" }, { status: 400 })
-    const rows = await query(
-      `WITH current AS (
-        SELECT * FROM beneficiarios
-        WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL
-        FOR UPDATE
-      ), updated AS (
-        UPDATE beneficiarios b
-        SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP, status = 'inativo'
-        FROM current c
-        WHERE b.id = c.id AND b.administradora_id = $2 AND b.deleted_at IS NULL
-        RETURNING b.*
-      ), audited AS (
-        INSERT INTO auditoria_cadastros (administradora_id, usuario_id, acao, tabela, registro_id, dados_anteriores, dados_novos)
-        SELECT $2, $3, 'delete', 'beneficiarios', updated.id, to_jsonb(current),
-          to_jsonb(updated) || jsonb_build_object('motivo', $4::text)
-        FROM updated JOIN current ON current.id = updated.id
-        RETURNING registro_id
-      ) SELECT updated.* FROM updated JOIN audited ON audited.registro_id = updated.id`,
-      [Number.parseInt(id, 10), administradoraId, userId, motivo],
+    await requireCadastroAccess("delete")
+    return NextResponse.json(
+      { success: false, message: "Exclusão direta bloqueada: o fluxo de solicitação e processamento não está conectado ao modelo ativo. Nenhum beneficiário foi alterado." },
+      { status: 501 },
     )
-    return rows[0]
-      ? NextResponse.json({ success: true, data: null, message: "Beneficiário excluído com sucesso" })
-      : NextResponse.json({ success: false, message: "Beneficiário não encontrado" }, { status: 404 })
   } catch (error) {
     const auth = authFailure(error)
-    return NextResponse.json(auth?.body || { success: false, message: "Erro ao excluir beneficiário" }, { status: auth?.status || 500 })
+    return NextResponse.json(auth?.body || { success: false, message: "Erro ao autorizar exclusão" }, { status: auth?.status || 500 })
   }
 }

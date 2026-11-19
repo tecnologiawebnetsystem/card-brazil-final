@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
-import { getAuthContext } from "@/back-end/lib/api-auth"
+import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
 import { query } from "@/back-end/lib/database"
 
 export async function POST(request: Request) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!(await hasPermission(auth, "financeiro", "create"))) return NextResponse.json({ error: "Sem permissão para gerar remessas" }, { status: 403 })
   const body = await request.json()
   const config = await query("SELECT id FROM configuracoes_cobranca WHERE id = $1 AND administradora_id = $2 AND ativo = true AND deleted_at IS NULL", [body.configuracao_id, auth.administradoraId])
   if (!config.length) return NextResponse.json({ error: "Configure um convênio ativo antes de gerar a remessa" }, { status: 422 })

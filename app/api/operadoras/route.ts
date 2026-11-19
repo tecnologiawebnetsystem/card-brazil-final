@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     const registroANS = String(body.registro_ans || "").trim()
     const status = body.ativo === false ? "inativo" : "ativo"
     if (!pessoaId || !naturezaOperadora || !registroANS) return apiError("Pessoa, natureza e registro ANS são obrigatórios", 400)
-    await exigirDependenciasCadastro(pessoaId)
+    await exigirDependenciasCadastro(pessoaId, administradoraId)
     const rows = await query(
       `INSERT INTO operadoras (pessoa_id, administradora_id, tipo_operadora, registro_ans, status)
        VALUES ($1, $2, $3, $4, $5) RETURNING *, (status = 'ativo') AS ativo`,

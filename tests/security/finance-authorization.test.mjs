@@ -2,21 +2,21 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import test from "node:test"
 
-const root = new URL("../", import.meta.url)
+const root = new URL("../../", import.meta.url)
 const source = (path) => readFile(new URL(path, root), "utf8")
 
 test("helpers negam permissões financeiras e de cobrança ausentes", async () => {
-  const auth = await source("lib/api-auth.ts")
-  assert.match(auth, /permissions\[key\] !== true/)
-  assert.match(auth, /export function hasPermission\(context: AuthContext, domain: "financeiro" \| "cobranca" \| "cadastros"/)
+  const auth = await source("back-end/lib/api-auth.ts")
+  assert.match(auth, /await requirePermission\(context, domain, permission\)/)
+  assert.match(auth, /export async function hasPermission\(context: AuthContext, domain: "financeiro" \| "cobranca" \| "cadastros"/)
 })
 
 test("faturas mensais exigem leitura, criação, edição e cancelamento", async () => {
   const route = await source("app/api/propostas/faturas/route.ts")
-  assert.match(route, /hasPermission\(auth, "financeiro", "view"\)/)
-  assert.match(route, /hasPermission\(auth, "financeiro", "create"\)/)
-  assert.match(route, /hasPermission\(auth, "financeiro", "edit"\)/)
-  assert.match(route, /hasPermission\(auth, "financeiro", "delete"\)/)
+  assert.match(route, /authorize\(auth, "view"\)/)
+  assert.match(route, /authorize\(auth, "create"\)/)
+  assert.match(route, /authorize\(auth, "edit"\)/)
+  assert.match(route, /authorize\(auth, "delete"\)/)
   assert.match(route, /administradora_id = \$2/)
 })
 

@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server"
-import { query } from "@/back-end/lib/database"
 import { accessError, requireSqlManagerAccess } from "@/back-end/lib/sql-manager-auth"
 
 export async function GET() {
   try {
     await requireSqlManagerAccess()
-    const tables = await query<{ table_name: string; row_count: number }>(`SELECT t.table_name, COALESCE(s.n_live_tup, 0)::int AS row_count FROM information_schema.tables t LEFT JOIN pg_stat_user_tables s ON s.schemaname = t.table_schema AND s.relname = t.table_name WHERE t.table_schema = 'public' AND t.table_type = 'BASE TABLE' ORDER BY t.table_name`)
-    return NextResponse.json({ success: true, tables, rowCountIsEstimated: true })
+    return NextResponse.json(
+      { success: false, error: "A inspeção global de tabelas foi desabilitada para evitar exposição de metadados entre administradoras." },
+      { status: 501 },
+    )
   } catch (error) {
     console.error("[v0] SQL Manager tables error", error)
     return accessError(error)

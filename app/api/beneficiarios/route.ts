@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/back-end/lib/database"
 import { apiAuthError, requireCadastroAccess } from "@/back-end/lib/api-auth"
-import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
 import { beneficiarioSchema, zodFieldErrors } from "@/schemas/validation"
 
 export async function GET(request: NextRequest) {
@@ -39,14 +38,22 @@ export async function POST(request: NextRequest) {
     const body = parsed.data
     const pessoa = await query(`SELECT id FROM pessoas WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [body.pessoa_id, administradoraId])
     if (!pessoa.length) return NextResponse.json({ success: false, message: "Pessoa não encontrada nesta administradora" }, { status: 404 })
-    const vinculo = await query(`SELECT c.id, c.plano_id FROM contratos c JOIN planos pl ON pl.id = c.plano_id WHERE c.id = $1 AND c.plano_id = $2 AND c.administradora_id = $3 AND c.deleted_at IS NULL AND c.status = 'ativo' AND pl.status = 'ativo'`, [body.contrato_id, body.plano_id, administradoraId])
+    const vinculo = await query(`SELECT c.id, c.plano_id FROM contratos c JOIN planos pl ON pl.id = c.plano_id AND pl.administradora_id = c.administradora_id WHERE c.id = $1 AND c.plano_id = $2 AND c.administradora_id = $3 AND c.deleted_at IS NULL AND c.status = 'ativo' AND pl.deleted_at IS NULL AND pl.status = 'ativo'`, [body.contrato_id, body.plano_id, administradoraId])
     if (!vinculo.length) return NextResponse.json({ success: false, message: "Contrato e plano não possuem vínculo ativo nesta administradora" }, { status: 422 })
     if (body.tipo_beneficiario === "dependente") {
-      const titular = await query(`SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND contrato_id = $3 AND plano_id = $4 AND status = 'ativo'`, [body.titular_id, administradoraId, body.contrato_id, body.plano_id])
+      const titular = await query(`SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND contrato_id = $3 AND plano_id = $4 AND tipo_beneficiario = 'titular' AND status = 'ativo' AND deleted_at IS NULL`, [body.titular_id, administradoraId, body.contrato_id, body.plano_id])
       if (!titular.length) return NextResponse.json({ success: false, message: "Titular ativo do mesmo contrato e plano não encontrado" }, { status: 400 })
     }
-    const rows = await query(`INSERT INTO beneficiarios (administradora_id, pessoa_id, contrato_id, plano_id, numero_carteirinha, tipo_beneficiario, titular_id, data_inclusao, valor_mensalidade, status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`, [administradoraId, body.pessoa_id, body.contrato_id, body.plano_id, body.numero_carteirinha, body.tipo_beneficiario, body.titular_id || null, body.data_inclusao, body.valor_mensalidade || null, body.status])
-    await recordCadastroAudit({ administradoraId, userId, action: "create", tableName: "beneficiarios", recordId: rows[0].id, after: rows[0] })
+    const rows = await query(
+      `WITH inserted AS (
+        INSERT INTO beneficiarios (administradora_id, pessoa_id, contrato_id, plano_id, numero_carteirinha, tipo_beneficiario, titular_id, data_inclusao, valor_mensalidade, status)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *
+      ), audited AS (
+        INSERT INTO auditoria_cadastros (administradora_id, usuario_id, acao, tabela, registro_id, dados_anteriores, dados_novos)
+        SELECT $1, $11, 'create', 'beneficiarios', inserted.id, NULL, to_jsonb(inserted) FROM inserted RETURNING registro_id
+      ) SELECT inserted.* FROM inserted JOIN audited ON audited.registro_id = inserted.id`,
+      [administradoraId, body.pessoa_id, body.contrato_id, body.plano_id, body.numero_carteirinha, body.tipo_beneficiario, body.tipo_beneficiario === "dependente" ? body.titular_id : null, body.data_inclusao, body.valor_mensalidade || null, body.status, userId],
+    )
     return NextResponse.json({ success: true, data: rows[0], message: "Beneficiário criado com sucesso" }, { status: 201 })
   } catch (error) {
     const auth = apiAuthError(error)

@@ -1,76 +1,25 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
 import { AuthService } from "@/back-end/lib/auth-service"
 
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Realizar login do usuário
- *     tags: [Autenticação]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - senha
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: admin@talenthealth.com.br
- *               senha:
- *                 type: string
- *                 example: sua-senha-segura
- *     responses:
- *       200:
- *         description: Login realizado com sucesso
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     usuario:
- *                       $ref: '#/components/schemas/Usuario'
- *                     token:
- *                       type: string
- *                     refreshToken:
- *                       type: string
- *       400:
- *         description: Dados inválidos
- *       401:
- *         description: Credenciais inválidas
- */
+const credentialsSchema = z.object({
+  email: z.string().trim().email().max(254),
+  senha: z.string().min(1).max(1024),
+})
+
 export async function POST(request: NextRequest) {
+  const parsed = credentialsSchema.safeParse(await request.json().catch(() => null))
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, message: "Informe um e-mail e uma senha válidos." }, { status: 400 })
+  }
+
   try {
-    const body = await request.json()
-    const { email, codigo, challenge } = body
-
-    if (!email) {
-      return NextResponse.json({ success: false, message: "E-mail é obrigatório" }, { status: 400 })
-    }
-
-    if (!codigo || !challenge) {
-      const result = await AuthService.requestLoginToken(String(email).trim())
-      return NextResponse.json(result, { status: result.success ? 200 : 401 })
-    }
-
-    const result = await AuthService.loginWithToken(String(email).trim(), String(codigo), String(challenge))
-
+    const result = await AuthService.login(parsed.data.email, parsed.data.senha)
     if (!result.success || !result.data) {
-      return NextResponse.json(result, { status: 401 })
+      return NextResponse.json({ success: false, message: "Credenciais inválidas." }, { status: 401 })
     }
 
-    const response = NextResponse.json(result)
+    const response = NextResponse.json({ success: true, message: "Login realizado com sucesso", data: { usuario: result.data.usuario } }, { headers: { "Cache-Control": "no-store" } })
     response.cookies.set("auth-token", result.data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -78,10 +27,9 @@ export async function POST(request: NextRequest) {
       maxAge: 24 * 60 * 60,
       path: "/",
     })
-
     return response
   } catch (error) {
     console.error("[v0] Erro na API de login:", error)
-    return NextResponse.json({ success: false, message: "Erro interno do servidor" }, { status: 500 })
+    return NextResponse.json({ success: false, message: "Erro interno do servidor" }, { status: 500, headers: { "Cache-Control": "no-store" } })
   }
 }

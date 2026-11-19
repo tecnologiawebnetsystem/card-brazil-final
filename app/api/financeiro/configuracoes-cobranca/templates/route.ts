@@ -1,10 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext } from "@/back-end/lib/api-auth"
+import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
 import { query } from "@/back-end/lib/database"
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!(await hasPermission(auth, "financeiro", "view"))) return NextResponse.json({ error: "Sem permissão para consultar templates" }, { status: 403 })
   const configuracaoId = Number(request.nextUrl.searchParams.get("configuracao_id"))
   const params: unknown[] = [auth.administradoraId]
   const where = configuracaoId ? " AND configuracao_id = $2" : ""
@@ -15,6 +16,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!(await hasPermission(auth, "financeiro", "create"))) return NextResponse.json({ error: "Sem permissão para criar templates" }, { status: 403 })
   const body = await request.json()
   const required = ["configuracao_id", "tipo", "meio", "layout"]
   if (required.some((key) => !body[key])) return NextResponse.json({ error: "Configuração, tipo, meio e layout são obrigatórios" }, { status: 422 })
@@ -27,6 +29,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!(await hasPermission(auth, "financeiro", "delete"))) return NextResponse.json({ error: "Sem permissão para desativar templates" }, { status: 403 })
   const id = Number(request.nextUrl.searchParams.get("id"))
   const rows = await query("UPDATE templates_arquivos_bancarios SET ativo = false, updated_at = NOW() WHERE id = $1 AND administradora_id = $2 RETURNING id", [id, auth.administradoraId])
   if (!rows.length) return NextResponse.json({ error: "Template não encontrado" }, { status: 404 })

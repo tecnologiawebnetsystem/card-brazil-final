@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   try {
     const { administradoraId } = await requireCadastroAccess("create")
     const body = await request.json()
-    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id)
+    const pessoaId = await exigirDependenciasCadastro(body.pessoa_id, administradoraId)
     const rows = await query(`INSERT INTO agenciadores (administradora_id, pessoa_id, codigo_interno, comissao_percentual, observacoes, status) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`, [administradoraId, pessoaId, body.codigo_interno || null, body.comissao_percentual || 0, body.observacoes || null, body.status || "ativo"])
     return NextResponse.json(successResponse(rows[0], "Agenciador criado com sucesso"), { status: 201 })
   } catch (error) {

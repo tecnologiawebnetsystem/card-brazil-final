@@ -45,11 +45,14 @@ export async function requireCadastroAccess(permission: CadastroPermission = "vi
   return context
 }
 
-export function hasPermission(context: AuthContext, domain: "financeiro" | "cobranca" | "cadastros", permission: CadastroPermission) {
-  const isAdmin = context.profile.tipo_usuario === "admin" || context.profile.tipo_usuario === "administrador"
-  if (isAdmin) return true
-  const permissions = (context.profile.permissions ?? {}) as Record<string, boolean>
-  return permissions[`${domain}.${permission}`] === true
+export async function hasPermission(context: AuthContext, domain: "financeiro" | "cobranca" | "cadastros", permission: CadastroPermission) {
+  try {
+    await requirePermission(context, domain, permission)
+    return true
+  } catch (error) {
+    if (error instanceof Error && error.message === "FORBIDDEN") return false
+    throw error
+  }
 }
 
 export function apiAuthError(error: unknown) {

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
 import { query } from "@/back-end/lib/database"
-import { getAuthContext, apiAuthError } from "@/back-end/lib/api-auth"
+import { getAuthContext, hasPermission, apiAuthError } from "@/back-end/lib/api-auth"
 
 export async function GET(request: Request) {
   try {
     const auth = await getAuthContext()
     if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+    if (!(await hasPermission(auth, "cobranca", "view"))) return NextResponse.json({ error: "Sem permissão para consultar cobranças" }, { status: 403 })
     const { searchParams } = new URL(request.url)
     const status = searchParams.get("status")
     const rows = await query(

@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { query } from "@/back-end/lib/database"
 import { requireCadastroAccess, apiAuthError } from "@/back-end/lib/api-auth"
-import { recordCadastroAudit } from "@/back-end/lib/cadastro-audit"
 
 function authFailure(error: unknown) {
   const auth = apiAuthError(error)
@@ -46,19 +45,50 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const motivo = typeof body.motivo === "string" ? body.motivo.trim() : ""
     const requiresReason = ["plano_id", "contrato_id", "data_exclusao", "status"].some((field) => Object.prototype.hasOwnProperty.call(body, field))
     if (requiresReason && motivo.length < 5) return NextResponse.json({ success: false, message: "Informe um motivo com pelo menos 5 caracteres para esta movimentação" }, { status: 400 })
+    if (body.status !== undefined && !["ativo", "suspenso"].includes(body.status)) {
+      return NextResponse.json({ success: false, message: "Inativação e exclusão devem seguir o fluxo de solicitação e processamento" }, { status: 409 })
+    }
+    if (Object.prototype.hasOwnProperty.call(body, "data_exclusao")) {
+      return NextResponse.json({ success: false, message: "Data de exclusão só pode ser registrada pelo fluxo de solicitação e processamento" }, { status: 409 })
+    }
     const entries = Object.entries(body).filter(([key]) => allowed.includes(key))
     if (!entries.length) return NextResponse.json({ success: false, message: "Nenhum campo válido para atualizar" }, { status: 400 })
     const current = await query(`SELECT * FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [Number.parseInt(id, 10), administradoraId])
     if (!current[0]) return NextResponse.json({ success: false, message: "Beneficiário não encontrado" }, { status: 404 })
+    const contratoId = Number(body.contrato_id ?? current[0].contrato_id)
+    const planoId = Number(body.plano_id ?? current[0].plano_id)
+    const vinculo = await query(
+      `SELECT c.id FROM contratos c
+       JOIN planos pl ON pl.id = c.plano_id AND pl.administradora_id = c.administradora_id
+       WHERE c.id = $1 AND c.plano_id = $2 AND c.administradora_id = $3
+         AND c.deleted_at IS NULL AND c.status = 'ativo' AND pl.deleted_at IS NULL AND pl.status = 'ativo'`,
+      [contratoId, planoId, administradoraId],
+    )
+    if (!vinculo.length) return NextResponse.json({ success: false, message: "Contrato e plano devem permanecer vinculados à administradora autenticada" }, { status: 422 })
+
+    const titularId = current[0].titular_id
+    if (current[0].tipo_beneficiario === "dependente") {
+      const titular = await query(
+        `SELECT id FROM beneficiarios WHERE id = $1 AND administradora_id = $2
+         AND contrato_id = $3 AND plano_id = $4 AND tipo_beneficiario = 'titular' AND status = 'ativo' AND deleted_at IS NULL`,
+        [titularId, administradoraId, contratoId, planoId],
+      )
+      if (!titular.length) return NextResponse.json({ success: false, message: "Titular deve pertencer ao mesmo contrato, plano e administradora" }, { status: 422 })
+    }
+
     const values = entries.map(([, value]) => value)
     const updates = entries.map(([key], index) => `${key} = $${index + 1}`)
     values.push(Number.parseInt(id, 10), administradoraId)
-    const rows = await query(
-      `UPDATE beneficiarios SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $${values.length - 1} AND administradora_id = $${values.length} AND deleted_at IS NULL RETURNING *`,
-      values,
-    )
-    if (rows[0]) await recordCadastroAudit({ administradoraId, userId, action: "update", tableName: "beneficiarios", recordId: rows[0].id, before: current[0], after: { ...rows[0], motivo: motivo || null } })
+    const updateSql = `WITH updated AS (
+      UPDATE beneficiarios SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $${values.length - 1} AND administradora_id = $${values.length} AND deleted_at IS NULL RETURNING *
+    ), audited AS (
+      INSERT INTO auditoria_cadastros (administradora_id, usuario_id, acao, tabela, registro_id, dados_anteriores, dados_novos)
+      SELECT $${values.length + 1}, $${values.length + 2}, 'update', 'beneficiarios', updated.id, $${values.length + 3}::jsonb,
+        (to_jsonb(updated) || jsonb_build_object('motivo', $${values.length + 4}::text))
+      FROM updated RETURNING registro_id
+    ) SELECT updated.* FROM updated JOIN audited ON audited.registro_id = updated.id`
+    const rows = await query(updateSql, [...values, administradoraId, userId, JSON.stringify(current[0]), motivo || null])
     return rows[0]
       ? NextResponse.json({ success: true, data: rows[0], message: "Beneficiário atualizado com sucesso" })
       : NextResponse.json({ success: false, message: "Beneficiário não encontrado" }, { status: 404 })
@@ -68,24 +98,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE() {
   try {
-    const { administradoraId, userId } = await requireCadastroAccess("delete")
-    const { id } = await params
-    const body = await request.json().catch(() => ({}))
-    const motivo = typeof body.motivo === "string" ? body.motivo.trim() : ""
-    if (motivo.length < 5) return NextResponse.json({ success: false, message: "Informe o motivo da exclusão com pelo menos 5 caracteres" }, { status: 400 })
-    const current = await query(`SELECT * FROM beneficiarios WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL`, [Number.parseInt(id, 10), administradoraId])
-    const rows = await query(
-      "UPDATE beneficiarios SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP, status = 'inativo' WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL RETURNING *",
-      [Number.parseInt(id, 10), administradoraId],
+    await requireCadastroAccess("delete")
+    return NextResponse.json(
+      { success: false, message: "Exclusão direta bloqueada: o fluxo de solicitação e processamento não está conectado ao modelo ativo. Nenhum beneficiário foi alterado." },
+      { status: 501 },
     )
-    if (rows[0]) await recordCadastroAudit({ administradoraId, userId, action: "delete", tableName: "beneficiarios", recordId: rows[0].id, before: current[0], after: { ...rows[0], motivo } })
-    return rows[0]
-      ? NextResponse.json({ success: true, data: null, message: "Beneficiário excluído com sucesso" })
-      : NextResponse.json({ success: false, message: "Beneficiário não encontrado" }, { status: 404 })
   } catch (error) {
     const auth = authFailure(error)
-    return NextResponse.json(auth?.body || { success: false, message: "Erro ao excluir beneficiário" }, { status: auth?.status || 500 })
+    return NextResponse.json(auth?.body || { success: false, message: "Erro ao autorizar exclusão" }, { status: auth?.status || 500 })
   }
 }

@@ -5,7 +5,7 @@ import { query, transaction } from "@/back-end/lib/database"
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "cobranca", "create")) return NextResponse.json({ error: "Sem permissão para importar transações" }, { status: 403 })
+  if (!(await hasPermission(auth, "cobranca", "create"))) return NextResponse.json({ error: "Sem permissão para importar transações" }, { status: 403 })
   const body = await request.json()
   const identificador = String(body.identificador_externo || "").trim()
   const valor = Number(body.valor)
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "cobranca", "edit")) return NextResponse.json({ error: "Sem permissão para conciliar transações" }, { status: 403 })
+  if (!(await hasPermission(auth, "cobranca", "edit"))) return NextResponse.json({ error: "Sem permissão para conciliar transações" }, { status: 403 })
   const body = await request.json()
   const id = Number(body.id)
   const parcelaId = Number(body.parcela_id)
@@ -69,7 +69,7 @@ export async function PATCH(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  if (!hasPermission(auth, "cobranca", "view")) return NextResponse.json({ error: "Sem permissão para consultar conciliação" }, { status: 403 })
+  if (!(await hasPermission(auth, "cobranca", "view"))) return NextResponse.json({ error: "Sem permissão para consultar conciliação" }, { status: 403 })
   const status = request.nextUrl.searchParams.get("status")
   const rows = await query(`SELECT * FROM conciliacao_transacoes WHERE administradora_id = $1 AND ($2::text IS NULL OR status = $2) ORDER BY created_at DESC LIMIT 200`, [auth.administradoraId, status])
   return NextResponse.json({ data: rows })

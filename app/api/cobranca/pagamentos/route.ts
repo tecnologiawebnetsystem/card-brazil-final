@@ -1,21 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext } from "@/back-end/lib/api-auth"
-import { query, transaction } from "@/back-end/lib/database"
+import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
+import { isUniqueConstraintViolation, query, transaction } from "@/back-end/lib/database"
 import { parseMoney } from "@/back-end/lib/cobranca-state"
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
-  const permissions = (auth.profile.permissions ?? {}) as Record<string, boolean>
-  const isAdmin = auth.profile.tipo_usuario === "admin" || auth.profile.tipo_usuario === "administrador"
-  if (!isAdmin && permissions["cobranca.create"] !== true) return NextResponse.json({ error: "Sem permissão para registrar pagamentos" }, { status: 403 })
+  if (!(await hasPermission(auth, "cobranca", "create"))) return NextResponse.json({ error: "Sem permissão para registrar pagamentos" }, { status: 403 })
 
+  let parcelaId = 0
+  let valorPago: number | null = null
+  let idempotencyKey = ""
+  let formaPagamento = ""
   try {
     const body = await request.json()
-    const parcelaId = Number(body.parcela_id)
-    const valorPago = parseMoney(body.valor_pago)
-    const idempotencyKey = String(request.headers.get("idempotency-key") || body.idempotency_key || "").trim()
-    const formaPagamento = String(body.forma_pagamento || "").trim()
+    parcelaId = Number(body.parcela_id)
+    valorPago = parseMoney(body.valor_pago)
+    idempotencyKey = String(request.headers.get("idempotency-key") || body.idempotency_key || "").trim()
+    formaPagamento = String(body.forma_pagamento || "").trim()
 
     if (!Number.isInteger(parcelaId) || parcelaId <= 0) return NextResponse.json({ error: "parcela_id inválido" }, { status: 422 })
     if (valorPago === null || valorPago <= 0) return NextResponse.json({ error: "valor_pago deve ser maior que zero" }, { status: 422 })
@@ -28,7 +30,7 @@ export async function POST(request: NextRequest) {
     )
     if (existing.length) {
       const previous = existing[0]
-      if (previous.parcela_id !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
+      if (Number(previous.parcela_id) !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
         return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
       }
       return NextResponse.json({ data: previous, idempotent: true })
@@ -45,6 +47,14 @@ export async function POST(request: NextRequest) {
 
     const result = await transaction([
       {
+        text: "SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))",
+        params: [`${auth.administradoraId}:cobranca-pagamento:${idempotencyKey}`],
+      },
+      {
+        text: "SELECT id FROM cobranca_parcelas WHERE id = $1 AND administradora_id = $2 FOR UPDATE",
+        params: [parcelaId, auth.administradoraId],
+      },
+      {
         text: `WITH parcela_atualizada AS (
           UPDATE cobranca_parcelas
             SET valor_pago = ROUND(valor_pago + $1, 2),
@@ -54,6 +64,7 @@ export async function POST(request: NextRequest) {
             WHERE id = $2
               AND administradora_id = $3
               AND status NOT IN ('paga', 'cancelada', 'renegociada')
+              AND NOT EXISTS (SELECT 1 FROM cobranca_pagamentos cp WHERE cp.administradora_id = $3 AND cp.idempotency_key = $4)
               AND ROUND(valor_pago + $1, 2) <= ROUND(valor_total, 2)
             RETURNING id, valor_pago, status
         ), pagamento_criado AS (
@@ -92,10 +103,36 @@ export async function POST(request: NextRequest) {
         ],
       },
     ])
-    const pagamento = result[0]?.[0]
-    if (!pagamento) return NextResponse.json({ error: "Parcela não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
+    const pagamento = result[2]?.[0]
+    if (!pagamento) {
+      const raced = await query<{ id: number | string; parcela_id: number | string; valor_pago: number | string; forma_pagamento: string; status: string }>(
+        "SELECT id, parcela_id, valor_pago, forma_pagamento, status FROM cobranca_pagamentos WHERE administradora_id = $1 AND idempotency_key = $2",
+        [auth.administradoraId, idempotencyKey],
+      )
+      const previous = raced[0]
+      if (previous) {
+        if (Number(previous.parcela_id) !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
+          return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
+        }
+        return NextResponse.json({ data: previous, idempotent: true })
+      }
+      return NextResponse.json({ error: "Parcela não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
+    }
     return NextResponse.json({ data: pagamento, parcela: { id: parcelaId, valor_pago: pagamento.valor_pago, status: pagamento.status } }, { status: 201 })
   } catch (error) {
+    if (isUniqueConstraintViolation(error)) {
+      const raced = await query<{ id: number | string; parcela_id: number | string; valor_pago: number | string; forma_pagamento: string; status: string }>(
+        "SELECT id, parcela_id, valor_pago, forma_pagamento, status FROM cobranca_pagamentos WHERE administradora_id = $1 AND idempotency_key = $2",
+        [auth.administradoraId, idempotencyKey],
+      )
+      const previous = raced[0]
+      if (previous) {
+        if (Number(previous.parcela_id) !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
+          return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
+        }
+        return NextResponse.json({ data: previous, idempotent: true })
+      }
+    }
     console.error("[v0] Erro ao registrar pagamento:", error)
     return NextResponse.json({ error: "Erro ao registrar pagamento" }, { status: 500 })
   }

@@ -8,14 +8,15 @@ export async function recordAuthorizationDenied(
 ) {
   try {
     await query(
-      `INSERT INTO logs_autenticacao
-        (administradora_id, usuario_id, email, acao, detalhes)
-       VALUES ($1, $2, $3, $4, $5)`,
+      `INSERT INTO auditoria_cadastros
+        (administradora_id, usuario_id, acao, tabela, registro_id, dados_novos)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
       [
         context.administradoraId,
         context.userId,
-        String(context.profile.email ?? ""),
-        "authorization_denied",
+        "access_denied",
+        "autorizacao",
+        context.userId,
         JSON.stringify({ resource, action }),
       ],
     )

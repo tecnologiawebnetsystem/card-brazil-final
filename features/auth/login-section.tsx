@@ -1,60 +1,33 @@
 "use client"
 
-import type React from "react"
+import type { FormEvent } from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
-import { ArrowRight, Check, KeyRound, LockKeyhole, ShieldCheck, CircleHelp } from "lucide-react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ArrowRight, Check, LockKeyhole, ShieldCheck, CircleHelp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export function LoginSection() {
   const router = useRouter()
-  const { checkAuth } = useAuth()
+  const { login } = useAuth()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
-  const [codigo, setCodigo] = useState("")
-  const [challenge, setChallenge] = useState<string | null>(null)
-  const [tokenExibido, setTokenExibido] = useState<string | null>(null)
+  const [senha, setSenha] = useState("")
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError(null)
     setLoading(true)
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), ...(challenge ? { codigo, challenge } : {}) }),
-      })
-      const data = await response.json()
-      if (!response.ok || !data.success) {
-        setError(data.message || "Confira seus dados de acesso.")
-        return
-      }
-      if (!challenge) {
-        setChallenge(data.data.challenge)
-        setTokenExibido(data.data.codigo)
-        setCodigo("")
-        return
-      }
-      await checkAuth(data.data.usuario)
-      router.push("/dashboard")
-    } catch {
-      setError("Não foi possível conectar ao servidor.")
+      await login(email.trim(), senha)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Não foi possível autenticar.")
     } finally {
       setLoading(false)
     }
-  }
-
-  const closeChallenge = () => {
-    setChallenge(null)
-    setTokenExibido(null)
-    setCodigo("")
-    setError(null)
   }
 
   return (
@@ -114,20 +87,35 @@ export function LoginSection() {
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15"><LockKeyhole className="h-5 w-5" /></div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">Acesso à plataforma</p>
                 <h2 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">Bem-vindo(a) de volta.</h2>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">Entre com seu usuário ou e-mail para continuar.</p>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">Entre com seu e-mail e senha para continuar.</p>
               </div>
 
               <form className="space-y-5" onSubmit={handleLogin}>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-foreground">Usuário ou e-mail</Label>
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">E-mail</Label>
                   <Input
                     id="email"
-                    type="text"
+                    type="email"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="nome@empresa.com.br"
                     className="h-12 rounded-xl border-border/80 bg-background px-4 text-sm shadow-sm transition-shadow focus-visible:ring-2 focus-visible:ring-primary/25"
                     autoComplete="username"
+                    maxLength={254}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="senha" className="text-sm font-medium text-foreground">Senha</Label>
+                  <Input
+                    id="senha"
+                    type="password"
+                    value={senha}
+                    onChange={(event) => setSenha(event.target.value)}
+                    className="h-12 rounded-xl border-border/80 bg-background px-4 text-sm shadow-sm transition-shadow focus-visible:ring-2 focus-visible:ring-primary/25"
+                    autoComplete="current-password"
+                    maxLength={1024}
                     required
                   />
                 </div>
@@ -135,7 +123,7 @@ export function LoginSection() {
                 {error && <div role="alert" className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-5 text-destructive">{error}</div>}
 
                 <Button type="submit" disabled={loading} className="h-12 w-full rounded-xl text-sm font-semibold shadow-sm shadow-primary/20 transition-transform hover:-translate-y-0.5">
-                  {loading ? "Verificando..." : challenge ? "Validar token" : "Entrar"}
+                  {loading ? "Verificando..." : "Entrar"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </form>
@@ -151,29 +139,6 @@ export function LoginSection() {
         </section>
       </div>
 
-      <Dialog open={Boolean(challenge)} onOpenChange={(open) => { if (!open) closeChallenge() }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><KeyRound className="text-primary" size={20} />Confirme seu acesso</DialogTitle>
-            <DialogDescription>Digite o token exibido abaixo para concluir o login de {email}.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-5">
-            <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-5 text-center">
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Token de acesso</p>
-              <p className="mt-2 font-mono text-3xl font-bold tracking-[0.35em] text-primary">{tokenExibido}</p>
-              <p className="mt-2 text-xs text-muted-foreground">Válido por 10 minutos</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="codigo" className="font-mono text-xs font-bold uppercase tracking-[0.15em]">Digite o token</Label>
-              <Input id="codigo" inputMode="numeric" maxLength={6} value={codigo} onChange={(event) => setCodigo(event.target.value.replace(/\D/g, ""))} placeholder="000000" autoFocus />
-            </div>
-            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-            <Button type="button" className="w-full" disabled={loading || codigo.length !== 6} onClick={() => void handleLogin({ preventDefault: () => undefined } as React.FormEvent<HTMLFormElement>)}>
-              {loading ? "Validando..." : "Confirmar acesso"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </main>
   )
 }

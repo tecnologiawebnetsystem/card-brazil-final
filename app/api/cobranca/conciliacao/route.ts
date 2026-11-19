@@ -1,10 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getAuthContext } from "@/back-end/lib/api-auth"
+import { getAuthContext, hasPermission } from "@/back-end/lib/api-auth"
 import { query } from "@/back-end/lib/database"
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthContext()
   if (!auth) return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+  if (!(await hasPermission(auth, "cobranca", "view"))) return NextResponse.json({ error: "Sem permissão para consultar conciliação" }, { status: 403 })
   const from = request.nextUrl.searchParams.get("from") || "1900-01-01"
   const to = request.nextUrl.searchParams.get("to") || "2999-12-31"
   const data = await query(

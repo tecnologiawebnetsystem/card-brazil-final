@@ -118,6 +118,10 @@ export class AuthService {
       [usuario.id, tokenHash, ipAddress || "unknown"],
     )
 
+    if (process.env.NODE_ENV !== "production") {
+      return { ...generic, debugCode: code }
+    }
+
     const resend = new Resend(process.env.RESEND_API_KEY)
     const senderDomain = process.env.RESEND_EMAIL_DOMAIN
     const from = senderDomain ? `Card Brasil <no-reply@${senderDomain}>` : "Card Brasil <onboarding@resend.dev>"

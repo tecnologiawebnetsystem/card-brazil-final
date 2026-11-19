@@ -8,6 +8,14 @@ import { ArrowRight, Check, LockKeyhole, ShieldCheck, CircleHelp } from "lucide-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export function LoginSection() {
   const router = useRouter()
@@ -16,6 +24,7 @@ export function LoginSection() {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [code, setCode] = useState("")
+  const [debugCode, setDebugCode] = useState<string | null>(null)
   const [step, setStep] = useState<"email" | "code">("email")
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -32,6 +41,7 @@ export function LoginSection() {
         const data = await response.json()
         if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível enviar o código.")
         setStep("code")
+        setDebugCode(typeof data.debugCode === "string" ? data.debugCode : null)
         return
       }
       await login(email.trim(), code)
@@ -54,6 +64,7 @@ export function LoginSection() {
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível enviar o código.")
       setCode("")
+      setDebugCode(typeof data.debugCode === "string" ? data.debugCode : null)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Não foi possível enviar o código.")
     } finally {
@@ -184,6 +195,29 @@ export function LoginSection() {
         </section>
       </div>
 
+      <Dialog open={Boolean(debugCode)} onOpenChange={(open) => { if (!open) setDebugCode(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Código de acesso</DialogTitle>
+            <DialogDescription>
+              Use este código para concluir seu acesso. Ele expira em 10 minutos.
+            </DialogDescription>
+          </DialogHeader>
+          {debugCode && (
+            <div className="rounded-xl border border-border bg-muted/50 px-5 py-4 text-center font-mono text-2xl font-semibold tracking-[0.45em] text-foreground" aria-label={`Código de acesso ${debugCode}`}>
+              {debugCode}
+            </div>
+          )}
+          <p className="text-sm leading-6 text-muted-foreground">
+            Exibição temporária para desenvolvimento. O envio por e-mail será usado em produção.
+          </p>
+          <DialogFooter>
+            <Button type="button" onClick={() => { if (debugCode) setCode(debugCode); setDebugCode(null) }}>
+              Preencher código
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }

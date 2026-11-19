@@ -30,126 +30,86 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
+const EDITABLE_PROPOSAL_FIELDS = new Set([
+  "nome_proponente",
+  "cpf_cnpj",
+  "email",
+  "telefone",
+  "empresa",
+  "numero_funcionarios",
+  "tipo_plano",
+  "valor_proposto",
+  "observacoes",
+  "status",
+  "parecer",
+])
+
+const ALLOWED_STATUS_TRANSITIONS: Record<string, readonly string[]> = {
+  pendente: ["em_analise", "rejeitada"],
+  em_analise: ["rejeitada"],
+}
+
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { administradoraId } = await requireCadastroAccess("edit")
     const { id } = await params
+    const propostaId = Number.parseInt(id, 10)
+    if (!Number.isSafeInteger(propostaId) || propostaId <= 0) {
+      return NextResponse.json({ error: "ID da proposta inválido" }, { status: 400 })
+    }
+
     const body = await request.json()
-    if (body.status === "aprovada") {
-      return NextResponse.json(
-        { error: "Aprovação indisponível: use o fluxo de aprovação, atualmente bloqueado até validação do schema. Nenhuma alteração foi gravada." },
-        { status: 501 },
-      )
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "Dados da proposta inválidos" }, { status: 400 })
+    }
+    const receivedFields = Object.keys(body)
+    const forbiddenFields = receivedFields.filter((field) => !EDITABLE_PROPOSAL_FIELDS.has(field))
+    if (forbiddenFields.length > 0) {
+      return NextResponse.json({ error: "A atualização contém campos reservados ou não permitidos", fields: forbiddenFields }, { status: 400 })
     }
 
-    const {
-      nome_proponente,
-      cpf_cnpj,
-      email,
-      telefone,
-      empresa,
-      numero_funcionarios,
-      tipo_plano,
-      valor_proposto,
-      observacoes,
-      status,
-      parecer,
-      analisado_por,
-      score_financeiro,
-      score_documentacao,
-      score_historico,
-      numero_contrato,
-      data_contrato,
-    } = body
-
-    let sql = `UPDATE propostas SET `
     const updates: string[] = []
-    const updateParams: any[] = []
+    const updateParams: unknown[] = []
+    for (const field of EDITABLE_PROPOSAL_FIELDS) {
+      if (field === "status" || body[field] === undefined) continue
+      updateParams.push(body[field])
+      updates.push(`${field} = $${updateParams.length}`)
+    }
 
-    if (nome_proponente !== undefined) {
-      updates.push(`nome_proponente = $${updateParams.length + 1}`)
-      updateParams.push(nome_proponente)
-    }
-    if (cpf_cnpj !== undefined) {
-      updates.push(`cpf_cnpj = $${updateParams.length + 1}`)
-      updateParams.push(cpf_cnpj)
-    }
-    if (email !== undefined) {
-      updates.push(`email = $${updateParams.length + 1}`)
-      updateParams.push(email)
-    }
-    if (telefone !== undefined) {
-      updates.push(`telefone = $${updateParams.length + 1}`)
-      updateParams.push(telefone)
-    }
-    if (empresa !== undefined) {
-      updates.push(`empresa = $${updateParams.length + 1}`)
-      updateParams.push(empresa)
-    }
-    if (numero_funcionarios !== undefined) {
-      updates.push(`numero_funcionarios = $${updateParams.length + 1}`)
-      updateParams.push(numero_funcionarios)
-    }
-    if (tipo_plano !== undefined) {
-      updates.push(`tipo_plano = $${updateParams.length + 1}`)
-      updateParams.push(tipo_plano)
-    }
-    if (valor_proposto !== undefined) {
-      updates.push(`valor_proposto = $${updateParams.length + 1}`)
-      updateParams.push(valor_proposto)
-    }
-    if (observacoes !== undefined) {
-      updates.push(`observacoes = $${updateParams.length + 1}`)
-      updateParams.push(observacoes)
-    }
-    if (status !== undefined) {
-      updates.push(`status = $${updateParams.length + 1}`)
-      updateParams.push(status)
-
-      // Se mudou para aprovada ou rejeitada, adicionar data de análise
-      if (status === "aprovada" || status === "rejeitada") {
-        updates.push("data_analise = NOW()")
+    if (body.status !== undefined) {
+      if (typeof body.status !== "string") {
+        return NextResponse.json({ error: "Status inválido" }, { status: 400 })
       }
-    }
-    if (parecer !== undefined) {
-      updates.push(`parecer = $${updateParams.length + 1}`)
-      updateParams.push(parecer)
-    }
-    if (analisado_por !== undefined) {
-      updates.push(`analisado_por = $${updateParams.length + 1}`)
-      updateParams.push(analisado_por)
-    }
-    if (score_financeiro !== undefined) {
-      updates.push(`score_financeiro = $${updateParams.length + 1}`)
-      updateParams.push(score_financeiro)
-    }
-    if (score_documentacao !== undefined) {
-      updates.push(`score_documentacao = $${updateParams.length + 1}`)
-      updateParams.push(score_documentacao)
-    }
-    if (score_historico !== undefined) {
-      updates.push(`score_historico = $${updateParams.length + 1}`)
-      updateParams.push(score_historico)
-    }
-    if (numero_contrato !== undefined) {
-      updates.push(`numero_contrato = $${updateParams.length + 1}`)
-      updateParams.push(numero_contrato)
-    }
-    if (data_contrato !== undefined) {
-      updates.push(`data_contrato = $${updateParams.length + 1}`)
-      updateParams.push(data_contrato)
+      const currentStatuses = Object.entries(ALLOWED_STATUS_TRANSITIONS)
+        .filter(([, allowed]) => allowed.includes(body.status))
+        .map(([current]) => current)
+      if (currentStatuses.length === 0) {
+        return NextResponse.json(
+          { error: "Esta transição não é permitida neste endpoint. Aprovação e geração de contrato devem usar seus fluxos próprios." },
+          { status: 400 },
+        )
+      }
+      updateParams.push(body.status)
+      updates.push(`status = $${updateParams.length}`)
+      if (body.status === "rejeitada") updates.push("data_analise = CURRENT_TIMESTAMP")
     }
 
-    if (updates.length === 0) {
-      return NextResponse.json({ error: "Nenhum campo para atualizar" }, { status: 400 })
-    }
+    if (updates.length === 0) return NextResponse.json({ error: "Nenhum campo para atualizar" }, { status: 400 })
 
-    sql += updates.join(", ")
-    sql += `, updated_at = CURRENT_TIMESTAMP WHERE id = $${updateParams.length + 1} AND administradora_id = $${updateParams.length + 2} AND deleted_at IS NULL`
-    updateParams.push(id, administradoraId)
-
-    const updatedRows = await query(`${sql} RETURNING *`, updateParams)
-    if (!updatedRows[0]) return NextResponse.json({ error: "Proposta não encontrada" }, { status: 404 })
+    updateParams.push(propostaId, administradoraId)
+    const idParameter = updateParams.length - 1
+    const tenantParameter = updateParams.length
+    const transitionCondition = body.status === undefined
+      ? ""
+      : ` AND status IN (${Object.entries(ALLOWED_STATUS_TRANSITIONS)
+          .filter(([, allowed]) => allowed.includes(body.status))
+          .map(([status]) => `'${status}'`)
+          .join(", ")})`
+    const updatedRows = await query(
+      `UPDATE propostas SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${idParameter} AND administradora_id = $${tenantParameter} AND deleted_at IS NULL${transitionCondition} RETURNING *`,
+      updateParams,
+    )
+    if (!updatedRows[0]) return NextResponse.json({ error: "Proposta não encontrada ou transição concorrente não permitida" }, { status: 409 })
     return NextResponse.json({ success: true, data: updatedRows[0], message: "Proposta atualizada com sucesso" })
   } catch (error: any) {
     const auth = authFailure(error)

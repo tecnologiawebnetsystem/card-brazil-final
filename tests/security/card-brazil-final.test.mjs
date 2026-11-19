@@ -50,12 +50,22 @@ test("edição de beneficiário mantém vínculo de contrato, plano e dependente
   assert.doesNotMatch(route, /recordCadastroAudit\(/)
 })
 
-test("aprovação não pode ser alcançada pelo endpoint alternativo de edição", async () => {
+test("PUT de proposta bloqueia campos internos e limita transições com atualização tenant-scoped atômica", async () => {
   const approval = await read("app/api/propostas/aprovar/route.ts")
   const detail = await read("app/api/propostas/[id]/route.ts")
   assert.match(approval, /status: 501/)
-  assert.match(detail, /body\.status === "aprovada"[\s\S]*?status: 501/)
-  assert.match(detail, /if \(body\.status === "aprovada"\)[\s\S]*?Nenhuma alteração foi gravada/)
+  assert.match(detail, /const EDITABLE_PROPOSAL_FIELDS = new Set\(/)
+  assert.match(detail, /receivedFields\.filter\(\(field\) => !EDITABLE_PROPOSAL_FIELDS\.has\(field\)\)/)
+  const editableFields = detail.slice(detail.indexOf("const EDITABLE_PROPOSAL_FIELDS"), detail.indexOf("const ALLOWED_STATUS_TRANSITIONS"))
+  for (const reserved of ["contrato_gerado", "aprovado", "data_aprovacao", "parecer_analise", "analisado_por", "data_analise", "score_financeiro", "score_documentacao", "score_historico", "numero_contrato", "data_contrato"]) {
+    assert.doesNotMatch(editableFields, new RegExp(`\\"${reserved}\\"`))
+  }
+  assert.doesNotMatch(editableFields, /"aprovada"|"rejeitada"/)
+  assert.match(detail, /const ALLOWED_STATUS_TRANSITIONS: Record<string, readonly string\[]> = \{\s*pendente: \["em_analise", "rejeitada"\],\s*em_analise: \["rejeitada"\]/)
+  assert.match(detail, /status IN \(\$\{Object\.entries\(ALLOWED_STATUS_TRANSITIONS\)/)
+  assert.match(detail, /administradora_id = \$\$\{tenantParameter\} AND deleted_at IS NULL/)
+  assert.match(detail, /UPDATE propostas SET \$\{updates\.join\(", "\)\}[^`]*RETURNING \*/)
+  assert.match(detail, /status: 409/)
 })
 
 test("faturamento falha fechado por incompatibilidade do schema e mantém escopo", async () => {

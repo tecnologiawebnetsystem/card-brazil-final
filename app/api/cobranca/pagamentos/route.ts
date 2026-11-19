@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     )
     if (existing.length) {
       const previous = existing[0]
-      if (previous.parcela_id !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
+      if (Number(previous.parcela_id) !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
         return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
       }
       return NextResponse.json({ data: previous, idempotent: true })
@@ -47,6 +47,14 @@ export async function POST(request: NextRequest) {
 
     const result = await transaction([
       {
+        text: "SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))",
+        params: [`${auth.administradoraId}:cobranca-pagamento:${idempotencyKey}`],
+      },
+      {
+        text: "SELECT id FROM cobranca_parcelas WHERE id = $1 AND administradora_id = $2 FOR UPDATE",
+        params: [parcelaId, auth.administradoraId],
+      },
+      {
         text: `WITH parcela_atualizada AS (
           UPDATE cobranca_parcelas
             SET valor_pago = ROUND(valor_pago + $1, 2),
@@ -56,6 +64,7 @@ export async function POST(request: NextRequest) {
             WHERE id = $2
               AND administradora_id = $3
               AND status NOT IN ('paga', 'cancelada', 'renegociada')
+              AND NOT EXISTS (SELECT 1 FROM cobranca_pagamentos cp WHERE cp.administradora_id = $3 AND cp.idempotency_key = $4)
               AND ROUND(valor_pago + $1, 2) <= ROUND(valor_total, 2)
             RETURNING id, valor_pago, status
         ), pagamento_criado AS (
@@ -94,18 +103,31 @@ export async function POST(request: NextRequest) {
         ],
       },
     ])
-    const pagamento = result[0]?.[0]
-    if (!pagamento) return NextResponse.json({ error: "Parcela não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
-    return NextResponse.json({ data: pagamento, parcela: { id: parcelaId, valor_pago: pagamento.valor_pago, status: pagamento.status } }, { status: 201 })
-  } catch (error) {
-    if (isUniqueConstraintViolation(error)) {
-      const raced = await query<{ id: number; parcela_id: number; valor_pago: number; forma_pagamento: string; status: string }>(
+    const pagamento = result[2]?.[0]
+    if (!pagamento) {
+      const raced = await query<{ id: number | string; parcela_id: number | string; valor_pago: number | string; forma_pagamento: string; status: string }>(
         "SELECT id, parcela_id, valor_pago, forma_pagamento, status FROM cobranca_pagamentos WHERE administradora_id = $1 AND idempotency_key = $2",
         [auth.administradoraId, idempotencyKey],
       )
       const previous = raced[0]
       if (previous) {
-        if (previous.parcela_id !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
+        if (Number(previous.parcela_id) !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
+          return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
+        }
+        return NextResponse.json({ data: previous, idempotent: true })
+      }
+      return NextResponse.json({ error: "Parcela não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
+    }
+    return NextResponse.json({ data: pagamento, parcela: { id: parcelaId, valor_pago: pagamento.valor_pago, status: pagamento.status } }, { status: 201 })
+  } catch (error) {
+    if (isUniqueConstraintViolation(error)) {
+      const raced = await query<{ id: number | string; parcela_id: number | string; valor_pago: number | string; forma_pagamento: string; status: string }>(
+        "SELECT id, parcela_id, valor_pago, forma_pagamento, status FROM cobranca_pagamentos WHERE administradora_id = $1 AND idempotency_key = $2",
+        [auth.administradoraId, idempotencyKey],
+      )
+      const previous = raced[0]
+      if (previous) {
+        if (Number(previous.parcela_id) !== parcelaId || Number(previous.valor_pago) !== valorPago || previous.forma_pagamento !== formaPagamento) {
           return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
         }
         return NextResponse.json({ data: previous, idempotent: true })

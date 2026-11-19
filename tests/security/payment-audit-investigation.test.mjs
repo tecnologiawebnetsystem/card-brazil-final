@@ -14,10 +14,10 @@ test("faturas exigem chave idempotente normalizada e escopada", () => {
   assert.match(route, /administradora_id = \$1 AND idempotency_key = \$2/)
 })
 
-test("repetição sequencial de fatura compara parâmetros e retorna conflito", () => {
+test("repetição de fatura compara parâmetros e retorna conflito idempotente", () => {
   const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
 
-  assert.match(route, /previous\.fatura_id !== id/)
+  assert.match(route, /Number\(previous\.fatura_id\) !== id/)
   assert.match(route, /previous\.meio !== meio/)
   assert.match(route, /Number\(previous\.valor\) !== valor/)
   assert.match(route, /Idempotency-Key já utilizada com parâmetros incompatíveis/)
@@ -37,13 +37,18 @@ test("schema versionado não comprova unicidade de pagamentos de faturas", () =>
   assert.doesNotMatch(migrations, /uq_.*pagamentos_faturas.*idempotency/i)
 })
 
-test("pagamento de fatura depende de leitura prévia antes da transação", () => {
+test("pagamento de fatura serializa a chave e bloqueia saldo antes da gravação", () => {
   const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
-  const existingPosition = route.indexOf("const existing = await query")
   const transactionPosition = route.indexOf("result = await transaction")
+  const advisoryLockPosition = route.indexOf("pg_advisory_xact_lock", transactionPosition)
+  const rowLockPosition = route.indexOf("FOR UPDATE", advisoryLockPosition)
+  const updatePosition = route.indexOf("WITH fatura_atualizada", rowLockPosition)
 
-  assert.ok(existingPosition >= 0)
-  assert.ok(transactionPosition > existingPosition)
+  assert.ok(transactionPosition >= 0)
+  assert.ok(advisoryLockPosition > transactionPosition)
+  assert.ok(rowLockPosition > advisoryLockPosition)
+  assert.ok(updatePosition > rowLockPosition)
+  assert.match(route, /NOT EXISTS \(SELECT 1 FROM pagamentos_faturas p WHERE p\.administradora_id = \$3 AND p\.idempotency_key = \$5\)/)
 })
 
 test("auditoria financeira da parcela entra na lista da mesma transação", () => {
@@ -52,7 +57,8 @@ test("auditoria financeira da parcela entra na lista da mesma transação", () =
 
   assert.match(route, /WITH parcela_atualizada AS \([\s\S]*pagamento_criado AS \([\s\S]*evento_criado AS \([\s\S]*auditoria_criada AS \(/)
   assert.match(route, /FROM pagamento_criado pc/)
-  assert.doesNotMatch(route, /EXISTS \(\s*SELECT 1 FROM cobranca_pagamentos/)
+  assert.match(route, /pg_advisory_xact_lock[\s\S]*?FOR UPDATE[\s\S]*?WITH parcela_atualizada/)
+  assert.match(route, /NOT EXISTS \(SELECT 1 FROM cobranca_pagamentos cp WHERE cp\.administradora_id = \$3 AND cp\.idempotency_key = \$4\)/)
   assert.match(database, /export function createCadastroAuditStatement\(/)
   assert.match(database, /export async function recordCadastroAudit\(/)
   assert.match(database, /await query\(statement\.text, statement\.params\)/)
@@ -62,7 +68,7 @@ test("auditoria financeira da fatura entra na mesma transação", () => {
   const route = read("app/api/financeiro/faturas/[id]/pagamentos/route.ts")
   assert.match(route, /WITH fatura_atualizada AS \([\s\S]*pagamento_criado AS \([\s\S]*evento_criado AS \([\s\S]*auditoria_criada AS \(/)
   assert.match(route, /FROM pagamento_criado pc/)
-  assert.doesNotMatch(route, /EXISTS \(SELECT 1 FROM pagamentos_faturas/)
+  assert.match(route, /NOT EXISTS \(SELECT 1 FROM pagamentos_faturas p WHERE p\.administradora_id = \$3 AND p\.idempotency_key = \$5\)/)
   assert.doesNotMatch(route, /await recordCadastroAudit\(/)
 })
 

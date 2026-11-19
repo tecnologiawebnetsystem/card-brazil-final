@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const existing = await query<{ fatura_id: number; meio: string; idempotency_key: string; valor: number }>("SELECT fatura_id, meio, idempotency_key, valor FROM pagamentos_faturas WHERE administradora_id = $1 AND idempotency_key = $2", [auth.administradoraId, key])
   if (existing.length) {
     const previous = existing[0]
-    if (previous.fatura_id !== id || previous.meio !== meio || Number(previous.valor) !== valor) {
+    if (Number(previous.fatura_id) !== id || previous.meio !== meio || Number(previous.valor) !== valor) {
       return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
     }
     return NextResponse.json({ data: previous, idempotent: true })
@@ -37,6 +37,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     result = await transaction([
     {
+      text: "SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))",
+      params: [`${auth.administradoraId}:fatura:${key}`],
+    },
+    {
+      text: "SELECT id FROM faturas_mensais WHERE id = $1 AND administradora_id = $2 AND deleted_at IS NULL FOR UPDATE",
+      params: [id, auth.administradoraId],
+    },
+    {
       text: `WITH fatura_atualizada AS (
         UPDATE faturas_mensais f
         SET status = CASE WHEN ROUND((COALESCE((SELECT SUM(p.valor) FROM pagamentos_faturas p WHERE p.fatura_id = f.id AND p.administradora_id = f.administradora_id), 0) + $1)::numeric, 2) >= f.valor_total THEN 'paga' ELSE f.status END,
@@ -46,6 +54,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           AND f.administradora_id = $3
           AND f.deleted_at IS NULL
           AND f.status NOT IN ('paga', 'cancelada')
+          AND NOT EXISTS (SELECT 1 FROM pagamentos_faturas p WHERE p.administradora_id = $3 AND p.idempotency_key = $5)
           AND ROUND((f.valor_total - COALESCE((SELECT SUM(p.valor) FROM pagamentos_faturas p WHERE p.fatura_id = f.id AND p.administradora_id = f.administradora_id), 0))::numeric, 2) >= ROUND($1::numeric, 2)
         RETURNING f.id, f.administradora_id, f.status, f.valor_total
       ), pagamento_criado AS (
@@ -93,12 +102,25 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     )
     const previous = raced[0]
     if (!previous) throw error
-    if (previous.fatura_id !== id || previous.meio !== meio || Number(previous.valor) !== valor) {
+    if (Number(previous.fatura_id) !== id || previous.meio !== meio || Number(previous.valor) !== valor) {
       return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
     }
     return NextResponse.json({ data: previous, idempotent: true })
   }
-  const pagamento = result[0]?.[0]
-  if (!pagamento) return NextResponse.json({ error: "Fatura não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
+  const pagamento = result[2]?.[0]
+  if (!pagamento) {
+    const raced = await query<{ fatura_id: number | string; meio: string; idempotency_key: string; valor: number | string }>(
+      "SELECT fatura_id, meio, idempotency_key, valor FROM pagamentos_faturas WHERE administradora_id = $1 AND idempotency_key = $2",
+      [auth.administradoraId, key],
+    )
+    const previous = raced[0]
+    if (previous) {
+      if (Number(previous.fatura_id) !== id || previous.meio !== meio || Number(previous.valor) !== valor) {
+        return NextResponse.json({ error: "Idempotency-Key já utilizada com parâmetros incompatíveis" }, { status: 409 })
+      }
+      return NextResponse.json({ data: previous, idempotent: true })
+    }
+    return NextResponse.json({ error: "Fatura não aceita este pagamento ou saldo insuficiente" }, { status: 409 })
+  }
   return NextResponse.json({ data: pagamento, message: "Pagamento registrado e histórico criado" }, { status: 201 })
 }

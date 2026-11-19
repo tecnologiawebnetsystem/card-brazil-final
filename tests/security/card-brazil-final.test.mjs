@@ -78,17 +78,21 @@ test("faturamento falha fechado por incompatibilidade do schema e mantém escopo
   assert.match(route, /conditions = \["administradora_id = \$1", "deleted_at IS NULL"\]/)
 })
 
-test("login não entrega token de acesso ao cliente e exige senha", async () => {
+test("login envia código por e-mail e valida token de uso único", async () => {
   const route = await read("app/api/auth/login/route.ts")
+  const requestCodeRoute = await read("app/api/auth/request-code/route.ts")
   const service = await read("back-end/lib/auth-service.ts")
   const form = await read("features/auth/login-section.tsx")
-  assert.match(route, /AuthService\.login\(parsed\.data\.email, parsed\.data\.senha\)/)
+  assert.match(route, /AuthService\.verifyLoginCode\(parsed\.data\.email, parsed\.data\.codigo\)/)
   assert.match(route, /httpOnly: true/)
   assert.match(route, /sameSite: "lax"/)
-  assert.doesNotMatch(route, /requestLoginToken|loginWithToken|codigo|challenge|data: \{ usuario: result\.data\.usuario, token/)
-  assert.doesNotMatch(service, /requestLoginToken|loginWithToken/)
-  assert.match(form, /type="password"/)
-  assert.doesNotMatch(form, /tokenExibido|challenge|setCodigo/)
+  assert.match(requestCodeRoute, /AuthService\.requestLoginCode\(parsed\.data\.email, ip\)/)
+  assert.match(service, /randomInt\(0, 1_000_000\)/)
+  assert.match(service, /expira_em > CURRENT_TIMESTAMP AND tentativas < 5/)
+  assert.match(service, /usado_em = CURRENT_TIMESTAMP/)
+  assert.match(form, /Enviamos um código de acesso/)
+  assert.match(form, /autoComplete="one-time-code"/)
+  assert.doesNotMatch(form, /type="password"/)
 })
 
 test("retorno bancário não pode liquidar faturas por dados de arquivo não validados", async () => {

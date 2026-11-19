@@ -95,6 +95,81 @@ export class AuthService {
     }
   }
 
+  static async requestLoginCode(email: string, ipAddress?: string) {
+    const generic = { success: true, message: "Se o e-mail estiver cadastrado, enviaremos um código de acesso." }
+    const normalizedEmail = email.trim().toLowerCase()
+    const usuario = await queryOne<{ id: number; nome_completo: string }>(
+      "SELECT id, nome_completo FROM usuarios WHERE LOWER(email) = $1 AND status = 'ativo'",
+      [normalizedEmail],
+    )
+    if (!usuario) return generic
+
+    const recent = await queryOne<{ total: number }>(
+      "SELECT COUNT(*)::int AS total FROM tokens_login_email WHERE criado_em > CURRENT_TIMESTAMP - INTERVAL '15 minutes' AND (ip_address = $1 OR usuario_id = $2)",
+      [ipAddress || "unknown", usuario.id],
+    )
+    if ((recent?.total || 0) >= 5) return generic
+
+    const code = crypto.randomInt(0, 1_000_000).toString().padStart(6, "0")
+    const tokenHash = crypto.createHmac("sha256", getJwtSecret()).update(`${usuario.id}:${code}`).digest("hex")
+    await query("UPDATE tokens_login_email SET usado_em = CURRENT_TIMESTAMP WHERE usuario_id = $1 AND usado_em IS NULL", [usuario.id])
+    await query(
+      "INSERT INTO tokens_login_email (usuario_id, token_hash, expira_em, ip_address) VALUES ($1, $2, CURRENT_TIMESTAMP + INTERVAL '10 minutes', $3)",
+      [usuario.id, tokenHash, ipAddress || "unknown"],
+    )
+
+    if (process.env.NODE_ENV !== "production") {
+      return { ...generic, debugCode: code }
+    }
+
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const senderDomain = process.env.RESEND_EMAIL_DOMAIN
+    const from = senderDomain ? `Card Brasil <no-reply@${senderDomain}>` : "Card Brasil <onboarding@resend.dev>"
+    const { error } = await resend.emails.send({
+      from,
+      to: [normalizedEmail],
+      subject: "Seu código de acesso Card Brasil",
+      html: `<div style="font-family:Arial,sans-serif;color:#102a43;max-width:560px;margin:auto;padding:32px"><h1 style="font-size:24px">Olá, ${usuario.nome_completo.replace(/[&<>\"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;" })[char] || char)}.</h1><p style="font-size:16px;line-height:1.6">Use este código para entrar na sua conta Card Brasil:</p><p style="font-size:32px;font-weight:700;letter-spacing:8px;background:#f1f5f9;padding:18px;text-align:center;border-radius:12px">${code}</p><p style="color:#52677a">O código expira em 10 minutos e pode ser usado uma única vez. Se você não solicitou este acesso, ignore este e-mail.</p></div>`,
+    }, { idempotencyKey: `login-code/${usuario.id}/${tokenHash}` })
+    if (error) {
+      await query("UPDATE tokens_login_email SET usado_em = CURRENT_TIMESTAMP WHERE usuario_id = $1 AND token_hash = $2 AND usado_em IS NULL", [usuario.id, tokenHash])
+      console.error("[v0] Falha ao enviar código de login:", error.message)
+    }
+    return generic
+  }
+
+  static async verifyLoginCode(email: string, code: string) {
+    const normalizedEmail = email.trim().toLowerCase()
+    const usuario = await queryOne<Usuario>(
+      "SELECT * FROM usuarios WHERE LOWER(email) = $1 AND status = 'ativo'",
+      [normalizedEmail],
+    )
+    if (!usuario) return { success: false, message: "Código inválido ou expirado." }
+
+    const tokenHash = crypto.createHmac("sha256", getJwtSecret()).update(`${usuario.id}:${code}`).digest("hex")
+    const verified = await queryOne<{ id: number }>(
+      "UPDATE tokens_login_email SET usado_em = CURRENT_TIMESTAMP WHERE usuario_id = $1 AND token_hash = $2 AND usado_em IS NULL AND expira_em > CURRENT_TIMESTAMP AND tentativas < 5 RETURNING id",
+      [usuario.id, tokenHash],
+    )
+    if (!verified) {
+      await query(
+        "UPDATE tokens_login_email SET tentativas = tentativas + 1 WHERE usuario_id = $1 AND usado_em IS NULL AND expira_em > CURRENT_TIMESTAMP AND tentativas < 5",
+        [usuario.id],
+      )
+      return { success: false, message: "Código inválido ou expirado." }
+    }
+
+    await query("UPDATE usuarios SET ultimo_acesso = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1", [usuario.id])
+    const token = jwt.sign({
+      userId: usuario.id,
+      email: usuario.email,
+      administradoraId: usuario.administradora_id,
+      tipoUsuario: usuario.tipo_usuario,
+    }, getJwtSecret(), { expiresIn: JWT_EXPIRES_IN })
+    const { senha_hash, ...usuarioSemSenha } = usuario
+    return { success: true, message: "Login realizado com sucesso", data: { usuario: usuarioSemSenha, token } }
+  }
+
   static async requestPasswordReset(email: string, ipAddress?: string) {
     const generic = { success: true, message: "Se o e-mail estiver cadastrado, um link de recuperação foi gerado." }
     const normalizedEmail = email.trim().toLowerCase()
